@@ -1,0 +1,38 @@
+<app-page-header [pageName]="'Customers'"></app-page-header>
+
+
+<ng-template #content let-modal>
+	<div class="modal-header">
+		<h4 class="modal-title" id="modal-basic-title">Add Customer Details</h4>
+		<button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+	</div>
+		<app-add-customer-form (refreshDataSource)="getAllCustomersData()" ></app-add-customer-form>
+</ng-template>
+
+
+
+
+<div class="row mb-2 mx-1">
+    <div class="col">
+        <button class="btn btn-success float-end" (click)="open(content)">
+            <i class="fa-solid fa-plus"></i>
+            <span>Add Customer</span>
+        </button>
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col">
+        <app-data-table [COLUMNS_SCHEMA]="displayNameForColumns" [tableColumns]="tableColumns" 
+            [tableData]="customerData"
+            [totalRecords]="totalRecords"
+            (viewDetails)="goToViewDetails($event)" (deleteItem)="openDeletePopUpForItem($event)"
+            (refreshDataSource)="getAllCustomersData()" [entityText]="'Customers'"
+            [sortByColumn]="'customerName'"
+            (searchQuery)="handleSearchQuery($event)"
+            (pageChangeEvent)="handlePageChange($event)"
+            >
+        </app-data-table>
+    </div>
+</div>

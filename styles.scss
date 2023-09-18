@@ -1,0 +1,73 @@
+
+// Custom Theming for Angular Material
+// For more information: https://material.angular.io/guide/theming
+@use '@angular/material' as mat;
+// Plus imports for other components in your app.
+
+// Include the common styles for Angular Material. We include this here so that you only
+// have to load a single css file for Angular Material in your app.
+// Be sure that you only ever include this mixin once!
+@include mat.core();
+
+// Define the palettes for your theme using the Material Design palettes available in palette.scss
+// (imported above). For each palette, you can optionally specify a default, lighter, and darker
+// hue. Available color palettes: https://material.io/design/color/
+$Frontend-primary: mat.define-palette(mat.$indigo-palette);
+$Frontend-accent: mat.define-palette(mat.$pink-palette, A200, A100, A400);
+
+// The warn palette is optional (defaults to red).
+$Frontend-warn: mat.define-palette(mat.$red-palette);
+
+// Create the theme object. A theme consists of configurations for individual
+// theming systems such as "color" or "typography".
+$Frontend-theme: mat.define-light-theme((
+  color: (
+    primary: $Frontend-primary,
+    accent: $Frontend-accent,
+    warn: $Frontend-warn,
+  )
+));
+
+// Include theme styles for core and each component used in your app.
+// Alternatively, you can import and @include the theme mixins for each component
+// that you are using.
+@include mat.all-component-themes($Frontend-theme);
+
+/* You can add global styles to this file, and also import other style files */
+
+// $fa-font-path:"~font-awesome/fonts";
+$fa-font-path: "~@fortawesome/fontawesome-free/webfonts";
+
+$hamburger-padding-x           : 0px !default;
+$hamburger-padding-y           : 0px !default;
+$hamburger-layer-width         : 25px !default;
+$hamburger-layer-height        : 2px !default;
+$hamburger-layer-spacing       : 5px !default;
+$hamburger-layer-color         : #9b9ea2 !default;
+$hamburger-layer-border-radius : 4px !default;
+$hamburger-hover-opacity       : 0.7 !default;
+
+@import 'bootstrap/scss/bootstrap';
+// @import '~font-awesome/scss/font-awesome';
+// @import '~hamburgers/_sass/hamburgers/hamburgers';
+// @import '~ngx-toastr/toastr-bs4-alert';
+
+@import '@fortawesome/fontawesome-free/scss/fontawesome';
+@import '@fortawesome/fontawesome-free/scss/solid';
+@import '@fortawesome/fontawesome-free/scss/regular';
+@import '@fortawesome/fontawesome-free/scss/brands';
+
+
+@import './assets/lightning-admin';
+
+@import 'animate.css/animate.min';
+
+
+// *{
+//     -ms-overflow-style: none;  /* Internet Explorer 10+ */
+//     scrollbar-width: none;  /* Firefox */
+// }
+// *::-webkit-scrollbar { 
+//     display: none;  /* Safari and Chrome */
+// }
+html, body { height: 100%; }

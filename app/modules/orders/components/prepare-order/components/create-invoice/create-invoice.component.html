@@ -1,0 +1,157 @@
+<div class="container-fluid">
+    <div class="row mt-3 align-items-center">
+        <div class="col">
+            <p>Selected Customer: <b>{{_selectedCustomersInfo.firstName+' '+ _selectedCustomersInfo.lastName}}</b></p>
+        </div>
+
+        <div class="col">
+            <div class="row align-items-center">
+                <label class="col col-sm-5 col-form-label">Select Payment Method:</label>
+                <div class="col">
+                    <select class="form-select" [(ngModel)]="paymentMethod">
+                        <option value="cash" selected>Cash</option>
+                        <option value="cheque">Cheque</option>
+                        <option value="online">Online</option>
+                    </select>   
+                </div>
+                   
+            </div>
+
+        </div>
+
+        <div class="col text-end">
+            <p>Invoice Date: <b>{{currentDate | date}}</b></p>
+        </div>
+    </div>
+    <hr>
+
+    <div class="row">
+        <div class="col">
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Product Category</th>
+                            <th scope="col">Sub Category</th>
+                            <th scope="col">Master Category</th>
+                            <th scope="col">Product Weight</th>
+                            <th scope="col">Price</th>
+                            <th scope="col">Labour</th>
+                            <th scope="col">SGST (In %)</th>
+                            <th scope="col">CGST (In %)</th>
+                            <th scope="col">Discount</th>
+                            <th scope="col">Final Amount</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr *ngFor="let item of _selectedProductsData;index as i">
+                            <th scope="row">{{i+1}}</th>
+                            <td>{{item.productCategory}}</td>
+                            <td>{{item.subCategory}}</td>
+                            <td>{{item.masterCategory}}</td>
+                            <td>{{item.productWeight}} gms</td>
+                            <td>
+                                <input class="form-control priceInput" type="number" id="{{item.productGuid}}-price"
+                                    min="0" (input)="item.price = getValue($event,item.id,'price')" #price
+                                    placeholder="Enter Price">
+                            </td>
+
+                            <td>
+                                <input class="form-control labourInput" type="number" id="{{item.productGuid}}-labour"
+                                    min="0" (input)="item.labour = getValue($event,item.id,'labour')" #labor
+                                    placeholder="Enter Labour">
+                            </td>
+
+                            <td>
+                                <input class="form-control sgstInput" type="number" id="{{item.productGuid}}-SGST"
+                                    min="0" maxlength="3" (input)="item.SGST = getValue($event,item.id,'sgst')" #sgst
+                                    placeholder="Enter SGST">
+                            </td>
+                            <td>
+                                <input class="form-control cgstInput" type="number" id="{{item.productGuid}}-CGST"
+                                    min="0" maxlength="3" (input)="item.CGST = getValue($event,item.id,'cgst')" #cgst
+                                    placeholder="Enter CGST">
+                            </td>
+                            <td>
+                                <input class="form-control discountInput" type="number" min="0"
+                                    (input)="item.discount = getValue($event,item.id,'discount')" #discount
+                                    id="{{item.productGuid}}-discount" placeholder="Enter Discount">
+                            </td>
+                            <td>
+                                {{ item.finalAmount ?? 0 }}
+                                <input class="form-control" type="hidden" [value]="item.finalAmount ?? 0">
+                            </td>
+                        </tr>
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+
+    <div class="info-div">
+    
+        <div class="row">
+            <div class="col">
+                Total Weight: <b> {{totalWeight}} gms </b>
+            </div>
+    
+            <div class="col">
+                Total Labour: <b> &#8377; {{totalLabour}}  </b>
+            </div>
+    
+            <div class="col">
+                Total GST: <b> &#8377; {{totalGST}}</b>
+            </div>
+    
+            <div class="col">
+                Total Amount With GST: <b> &#8377; {{totalAmountWithGST}} </b>
+            </div>
+    
+        </div>
+    
+        <div class="row my-3 align-items-center">
+            <div class="col">
+                Total Amount Without GST And Discount: <b>&#8377; {{totalAmountWithoutGSTAndDiscount}}</b>
+            </div>
+    
+            <div class="col">
+                Number Of Items: <b>{{_selectedProductsData.length}}</b>
+            </div>
+    
+            <div class="col">
+                Total Discount: <b> &#8377; {{totalDiscount}} </b>
+            </div>
+    
+            <div class="col-3">
+                <div class="row align-items-center">
+                    <div class="col">
+                        Total Amount Paid: 
+                    </div>
+
+                    <div class="col">
+                        <input class="form-control" id="amountPaidInput" min="0" [max]="totalAmountWithGST || 99999999999999" type="number"
+                            placeholder="Enter Amount Paid" [(ngModel)]="amountPaid" name="amountPaid">
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row mt-2 text-center">
+        <div class="col">
+            <button class="btn btn-success" (click)="saveOrder()">
+                <i class="fa-solid fa-floppy-disk"></i>
+                Save Order
+            </button>
+        </div>
+    </div>
+
+</div>

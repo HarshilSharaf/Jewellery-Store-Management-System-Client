@@ -1,0 +1,45 @@
+<nav class="navbar navbar-expand-md fixed-top navbar-dark flex-fill">
+
+  <!-- header -->
+  <div class="navbar-header pl-2 pr-2 ml-3 text-center">
+    <a class="navbar-brand m-0 w-100" href="#">
+      <img src="./assets/img/logo.png" alt="lightning logo" width="35px">
+      <span class="ml-1" style="margin-left: 5px !important;">Jewellery Store </span>
+    </a>
+  </div>
+
+  <!-- sidebar toggler -->
+  <div class="sidebar-toggler ml-auto mr-3">
+    <a class="btn nav-link" (click)="toggleSidebar()"><i class="fa fa-bars fa-lg"></i></a>
+  </div>
+
+
+  
+  <!-- left box -->
+  <ul class="navbar-nav flex-fill mt-1 align-items-center left-nav">
+    <li class="nav-item navicon">
+      <a class="btn nav-link" (click)="toggleSidebarPin()"><i class="fa fa-bars fa-xl"></i></a>
+    </li>
+    <li class="nav-item flex-fill">
+      <input class="form-control navbar-search" type="text" placeholder="Search . . .">
+    </li>
+    <li class="nav-item justify-content-end mx-4">
+      <app-add-to-cart></app-add-to-cart>
+    </li>
+
+  </ul>
+
+
+
+
+  <!-- profile icon dropdown -->
+  <app-profile-dropdown *ngIf="userID > 0" [userID]="userID"></app-profile-dropdown>
+
+  <!-- userDisplayName section -->
+  <div class="user-display-name d-md-flex d-none">
+    <span class="text-white">
+      {{userDisplayName}}
+    </span>
+  </div>
+
+</nav>

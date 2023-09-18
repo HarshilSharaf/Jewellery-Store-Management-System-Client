@@ -1,0 +1,198 @@
+<div class="modal-body">
+    <form [formGroup]="customerDetailsForm" class="customerDetailsForms" (ngSubmit)="submitForm()" novalidate>
+        <div class="mb-3">
+            <div class="row align-items-center">
+
+                <div class="col-4 col-sm-4">
+                    <label for="photo">Customer Photo:</label>
+
+                </div>
+
+                <div class="col">
+                    <div class="input-group justify-content-center">
+                        <app-image-upload [activeColor]="'orangered'" [baseColor]="'lightgray'"></app-image-upload>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-5 align-items-center">
+                <div class="col-5 col-sm-4">
+                    <label for="firstName">First Name<span class="mandatory">*</span>:</label>
+                </div>
+                <div class="col">
+                    <input type="text" class="form-control" name="firstName" id="firstName" formControlName="firstName"
+                        placeholder="Enter First Name">
+                </div>
+            </div>
+
+            <!-- First Name Validation Message -->
+            <div class="row">
+                <div class="col text-center">
+                    <span class="text-danger text-bold"
+                        *ngIf="(customerDetailsForm.get('firstName')?.touched || customerDetailsForm.valid) && customerDetailsForm.get('firstName')?.errors?.['required']">
+                        First Name is required
+                    </span>
+                </div>
+            </div>
+
+            <div class="row mt-2 align-items-center">
+                <div class="col-5 col-sm-4">
+                    <label for="lastName">Last Name<span class="mandatory">*</span>:</label>
+                </div>
+
+                <div class="col">
+                    <input type="text" class="form-control" name="lastName" id="lastName" formControlName="lastName"
+                        placeholder="Enter Last Name">
+                </div>
+            </div>
+
+            <!-- Last Name Validation Message -->
+            <div class="row">
+                <div class="col text-center">
+                    <span class="text-danger"
+                        *ngIf="(customerDetailsForm.get('lastName')?.touched || customerDetailsForm.valid) && customerDetailsForm.get('lastName')?.errors?.['required']">
+                        Last Name is required
+                    </span>
+                </div>
+            </div>
+
+
+            <div class="row mt-2 align-items-center">
+                <div class="col-5 col-sm-4">
+                    <label for="dob">Date Of Birth:</label>
+                </div>
+
+                <div class="col-7 col-sm-8">
+                    <input type="date" class="form-control" name="dateOfBirth" id="dob" formControlName="dateOfBirth"
+                        placeholder="Enter Date Of Birth">
+                </div>
+            </div>
+
+            <div class="row mt-2 align-items-center">
+                <div class="col-5 col-sm-4">
+                    <label>Select Gender<span class="mandatory">*</span>:</label>
+                </div>
+
+                <div class="col text-center">
+
+                    <div class="row">
+                        <div class="col-4 px-0 mx-0">
+                            <input class="form-check-input mx-1" type="radio" name="gender" formControlName="gender"
+                                value="male" id="male-radio">
+                            <label class="form-check-label" for="male-radio">
+                                Male
+                            </label>
+
+                        </div>
+
+                        <div class="col px-0 mx-0">
+                            <input class="form-check-input mx-1" type="radio" name="gender" formControlName="gender"
+                                value="female" id="gender" checked>
+                            <label class="form-check-label" for="female-radio">
+                                Female
+                            </label>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="row mt-3 align-items-center">
+                <div class="col-5 col-sm-4">
+                    <label for="address">Address:</label>
+                </div>
+
+                <div class="col">
+                    <textarea class="form-control" name="address" formControlName="address" placeholder="Enter Address"
+                        style="height: 100px"></textarea>
+                </div>
+            </div>
+
+            <div class="row mt-2 align-items-center">
+                <div class="col-5 col-sm-4">
+                    <label for="City">City<span class="mandatory">*</span>:</label>
+                </div>
+
+                <div class="col">
+                    <input type="text" name="city" class="form-control" id="city" formControlName="city"
+                        placeholder="Enter City">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col text-center">
+                    <span class="text-danger text-bold"
+                        *ngIf="(customerDetailsForm.get('city')?.touched || customerDetailsForm.valid) && customerDetailsForm.get('city')?.errors?.['required']">
+                        City Cannot be empty
+                    </span>
+                </div>
+            </div>
+
+            <div class="row mt-2 align-items-center">
+                <div class="col-5 col-sm-4">
+                    <label for="email">Email:</label>
+                </div>
+
+                <div class="col">
+                    <input type="email" name="email" class="form-control" id="email" formControlName="email"
+                        placeholder="Enter Email">
+                </div>
+            </div>
+
+            <div class="row mt-2 align-items-center">
+                <div class="col-5 col-sm-4">
+                    <label for="lastName">Phone<span class="mandatory">*</span>:</label>
+                </div>
+
+                <div class="col">
+                    <input type="tel" name="phoneNumber" class="form-control" id="number" formControlName="phoneNumber"
+                        placeholder="Enter Phone Number">
+                </div>
+            </div>
+
+            <!-- Phone Number Validation Message -->
+            <div class="row">
+                <div class="col text-center">
+                    <span class="text-danger text-bold"
+                        *ngIf="(customerDetailsForm.get('phone')?.touched || customerDetailsForm.valid) && customerDetailsForm.get('phone')?.errors?.['required']">
+                        Phone Number is required
+                    </span>
+                </div>
+            </div>
+        </div>
+<ng-container *ngIf ="addCustomerResponse.status!=0 || addCustomerResponse.message!=''">
+
+    <hr>
+    <div class="row">
+        <div class="col text-center">
+            <span [ngClass]="{'text-danger': addCustomerResponse.status !=200, 'text-success': addCustomerResponse.status==200 }"
+                style="font-weight: bold;">{{addCustomerResponse.message}}</span>
+        </div>
+    </div>
+</ng-container>
+        <!-- Trick to use submit buttons outside the form -->
+        <input type="submit" id="submit-form" class="d-none" />
+        <input type="reset" id="reset-form" class="d-none" />
+    </form>
+</div>
+<div class="modal-footer">
+    <!-- Following labels actually points to the buttons in the form so when we click
+         any of these it is actually clicking the buttons inside the form -->
+
+
+    <label for="submit-form" class="btn btn-primary btn-success"
+        [ngClass]="{'disabled': !customerDetailsForm.valid || isLoading}" tabindex="0">
+
+        <!-- Need to put this in div as fontAwesome generates <svg> to show icon 
+            hence if we put *ngIf in <i> it will still show the spinner -->
+        <div *ngIf="isLoading">
+            <i class="fa fa-spinner fa-spin"></i>
+        </div>
+
+        <div *ngIf="!isLoading">
+            Submit
+        </div>
+
+    </label>
+    <label for="reset-form" (click)="clearForm()" [ngClass]="{'disabled': isLoading}" class="btn btn-outline-dark" tabindex="0">Clear</label>
+</div>

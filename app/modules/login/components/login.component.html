@@ -1,0 +1,65 @@
+<ng-particles
+    [id]="id"
+    [options]="particlesOptions"
+    [particlesInit]="particlesInit"
+    (particlesLoaded)="particlesLoaded($event)"
+></ng-particles>
+<div class="container py-0 main-container  my-5 animate__animated animate__zoomIn" id="login-main-container">
+    <div class="row">
+      <!-- <ngb-alert [dismissible]="false" [type]="'danger'" [ngClass] = "alertClasses">{{errorMessage}}</ngb-alert> -->
+    </div>
+    
+    <div class="row h-100">
+        <div class="col form-container d-flex align-items-center justify-content-center">
+            <div class="container inner-container">
+                <div class="row animate__animated animate__slideInLeft" id="welcome-msg">
+                    <h2 style="float: left;">Welcome Back!</h2>
+                </div>
+                <div class="row animate__animated animate__slideInRight">
+                    <p style="color: rgb(67, 67, 67);">Enter your login credentials to start using the app.</p>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <form class="form-inline">
+                            <div class="animate__animated  animate__lightSpeedInLeft">
+                                <div class="row form-group ">
+                                    <label class="col-4 align-self-center" for="Username"><b>Username</b></label>
+                                    <input type="email" class="form-control col" name="username" id="Username"
+                                        aria-describedby="usernameHelp" placeholder="Enter Username"
+                                        [(ngModel)]="credentials.username">
+                                </div>
+                                <div class="row my-3 form-group">
+                                    <label for="password" class="col-4 align-self-center"><b>Password</b></label>
+                                    <input type="password" name="password" class="form-control col" id="password"
+                                        placeholder="Enter Password" [(ngModel)]="credentials.password">
+                                </div>
+                                <div class="row">
+                                    <div class="col ">
+                                        <a href="" style="float: right;"><b>Forgot Password?</b></a>
+                                    </div>
+    
+                                </div>
+                            </div>
+
+                            <hr />
+                            <div class="row animate__animated  animate__lightSpeedInRight">
+                                <button type="submit" (click)="login($event)" class="btn btn-primary">Log in</button>
+                            </div>
+                            <!-- <div class="row">
+                                <button type="submit" (click)="checkLogin($event)" class="btn btn-primary">Check  Login</button>
+                            </div> -->
+                            
+                        </form>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <div class="col p-0 company-logo-column">
+            <app-company-logo></app-company-logo>
+        </div>
+
+    </div>
+</div>

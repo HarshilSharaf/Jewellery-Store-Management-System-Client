@@ -1,0 +1,17 @@
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title text-dark">Master Categories</h5>
+
+        <div class="row">
+            <div class="col">
+                <app-add-master-category-form (refreshDataEvent)="getMasterCategoriesData()"></app-add-master-category-form>
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col">
+                <app-available-master-categories [categoriesData]="masterCategoriesData"></app-available-master-categories>
+            </div>
+        </div>
+    </div>
+</div>

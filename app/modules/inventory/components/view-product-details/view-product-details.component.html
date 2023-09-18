@@ -1,0 +1,65 @@
+<app-page-header [pageName]="'View Product Details'"></app-page-header>
+
+<div class="container-xl  px-4 mt-4">
+
+    <div class="row">
+        <div class="col-md-4">
+            <!-- Profile picture card-->
+
+            <div class="row">
+                <div class="col">
+                    <div class="card mb-4 mb-xl-0">
+                        <div class="card-header">Product Image</div>
+                        <div class="card-body text-center">
+                            <product-image-upload></product-image-upload>
+                            <!-- Profile picture upload button-->
+                            <div class="row">
+                                <div class="col">
+                                    <button [ngClass]="{'disabled': productCurrentImage == null || productCurrentImage == undefined || 
+                                    imageUploadComponent.imageSrc == initialProductImageSrc}"
+                                        class="btn btn-success mt-3" type="button" (click)="updateProductImage()">
+                                        <i class="fa-solid fa-pen-to-square"></i> Update
+                                    </button>
+                                </div>
+                                <div class="col">
+                                    <button class="btn btn-danger mt-3" type="button" (click)="deleteProductImage()"
+                                        [ngClass]="{'disabled': initialProductImageSrc == '' || initialProductImageSrc == null}">
+                                        <i class="fa-solid fa-trash"></i> Delete
+                                    </button>
+
+                                </div>
+                                <div class="col">
+                                    <button type="button" class="btn btn-outline-dark mt-3" (click)="clearImage()">
+                                        <i class="fa-solid fa-rotate-left"></i> Reset
+                                    </button>
+
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row my-3">
+                <div class="col">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h6><b> Total Amount Of Products Purchased </b></h6>
+                            <p> 500000$</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-md-8">
+            <app-product-details-form [allCategoriesData]="allCategoriesData" [isLoading]="isLoading"
+                *ngIf="productDetails && allCategoriesData" [productData]="productDetails"
+                (refreshProductDetails)="getProductDetails()"></app-product-details-form>
+        </div>
+    </div>
+
+</div>

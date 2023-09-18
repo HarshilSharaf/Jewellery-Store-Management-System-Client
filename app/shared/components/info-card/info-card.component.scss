@@ -1,0 +1,60 @@
+.gold-bar-icon {
+    background: url('../../../../assets/img/gold-bars.png');
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500&display=swap');
+
+.item-icon {
+    /* display: inline-block;
+    border-radius: 10%;
+    box-shadow: 0 0 2px #888;
+    padding: 0.5em 0.6em;
+    height: 50px;
+     */
+    display: block;
+    float: left;
+    width: 26px;
+    height: 26px;
+    //  border: 2px solid #909090;
+    border-radius: 20px;
+    //  margin-right: 7px; /*space between*/
+}
+
+.card {
+    /* height:200px */
+    border-radius: 20px;
+    transition: transform 0.2s ease;
+}
+
+.card:hover {
+    cursor: pointer;
+    transform: scale(1.05);
+    box-shadow: 0 4px 6px 0 rgba(22, 22, 26, 0.18);
+
+}
+
+
+* {
+    font-family: 'Poppins', sans-serif;
+
+}
+
+.icon-div {
+    width: 3rem;
+    height: 3rem;
+}
+
+.icon-div i {
+    font-size: 1.25rem;
+    margin-right: 0px;
+    max-height: 20px;
+}
+
+.icon-shape {
+    display: inline-flex;
+    padding: 12px;
+    text-align: center;
+    border-radius: 50%;
+    align-items: center;
+    justify-content: center;
+}

@@ -1,0 +1,51 @@
+<ng-container *ngIf="cartItems.length > 0;else cartEmpty">
+    <div class="row mb-4 border border-3 border-info p-3 rounded" *ngFor="let item of cartItems">
+
+        <div class="col-3 align-self-center">
+            <img [src]="item.image" class="border border-2 rounded" width="50" height="50">
+        </div>
+
+        <div class="col align-self-center">
+            <div class="row">
+                <h6>
+
+                    {{item.subCategory}} {{item.masterCategory}}
+
+                </h6>
+
+            </div>
+            <div class="row">
+                <div class="col">
+                    <small class="text-muted">
+                        {{item.productCategory}}
+                    </small>
+                </div>
+
+                <div class="col">
+                    <small class="text-muted">
+                        Wt: {{item.productWeight}}
+                    </small>
+                </div>
+
+
+            </div>
+        </div>
+
+        <div class="col-2 align-self-center text-center">
+            <button class="btn btn-danger" (click)="removeItem(item)">
+                <i class="fa-solid fa-circle-minus "></i>
+            </button>
+        </div>
+
+    </div>
+</ng-container>
+
+<ng-template #cartEmpty>
+    <div class="row my-5 text-center">
+
+        <div class="maxImage">
+            <img src="../../../../assets//img/cart-empty.png" style="object-fit: contain">
+        </div>
+
+    </div>
+</ng-template>

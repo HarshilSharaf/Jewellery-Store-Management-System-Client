@@ -1,0 +1,65 @@
+<div class="card-header">
+    <h5>Product Details</h5>
+</div>
+
+
+<div class="table-responsive mt-2 rounded border border-dark">
+    <table class="table table-striped table-hover table-bordered">
+        <thead class="table-danger">
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Product Type</th>
+              <th scope="col">Weight (In gms)</th>
+              <th scope="col">Price</th>
+              <th scope="col">Labour</th>
+              <th scope="col">CGST (In %)</th>
+              <th scope="col">SGST (In %)</th>
+              <th scope="col">Discount</th>
+              <th scope="col">Final Amount</th>
+            </tr>
+          </thead>
+
+          <tbody class="table-group-divider">
+            <tr *ngFor="let product of _productDetails;index as i">
+                <th scope="row">
+                    {{i+1}}
+                </th>
+
+                <td>
+                    {{product.masterCategory
+                    +"-"+product.subCategory+
+                    "-"+product.productCategory}}
+                </td>
+
+                <td>
+                    {{product.productWeight}}
+                </td>
+
+                <td>
+                    &#8377;{{product.price}}
+                </td>
+
+                <td>
+                    &#8377;{{product.labour}}
+                </td>
+
+                <td>
+                    {{product.CGST}}
+                </td>
+
+                <td>
+                    {{product.SGST}}
+                </td>
+
+                <td>
+                    &#8377;{{product.discount}}
+                </td>
+
+                <td>
+                    &#8377;{{product.finalAmount}}
+                </td>
+
+            </tr>
+          </tbody>
+    </table>
+</div>

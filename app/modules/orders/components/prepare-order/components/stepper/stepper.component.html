@@ -1,0 +1,99 @@
+<mat-stepper [linear]="true" class="prepare-order-stepper" [orientation]="(stepperOrientation | async)!">
+    
+    <!-- Review Products Step -->
+    <mat-step [completed]="cartItems.length > 0" errorMessage="Your cart is empty." label="Review Products">
+        <div class="container-fluid my-3">
+            <div class="row mb-3">
+                <div class="col text-center" *ngIf="cartItems.length < 1">
+                    <span class="text-danger fs-6 fw-bold">Please add some items to move to next step.</span>
+                </div>
+
+                <div class="text-end"
+                    [ngClass]="{'col-12':cartItems.length > 0, 'col-4 col-sm-2': cartItems.length < 1}">
+                    <ng-container *ngIf="cartItems.length < 1; then disabledNextBtn else NextBtn"></ng-container>
+                    <ng-template #disabledNextBtn>
+                        <button class="btn btn-primary" disabled matStepperNext>Next
+                            <i class="fa-solid fa-circle-chevron-right"></i></button>
+                    </ng-template>
+                    <ng-template #NextBtn>
+                        <button class="btn btn-primary" matStepperNext>Next
+                            <i class="fa-solid fa-circle-chevron-right fa-beat"></i></button>
+                    </ng-template>
+
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <app-cart-items></app-cart-items>
+                </div>
+            </div>
+        </div>
+    </mat-step>
+
+
+    <!-- Select Customer Step -->
+    <mat-step  [completed]="selectedCustomerData && selectedCustomerData.id !== null " errorMessage="Please Select Customer!">
+
+        <!-- Lazy load select customer component to avoid redundant api calls -->
+        <!------------ Note: Lazy Loading in mat-step can be achieved ---------->
+        <!--------------by wraping components inside ng-template tag  ---------->
+
+        <ng-template matStepLabel>Select Customer</ng-template>
+        <ng-template matStepContent>
+            <div class="container-fluid">
+
+                <div class="row mb-3">
+                    <div class="col text-center" *ngIf="!selectedCustomerData">
+                        <span class="text-danger fs-6 fw-bold">Please select a customer to move to next step.</span>
+                    </div>
+                
+                    <div class="text-end"
+                        [ngClass]="{'col-12':selectedCustomerData && selectedCustomerData.id !== null, 'col-4 col-sm-2':selectedCustomerData && selectedCustomerData.id == null}">
+                        <ng-container
+                            *ngIf="!selectedCustomerData; then disabledNextBtn else NextBtn"></ng-container>
+                        <ng-template #disabledNextBtn>
+                            <button class="btn btn-primary" disabled matStepperNext>Next
+                                <i class="fa-solid fa-circle-chevron-right"></i></button>
+                        </ng-template>
+                        <ng-template #NextBtn>
+                            <button class="btn btn-primary" matStepperNext>Next
+                                <i class="fa-solid fa-circle-chevron-right fa-beat"></i></button>
+                        </ng-template>
+                
+                    </div>
+                </div>
+
+            
+                <app-select-customer (emitSelectedCustomerData)="setCustomerData($event)"></app-select-customer>
+            </div>
+        </ng-template>
+      
+    </mat-step>
+
+
+    <mat-step [stepControl]="thirdFormGroup" >
+        <ng-template matStepLabel>Prepare Invoice</ng-template>
+        <ng-template matStepContent>
+            <div class="container-fluid">
+                <!-- Note: Here cartItems is an array so any change in it won't be detected by changeDetector
+                                            So if we pass it as an object the changes will be detected -->
+                <!-- The issued mentioned in following link -->
+                <!-- https://stackoverflow.com/a/43223700/18480147 -->
+            
+                <app-create-invoice [selectedCustomersInfo]="selectedCustomerData"
+                    [selectedProductsData]="{lengthOfData:cartItems.length , selectedProducts:cartItems}"></app-create-invoice>
+            
+                <!-- The solution to this issue is mentioned in following link. -->
+                <!-- https://stackoverflow.com/a/44294538/18480147 -->
+            
+            </div>
+        </ng-template>
+    </mat-step>
+    <mat-step>
+        <ng-template matStepLabel>Done</ng-template>
+        <p>You are now done.</p>
+        <div>
+            <button mat-button matStepperPrevious>Back</button>
+        </div>
+    </mat-step>
+</mat-stepper>

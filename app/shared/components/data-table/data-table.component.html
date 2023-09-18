@@ -1,0 +1,118 @@
+<!-- Create Paginator and Filter Input For Data Table -->
+
+<div class="row mx-1">
+    <div class="card col">
+
+        <div class="card-body row align-items-center">
+            <div class=" col-sm-3 col-md-3 col-lg-2">
+                <div class="form-group has-feedback has-search">
+                    <span class="fa fa-search form-control-feedback my-2"></span>
+                    <input type="text" class="form-control" (keyup)="filterChanged($event)" id="filter"
+                        aria-describedby="filter" placeholder="Filter">
+                </div>
+
+            </div>
+
+            <div class="col-sm-3 col-md-4 col-lg-2 mt-3 mt-sm-0 text-center">
+                <small> Showing Page <b style="color: red;">{{currentPage}} </b> of {{totalNumberOfPages}}</small>
+            </div>
+
+            <div class="col-sm-6 col-md-5 col-lg-8">
+                <mat-paginator #paginator [pageSizeOptions]="[5, 10, 20]"
+                [length]="_totalRecords"
+                (page)="onPageChange($event)" showFirstLastButtons>
+                </mat-paginator>
+
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- Populate Data Table -->
+
+<div class="row my-3 dataTableContainer">
+    <div class="col">
+        <mat-table matSort [matSortActive]="sortByColumn"  matSortDirection="asc" [dataSource]="_tableData" [ngClass]="{'mat-table-header-row-if-loader' : showLoader}">
+
+            <ng-container *ngFor="let column of COLUMNS_SCHEMA;" matColumnDef="{{column.key}}">
+
+                <ng-container *ngIf="column.key=='image'">
+                    <!-- Dont add the sort feature for the Image column -->
+                    <mat-header-cell *matHeaderCellDef> {{column.label}}</mat-header-cell>
+
+                    <mat-cell *matCellDef="let element">
+                        <img class="img-fluid img-thumbnail" [src]="element.image" height="80" width="80">
+                    </mat-cell>
+                </ng-container>
+
+                <!-- Add Action Buttons if the column is for action -->
+                <ng-container *ngIf="column.key=='actions'">
+                    <!-- Dont add the sort feature for the Actions column -->
+                    <mat-header-cell *matHeaderCellDef> {{column.label}}</mat-header-cell>
+
+                    <mat-cell *matCellDef="let element">
+
+                        <ng-container *ngIf="showAddToCartButton">
+                            <button class="btn btn-success" [ngClass]="{disabled: disableButtonForProducts.includes(element.productGuid)}" (click)="addToCart(element)">
+                                <i class="fa-solid fa-cart-plus fa-lg"></i>
+                            </button>
+                        </ng-container>
+
+                        <button type="button" class="btn btn-primary" (click)="goToViewDetails(element)"
+                            [ngClass]="{disabled: element.cancelledAt!=null}">
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                        </button>
+
+                        <span class="mx-1"></span>
+
+                        <button type="button" class="btn btn-danger" [ngClass]="{disabled: element.cancelledAt!=null}"
+                            (click)="openDeletePopUpForItem(element)">
+                            <i class="fa-solid fa-ban"></i>
+                        </button>
+
+                    </mat-cell>
+                </ng-container>
+
+                <ng-container *ngIf="column.key =='paymentStatus'">
+                    <mat-header-cell mat-sort-header *matHeaderCellDef> {{column.label}}</mat-header-cell>
+                    <mat-cell *matCellDef="let element" >
+                        <span class="badge rounded-pill bg-success" *ngIf="element[column.key]=='done'">{{element[column.key] | titlecase
+                            }}</span>
+                    
+                        <span class="badge rounded-pill bg-warning" *ngIf="element[column.key]=='pending'">{{element[column.key] | titlecase
+                            }}</span>
+                    </mat-cell>
+                </ng-container>
+
+                <ng-container  *ngIf="column.key!='actions' && column.key!='paymentStatus'">
+                    <mat-header-cell mat-sort-header *matHeaderCellDef> {{column.label}}</mat-header-cell>
+                    <mat-cell *matCellDef="let element" class="text-break" [ngClass]="column.key"> 
+                        <div *ngIf="column.type == 'date'; else elseBlock"> {{element[column.key] | date }} </div>
+                        <ng-template #elseBlock>{{element[column.key]}}</ng-template>
+                    </mat-cell>
+                </ng-container>
+
+            </ng-container>
+            <ng-container matColumnDef="noData">
+                <mat-footer-cell *matFooterCellDef colspan="6">
+                    No data Found.
+                    <img src="../../../../assets/img/No-Data-Found.jpg" width="200" height="200">
+                </mat-footer-cell>
+            </ng-container>
+            <mat-header-row *matHeaderRowDef="tableColumns"></mat-header-row>
+            <mat-row *matRowDef="let row; columns: tableColumns;"></mat-row>
+            <mat-footer-row *matFooterRowDef="['noData']"
+                [ngClass]="{'hideMatTable':!((_tableData!=null && _tableData.data.length==0) || _tableData.filteredData.length < 1)}"></mat-footer-row>
+        </mat-table>
+
+        <!-- Show Loader While Data Is being fetched from Server -->
+        <div *ngIf="showLoader" class="loader-container">
+            <mat-progress-spinner color="primary" mode="indeterminate">
+            </mat-progress-spinner>
+        </div>
+
+    </div>
+</div>

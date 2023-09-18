@@ -1,0 +1,67 @@
+<div class="row text-end ">
+
+    <div class="col">
+        <p class="text-info" style="font-size: medium;"><b><span class="text-warning" >Note:</span></b> Please Add relevant sub categories.</p>
+    </div>
+
+    <div class="col">
+
+        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addSubCategoryModal">
+            <i class="fa-solid fa-plus"></i> Add Sub Category </button>
+    </div>
+</div>
+
+
+
+<div class="modal fade" id="addSubCategoryModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Sub Category</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form [formGroup]="subCategoryForm" (ngSubmit)="submitForm()" novalidate>
+                    <div class="mb-3">
+                        <label for="subCategoryName" class="form-label">Sub
+                            Category Name <span class="text-danger"><b>*</b></span></label>
+                        <input type="text" class="form-control" id="subCategoryName" name="subCategoryName"
+                            formControlName="subCategoryName" aria-describedby="subCategoryName">
+                        <div id="subCategoryName" class="form-text">Add
+                            Sub category like 18 carat,22 carat,hallmark....</div>
+
+                        <div class="row">
+                            <div class="col text-center">
+                                <span class="text-danger text-bold"
+                                    *ngIf="(subCategoryForm.get('subCategoryName')?.touched || subCategoryForm.valid) && subCategoryForm.get('subCategoryName')?.errors?.['required']">
+                                    Category Name is required
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" name="subCategoryDescription"
+                            formControlName="subCategoryDescription" id="description"></textarea>
+                    </div>
+
+
+                    <div class="row">
+                        <div class="col text-center">
+                            <span
+                                [ngClass]="{'text-danger': addSubCategoryResponse.status !=200, 'text-success': addSubCategoryResponse.status==200 }"
+                                style="font-weight: bold;">{{addSubCategoryResponse.message}}</span>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" (click)="clearForm()" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" [disabled]="!subCategoryForm.valid" class="btn btn-success">Submit</button>
+                    </div>
+                </form>
+            </div>
+
+
+        </div>
+    </div>
+</div>

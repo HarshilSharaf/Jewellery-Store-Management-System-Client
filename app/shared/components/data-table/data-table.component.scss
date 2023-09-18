@@ -1,0 +1,158 @@
+table {
+    width: 100%;
+  }
+  
+  .has-search .form-control {
+    padding-left: 2.375rem;
+  }
+  
+  .has-search .form-control-feedback {
+    position: absolute;
+    z-index: 2;
+    display: block;
+    width: 1.1rem;
+    height: 1.1rem;
+    line-height: 1.1rem;
+    text-align: center;
+    pointer-events: none;
+    color: #aaa;
+    margin-left: 10px;
+    margin-right: 0px;
+  }
+  
+  .has-search {
+    input {
+      border-color: #56ab24;
+      border-radius: 10px;
+      border-width: 2.2px;
+    }
+  }
+  
+  mat-table {
+    border-radius: 10px;
+    overflow-x: auto;
+  }
+  
+  
+  mat-header-cell {
+    color: #000000;
+    font-weight: bold;
+    font-size: 0.9rem;
+    flex-direction: column;
+    justify-content: center;
+  }
+  
+  ::ng-deep .mat-sort-header-arrow {
+    color: #56ab24;
+  }
+  
+  ::ng-deep .mat-paginator-range-label,
+  .mat-paginator-page-size-label,
+  .mat-select-value-text {
+    font-family: "Poppins", "Roboto", sans-serif !important;
+  }
+  
+  // Make Striped rows on odd place
+  mat-row:nth-child(odd) {
+    background: rgba(0, 0, 0, 0.025);
+  }
+  
+  mat-row {
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
+  mat-row:hover {
+    cursor: pointer;
+  }
+  
+  mat-row,
+  mat-header-row {
+    min-width: 800px;
+  }
+  
+  mat-cell {
+    text-align: center;
+    justify-content: center;
+    text-overflow: ellipsis;
+    // overflow-x: wrap;
+  }
+  
+  .hideMatTable { display: none; }
+  
+  .dataTableContainer {
+    padding-left: 0.2rem !important;
+    padding-right: 0.2rem !important;
+  }
+  
+  .loader-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: white;
+    border-radius: 0px 0px 10px 10px;
+  }
+  
+  .mat-table-header-row-if-loader {
+    border-radius: 10px 10px 0px 0px;
+  }
+  
+  @media only screen and (max-width: 321px) {
+    .mat-paginator-range-label {
+      font-size: 1px !important;
+    }
+  
+    ::ng-deep .mat-paginator {
+      .mat-paginator-container {
+        justify-content: center;
+        margin-top: 5px;
+      }
+  //  change order of items in container having buttons
+      // override material paginator page switch
+      // .mat-paginator-range-label {
+      //     order: 2;
+      // }
+  
+      // .mat-paginator-navigation-previous {
+      //     order: 1;
+      // }
+      // .mat-paginator-navigation-next {
+      //     order: 3;
+      // }
+      .mat-paginator-page-size {
+        order: 1;
+      }
+    }
+  }
+  
+
+  .cancelledAt{
+    color: red;
+    font-weight: bold;
+  }
+
+  .totalAmountWithGst::before {
+    content: '₹\00a0';
+  }
+
+  @media only screen and (min-width: 321px) and (max-width:768px) {
+    .mat-paginator-range-label {
+      font-size: 1px !important;
+    }
+  
+    ::ng-deep .mat-paginator {
+      .mat-paginator-container {
+        justify-content: center;
+        margin-top: 5px;
+      }
+  
+      .mat-paginator-range-label {
+  
+        font-size: 0.7rem;
+      }
+  
+      .mat-paginator-page-size {
+        order: 1;
+      }
+    }
+  }

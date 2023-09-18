@@ -1,0 +1,67 @@
+<div class="row text-end ">
+
+    <div class="col">
+        <p class="text-info" style="font-size: medium;"><b><span class="text-warning" >Note:</span></b> Please add few master categories as possible.</p>
+    </div>
+
+    <div class="col">
+
+        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+            <i class="fa-solid fa-plus"></i> Add Master Category </button>
+    </div>
+</div>
+
+
+
+<div class="modal fade" id="addCategoryModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Master Category</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form [formGroup]="masterCategoryForm" (ngSubmit)="submitForm()" novalidate>
+                    <div class="mb-3">
+                        <label for="masterCategoryName" class="form-label">Master
+                            Category Name <span class="text-danger"><b>*</b></span></label>
+                        <input type="text" class="form-control" id="masterCategoryName" name="masterCategoryName"
+                            formControlName="masterCategoryName" aria-describedby="masterCategoryName">
+                        <div id="masterCategoryName" class="form-text">Add
+                            master category like gold,silver,platinum etc....</div>
+
+                        <div class="row">
+                            <div class="col text-center">
+                                <span class="text-danger text-bold"
+                                    *ngIf="(masterCategoryForm.get('masterCategoryName')?.touched || masterCategoryForm.valid) && masterCategoryForm.get('masterCategoryName')?.errors?.['required']">
+                                    Category Name is required
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" name="masterCategoryDescription"
+                            formControlName="masterCategoryDescription" id="description"></textarea>
+                    </div>
+
+
+                    <div class="row">
+                        <div class="col text-center">
+                            <span
+                                [ngClass]="{'text-danger': addMasterCategoryResponse.status !=200, 'text-success': addMasterCategoryResponse.status==200 }"
+                                style="font-weight: bold;">{{addMasterCategoryResponse.message}}</span>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" (click)="clearForm()" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" [disabled]="!masterCategoryForm.valid" class="btn btn-success">Submit</button>
+                    </div>
+                </form>
+            </div>
+
+
+        </div>
+    </div>
+</div>

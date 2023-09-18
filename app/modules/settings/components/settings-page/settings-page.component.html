@@ -1,0 +1,116 @@
+<div class="container-fluid settings-container d-flex justify-content-center align-items-center" style="height: 100vh">
+  <div class="card p-3">
+    <div class="alert alert-danger" *ngIf="errorMessageAfterReLaunch" role="alert">
+      {{errorMessageAfterReLaunch | titlecase}}
+    </div>
+    <div class="card-header align-items-center">
+      <span class="container">
+        <h1>
+          <a class="goBack" *ngIf="!errorMessageAfterReLaunch" (click)="goBack()">
+            <i class="fa-solid fa-arrow-left text-success"></i>
+          </a>
+          Settings
+        </h1>
+      </span>
+ 
+    </div>
+    <div class="card-body">
+
+      <h3 class="text-warning text-center mb-3" *ngIf="isDefaultSettings"> Default Settings Are Set! </h3>
+
+      <form [formGroup]="settingsForm" *ngIf="settingsForm" (ngSubmit)="saveSettings()"  novalidate>
+        <!-- Database name input -->
+        <div class="row my-2 align-items-center">
+
+          <div class="col-4">
+            <label for="dbname" class="h5">Database:</label>
+          </div>
+          <div class="col">
+            <input type="text" class="form-control" id="dbname" formControlName="dbname">
+          </div>
+
+        </div>
+
+        <div class="row text-center">
+          <span class="text-danger text-bold"
+            *ngIf="settingsForm.get('dbname')?.invalid && settingsForm.get('dbname')?.touched">
+            {{ getErrorMessage('dbname') }}
+          </span>
+        </div>
+
+
+        <!-- Port input -->
+
+        <div class="row my-2 align-items-center">
+          <div class="col-4">
+            <label for="port" class="h5">Port:</label>
+          </div>
+          <div class="col">
+            <input type="number" class="form-control" id="port" formControlName="port">
+          </div>
+        </div>
+
+        <div class="row text-center">
+          <span class="text-danger text-bold"
+            *ngIf="settingsForm.get('port')?.invalid && settingsForm.get('port')?.touched">
+            {{ getErrorMessage('port') }}
+          </span>
+        </div>
+
+        <!-- Username input -->
+        <div class="row my-2 align-items-center">
+          <div class="col-4">
+            <label for="username" class="h5">Username:</label>
+          </div>
+          <div class="col">
+            <input type="text" class="form-control" id="username" formControlName="username">
+
+          </div>
+        </div>
+
+        <div class="row text-center">
+          <span class="text-danger text-bold"
+            *ngIf="settingsForm.get('username')?.invalid && settingsForm.get('username')?.touched">
+            {{ getErrorMessage('username') }}
+          </span>
+        </div>
+
+        <!-- Password input -->
+        <div class="row my-2 align-items-center">
+          <div class="col-4">
+            <label for="password" class="h5">Password:</label>
+          </div>
+          <div class="col">
+            <input type="password" class="form-control" id="password" formControlName="password">
+          </div>
+
+        </div>
+
+        <div class="row mb-2 text-center">
+          <span class="text-danger text-bold"
+            *ngIf="settingsForm.get('password')?.invalid && settingsForm.get('password')?.touched">
+            {{ getErrorMessage('password') }}
+          </span>
+        </div>
+
+
+        <div class="text-center">
+          <button type="submit mx-4" [ngClass]="{'disabled': !settingsForm.dirty || !settingsForm.valid}"
+            class="btn btn-primary">
+            <i class="fa-solid fa-floppy-disk"></i>
+            Save</button>
+        
+          <button class="btn btn-danger mx-4 mt-xs-2 mt-md-0" [ngClass]="{'disabled': !settingsForm.dirty}" type="button"
+            (click)="resetForm()">
+            <i class="fa-solid fa-rotate-left"></i> Reset
+          </button>
+
+          <button class="btn btn-warning mx-1" type="button" (click)="resetToDefault()" [ngClass]="{'disabled': isDefaultSettings }">
+            <img class="icon" src="../../../../assets/img/reset.png">
+            Reset To Default</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>

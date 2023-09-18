@@ -1,0 +1,27 @@
+<div class="main-container">
+  <app-page-header [pageName]="'Dashboard'"></app-page-header>
+
+  <div class="row">
+    <ng-container *ngFor="let cardData of cards">
+      <div class="col">
+      <app-info-card [cardData]="cardData" ></app-info-card>
+    </div>
+    </ng-container>
+  </div>
+
+  <div class="row">
+    <div class="col-12 col-xl-6 mb-4">
+      <app-bar-chart *ngIf="monthlySalesAndLabour.length != 0" [monthlySalesAndLabour]="monthlySalesAndLabour"></app-bar-chart>
+    </div>
+    <div class="col-12 col-xl-6 mb-4 align-items-stretch">
+      <app-pie-chart *ngIf="topSellingProducts.length!=0" [topSellingProducts]="topSellingProducts"></app-pie-chart>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col">
+      <app-recent-orders [recentOrders]="recentOrders"></app-recent-orders>
+    </div>
+  </div>
+
+</div>

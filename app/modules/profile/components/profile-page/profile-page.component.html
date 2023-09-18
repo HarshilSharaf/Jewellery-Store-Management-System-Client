@@ -1,0 +1,121 @@
+<app-page-header [pageName]="'Edit Profile'"></app-page-header>
+
+
+<div class="container-xl px-4 mt-4">
+
+    <div class="row">
+
+        <div class="col-md-5">
+            <!-- Profile picture card-->
+
+            <div class="row">
+                <div class="col">
+                    <div class="card mb-4 mb-xl-0">
+                        <div class="card-header">User Profile Picture</div>
+                        <div class="card-body text-center">
+                            <app-image-upload></app-image-upload>
+                            <!-- Profile picture upload button-->
+                            <div class="row">
+                                <div class="col">
+                                    <button [ngClass]="{'disabled': userCurrentImage == null || userCurrentImage == undefined || 
+                                    imageUploadComponent.imageSrc == initialUserImageSrc}" class="btn btn-success mt-3"
+                                        type="button" (click)="updateUserImage()">
+                                        <i class="fa-solid fa-pen-to-square"></i> Update
+                                    </button>
+                                </div>
+                                <div class="col">
+                                    <button class="btn btn-danger mt-3" type="button" (click)="deleteUserImage()"
+                                        [ngClass]="{'disabled': initialUserImageSrc == '' || initialUserImageSrc == null}">
+                                        <i class="fa-solid fa-trash"></i> Delete
+                                    </button>
+
+                                </div>
+                                <div class="col">
+                                    <button type="button" class="btn btn-outline-dark mt-3" (click)="clearImage()">
+                                        <i class="fa-solid fa-rotate-left"></i> Reset
+                                    </button>
+
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="col-md-7">
+            <!-- Account details card-->
+            <div class="card mb-4">
+                <div class="card-header">User Details</div>
+                <div class="card-body">
+                    <form *ngIf="userDetailsForm" [formGroup]="userDetailsForm" (ngSubmit)="updateUserDetails()">
+                        <!-- Form Row-->
+                        <div class="row gx-3 mb-3">
+                            <!-- Form Group (User name)-->
+                            <div class="col">
+                                <label class="small mb-1" for="userName">User name</label>
+                                <input class="form-control" name="userName" id="userName" formControlName="userName"
+                                    placeholder="Enter your User Name">
+
+                                <!-- First Name Validation Message -->
+                                <div class="row">
+                                    <div class="col text-center">
+                                        <span class="text-danger text-bold"
+                                            *ngIf="(userDetailsForm.get('userName')?.touched || userDetailsForm.valid) && userDetailsForm.get('userName')?.errors?.['required']">
+                                            User Name is required
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Group (email address)-->
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label class="small mb-1" for="email">Email address</label>
+                                <input type="email" name="email" class="form-control" id="email" formControlName="email"
+                                    placeholder="Enter Email">
+                            </div>
+                        </div>
+
+                        <!-- Form Group (password)-->
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label class="small mb-1" for="password">Change Password</label>
+                                <input type="password" name="password" class="form-control" id="password" formControlName="password"
+                                    placeholder="Enter password">
+                            </div>
+                        </div>                        
+
+                        <!-- Save changes button-->
+                        <div class="row text-center">
+                            <div class="col">
+
+                                <button class="btn btn-primary mx-4" [ngClass]="{'disabled': !userDetailsForm.dirty ||
+                                    !userDetailsForm.valid}" type="submit">
+
+                                    <div *ngIf="isLoading">
+                                        <i class="fa fa-spinner fa-spin"></i>
+                                    </div>
+                                    <div *ngIf="!isLoading">
+                                        <i class="fa-solid fa-floppy-disk"></i> Save changes
+
+                                    </div>
+                                </button>
+
+                                <button class="btn btn-danger mx-4 mt-xs-2 mt-md-0"
+                                    [ngClass]="{'disabled': !userDetailsForm.dirty}" type="button"
+                                    (click)="resetForm()">
+                                    <i class="fa-solid fa-rotate-left"></i> Reset
+                                </button>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

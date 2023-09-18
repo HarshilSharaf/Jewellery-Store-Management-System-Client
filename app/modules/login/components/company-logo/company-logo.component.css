@@ -1,0 +1,28 @@
+.company-logo-box {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    left:0; top:0;
+    width:100%; height:100%;
+    align-items: center;
+    /* display:inline-block; */
+    /* background: linear-gradient(to bottom, rgba(95,10,135) 0%,rgba(164,80,139) 100%); */
+    background: linear-gradient(to bottom ,#fe8c00, #f83600);
+    /* background: linear-gradient(to bottom ,#AAFFA9, #11FFBD); */
+    /* background: linear-gradient(to bottom ,#9D50BB, #6E48AA); */
+}
+
+
+  /* .company-logo-box img{
+    display:block;
+  } */
+
+  .image-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    width: 500px;
+    height: 400px;
+  }
+ 

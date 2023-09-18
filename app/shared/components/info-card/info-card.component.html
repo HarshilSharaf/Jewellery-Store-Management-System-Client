@@ -1,0 +1,22 @@
+<div class="card card-stats mb-4 mb-xl-0">
+    <div class="card-body">
+      <div class="row">
+        <div class="col">
+          <h5 class="card-title text-uppercase text-muted mb-0">{{cardTitle}}</h5>
+          <span class="h2 font-weight-bold mb-0">{{cardValue}}</span>
+        </div>
+        <div class="col-auto">
+          <div class="icon-div icon-shape bg-danger text-white text-center rounded-circle shadow">
+            <!-- <div class="cardIcon"></div> -->
+            <img class="item-icon" *ngIf="cardIcon==''|| cardIcon==null || cardIconImage" [attr.src]="cardIconImage">
+            <i class="item-icon " [ngClass]="cardIcon"></i>
+          </div>
+        </div>
+      </div>
+      <p class="mt-3 mb-0 text-muted text-sm">
+        <span class="mr-2" [ngClass]="percentageIncrease >= 0 ? 'text-success' : 'text-danger'"><i class="fa-solid"
+            [ngClass]="percentageIncrease >= 0 ? 'fa-arrow-up' : 'fa-arrow-down'"></i> {{percentageIncrease || 0}}%</span>
+        <span class="text-nowrap"> {{monthsString}}</span>
+      </p>
+    </div>
+  </div>

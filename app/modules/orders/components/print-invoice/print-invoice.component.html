@@ -1,0 +1,138 @@
+<div class="main-body-container container-fluid">
+   <div class="sub-container pt-2">
+    <div class="mt-5 page " size="A4">
+        <div class="p-5">
+            <section class="top-content bb d-flex justify-content-between">
+                <div class="logo">
+                    <img src="../../../../../assets/img/logo.png" alt="" class="img-fluid">
+                </div>
+                <div class="top-left">
+                    <div class="graphic-path">
+                        <p>Purchase Invoice</p>
+                    </div>
+                    <div class="position-relative">
+                        <p>Order No. <span>XXXX</span></p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="store-user mt-5">
+                <div class="col">
+                    <div class="row bb pb-3 row">
+                        <div class="col">
+                            <p>Store Details,</p>
+                            <h2>Jewellery Store</h2>
+                            <p class="address"> 777 Brockton Avenue, <br> Abington MA 2351, <br>Vestavia Hills AL </p>
+                            <div class="txn mt-2">GSTIN: XXXXXXX</div>
+                        </div>
+                        <div class="col text-end" *ngIf="_InvoiceData.customer_details">
+                            <p>Customer Details,</p>
+                            <h2>{{_InvoiceData.customer_details.firstName + ' ' + _InvoiceData.customer_details.lastName }}</h2>
+                            <p class="address"> 777 Brockton Avenue, <br> Abington MA 2351, <br>Vestavia Hills AL </p>
+                            <div class="txn mt-2">TXN: XXXXXXX</div>
+                        </div>
+                    </div>
+                    <div class="row extra-info pt-3" *ngIf="_InvoiceData.payments">
+                        <div class="col-7">
+                            <p>Payment Method: <span>{{_InvoiceData.payments[0].paymentType | titlecase}} </span></p>
+                        </div>
+                        <div class="col-5">
+                            <p>Order Date: <span>{{_InvoiceData.orderDate | date}}</span></p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="product-area mt-4">
+                <table class="table table-hover table-bordered">
+                    <thead>
+                        <tr>
+                            <td>Product Description</td>
+                            <td>Product Weight(In gms)</td>
+                            <td>Price</td>
+                            <td>Labour</td>
+                            <td>CGST(In %)</td>
+                            <td>SGST(In %)</td>
+                            <td>Discount</td>
+                            <td>Final Amount</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let product of _InvoiceData?.invoice_products">
+                            <td>
+                                {{product.masterCategory
+                                +'-'+product.subCategory
+                                +'-'+ product.productCategory
+                                }}
+                            </td>
+                            <td>
+                                {{product.productWeight}}
+                            </td>
+                            <td>
+                                {{product.price}}
+                            </td>
+                            <td>
+                                {{product.labour}}
+                            </td>
+                            <td>
+                                {{product.CGST}}
+                            </td>
+                            <td>
+                                {{product.SGST}}
+                            </td>
+                            <td>
+                                {{product.discount}}
+                            </td>
+                            <td>
+                                {{product.finalAmount}}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section class="balance-info">
+                <div class="row">
+                    <div class="col-8">
+      
+                    </div>
+                    <div class="col-4">
+                        <table class="table border-0 table-hover">
+                            <tr>
+                                <td>Sub Total:</td>
+                                <td>&#8377; {{_InvoiceData.totalAmountWithoutGstAndDiscount}}</td>
+                            </tr>
+                            <tr>
+                                <td>Total Labour:</td>
+                                <td>&#8377; {{_InvoiceData.totalLabour}}</td>
+                            </tr>
+                            <tr>
+                                <td>Total Tax:</td>
+                                <td>&#8377; {{_InvoiceData.totalGst}}</td>
+                            </tr>
+                            <tr>
+                                <td>Total Discount:</td>
+                                <td class="text-danger"> &minus; &#8377; {{_InvoiceData.totalDiscount}}</td>
+                            </tr>
+                            <tfoot>
+                                <tr>
+                                    <td>Total:</td>
+                                    <td>&#8377; {{_InvoiceData.totalAmountWithGst}}</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+                        <!-- Signature -->
+                        <div class="col-12 mt-2">
+                            <div class="box">
+                            </div>
+                            <p class="text-center m-0 mt-1"> Owner's Signature </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+   </div>
+
+</div>

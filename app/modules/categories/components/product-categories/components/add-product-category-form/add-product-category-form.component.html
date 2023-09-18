@@ -1,0 +1,70 @@
+<div class="row text-end ">
+
+    <div class="col">
+        <p class="text-info" style="font-size: medium;"><b><span class="text-warning">Note:</span></b> Be specific and
+            add as item types you have in your stock.</p>
+    </div>
+
+    <div class="col">
+
+        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addProductCategoryModal">
+            <i class="fa-solid fa-plus"></i> Add Product Category </button>
+    </div>
+</div>
+
+
+
+<div class="modal fade" id="addProductCategoryModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Product Category</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form [formGroup]="productCategoryForm" (ngSubmit)="submitForm()" novalidate>
+                    <div class="mb-3">
+                        <label for="productCategoryName" class="form-label">Product
+                            Category Name <span class="text-danger"><b>*</b></span></label>
+                        <input type="text" class="form-control" id="productCategoryName" name="productCategoryName"
+                            formControlName="productCategoryName" aria-describedby="productCategoryName">
+                        <div id="productCategoryName" class="form-text">Add
+                            product categories like bangles,earrings,necklace etc....</div>
+
+                        <div class="row">
+                            <div class="col text-center">
+                                <span class="text-danger text-bold"
+                                    *ngIf="(productCategoryForm.get('productCategoryName')?.touched || productCategoryForm.valid) && productCategoryForm.get('productCategoryName')?.errors?.['required']">
+                                    Category Name is required
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" name="productCategoryDescription"
+                            formControlName="productCategoryDescription" id="description"></textarea>
+                    </div>
+
+
+                    <div class="row">
+                        <div class="col text-center">
+                            <span
+                                [ngClass]="{'text-danger': addProductCategoryResponse.status !=200, 'text-success': addProductCategoryResponse.status==200 }"
+                                style="font-weight: bold;">{{addProductCategoryResponse.message}}</span>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" (click)="clearForm()"
+                            data-bs-dismiss="modal">Close</button>
+                        <button type="submit" [disabled]="!productCategoryForm.valid"
+                            class="btn btn-success">Submit</button>
+                    </div>
+                </form>
+            </div>
+
+
+        </div>
+    </div>
+</div>

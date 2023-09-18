@@ -1,0 +1,17 @@
+.customerDetailsSection{
+    border-right: 1px solid gray;
+}
+
+.customerImage{
+    max-width: 150px;
+}
+
+#print-container {
+    display: none;
+}
+
+@media print {
+    #print-container {
+        display: block !important;
+    }
+}

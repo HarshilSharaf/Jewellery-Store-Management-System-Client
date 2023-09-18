@@ -1,0 +1,12 @@
+// reduce the font size of placeholder
+input::-webkit-input-placeholder {
+    font-size: 0.75rem !important; 
+}
+
+#amountPaidInput{
+    border-color: red;
+}
+
+select {
+    border-color: green;
+}

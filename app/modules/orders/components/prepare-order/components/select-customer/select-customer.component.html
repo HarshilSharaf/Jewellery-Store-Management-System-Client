@@ -1,0 +1,76 @@
+<div class="row mt-3">
+    <form>
+        <div class="mb-3 row">
+            <label for="table-filtering-search" class="col-xs-3 col-sm-auto col-form-label fw-bold text-info">Search
+                Customers:</label>
+            <div class="col-xs-3 col-sm-auto">
+                <input id="table-filtering-search" placeholder="Search using name,phone,city etc.." class="form-control" type="text"
+                    [formControl]="filter" />
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="table-responsive">
+    <form class="form" [formGroup]="selectCustomer">
+        <table class="table table-striped table-hover table-bordered">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Customer Photo</th>
+                    <th scope="col">First Name</th>
+                    <th scope="col">Last Name</th>
+                    <th scope="col">Gender</th>
+                    <th scope="col">City</th>
+                    <th scope="col">Phone Number</th>
+                </tr>
+            </thead>
+    
+            <tbody>
+                <tr *ngFor="let customer of dataToBeShown">
+                    <td>
+                        <input class="form-check-input mt-0" type="radio" formControlName="selectedCustomerId"
+                            [value]="customer.id">
+                    </td>
+                    <td class="text-center">
+                        <img class="img-thumbnail" [src]="customer.image" height="90" width="90">
+                    </td>
+                    <td>
+                        <!-- {{customer.first_name}} -->
+                        <ngb-highlight [result]="customer.firstName" [term]="filter.value"></ngb-highlight>
+                    </td>
+                    <td>
+                        <!-- {{customer.last_name}} -->
+                        <ngb-highlight [result]="customer.lastName" [term]="filter.value"></ngb-highlight>
+    
+                    </td>
+    
+                    <td>{{customer.gender}}</td>
+                    <td>
+                        <ngb-highlight [result]="customer.city" [term]="filter.value"></ngb-highlight>
+                    </td>
+                    <td>
+                        <!-- {{customer.phoneNumber}} -->
+                        <ngb-highlight [result]="customer.phoneNumber.toString()" [term]="filter.value"></ngb-highlight>
+    
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </form>
+</div>
+
+
+
+<div class="d-flex justify-content-between p-2">
+    <ngb-pagination [collectionSize]="customersData.length" [(page)]="page" [pageSize]="pageSize"
+        (pageChange)="changeCategoryDataToBeShown()">
+    </ngb-pagination>
+
+    <select class="form-select" style="width: auto" [(ngModel)]="pageSize"
+        (ngModelChange)="changeCategoryDataToBeShown()">
+        <option [ngValue]="2">2 items per page</option>
+        <option [ngValue]="5">5 items per page</option>
+        <option [ngValue]="7">7 items per page</option>
+    </select>
+</div>

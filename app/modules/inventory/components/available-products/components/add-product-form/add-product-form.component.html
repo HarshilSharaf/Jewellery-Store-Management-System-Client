@@ -1,0 +1,172 @@
+<div class="row text-end ">
+
+    <div class="col">
+
+        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+            <i class="fa-solid fa-plus"></i> Add A Product </button>
+    </div>
+</div>
+
+
+
+<div class="modal fade" id="addCategoryModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Product</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form [formGroup]="addProductForm" class="addProductForms" (ngSubmit)="submitForm()" novalidate>
+                    <div class="mb-3">
+                        <div class="row align-items-center">
+            
+                            <div class="col-4 col-sm-4">
+                                <label for="photo">Product Photo:</label>
+            
+                            </div>
+            
+                            <div class="col">
+                                <div class="input-group justify-content-center">
+                                    <app-image-upload [activeColor]="'orangered'" [baseColor]="'lightgray'"></app-image-upload>
+                                </div>
+                            </div>
+                        </div>
+            
+                        <div class="row mt-5 align-items-center">
+                            <div class="col-5 col-sm-4">
+                                <label for="masterCategory">Product Master Category<span class="mandatory">*</span>:</label>
+                            </div>
+                            <div class="col">
+                                <select name="masterCategoryId" class="form-select" formControlName="masterCategoryId">
+                                    <option value="">Select Master Category</option>
+                                    <option *ngFor="let masterCategoryName of allCategoriesData?.masterCategories" [ngValue]="masterCategoryName.id">
+                                        {{masterCategoryName.masterCategoryName}}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+            
+                        <!-- Master Category Validation Message -->
+                        <div class="row">
+                            <div class="col text-center">
+                                <span class="text-danger text-bold"
+                                    *ngIf="(addProductForm.get('masterCategory')?.touched || addProductForm.valid) && addProductForm.get('masterCategory')?.errors?.['required']">
+                                    Master Category is required
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="row mt-5 align-items-center">
+                            <div class="col-5 col-sm-4">
+                                <label for="subCategory">Product Sub Category<span class="mandatory">*</span>:</label>
+                            </div>
+                            <div class="col">
+                                <select name="subCategoryId" class="form-select" formControlName="subCategoryId">
+                                    <option value="">Select Sub Category</option>
+                                    <option *ngFor="let subCategoryName of allCategoriesData?.subCategories" [ngValue]="subCategoryName.id">
+                                        {{subCategoryName.subCategoryName}}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+            
+                        <!-- Sub Category Validation Message -->
+                        <div class="row">
+                            <div class="col text-center">
+                                <span class="text-danger text-bold"
+                                    *ngIf="(addProductForm.get('subCategory')?.touched || addProductForm.valid) && addProductForm.get('subCategory')?.errors?.['required']">
+                                    Sub Category is required
+                                </span>
+                            </div>
+                        </div>
+
+
+                        <div class="row mt-5 align-items-center">
+                            <div class="col-5 col-sm-4">
+                                <label for="productCategory">Product Category<span class="mandatory">*</span>:</label>
+                            </div>
+                            <div class="col">
+                                <select name="productCategoryId" class="form-select" formControlName="productCategoryId">
+                                    <option value="">Select Product Category</option>
+                                    <option *ngFor="let productCategoryName of allCategoriesData?.productCategories" [ngValue]="productCategoryName.id">
+                                        {{productCategoryName.productCategoryName}}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+            
+                        <!-- Product Category Validation Message -->
+                        <div class="row">
+                            <div class="col text-center">
+                                <span class="text-danger text-bold"
+                                    *ngIf="(addProductForm.get('productCategory')?.touched || addProductForm.valid) && addProductForm.get('productCategory')?.errors?.['required']">
+                                    Product Category is required
+                                </span>
+                            </div>
+                        </div>
+
+
+                        
+                        <div class="row mt-5 align-items-center">
+                            <div class="col-5 col-sm-4">
+                                <label for="productWeight">Enter Product Weight<span class="mandatory">*</span>:</label>
+                            </div>
+                            <div class="col">
+                                <input class="form-control" name="productWeight" type="number" formControlName="productWeight">
+                            </div>
+                        </div>
+            
+                        <!-- Product Weight Validation Message -->
+                        <div class="row">
+                            <div class="col text-center">
+                                <span class="text-danger text-bold"
+                                    *ngIf="(addProductForm.get('productWeight')?.touched || addProductForm.valid) && addProductForm.get('productWeight')?.errors?.['required']">
+                                    Product Weight is required
+                                </span>
+                            </div>
+                        </div>
+
+
+                        <div class="row mt-5 align-items-center">
+                            <div class="col-5 col-sm-4">
+                                <label for="productDescription">Enter Product Description:</label>
+                            </div>
+                            <div class="col">
+                                <textarea class="form-control" name="productDescription" formControlName="productDescription"></textarea>
+                            </div>
+                        </div>
+            
+                        <!-- Product Description Validation Message -->
+                        <div class="row">
+                            <div class="col text-center">
+                                <span class="text-danger text-bold"
+                                    *ngIf="(addProductForm.get('productDescription')?.touched || addProductForm.valid) && addProductForm.get('productDescription')?.errors?.['required']">
+                                    Product Description is required
+                                </span>
+                            </div>
+                        </div>
+            
+   
+                    </div>
+            <ng-container *ngIf ="addProductResponse.status!=0 || addProductResponse.message!=''">
+            
+                <hr>
+                <div class="row">
+                    <div class="col text-center">
+                        <span [ngClass]="{'text-danger': addProductResponse.status !=200, 'text-success': addProductResponse.status==200 }"
+                            style="font-weight: bold;">{{addProductResponse.message}}</span>
+                    </div>
+                </div>
+            </ng-container>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" (click)="clearForm()" data-bs-dismiss="modal">Close</button>
+                <button type="submit" [disabled]="!addProductForm.valid" class="btn btn-success">Submit</button>
+            </div>
+                </form>
+            </div>
+
+
+        </div>
+    </div>
+</div>

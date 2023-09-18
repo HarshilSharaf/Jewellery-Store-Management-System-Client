@@ -1,0 +1,17 @@
+<app-page-header [pageName]="'Inventory'"></app-page-header>
+
+
+<div class="row">
+    <ng-container *ngFor="let cardData of infoCardsData">
+        <div class="col">
+            <app-info-card [cardData]="cardData"></app-info-card>
+        </div>
+    </ng-container>
+</div>
+
+
+<div class="row mt-2">
+    <div class="col">
+        <app-available-products></app-available-products>
+    </div>
+</div>

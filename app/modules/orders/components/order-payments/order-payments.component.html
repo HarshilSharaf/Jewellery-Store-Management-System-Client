@@ -1,0 +1,121 @@
+<div class="card">
+
+    <div class="card-body">
+        <div class="card-header">
+            <div class="row">
+                <div class="col">
+                    <h5>Payments</h5>
+                </div>
+
+                <div class="col text-end">
+                    <button class="text-end btn btn-success" [ngClass]="{disabled: isPaymentDone}" data-bs-toggle="modal"
+                        data-bs-target="#paymentModal">
+                        <i class="fa-solid fa-indian-rupee-sign"></i>
+                        Record Payment
+                    </button>
+                </div>
+
+            </div>
+    
+        </div>
+
+        <!-- Payment Modal -->
+        <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="paymentModalLabel">Record a Payment</h5>
+                        <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form class="form" [formGroup]="recordPaymentForm">
+                            <div class="form-group">
+                                <label class="form-label">Enter Amount:</label>
+                                <input class="form-control" min="1" type="number" placeholder="Enter Amount" formControlName="amount">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Select Payment Type:</label>
+                                <select class="form-select" formControlName="paymentType">
+                                    <option value="cash" selected>Cash</option>
+                                    <option value="cheque">Cheque</option>
+                                    <option value="online">Online</option>
+                                </select>   
+                                <!-- <input class="form-control" type="number" placeholder="Enter Amount" formControlName="paymentType"> -->
+                            </div>
+
+                            <div class="form-group mt-2">
+                                <label class="form-label">Select Payment Date:</label>
+                                <input class="form-control" type="date" formControlName="paymentDate">
+                            </div>
+
+                            
+                            <div class="form-group">
+                                <label class="form-label">Remarks:</label>
+                                <textarea class="form-control" placeholder="Add Remarks" formControlName="remarks"></textarea>
+                            </div>
+                        </form>
+
+                        <ng-container *ngIf ="recordPaymentResponse.status!=0 || recordPaymentResponse.message!=''">
+            
+                            <hr>
+                            <div class="row">
+                                <div class="col text-center">
+                                    <span [ngClass]="{'text-danger': recordPaymentResponse.status !=200, 'text-success': recordPaymentResponse.status==200 }"
+                                        style="font-weight: bold;">{{recordPaymentResponse.message}}</span>
+                                </div>
+                            </div>
+                        </ng-container>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" (click)="clearAndCloseForm()" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" (click)="recordPayment()">Save changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <div class="table-responsive mt-2 rounded border border-dark">
+            <table class="table table-striped table-hover table-bordered">
+                <thead class="table-danger">
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Payment Method</th>
+                        <th scope="col">Paid Amount</th>
+                        <th scope="col">Recieved On Date</th>
+                        <th scope="col">Remarks</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr *ngFor="let payment of _paymentsData;index as i">
+                        <td>
+                            {{i+1}}
+                        </td>
+
+                        <td>
+                            {{payment.paymentType | titlecase}}
+                        </td>
+
+                        <td>
+                            &#8377;{{payment.amount}}
+                        </td>
+
+                        <td>
+                            {{payment.receivedOn | date:'medium'}}
+                        </td>
+
+                        <td>
+                            {{payment.remarks}}
+                        </td>
+                    </tr>
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+
+</div>

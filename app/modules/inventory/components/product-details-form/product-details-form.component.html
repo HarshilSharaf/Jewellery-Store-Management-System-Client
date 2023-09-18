@@ -1,0 +1,119 @@
+<div class="card mb-4">
+    <div class="card-header">Product Details</div>
+    <div class="card-body">
+        <form *ngIf="productDetailsForm" [formGroup]="productDetailsForm"
+            (ngSubmit)="updateProductDetails()">
+            
+            <!-- Form Row-->
+            <div class="row gx-3 mb-3">
+                <!-- Form Group (Master Category)-->
+                <div class="col-md-4">
+                    <label class="small mb-1" for="masterCategory">Master Category</label>
+                    <select name="masterCategoryId" class="form-select" formControlName="masterCategoryId">
+                        <option *ngFor="let masterCategoryName of allCategoriesData.masterCategories"
+                            [ngValue]="masterCategoryName.id">
+                            {{masterCategoryName.masterCategoryName}}
+                        </option>
+                    </select>
+                    <!-- Master Category Validation Message -->
+                    <div class="row">
+                        <div class="col text-center">
+                            <span class="text-danger text-bold"
+                                *ngIf="(productDetailsForm.get('masterCategory')?.touched || productDetailsForm.valid) && productDetailsForm.get('masterCategory')?.errors?.['required']">
+                                Master Category is required
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            
+                <!-- Form Group (Sub Category)-->
+                <div class="col-md-4">
+                    <label class="small mb-1" for="subCategory">Sub Category</label>
+                    <select name="subCategoryId" class="form-select" formControlName="subCategoryId">
+                        <option *ngFor="let subCategoryName of allCategoriesData.subCategories" [ngValue]="subCategoryName.id">
+                            {{subCategoryName.subCategoryName}}
+                        </option>
+                    </select>
+                    <!-- Sub Category Validation Message -->
+                    <div class="row">
+                        <div class="col text-center">
+                            <span class="text-danger text-bold"
+                                *ngIf="(productDetailsForm.get('subCategory')?.touched || productDetailsForm.valid) && productDetailsForm.get('subCategory')?.errors?.['required']">
+                                Sub Category is required
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            
+                <!-- Form Group (Product Category)-->
+                <div class="col-md-4">
+                    <label class="small mb-1" for="productCategory">Product Category</label>
+                    <select name="productCategoryId" class="form-select" formControlName="productCategoryId">
+                        <option *ngFor="let productCategoryName of allCategoriesData.productCategories"
+                            [ngValue]="productCategoryName.id">
+                            {{productCategoryName.productCategoryName}}
+                        </option>
+                    </select>
+                    <!-- Product Category Validation Message -->
+                    <div class="row">
+                        <div class="col text-center">
+                            <span class="text-danger text-bold"
+                                *ngIf="(productDetailsForm.get('productCategory')?.touched || productDetailsForm.valid) && productDetailsForm.get('productCategory')?.errors?.['required']">
+                                Product Category is required
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Row -->
+            <div class="row gx-3 mb-3">
+                <!-- Form Group (Product Description)-->
+                <div class="col-md-6">
+                    <label class="small mb-1" for="Description">Product Description</label>
+                    <textarea class="form-control" name="productDescription" formControlName="productDescription"
+                        placeholder="Enter Description" style="height: 100px"></textarea>
+
+                </div>
+                <!-- Form Group (ProductWeight)-->
+                <div class="col-md-6">
+                    <label class="small mb-1" for="productWeight">Product Weight</label>
+                    <input type="text" name="productWeight" class="form-control" id="productWeight" formControlName="productWeight">
+                    <div class="row">
+                        <div class="col text-center">
+                            <span class="text-danger text-bold"
+                                *ngIf="(productDetailsForm.get('productWeight')?.touched || productDetailsForm.valid) && productDetailsForm.get('productWeight')?.errors?.['required']">
+                                Product Weight Cannot be empty
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Save changes button-->
+            <div class="row text-center">
+                <div class="col">
+
+                    <button class="btn btn-primary mx-4" [ngClass]="{'disabled': !productDetailsForm.dirty ||
+                        !productDetailsForm.valid}" type="submit">
+
+                        <div *ngIf="isLoading">
+                            <i class="fa fa-spinner fa-spin"></i>
+                        </div>
+                        <div *ngIf="!isLoading">
+                            <i class="fa-solid fa-floppy-disk"></i> Save changes
+
+                        </div>
+                    </button>
+
+                    <button class="btn btn-danger mx-4 mt-xs-2 mt-md-0"
+                        [ngClass]="{'disabled': !productDetailsForm.dirty}"
+                        type="button" (click)="resetForm()">
+                        <i class="fa-solid fa-rotate-left"></i> Reset
+                    </button>
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>

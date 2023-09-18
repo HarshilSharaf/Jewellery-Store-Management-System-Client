@@ -1,0 +1,26 @@
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title text-dark">Available Products</h5>
+
+        <div class="row">
+            <div class="col">
+                <app-add-product-form (refreshDataEvent)="getAllProductsData()" [allCategoriesData]="allCategoriesData"></app-add-product-form>
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col">
+                <app-data-table
+                    [COLUMNS_SCHEMA]="displayNameForColumns" [tableColumns]="tableColumns"
+                    [tableData]="allProductsData"
+                    [totalRecords]="totalRecords"
+                    (deleteItem)="openDeletePopUpForItem($event)" (viewDetails)="goToViewProductDetails($event)"
+                    [showAddToCartButton]="true" (refreshDataSource)="getAllProductsData()" 
+                    (searchQuery)="handleSearchQuery($event)"
+                    (pageChangeEvent)="handlePageChange($event)"
+                    [entityText]="'Products'"
+                    [sortByColumn]="'id'"></app-data-table>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,32 @@
+<aside class="sidebar shadow-sm">
+
+    <div class="sidebar-profile d-flex flex-column justify-content-center pt-5 pb-3">
+      <div class="picture-wrapper mb-4">
+        <div class="user-picture m-auto">
+          <img [src]="userData.image || './assets/img/user.jpg'" class="img-fluid" alt="">
+        </div>
+      </div>
+      <div class="profile-details text-center pb-4">
+        <p class="mb-0 text-uppercase name">{{userData.displayName}}</p>
+        <small class="text-uppercase role">{{userData.type}}</small>
+      </div>
+    </div>
+    <nav class="sidebar-menu pt-3 pb-3">
+      <ul class="menu-items">
+        <li *ngFor="let item of items">
+          <a [routerLink]="[item.link]" class="list-item" routerLinkActive="active"  data-toggle="tooltip" data-placement="right" title="{{item.title}}">
+            <i [ngClass]="item.icon"></i>
+            <span>{{item.title}}</span>
+          </a>
+        </li>
+        <li>
+          <a  class="text-danger logout-btn" (click)="logout()" routerLinkActive="active">
+            <i class="fa-solid fa-right-from-bracket text-danger"></i>
+            <span>Logout</span>
+
+          </a>
+        </li>
+      </ul>
+ 
+    </nav>
+  </aside>  
