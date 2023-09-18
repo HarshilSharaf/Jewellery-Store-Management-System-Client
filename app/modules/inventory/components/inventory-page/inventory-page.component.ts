@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { forkJoin, Observable } from 'rxjs';
-import { MasterCategoryService } from 'src/app/modules/categories/components/master-categories/services/master-category.service';
-import { InfoCardData } from 'src/app/shared/models/infoCardData';
+import { MasterCategoryService } from '../../../categories/components/master-categories/services/master-category.service';
+import { InfoCardData } from '../../../../shared/models/infoCardData';
 import { InventoryService } from '../../services/inventory.service';
-import { LoggerService } from 'src/app/shared/services/logger.service';
-import { MasterCategoriesModel } from 'src/app/modules/categories/models/categories-model';
-import { TotalStockModel } from 'src/app/modules/dashboard/models/total-stock-model';
+import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
+import { MasterCategoriesModel } from '../../../categories/models/categories-model';
+import { TotalStockModel } from '../../../dashboard/models/total-stock-model';
 
 @Component({
   selector: 'app-inventory-page',

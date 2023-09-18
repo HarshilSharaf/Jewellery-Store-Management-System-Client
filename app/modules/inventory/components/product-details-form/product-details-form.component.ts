@@ -4,9 +4,9 @@ import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
 import { AvailableProductsService } from '../available-products/services/available-products.service';
-import { LoggerService } from 'src/app/shared/services/logger.service';
-import { AllCategoriesModel } from 'src/app/modules/categories/models/categories-model';
-import { ProductDataModel } from 'src/app/modules/orders/models/product-data-model';
+import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
+import { AllCategoriesModel } from '../../../categories/models/categories-model';
+import { ProductDataModel } from '../../../orders/models/product-data-model';
 
 @Component({
   selector: 'app-product-details-form',

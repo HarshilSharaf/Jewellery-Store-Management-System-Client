@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { SubCategoriesModel } from 'src/app/modules/categories/models/categories-model';
+import { SubCategoriesModel } from '../../../../models/categories-model';
 
 @Component({
   selector: 'app-available-sub-categories',

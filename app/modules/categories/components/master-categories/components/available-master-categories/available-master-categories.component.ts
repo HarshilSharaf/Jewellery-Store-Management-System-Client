@@ -1,5 +1,5 @@
 import { AfterViewChecked, ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
-import { MasterCategoriesModel } from 'src/app/modules/categories/models/categories-model';
+import { MasterCategoriesModel } from '../../../../models/categories-model';
 
 @Component({
   selector: 'app-available-master-categories',

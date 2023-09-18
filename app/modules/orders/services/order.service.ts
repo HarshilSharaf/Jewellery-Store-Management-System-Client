@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { DbOrdersService } from 'Backend/Orders/db-orders.service';
 import { Observable } from 'rxjs';
-import { HttpResponse } from 'src/app/models/http-response';
+import { HttpResponse } from '../../../models/http-response';
 
 @Injectable({
   providedIn: 'root'

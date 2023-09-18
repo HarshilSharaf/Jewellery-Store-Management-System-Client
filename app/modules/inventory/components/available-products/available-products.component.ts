@@ -1,15 +1,14 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { ColumnSchema } from 'src/app/shared/models/columnsSchema';
-import { FileSystemService } from 'src/app/shared/services/file-system.service';
+import { ColumnSchema } from '../../../../shared/models/columnsSchema';
+import { FileSystemService } from '../../../../../../Backend/Shared/file-system.service';
 import { AvailableProductsService } from './services/available-products.service';
-import { convertFileSrc } from "@tauri-apps/api/tauri";
-import { LoggerService } from 'src/app/shared/services/logger.service';
-import { AllCategoriesModel } from 'src/app/modules/categories/models/categories-model';
-import { ProductDataModel } from 'src/app/modules/orders/models/product-data-model';
+import { UtilityService } from 'Backend/Shared/utitlity.service';
+import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
+import { AllCategoriesModel } from '../../../../modules/categories/models/categories-model';
+import { ProductDataModel } from '../../../../modules//orders/models/product-data-model';
 import { ActivatedRoute, Router } from '@angular/router';
 import Swal from 'sweetalert2';
-import { DataTableComponent } from 'src/app/shared/components/data-table/data-table.component';
 
 @Component({
   selector: 'app-available-products',
@@ -88,7 +87,8 @@ export class AvailableProductsComponent implements OnInit, OnDestroy {
     private fileSystemService: FileSystemService,
     private loggerService: LoggerService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private utilityService: UtilityService
   ) {}
 
   ngOnInit(): void {
@@ -147,7 +147,7 @@ export class AvailableProductsComponent implements OnInit, OnDestroy {
           */
          
           if(product.imagePath){
-            product.image = convertFileSrc( this.fileSystemService.productImagesDir + '\\' + product.imagePath)
+            product.image = this.utilityService.getFilePath( this.fileSystemService.productImagesDir + '\\' + product.imagePath)
           }
           else {
             product.image = 'assets/img/No-Image-Icon.png'

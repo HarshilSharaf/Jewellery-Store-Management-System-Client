@@ -5,7 +5,7 @@ import { ProfileRoutingModule } from './profile-routing.module';
 import { ProfilePageComponent } from './components/profile-page/profile-page.component';
 import { ImageUploadComponent } from './components/image-upload/image-upload.component';
 import { ReactiveFormsModule } from '@angular/forms';
-import { SharedModule } from 'src/app/shared/shared.module';
+import { SharedModule } from '../../shared/shared.module';
 
 
 @NgModule({

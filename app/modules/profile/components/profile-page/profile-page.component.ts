@@ -3,13 +3,13 @@ import { ImageUploadComponent } from '../image-upload/image-upload.component';
 import { Subscription } from 'rxjs';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
-import { StoreService } from 'src/app/shared/services/store.service';
+import { StoreService } from '../../../../../../Backend/Shared/store.service';
 import { UserService } from '../../services/user.service';
 import * as bcrypt from 'bcryptjs'
 import Swal from 'sweetalert2';
-import { convertFileSrc } from "@tauri-apps/api/tauri";
-import { FileSystemService } from 'src/app/shared/services/file-system.service';
-import { LoggerService } from 'src/app/shared/services/logger.service';
+import { UtilityService } from 'Backend/Shared/utitlity.service';
+import { FileSystemService } from '../../../../../../Backend/Shared/file-system.service';
+import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
 import { UserDetailsModel } from '../../models/user-details-model';
 
 
@@ -42,7 +42,8 @@ export class ProfilePageComponent
     private storeService: StoreService,
     private userService: UserService,
     private fileSystemService: FileSystemService,
-    private loggerService: LoggerService
+    private loggerService: LoggerService,
+    private utilityService:  UtilityService
   ) {}
 
   ngAfterViewChecked(): void {
@@ -145,7 +146,7 @@ export class ProfilePageComponent
       .subscribe({
         next: (response: any) => {
           if (response[0].imagePath) {
-            this.thumbnail = convertFileSrc(
+            this.thumbnail = this.utilityService.getFilePath(
               this.fileSystemService.userImagesDir +
                 '\\' +
                 response[0].imagePath

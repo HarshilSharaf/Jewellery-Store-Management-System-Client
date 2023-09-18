@@ -1,10 +1,10 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subscription } from 'rxjs';
-import { HttpResponse } from 'src/app/models/http-response';
+import { HttpResponse } from '../../../../models/http-response';
 import { PaymentsDataModel, PaymentType } from '../../models/payments-data-model';
 import { OrderService } from '../../services/order.service';
-import { LoggerService } from 'src/app/shared/services/logger.service';
+import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
 
 @Component({
   selector: 'app-order-payments',

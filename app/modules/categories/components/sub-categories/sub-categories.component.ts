@@ -2,9 +2,8 @@ import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { Subscription } from 'rxjs';
-import { HttpResponse } from 'src/app/models/http-response';
 import { SubCategoryService } from './services/sub-category.service';
-import { LoggerService } from 'src/app/shared/services/logger.service';
+import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
 import { SubCategoriesModel } from '../../models/categories-model';
 
 @Component({

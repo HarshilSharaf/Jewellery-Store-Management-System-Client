@@ -1,13 +1,13 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subscription } from 'rxjs';
-import { HttpResponse } from 'src/app/models/http-response';
-import { FileSystemService } from 'src/app/shared/services/file-system.service';
+import { HttpResponse } from '../../../../../../models/http-response';
+import { FileSystemService } from '../../../../../../../../Backend/Shared/file-system.service';
 import { AvailableProductsService } from '../../services/available-products.service';
 import { ImageUploadComponent } from '../image-upload/image-upload.component';
-import { LoggerService } from 'src/app/shared/services/logger.service';
-import { AllCategoriesModel } from 'src/app/modules/categories/models/categories-model';
-import { ProductDataModel } from 'src/app/modules/orders/models/product-data-model';
+import { LoggerService } from '../../../../../../../../Backend/Shared/logger.service';
+import { AllCategoriesModel } from '../../../../../categories/models/categories-model';
+import { ProductDataModel } from '../../../../../orders/models/product-data-model';
 
 @Component({
   selector: 'app-add-product-form',

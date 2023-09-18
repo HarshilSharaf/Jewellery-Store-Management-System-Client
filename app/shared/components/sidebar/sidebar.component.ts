@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../services/Auth/auth.service';
-import { StoreService } from '../../services/store.service';
-import { UserService } from 'src/app/modules/profile/services/user.service';
-import { FileSystemService } from '../../services/file-system.service';
-import { convertFileSrc } from "@tauri-apps/api/tauri";
-import { LoggerService } from '../../services/logger.service';
+import { StoreService } from '../../../../../Backend/Shared/store.service';
+import { UserService } from '../../../modules/profile/services/user.service';
+import { FileSystemService } from '../../../../../Backend/Shared/file-system.service';
+import { UtilityService } from 'Backend/Shared/utitlity.service';
+import { LoggerService } from '../../../../../Backend/Shared/logger.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -54,7 +54,8 @@ export class SidebarComponent implements OnInit {
     private storeService: StoreService,
     private userService: UserService,
     private fileSystemService: FileSystemService,
-    private loggerService: LoggerService
+    private loggerService: LoggerService,
+    private utilityService: UtilityService
   ) {}
 
   ngOnInit(): void {
@@ -71,7 +72,7 @@ export class SidebarComponent implements OnInit {
       this.userService.getUserImage(data.uid).subscribe({
         next: (data:any) => {
           if (data[0].imagePath) {
-            imagePath = convertFileSrc(
+            imagePath = this.utilityService.getFilePath(
               this.fileSystemService.userImagesDir +
                 '\\' +
                 data[0].imagePath

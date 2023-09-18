@@ -3,14 +3,14 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { Subscription } from 'rxjs';
-import { FileSystemService } from 'src/app/shared/services/file-system.service';
+import { FileSystemService } from '../../../../../../Backend/Shared/file-system.service';
 import Swal from 'sweetalert2';
 import { AvailableProductsService } from '../available-products/services/available-products.service';
 import { ProductImageUploadComponent } from '../product-image-upload/product-image-upload.component';
-import { LoggerService } from 'src/app/shared/services/logger.service';
-import { convertFileSrc } from "@tauri-apps/api/tauri";
-import { AllCategoriesModel } from 'src/app/modules/categories/models/categories-model';
-import { ProductDataModel } from 'src/app/modules/orders/models/product-data-model';
+import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
+import { UtilityService } from 'Backend/Shared/utitlity.service';
+import { AllCategoriesModel } from '../../../categories/models/categories-model';
+import { ProductDataModel } from '../../../orders/models/product-data-model';
 
 @Component({
   selector: 'app-view-product-details',
@@ -40,7 +40,8 @@ export class ViewProductDetailsComponent implements OnInit,OnDestroy, AfterViewC
     private changeRef: ChangeDetectorRef,
     private fileSystemService:FileSystemService,
     private loaderService:NgxUiLoaderService,
-    private loggerService: LoggerService) {
+    private loggerService: LoggerService,
+    private utilityService: UtilityService) {
       this.route.params.subscribe(params => {
         this.productGuid= params['productGuid']
       })
@@ -69,7 +70,7 @@ export class ViewProductDetailsComponent implements OnInit,OnDestroy, AfterViewC
       next: async (response:any) => {
 
         if(response.length > 0 && response[0].imagePath) {
-          this.thumbnail = convertFileSrc(this.fileSystemService.productImagesDir + '\\' +  response[0].imagePath)
+          this.thumbnail = this.utilityService.getFilePath(this.fileSystemService.productImagesDir + '\\' +  response[0].imagePath)
         }
         else {
           this.thumbnail = ''

@@ -2,11 +2,11 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { StoreService } from 'src/app/shared/services/store.service';
+import { StoreService } from '../../../../../../Backend/Shared/store.service';
 import Swal from 'sweetalert2';
 import { SettingsModel } from '../../models/settings-model';
 import { relaunch } from '@tauri-apps/api/process';
-import { LoggerService } from 'src/app/shared/services/logger.service';
+import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
 
 @Component({
   selector: 'app-settings-page',

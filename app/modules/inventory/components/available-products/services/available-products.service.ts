@@ -3,7 +3,6 @@ import { Injectable } from '@angular/core';
 import { DbCategoriesService } from 'Backend/Categories/db-categories.service';
 import { DbInventoryService } from 'Backend/Inventory/db-inventory.service';
 import { Observable } from 'rxjs';
-import { HttpResponse } from 'src/app/models/http-response';
 
 @Injectable({
   providedIn: 'root'

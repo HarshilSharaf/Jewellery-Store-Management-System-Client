@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { CartSideBarService } from 'src/app/shared/services/cart-side-bar.service';
-import { CartService } from 'src/app/shared/services/cart.service';
+import { CartSideBarService } from '../../../services/cart-side-bar.service';
+import { CartService } from '../../../services/cart.service';
 
 @Component({
   selector: 'app-add-to-cart',

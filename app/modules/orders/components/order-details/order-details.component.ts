@@ -2,13 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { Subject } from 'rxjs';
-import { FileSystemService } from 'src/app/shared/services/file-system.service';
+import { FileSystemService } from '../../../../../../Backend/Shared/file-system.service';
 import { InvoiceDataModel } from '../../models/invoice-data-model';
 import { PaymentsDataModel } from '../../models/payments-data-model';
 import { OrderService } from '../../services/order.service';
-import { LoggerService } from 'src/app/shared/services/logger.service';
-import { convertFileSrc } from "@tauri-apps/api/tauri";
-import { CustomerDetails } from 'src/app/modules/customers/models/customerDetails';
+import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
+import { UtilityService } from 'Backend/Shared/utitlity.service';
+import { CustomerDetails } from '../../../customers/models/customerDetails';
 import { InvoiceProductDataModel } from '../../models/invoice-product-data-model';
 
 
@@ -35,7 +35,8 @@ export class OrderDetailsComponent implements OnInit {
     private router: Router,
     private fsService: FileSystemService,
     private loaderService: NgxUiLoaderService,
-    private loggerService: LoggerService
+    private loggerService: LoggerService,
+    private utilityService: UtilityService
   ) {
     this.route.params.subscribe((params) => {
       this.orderGuid = params['orderGuid'];
@@ -68,7 +69,7 @@ export class OrderDetailsComponent implements OnInit {
         this.customerData = response[0].customer_details
 
         if(this.customerData.imagePath) {
-          this.customerData.imagePath = convertFileSrc(
+          this.customerData.imagePath = this.utilityService.getFilePath(
             this.fsService.customerImagesDir +
               '\\' +
               this.customerData.imagePath

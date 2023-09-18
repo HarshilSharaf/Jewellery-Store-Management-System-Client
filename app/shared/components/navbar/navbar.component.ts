@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { SideBarService } from '../../services/sidebar.service';
-import { StoreService } from '../../services/store.service';
-import { UserService } from 'src/app/modules/profile/services/user.service';
+import { StoreService } from '../../../../../Backend/Shared/store.service';
+import { UserService } from '../../../modules/profile/services/user.service';
 
 @Component({
   selector: 'app-navbar',

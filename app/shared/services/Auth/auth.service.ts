@@ -4,8 +4,8 @@ import { from, Observable } from 'rxjs';
 import { Router } from '@angular/router';
 import { Auth } from 'Backend/Auth/auth';
 import * as bcrypt from 'bcryptjs';
-import { StoreService } from '../store.service';
-import { LoggerService } from '../logger.service';
+import { StoreService } from '../../../../../Backend/Shared/store.service';
+import { LoggerService } from '../../../../../Backend/Shared/logger.service';
 
 @Injectable({
   providedIn: 'root'

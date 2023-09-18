@@ -14,7 +14,7 @@ import { AvailableSubCategoriesComponent } from './components/sub-categories/com
 import { ProductCategoriesComponent } from './components/product-categories/product-categories.component';
 import { AddProductCategoryFormComponent } from './components/product-categories/components/add-product-category-form/add-product-category-form.component';
 import { AvailableProductCategoriesComponent } from './components/product-categories/components/available-product-categories/available-product-categories.component';
-import { SharedModule } from 'src/app/shared/shared.module';
+import { SharedModule } from '../../shared/shared.module';
 
 @NgModule({
   declarations: [

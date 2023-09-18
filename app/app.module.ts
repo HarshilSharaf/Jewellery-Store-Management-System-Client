@@ -10,8 +10,8 @@ import { JwtInterceptor } from './helpers/Http-Interceptor/jwt.interceptor';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { SharedModule } from './shared/shared.module';
 import { NgxUiLoaderModule, NgxUiLoaderHttpModule, NgxUiLoaderRouterModule } from 'ngx-ui-loader';
-import { DatabaseService } from './shared/services/database.service';
-import { StoreService } from './shared/services/store.service';
+import { DatabaseService } from '../../Backend/Shared/database.service';
+import { StoreService } from '../../Backend/Shared/store.service';
 import { GlobalErrorHandlerService } from './shared/services/global-error-handler.service';
 
 // define a factory function that returns another function to initialize the database connection

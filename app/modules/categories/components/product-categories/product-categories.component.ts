@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { Subscription } from 'rxjs';
 import { ProductCategoryService } from './services/product-category.service';
-import { LoggerService } from 'src/app/shared/services/logger.service';
+import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
 import { ProductCategoriesModel } from '../../models/categories-model';
 
 @Component({

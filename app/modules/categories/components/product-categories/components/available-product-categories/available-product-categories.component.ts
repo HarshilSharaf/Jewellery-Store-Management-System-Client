@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { ProductCategoriesModel } from 'src/app/modules/categories/models/categories-model';
+import { ProductCategoriesModel } from '../../../../models/categories-model';
 
 @Component({
   selector: 'app-available-product-categories',

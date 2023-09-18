@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { Subscription } from 'rxjs/internal/Subscription';
 import { MasterCategoryService } from './services/master-category.service';
-import { LoggerService } from 'src/app/shared/services/logger.service';
+import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
 import { MasterCategoriesModel } from '../../models/categories-model';
 
 @Component({

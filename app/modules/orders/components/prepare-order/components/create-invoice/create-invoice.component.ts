@@ -2,12 +2,12 @@ import { DecimalPipe } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
-import { CustomerDetails } from 'src/app/modules/customers/models/customerDetails';
-import { InvoiceProductDataModel } from 'src/app/modules/orders/models/invoice-product-data-model';
-import { ProductDataModel } from 'src/app/modules/orders/models/product-data-model';
-import { OrderService } from 'src/app/modules/orders/services/order.service';
-import { CartService } from 'src/app/shared/services/cart.service';
-import { LoggerService } from 'src/app/shared/services/logger.service';
+import { CustomerDetails } from '../../../../../customers/models/customerDetails';
+import { InvoiceProductDataModel } from '../../../../models/invoice-product-data-model';
+import { ProductDataModel } from '../../../../models/product-data-model';
+import { OrderService } from '../../../../services/order.service';
+import { CartService } from '../../../../../../shared/services/cart.service';
+import { LoggerService } from '../../../../../../../../Backend/Shared/logger.service';
 import Swal from 'sweetalert2';
 
 @Component({

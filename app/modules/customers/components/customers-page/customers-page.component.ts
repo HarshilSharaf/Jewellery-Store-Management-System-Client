@@ -2,11 +2,10 @@ import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, OnDestroy, O
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { catchError, debounceTime, distinctUntilChanged } from 'rxjs';
-import { DataTableComponent } from 'src/app/shared/components/data-table/data-table.component';
-import { ColumnSchema } from 'src/app/shared/models/columnsSchema';
+import { ColumnSchema } from '../../../../shared/models/columnsSchema';
 import { CustomerDetails } from '../../models/customerDetails';
 import { CustomerDataService } from '../../services/customer-data.service';
-import { LoggerService } from 'src/app/shared/services/logger.service';
+import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
 import Swal from 'sweetalert2';
 import { ActivatedRoute, Router } from '@angular/router';
 

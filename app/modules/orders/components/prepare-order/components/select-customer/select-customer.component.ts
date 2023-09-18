@@ -4,11 +4,11 @@ import { FormBuilder, FormControl, Validators } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { Subscription } from 'rxjs';
-import { CustomerDataService } from 'src/app/modules/customers/services/customer-data.service';
-import { FileSystemService } from 'src/app/shared/services/file-system.service';
-import { convertFileSrc } from "@tauri-apps/api/tauri";
-import { LoggerService } from 'src/app/shared/services/logger.service';
-import { CustomerDetails } from 'src/app/modules/customers/models/customerDetails';
+import { CustomerDataService } from '../../../../../customers/services/customer-data.service';
+import { FileSystemService } from '../../../../../../../../Backend/Shared/file-system.service';
+import { UtilityService } from 'Backend/Shared/utitlity.service';
+import { LoggerService } from '../../../../../../../../Backend/Shared/logger.service';
+import { CustomerDetails } from '../../../../../customers/models/customerDetails';
 
 
 @Component({
@@ -36,7 +36,8 @@ export class SelectCustomerComponent implements OnInit {
     private fileSystemService: FileSystemService,
     private loaderService: NgxUiLoaderService,
     private sanitizer: DomSanitizer,
-    private loggerService: LoggerService
+    private loggerService: LoggerService,
+    private utilityService: UtilityService
   ) {
     this.filter.valueChanges.subscribe((data) => {
       this.dataToBeShown = this.search(data);
@@ -67,7 +68,7 @@ export class SelectCustomerComponent implements OnInit {
           */
 
           if(customer.imagePath){
-            customer.image = convertFileSrc( this.fileSystemService.customerImagesDir + '\\' + customer.imagePath)
+            customer.image = this.utilityService.getFilePath( this.fileSystemService.customerImagesDir + '\\' + customer.imagePath)
           }
           else {
             customer.image = 'assets/img/No-Image-Icon.png'

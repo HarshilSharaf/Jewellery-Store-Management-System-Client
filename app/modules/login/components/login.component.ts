@@ -1,8 +1,8 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService } from 'src/app/shared/services/Auth/auth.service';
-import { LoggerService } from 'src/app/shared/services/logger.service';
+import { AuthService } from '../../../shared/services/Auth/auth.service';
+import { LoggerService } from '../../../../../Backend/Shared/logger.service';
 import { MoveDirection, ClickMode, HoverMode, OutMode } from "tsparticles-engine";
 import type { Engine, Container } from "tsparticles-engine";
 import { loadFull } from "tsparticles";

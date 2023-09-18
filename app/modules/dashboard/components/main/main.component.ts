@@ -1,12 +1,12 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Chart } from 'chart.js';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
-import { ProductCategoryService } from 'src/app/modules/categories/components/product-categories/services/product-category.service';
-import { CustomerDataService } from 'src/app/modules/customers/services/customer-data.service';
-import { InventoryService } from 'src/app/modules/inventory/services/inventory.service';
-import { OrderService } from 'src/app/modules/orders/services/order.service';
-import { InfoCardData } from 'src/app/shared/models/infoCardData';
-import { LoggerService } from 'src/app/shared/services/logger.service';
+import { ProductCategoryService } from '../../../categories/components/product-categories/services/product-category.service';
+import { CustomerDataService } from '../../../customers/services/customer-data.service';
+import { InventoryService } from '../../../inventory/services/inventory.service';
+import { OrderService } from '../../../orders/services/order.service';
+import { InfoCardData } from '../../../../shared/models/infoCardData';
+import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
 import { RecentOrdersModel } from '../../models/recent-orders-model';
 import { MonthlySalesAndLabourModel, SalesAndLabourModel } from '../../models/sales-and-labour-model';
 import { TopProductCategoriesModel } from '../../models/top-product-categories-model';

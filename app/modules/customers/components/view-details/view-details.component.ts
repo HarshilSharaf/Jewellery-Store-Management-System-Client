@@ -7,16 +7,16 @@ import Swal from 'sweetalert2';
 import { CustomerDetails } from '../../models/customerDetails';
 import { CustomerDataService } from '../../services/customer-data.service';
 import { ImageUploadComponent } from '../image-upload/image-upload.component';
-import {FileSystemService} from '../../../../shared/services/file-system.service'
+import {FileSystemService} from '../../../../../../Backend/Shared/file-system.service'
 import { NgxUiLoaderService } from 'ngx-ui-loader'
-import { LoggerService } from 'src/app/shared/services/logger.service';
-import { getFilePath } from "../../../../../../../Utility/fileSystemUtils.ts";
-import { ColumnSchema } from 'src/app/shared/models/columnsSchema';
+import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
+import { UtilityService } from "../../../../../../Backend/Shared/utitlity.service";
+import { ColumnSchema } from '../../../../shared/models/columnsSchema';
 import { DecimalPipe } from '@angular/common';
-import { PaymentStatus } from 'src/app/modules/orders/models/orders-data-model';
+import { PaymentStatus } from '../../../orders/models/orders-data-model';
 import { CustomerOrders } from '../../models/customer-orders';
 import { DeleteCustomerImageModel, UpdateCustomerImageModel } from '../../models/customer-image-model';
-import { OrderService } from 'src/app/modules/orders/services/order.service';
+import { OrderService } from '../../../orders/services/order.service';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 
 @Component({
@@ -108,7 +108,8 @@ export class ViewDetailsComponent implements OnInit, OnDestroy, AfterViewChecked
     private loggerService: LoggerService,
     private orderService: OrderService,
     private router: Router,
-    private decimalPipe: DecimalPipe
+    private decimalPipe: DecimalPipe,
+    private utilityService: UtilityService
     ) {
     this.route.params.subscribe(params => {
       this.customerGuid = params['customerGuid']
@@ -166,7 +167,7 @@ export class ViewDetailsComponent implements OnInit, OnDestroy, AfterViewChecked
       next: (response) => {
         
         if(response.length > 0 && response[0].imagePath) {
-          this.thumbnail = getFilePath(this.fileSystemService.customerImagesDir + '\\' +  response[0].imagePath)
+          this.thumbnail = this.utilityService.getFilePath(this.fileSystemService.customerImagesDir + '\\' +  response[0].imagePath)
         }
         else {
           this.thumbnail = ''

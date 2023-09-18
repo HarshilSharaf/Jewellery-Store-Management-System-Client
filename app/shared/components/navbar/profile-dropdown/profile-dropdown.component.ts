@@ -1,10 +1,10 @@
 import { AfterContentChecked, AfterContentInit, AfterViewInit, Component, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { UserService } from 'src/app/modules/profile/services/user.service';
-import { AuthService } from 'src/app/shared/services/Auth/auth.service';
-import { convertFileSrc } from "@tauri-apps/api/tauri";
-import { FileSystemService } from 'src/app/shared/services/file-system.service';
-import { LoggerService } from 'src/app/shared/services/logger.service';
+import { UserService } from '../../../../modules/profile/services/user.service';
+import { AuthService } from '../../../../shared/services/Auth/auth.service';
+import { UtilityService } from 'Backend/Shared/utitlity.service';
+import { FileSystemService } from '../../../../../../Backend/Shared/file-system.service';
+import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
 
 
 @Component({
@@ -24,7 +24,8 @@ export class ProfileDropdownComponent implements OnInit {
     private router: Router,
     private userService: UserService,
     private fileSystemService:FileSystemService,
-    private loggerService: LoggerService
+    private loggerService: LoggerService,
+    private utilityService: UtilityService
   ) {}
 
   ngOnInit(): void {
@@ -32,7 +33,7 @@ export class ProfileDropdownComponent implements OnInit {
     this.userService.getUserImage(this._userID).subscribe({
       next: (response: any) => {
         if (response.length > 0 && response[0].imagePath) {
-          this.userImage = convertFileSrc(
+          this.userImage = this.utilityService.getFilePath(
             this.fileSystemService.userImagesDir +
               '\\' +
               response[0].imagePath

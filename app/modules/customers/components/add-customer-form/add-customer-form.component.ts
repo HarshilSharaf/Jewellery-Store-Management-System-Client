@@ -1,11 +1,11 @@
 import { Component, EventEmitter, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { HttpResponse } from 'src/app/models/http-response';
-import { FileSystemService } from 'src/app/shared/services/file-system.service';
+import { HttpResponse } from '../../../../models/http-response';
+import { FileSystemService } from '../../../../../../Backend/Shared/file-system.service';
 import { CustomerDetails } from '../../models/customerDetails';
 import { CustomerDataService } from '../../services/customer-data.service';
 import { ImageUploadComponent } from '../image-upload/image-upload.component';
-import { LoggerService } from 'src/app/shared/services/logger.service';
+import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
 @Component({
   selector: 'app-add-customer-form',
   templateUrl: './add-customer-form.component.html',

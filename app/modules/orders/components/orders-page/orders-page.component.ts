@@ -2,10 +2,10 @@ import { DecimalPipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { Subscription, debounceTime, distinctUntilChanged } from 'rxjs';
-import { ColumnSchema } from 'src/app/shared/models/columnsSchema';
+import { ColumnSchema } from '../../../../shared/models/columnsSchema';
 import { OrdersDataModel, PaymentStatus } from '../../models/orders-data-model';
 import { OrderService } from '../../services/order.service';
-import { LoggerService } from 'src/app/shared/services/logger.service';
+import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
 import Swal from 'sweetalert2';
 import { Router} from '@angular/router';
 

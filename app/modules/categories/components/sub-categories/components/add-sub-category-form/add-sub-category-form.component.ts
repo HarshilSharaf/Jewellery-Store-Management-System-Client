@@ -1,9 +1,9 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Subscription } from 'rxjs';
-import { HttpResponse } from 'src/app/models/http-response';
+import { HttpResponse } from '../../../../../../models/http-response';
 import { SubCategoryService } from '../../services/sub-category.service';
-import { LoggerService } from 'src/app/shared/services/logger.service';
+import { LoggerService } from '../../../../../../../../Backend/Shared/logger.service';
 
 @Component({
   selector: 'app-add-sub-category-form',

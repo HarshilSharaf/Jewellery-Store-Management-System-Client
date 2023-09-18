@@ -3,9 +3,9 @@ import { StepperOrientation, STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper
 import { Component, OnInit } from '@angular/core';
 import { Validators, FormBuilder } from '@angular/forms';
 import { Observable, map, Subscription } from 'rxjs';
-import { CustomerDetails } from 'src/app/modules/customers/models/customerDetails';
-import { ProductDataModel } from 'src/app/modules/orders/models/product-data-model';
-import { CartService } from 'src/app/shared/services/cart.service';
+import { CustomerDetails } from '../../../../../customers/models/customerDetails';
+import { ProductDataModel } from '../../../../models/product-data-model';
+import { CartService } from '../../../../../../shared/services/cart.service';
 
 @Component({
   selector: 'app-stepper',

@@ -1,5 +1,5 @@
 import { ErrorHandler, Injectable } from '@angular/core';
-import { LoggerService } from './logger.service';
+import { LoggerService } from '../../../../Backend/Shared/logger.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Injectable()
