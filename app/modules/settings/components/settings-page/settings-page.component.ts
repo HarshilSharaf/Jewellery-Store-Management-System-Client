@@ -5,8 +5,8 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { StoreService } from '../../../../../../Backend/Shared/store.service';
 import Swal from 'sweetalert2';
 import { SettingsModel } from '../../models/settings-model';
-import { relaunch } from '@tauri-apps/api/process';
 import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
+import { UtilityService } from 'Backend/Shared/utitlity.service';
 
 @Component({
   selector: 'app-settings-page',
@@ -25,7 +25,8 @@ export class SettingsPageComponent implements OnInit,OnDestroy {
     private location: Location,
     private fb: FormBuilder,
     private storeService: StoreService,
-    private loggerService: LoggerService
+    private loggerService: LoggerService,
+    private utilityService: UtilityService
   ) {
     // Initialize the form with default values and validators
     this.getDBSettings();
@@ -131,7 +132,7 @@ export class SettingsPageComponent implements OnInit,OnDestroy {
               if (result.dismiss === Swal.DismissReason.timer) {
                 try {
                   this.loggerService.LogInfo("Relaunching App!")
-                  await relaunch()
+                  await this.utilityService.relaunch()
                 } catch (error) {
                     this.loggerService.LogError(error as string, "relaunch()")
                     throw error;
