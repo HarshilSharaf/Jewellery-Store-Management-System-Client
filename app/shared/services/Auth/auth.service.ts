@@ -38,8 +38,8 @@ export class AuthService {
             lastLogin: userData[0].last_login_date,
             expiration: new Date(new Date().getTime() + (24 * 60 * 60 * 1000)).toISOString()
           }
-          await this.storeService.store.set('authData', authData)
-          await this.storeService.store.save()
+          await this.storeService.set('authData', authData)
+
           resolve({
             status: 200,
             ...authData
@@ -56,7 +56,7 @@ export class AuthService {
 
   public checkLogin(): Observable<boolean> {
     return from(new Promise<boolean>(async (resolve,reject) => {
-      const authData = await this.storeService.store.get('authData')
+      const authData = await this.storeService.get('authData')
 
       if (!authData) {
         reject(false)
@@ -69,8 +69,7 @@ export class AuthService {
             resolve(true)
           }
           else {
-            await this.storeService.store.delete('authData')
-            await this.storeService.store.save()
+            await this.storeService.delete('authData')
             reject(false)
           }
       }
@@ -80,8 +79,7 @@ export class AuthService {
   public async logout() {
     this.loggerService.LogInfo('logout() Request Started.');
     try {
-      await this.storeService.store.delete('authData');
-      await this.storeService.store.save();
+      await this.storeService.delete('authData');
       this.loggerService.LogInfo('logout() Request Completed.');
       this.router.navigate(['login']);
     } catch (error) {

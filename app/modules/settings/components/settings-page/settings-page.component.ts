@@ -40,10 +40,9 @@ export class SettingsPageComponent implements OnInit,OnDestroy {
 
   getDBSettings() {
     this.loggerService.LogInfo("getDBSettings() Request Started.")
-    this.storeService.store.get('currentDbInfo').then((data: SettingsModel) => {
+    this.storeService.get('currentDbInfo').then((data: SettingsModel) => {
       if (data == null) {
-        this.storeService.store
-          .get('defaultDbInfo')
+        this.storeService.get('defaultDbInfo')
           .then((defaultData: SettingsModel) => {
             this.isDefaultSettings = true;
             this.populateSettingsForm(defaultData);
@@ -100,11 +99,9 @@ export class SettingsPageComponent implements OnInit,OnDestroy {
           LAST_UPDATED_ON: new Date().toUTCString()
         };
 
-        this.storeService.store
-          .set('currentDbInfo', currentDbInfo)
+        this.storeService.set('currentDbInfo', currentDbInfo)
           .then(async () => {
-            await this.storeService.store.delete('authData');
-            await this.storeService.store.save();
+            await this.storeService.delete('authData');
             this.loggerService.LogInfo("saveSettings() Request Completed.")
 
             this.getDBSettings();
@@ -158,7 +155,7 @@ export class SettingsPageComponent implements OnInit,OnDestroy {
   }
 
   resetToDefault() {
-    this.storeService.store.get("defaultDbInfo").then((defaultData:SettingsModel) => {
+    this.storeService.get("defaultDbInfo").then((defaultData:SettingsModel) => {
       this.populateSettingsForm(defaultData, false)
       this.isDefaultSettings = true
       this.settingsForm.markAsDirty()

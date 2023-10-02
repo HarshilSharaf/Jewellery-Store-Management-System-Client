@@ -59,7 +59,7 @@ export class SidebarComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.storeService.store.get('authData').then((data: any) => {
+    this.storeService.get('authData').then((data: any) => {
       let imagePath:string = ''
       this.userData = {
         displayName: data.userName,

@@ -52,7 +52,7 @@ export class ProfilePageComponent
   }
 
   ngOnInit(): void {
-    this.storeService.store.get('authData').then((data: any) => {
+    this.storeService.get('authData').then((data: any) => {
       this.userID = Number(data.uid);
       this.getUserDetails();
       this.getUserImage();
@@ -112,12 +112,10 @@ export class ProfilePageComponent
         Swal.fire('Updated!', 'Your details updated successfully!', 'success');
 
         // update the data in the authData object in the store
-        this.storeService.store.get('authData').then((data: any) => {
+        this.storeService.get('authData').then((data: any) => {
           data.userName = userDetails.userName;
           data.email = userDetails.email;
-          this.storeService.store.set('authData', { ...data }).then(() => {
-            this.storeService.store.save();
-
+          this.storeService.set('authData', { ...data }).then(() => {
             // emit the new values for the subscribers
             this.userService.userName.next(userDetails.userName);
           });

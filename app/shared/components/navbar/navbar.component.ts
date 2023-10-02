@@ -18,7 +18,7 @@ export class NavbarComponent implements OnInit {
   ) {}
   isCollapsed = true;
   ngOnInit() {
-    this.storeService.store.get('authData').then((data: any) => {
+    this.storeService.get('authData').then((data: any) => {
       this.userDisplayName = data.userName;
       this.userID = data.uid
     });
