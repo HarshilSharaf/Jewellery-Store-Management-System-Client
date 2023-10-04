@@ -105,7 +105,6 @@ export class SettingsPageComponent implements OnInit,OnDestroy {
             this.loggerService.LogInfo("saveSettings() Request Completed.")
 
             this.getDBSettings();
-            let timerInterval: any;
             Swal.fire({
               title: 'Settings Saved Successfully!',
               html: `<span class="text-success ">Relaunching App. Please Wait!</span>`,
@@ -115,16 +114,7 @@ export class SettingsPageComponent implements OnInit,OnDestroy {
               allowOutsideClick: false,
               didOpen: () => {
                 Swal.showLoading();
-                const b = Swal.getHtmlContainer()?.querySelector(
-                  'b'
-                ) as HTMLElement;
-                timerInterval = setInterval(() => {
-                  b.textContent = Swal.getTimerLeft()?.toString() ?? '000000';
-                }, 100);
-              },
-              willClose: () => {
-                clearInterval(timerInterval);
-              },
+              }
             }).then(async (result) => {
               if (result.dismiss === Swal.DismissReason.timer) {
                 try {

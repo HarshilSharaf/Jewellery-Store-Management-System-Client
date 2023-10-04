@@ -185,7 +185,6 @@ export class CreateInvoiceComponent implements OnInit {
         this.loaderService.stop()
         if (response.length == 0 || !response[0]?.message ) {
           this.cartService.emptyCart()
-          let timerInterval: any
           Swal.fire({
             title: 'Order Saved Successfully!',
             html: 'Redirecting to orders page.',
@@ -193,13 +192,6 @@ export class CreateInvoiceComponent implements OnInit {
             timerProgressBar: true,
             didOpen: () => {
               Swal.showLoading()
-              const b = Swal.getHtmlContainer()?.querySelector('b') as HTMLElement
-              timerInterval = setInterval(() => {
-                b.textContent = Swal.getTimerLeft()?.toString() ?? '000000'
-              }, 100)
-            },
-            willClose: () => {
-              clearInterval(timerInterval)
             }
           }).then((result) => {
             if (result.dismiss === Swal.DismissReason.timer) {
