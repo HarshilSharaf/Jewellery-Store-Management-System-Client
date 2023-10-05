@@ -15,7 +15,7 @@ export interface UtilityServiceInterface {
   
     /**
      * Relaunches the application.
-     * 
+     * @async
      * @returns {Promise<void>} A Promise that is resolved when the relaunch operation is complete.
      */
     relaunch(): Promise<void>;

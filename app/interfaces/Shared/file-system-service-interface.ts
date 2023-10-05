@@ -45,6 +45,7 @@ export interface FileSystemServiceInterface {
 
     /**
     * Deletes a file if it exists in the specified directory.
+    * @async
     * @param {string} dirPath - The path of the directory where the file is stored.
     * @param {string} fileName - The name of the file to be deleted.
     * @returns {Promise<void>} A Promise that resolves when the file is deleted, or rejects if an error occurs.
@@ -53,6 +54,7 @@ export interface FileSystemServiceInterface {
 
     /**
      * Compresses and saves an image to the specified path.
+     * @async
      * @param {string} savePath - The path where the image will be saved.
      * @param {*} imageFile - The image file to be compressed and saved.
      * @param {string} funcName - A descriptive name for the function call (optional).
@@ -62,6 +64,7 @@ export interface FileSystemServiceInterface {
 
     /**
      * Retrieves a customer's image in base64 format.
+     * @async
      * @param {string} imageFileName - The name of the customer's image file.
      * @returns {Promise<string>} A Promise that resolves with the customer's image in base64 format, or rejects if an error occurs.
      */
@@ -69,6 +72,7 @@ export interface FileSystemServiceInterface {
 
     /**
      * Retrieves a product's image in base64 format.
+     * @async
      * @param {string} imageFileName - The name of the product's image file.
      * @returns {Promise<string>} A Promise that resolves with the product's image in base64 format, or rejects if an error occurs.
      */
@@ -76,6 +80,7 @@ export interface FileSystemServiceInterface {
 
     /**
      * Converts an image file to a Uint8Array.
+     * @async
      * @param {File} file - The image file to be converted.
      * @returns {Promise<Uint8Array>} A Promise that resolves with the Uint8Array representation of the image file, or rejects if an error occurs.
      */
@@ -83,6 +88,7 @@ export interface FileSystemServiceInterface {
 
     /**
      * Saves a customer's image file.
+     * @async
      * @param {*} imageFile - The customer's image file to be saved.
      * @param {string} imageFileName - The name under which the image will be saved.
      * @returns {Promise<void>} A Promise that resolves when the image is saved, or rejects if an error occurs.
@@ -91,6 +97,7 @@ export interface FileSystemServiceInterface {
 
     /**
      * Saves a product's image file.
+     * @async
      * @param {*} imageFile - The product's image file to be saved.
      * @param {string} imageFileName - The name under which the image will be saved.
      * @returns {Promise<void>} A Promise that resolves when the image is saved, or rejects if an error occurs.
@@ -99,6 +106,7 @@ export interface FileSystemServiceInterface {
 
     /**
      * Updates a product's image file.
+     * @async
      * @param {string} oldFileName - The current name of the product's image file.
      * @param {string} newFileName - The new name under which the image will be saved.
      * @param {*} imageFile - The updated product's image file.
@@ -108,6 +116,7 @@ export interface FileSystemServiceInterface {
 
     /**
      * Deletes a customer's image file.
+     * @async
      * @param {string} fileName - The name of the customer's image file to be deleted.
      * @returns {Promise<void>} A Promise that resolves when the image is deleted, or rejects if an error occurs.
      */
@@ -115,6 +124,7 @@ export interface FileSystemServiceInterface {
 
     /**
      * Deletes a product's image file.
+     * @async
      * @param {string} fileName - The name of the product's image file to be deleted.
      * @returns {Promise<void>} A Promise that resolves when the image is deleted, or rejects if an error occurs.
      */
@@ -122,6 +132,7 @@ export interface FileSystemServiceInterface {
 
     /**
      * Saves a user's image file.
+     * @async
      * @param {*} imageFile - The user's image file to be saved.
      * @param {string} imageFileName - The name under which the image will be saved.
      * @returns {Promise<void>} A Promise that resolves when the image is saved, or rejects if an error occurs.
@@ -130,6 +141,7 @@ export interface FileSystemServiceInterface {
 
     /**
      * Updates a user's image file.
+     * @async
      * @param {string} oldFileName - The current name of the user's image file.
      * @param {string} newFileName - The new name under which the image will be saved.
      * @param {*} imageFile - The updated user's image file.
@@ -139,6 +151,7 @@ export interface FileSystemServiceInterface {
 
     /**
      * Deletes a user's image file.
+     * @async
      * @param {string} fileName - The name of the user's image file to be deleted.
      * @returns {Promise<void>} A Promise that resolves when the image is deleted, or rejects if an error occurs.
      */
