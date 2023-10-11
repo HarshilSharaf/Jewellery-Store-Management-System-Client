@@ -66,7 +66,7 @@ export class InventoryPageComponent implements OnInit {
                   cardIcon: '',
                   cardValue: `${response[0].total ?? 0} gms`,
                   percentageIncrease: response[0].percent_increase,
-                  cardIconImage: `../../../../assets/img/${goldAndSilverCategory[
+                  cardIconImage: `./assets/img/${goldAndSilverCategory[
                     index
                   ].masterCategoryName.toLowerCase()}-bars.png`,
                   monthsString: 'last 6 months',
