@@ -3,9 +3,11 @@ import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../shared/services/Auth/auth.service';
 import { LoggerService } from '../../../../../Backend/Shared/logger.service';
-import { MoveDirection, ClickMode, HoverMode, OutMode } from "tsparticles-engine";
-import type { Engine, Container } from "tsparticles-engine";
-import { loadFull } from "tsparticles";
+import { MoveDirection, OutMode } from "@tsparticles/engine";
+import type { Container, Engine } from "@tsparticles/engine";
+import { loadSlim } from "@tsparticles/slim";
+import { NgParticlesService } from '@tsparticles/angular';
+
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
@@ -28,14 +30,16 @@ export class LoginComponent implements OnInit,OnDestroy {
     fpsLimit: 120,
     interactivity: {
         events: {
-            onClick: {
-                enable: true,
-                mode: ClickMode.push,
-            },
-            onHover: {
-                enable: true,
-                mode: HoverMode.repulse,
-            },
+          // TODO: The following properties does not work after version upgrade
+          // Need to find a workaround
+            // onClick: {
+            //     enable: true,
+            //     mode: ClickMode.push,
+            // },
+            // onHover: {
+            //     enable: true,
+            //     mode: HoverMode.repulse,
+            // },
             resize: true,
         },
         modes: {
@@ -95,18 +99,28 @@ export class LoginComponent implements OnInit,OnDestroy {
   constructor(
     private authService: AuthService,
     private router: Router,
-    private loggerService: LoggerService
+    private loggerService: LoggerService,
+    private readonly ngParticlesService: NgParticlesService
   ) {}
 
   ngOnInit(): void {
-    document.body.style.background = 'linear-gradient(to right, #00c6ff, #0072ff)'
+    document.body.style.background = 'linear-gradient(to right, #00c6ff, #0072ff)';
+    this.particlesInit();
   }
   
   particlesLoaded(container:Container): void {
 }
 
-  async particlesInit(engine:Engine): Promise<void> {
-    await loadFull(engine);
+  async particlesInit(): Promise<void> {
+    await this.ngParticlesService.init(async (engine) => {
+      console.log(engine);
+
+      // Starting from 1.19.0 you can add custom presets or shape here, using the current tsParticles instance (main)
+      // this loads the tsparticles package bundle, it's the easiest method for getting everything ready
+      // starting from v2 you can add only the features you need reducing the bundle size
+      //await loadFull(engine);
+      await loadSlim(engine);
+    });
   }
 
   login(e: Event) {
