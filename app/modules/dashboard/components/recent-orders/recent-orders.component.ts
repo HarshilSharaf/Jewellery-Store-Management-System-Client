@@ -12,6 +12,8 @@ export class RecentOrdersComponent implements OnInit {
 
   public _recentOrders: any
 
+  protected skeletonRows = 5;
+
   @Input() set recentOrders(data:any) {
     this._recentOrders = [...data]
   }
