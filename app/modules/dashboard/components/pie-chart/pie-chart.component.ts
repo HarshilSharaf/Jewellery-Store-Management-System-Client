@@ -12,12 +12,15 @@ export class PieChartComponent implements OnInit {
   public _topSellingProducts:TopProductCategoriesModel[] = []
   @Input() set topSellingProducts(data:TopProductCategoriesModel[]) {
     this._topSellingProducts = [...data]
+    if(this._topSellingProducts.length)
+    {
+      this.createChart();
+    }
   }
 
   constructor() { }
 
   ngOnInit(): void {
-    this.createChart();
   }
 
   createChart() {

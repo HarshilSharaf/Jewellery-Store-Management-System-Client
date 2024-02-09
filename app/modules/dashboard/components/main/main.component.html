@@ -11,10 +11,10 @@
 
   <div class="row">
     <div class="col-12 col-xl-6 mb-4">
-      <app-bar-chart *ngIf="monthlySalesAndLabour.length != 0" [monthlySalesAndLabour]="monthlySalesAndLabour"></app-bar-chart>
+        <app-bar-chart [monthlySalesAndLabour]="monthlySalesAndLabour"></app-bar-chart>
     </div>
     <div class="col-12 col-xl-6 mb-4 align-items-stretch">
-      <app-pie-chart *ngIf="topSellingProducts.length!=0" [topSellingProducts]="topSellingProducts"></app-pie-chart>
+      <app-pie-chart [topSellingProducts]="topSellingProducts"></app-pie-chart>
     </div>
   </div>
 

@@ -12,11 +12,14 @@ export class BarChartComponent implements OnInit {
   public _monthlySalesAndLabour:MonthlySalesAndLabourModel[] = []
   @Input() set monthlySalesAndLabour(data:MonthlySalesAndLabourModel[]) {
     this._monthlySalesAndLabour = [...data]
+    if(this._monthlySalesAndLabour.length)
+    {
+      this.createChart();
+    }
   }
   constructor() { }
 
   ngOnInit(): void {
-    this.createChart();
   }
 
   createChart() {
