@@ -97,7 +97,7 @@ export class ViewDetailsComponent implements OnInit, OnDestroy, AfterViewChecked
     ]
     private itemsPerPage = 5
     public totalRecords = 0
-
+  isLoadingCustomerOrders = false;
   constructor(private customerDataService: CustomerDataService,
     private route: ActivatedRoute,
     private sanitizer: DomSanitizer,
@@ -334,6 +334,7 @@ export class ViewDetailsComponent implements OnInit, OnDestroy, AfterViewChecked
 
   protected getCustomerOrders(itemsPerPage = this.itemsPerPage, pageNumber = 1, searchQuery:string = '') {
     this.loggerService.LogInfo("getCustomerOrders() Request Started.")
+    this.isLoadingCustomerOrders = true;
     this.getCustomerOrdersSubscription = this.customerDataService.getCustomerOrders(this.customerGuid, itemsPerPage, pageNumber, searchQuery)
     .pipe(
       debounceTime(300), // Delay for 300 milliseconds
@@ -343,9 +344,11 @@ export class ViewDetailsComponent implements OnInit, OnDestroy, AfterViewChecked
       next: (res:any) => {
         this.totalRecords = res[0].totalRecords
         this.customerOrdersData = this.prepareCustomerOrdersData(res.slice(1))
+        this.isLoadingCustomerOrders = false;
         this.loggerService.LogInfo("getCustomerOrders() Request Completed.")
       },
       error: (error) => {
+        this.isLoadingCustomerOrders = false;
         this.loggerService.LogError(error, "getCustomerOrders()")
       }
     })
