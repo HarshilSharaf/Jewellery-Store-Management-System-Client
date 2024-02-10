@@ -19,7 +19,9 @@
                     (searchQuery)="handleSearchQuery($event)"
                     (pageChangeEvent)="handlePageChange($event)"
                     [entityText]="'Products'"
-                    [sortByColumn]="'id'"></app-data-table>
+                    [sortByColumn]="'id'"
+                    [isLoading]="isLoading">
+                </app-data-table>
             </div>
         </div>
     </div>

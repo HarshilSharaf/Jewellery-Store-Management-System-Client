@@ -82,6 +82,8 @@ export class AvailableProductsComponent implements OnInit, OnDestroy {
   private itemsPerPage = 5
   public totalRecords = 0
   private currentSearchQuery = ''
+  protected isLoading = false;
+
   constructor(
     private availableProductService: AvailableProductsService,
     private fileSystemService: FileSystemService,
@@ -129,6 +131,7 @@ export class AvailableProductsComponent implements OnInit, OnDestroy {
 
   getAllProductsData(itemsPerPage = this.itemsPerPage, pageNumber = 1, searchQuery:string = '') {
     this.loggerService.LogInfo("getAllProductsData() Request Started.")
+    this.isLoading = true;
     this.allProductsDataSubscription = this.availableProductService.getAllProductsData(itemsPerPage, pageNumber,searchQuery).subscribe({
       next: async (response: any) => {
         this.totalRecords = response[0].totalRecords
@@ -157,9 +160,11 @@ export class AvailableProductsComponent implements OnInit, OnDestroy {
         }
         
         this.allProductsData = [...productsData]
+        this.isLoading = false;
         this.loggerService.LogInfo("getAllProductsData() Request Completed.")
       },
       error: (error) => {
+        this.isLoading = false;
         this.loggerService.LogError(error, "getAllProductsData()")
       }
     })
