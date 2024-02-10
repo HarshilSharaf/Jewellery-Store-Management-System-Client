@@ -13,6 +13,7 @@ import { MasterCategoriesModel } from '../../models/categories-model';
 export class MasterCategoriesComponent implements OnInit,OnDestroy {
 
   getMasterCategoriesSubscription: Subscription = new Subscription;
+  isLoading = false;
 
   constructor(
     private masterCategoryService: MasterCategoryService,
@@ -28,16 +29,19 @@ export class MasterCategoriesComponent implements OnInit,OnDestroy {
 
   getMasterCategoriesData(){
     this.loggerService.LogInfo("getMasterCategoriesData() Request Started From master-categories component.")
+    this.isLoading = true;
 
     this.loaderService.start()
     this.getMasterCategoriesSubscription = this.masterCategoryService.getMasterCategories().subscribe({
       next: (response:MasterCategoriesModel[]) => {
         this.masterCategoriesData = [...response]
         this.loggerService.LogInfo("getMasterCategoriesData() Request Completed From master-categories component.")
+        this.isLoading = false;
         this.loaderService.stop()
       },
       error: (error) => {
         this.loggerService.LogError(error, "getMasterCategoriesData() From master-categories component")
+        this.isLoading = false;
         this.loaderService.stop()
       }
     })

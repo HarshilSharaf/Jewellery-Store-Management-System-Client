@@ -12,6 +12,11 @@ export class AvailableMasterCategoriesComponent implements OnInit {
   pageSize = 4;
   _categoriesData: MasterCategoriesModel[] = []
   lengthOfData!: number
+  _isLoading = false;
+  @Input() set isLoading(value: boolean)
+  {
+    this._isLoading = value;
+  }
   @Input() set categoriesData(data: MasterCategoriesModel[]) {
     this._categoriesData = data
     this.lengthOfData = this._categoriesData.length
