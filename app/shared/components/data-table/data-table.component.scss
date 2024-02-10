@@ -27,57 +27,69 @@ table {
       border-width: 2.2px;
     }
   }
+    .dataTable {
+      mat-table {
+        border-radius: 10px;
+        overflow-x: auto;
+      }
   
-  mat-table {
-    border-radius: 10px;
-    overflow-x: auto;
-  }
   
+      mat-header-cell {
+        color: #000000;
+        font-weight: bold;
+        font-size: 0.9rem;
+        flex-direction: column;
+        justify-content: center;
+      }
   
-  mat-header-cell {
-    color: #000000;
-    font-weight: bold;
-    font-size: 0.9rem;
-    flex-direction: column;
-    justify-content: center;
-  }
+      ::ng-deep .mat-sort-header-arrow {
+        color: #56ab24;
+      }
   
-  ::ng-deep .mat-sort-header-arrow {
-    color: #56ab24;
-  }
+      ::ng-deep .mat-paginator-range-label,
+      .mat-paginator-page-size-label,
+      .mat-select-value-text {
+        font-family: "Poppins", "Roboto", sans-serif !important;
+      }
   
-  ::ng-deep .mat-paginator-range-label,
-  .mat-paginator-page-size-label,
-  .mat-select-value-text {
-    font-family: "Poppins", "Roboto", sans-serif !important;
-  }
+      // Make Striped rows on odd place
+      mat-row:nth-child(odd) {
+        background: rgba(0, 0, 0, 0.025);
+      }
   
-  // Make Striped rows on odd place
-  mat-row:nth-child(odd) {
-    background: rgba(0, 0, 0, 0.025);
-  }
+      mat-row {
+        padding-top: 10px;
+        padding-bottom: 10px;
+      }
   
-  mat-row {
-    padding-top: 10px;
-    padding-bottom: 10px;
+      mat-row:hover {
+        cursor: pointer;
+      }
+  
+      mat-row,
+      mat-header-row {
+        min-width: 800px;
+      }
+  
+      mat-cell {
+        text-align: center;
+        justify-content: center;
+        text-overflow: ellipsis;
+        // overflow-x: wrap;
+      }
+
+      .totalAmountWithGst::before {
+        content: '₹\00a0';
+      }
+    }
+  
+  .loadingTable{
+    mat-cell {
+      text-align: center;
+      justify-content: center;
+    }
   }
 
-  mat-row:hover {
-    cursor: pointer;
-  }
-  
-  mat-row,
-  mat-header-row {
-    min-width: 800px;
-  }
-  
-  mat-cell {
-    text-align: center;
-    justify-content: center;
-    text-overflow: ellipsis;
-    // overflow-x: wrap;
-  }
-  
   .hideMatTable { display: none; }
   
   .dataTableContainer {
@@ -131,9 +143,6 @@ table {
     font-weight: bold;
   }
 
-  .totalAmountWithGst::before {
-    content: '₹\00a0';
-  }
 
   @media only screen and (min-width: 321px) and (max-width:768px) {
     .mat-paginator-range-label {

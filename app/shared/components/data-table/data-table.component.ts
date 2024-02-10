@@ -79,6 +79,13 @@ export class DataTableComponent<T> implements OnInit,AfterViewInit {
   currentSearchTerm = ''
   disableButtonForProducts: string[] = [];
 
+  protected _isLoading = false;
+  @Input() set isLoading(value: boolean)
+  {
+    this._isLoading = value;
+  }
+
+
   constructor(
     private cdr: ChangeDetectorRef,
     private cartService: CartService
