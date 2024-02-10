@@ -12,6 +12,11 @@ export class AvailableProductCategoriesComponent implements OnInit {
   pageSize = 4;
   _categoriesData: ProductCategoriesModel[] = []
   lengthOfData!: number
+  _isLoading = false;
+  @Input() set isLoading(value: boolean)
+  {
+    this._isLoading = value;
+  }
   @Input() set categoriesData(data: ProductCategoriesModel[]) {
     this._categoriesData = data
     this.lengthOfData = this._categoriesData.length

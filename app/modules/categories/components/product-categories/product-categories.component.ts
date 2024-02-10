@@ -13,7 +13,7 @@ import { ProductCategoriesModel } from '../../models/categories-model';
 export class ProductCategoriesComponent implements OnInit {
 
   getproductCategoriesSubscription: Subscription = new Subscription;
-
+  isLoading = false;
   constructor(
     private productCategoryService: ProductCategoryService,
     private loaderService: NgxUiLoaderService,
@@ -28,15 +28,17 @@ export class ProductCategoriesComponent implements OnInit {
 
   getProductCategoriesData(){
     this.loggerService.LogInfo("getProductCategoriesData() Request Started From product-categories component.")
-
+    this.isLoading = true;
     this.loaderService.start()
     this.getproductCategoriesSubscription = this.productCategoryService.getProductCategories().subscribe({
       next: (response: ProductCategoriesModel[]) => {
         this.productCategoriesData = [...response]
+        this.isLoading = false;
         this.loaderService.stop()
         this.loggerService.LogInfo("getProductCategoriesData() Request Completed From product-categories component.")
       },
       error: (error) => {
+        this.isLoading = false;
         this.loggerService.LogError(error, "getProductCategoriesData() From product-categories component")
         this.loaderService.stop()
       }
