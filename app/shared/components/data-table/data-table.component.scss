@@ -84,6 +84,15 @@ table {
     }
   
   .loadingTable{
+
+    mat-header-cell {
+      color: #000000;
+      font-weight: bold;
+      font-size: 0.9rem;
+      flex-direction: column;
+      justify-content: center;
+    }
+
     mat-cell {
       text-align: center;
       justify-content: center;
