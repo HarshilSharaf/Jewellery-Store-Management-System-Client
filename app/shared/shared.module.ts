@@ -13,6 +13,8 @@ import { CartSideBarComponent } from './components/cart-side-bar/cart-side-bar.c
 import { CartItemsComponent } from './components/cart-items/cart-items.component';
 import { PageHeaderComponent } from './components/page-header/page-header.component';
 import { DataTableComponent } from './components/data-table/data-table.component';
+import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
+import { SkeletonLoaderComponent } from './components/skeleton-loader/skeleton-loader.component';
 
 
 
@@ -29,12 +31,16 @@ import { DataTableComponent } from './components/data-table/data-table.component
     CartItemsComponent,
     PageHeaderComponent,
     DataTableComponent,
+    SkeletonLoaderComponent
   ],
   imports: [
     CommonModule,
     RouterModule,
     MaterialModule,
     CollapseModule.forRoot(),
+    NgxSkeletonLoaderModule.forRoot({
+      animation: 'pulse'
+    })
   ],
   exports: [
     FooterComponent,
@@ -45,7 +51,8 @@ import { DataTableComponent } from './components/data-table/data-table.component
     CartSideBarComponent,
     CartItemsComponent,
     PageHeaderComponent,
-    DataTableComponent
+    DataTableComponent,
+    SkeletonLoaderComponent
   ]
 })
 export class SharedModule { }

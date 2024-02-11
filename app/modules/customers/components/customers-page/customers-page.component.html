@@ -32,6 +32,7 @@
             [sortByColumn]="'customerName'"
             (searchQuery)="handleSearchQuery($event)"
             (pageChangeEvent)="handlePageChange($event)"
+            [isLoading]="isLoading"
             >
         </app-data-table>
     </div>

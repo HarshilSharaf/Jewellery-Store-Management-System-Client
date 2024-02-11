@@ -12,6 +12,11 @@ export class AvailableSubCategoriesComponent implements OnInit {
   pageSize = 4;
   _categoriesData: SubCategoriesModel[] = []
   lengthOfData!: number
+  _isLoading = false;
+  @Input() set isLoading(value: boolean)
+  {
+    this._isLoading = value;
+  }
   @Input() set categoriesData(data: SubCategoriesModel[]) {
     this._categoriesData = data
     this.lengthOfData = this._categoriesData.length

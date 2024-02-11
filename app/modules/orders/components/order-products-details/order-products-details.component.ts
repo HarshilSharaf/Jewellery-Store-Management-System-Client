@@ -13,6 +13,11 @@ export class OrderProductsDetailsComponent implements OnInit {
     this._productDetails = data
   }
 
+  _isLoading = false;
+  @Input() set isLoading(value: boolean){
+    this._isLoading = value;
+  }
+
   constructor() { }
 
   ngOnInit(): void {

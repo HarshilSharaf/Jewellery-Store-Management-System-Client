@@ -62,6 +62,7 @@ export class CustomersPageComponent implements OnInit, AfterViewInit, OnDestroy 
   private itemsPerPage = 5
   public totalRecords = 0
   private currentSearchQuery= ''
+  protected isLoading = false;
 
   constructor(
     private customerService: CustomerDataService,
@@ -91,7 +92,7 @@ export class CustomersPageComponent implements OnInit, AfterViewInit, OnDestroy 
   getAllCustomersData(itemsPerPage = this.itemsPerPage, pageNumber = 1,  searchQuery:string = '') {
     this.loggerService.LogInfo("getAllCustomersData() Request Started From customers-page component.")
     this.loaderService.start()
-    
+    this.isLoading = true;
     this.getCustomerDataSubscription = this.customerService.getAllCustomers(false, itemsPerPage, pageNumber, searchQuery)
     .pipe(
       debounceTime(300), // Delay for 300 milliseconds
@@ -106,11 +107,13 @@ export class CustomersPageComponent implements OnInit, AfterViewInit, OnDestroy 
               element.customerName = element.firstName + ' ' + element.lastName
             });
             this.customerData = responseData;
+            this.isLoading = false;
             this.loaderService.stop()
             this.loggerService.LogInfo("getAllCustomersData() Request Completed From customers-page component.")
           }
         },
         error: (error:any)=>{
+          this.isLoading = false;
           this.loaderService.stop()
           this.loggerService.LogError(error, "getAllCustomersData() From customers-page component")
         }

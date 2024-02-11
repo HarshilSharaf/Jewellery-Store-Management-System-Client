@@ -15,7 +15,7 @@ export class SubCategoriesComponent implements OnInit {
 
   getSubCategoriesSubscription: Subscription = new Subscription;
   subCategoriesData: SubCategoriesModel[] = []
-
+  isLoading = false;
   constructor(
     private subCategoryService: SubCategoryService,
     private loaderService: NgxUiLoaderService,
@@ -28,15 +28,17 @@ export class SubCategoriesComponent implements OnInit {
 
   getSubCategoriesData() {
     this.loggerService.LogInfo("getSubCategories() Request Started From sub-categories component.")
-
+    this.isLoading = true;
     this.loaderService.start()
     this.getSubCategoriesSubscription = this.subCategoryService.getSubCategories().subscribe({
       next: (response: SubCategoriesModel[]) => {
         this.subCategoriesData = [...response]
+        this.isLoading = false;
         this.loaderService.stop()
         this.loggerService.LogInfo("getSubCategories() Request Completed From sub-categories component.")
       },
       error: (error) => {
+        this.isLoading = false;
         this.loggerService.LogError(error, "getSubCategories() From sub-categories component")
         this.loaderService.stop()
       }

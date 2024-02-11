@@ -79,7 +79,8 @@
 
 
         <div class="table-responsive mt-2 rounded border border-dark">
-            <table class="table table-striped table-hover table-bordered">
+            <table class="table table-bordered"
+            [ngClass]="{'table-striped': !_isLoading, 'table-hover': !_isLoading }">
                 <thead class="table-danger">
                     <tr>
                         <th scope="col">#</th>
@@ -91,27 +92,39 @@
                 </thead>
 
                 <tbody>
-                    <tr *ngFor="let payment of _paymentsData;index as i">
-                        <td>
-                            {{i+1}}
-                        </td>
 
-                        <td>
-                            {{payment.paymentType | titlecase}}
-                        </td>
+                    <ng-container *ngIf="_isLoading">
+                        <tr *ngFor="let row of [0, 1, 2, 3, 4]" class="text-center">
+                            <td *ngFor="let cell of [0, 1, 2, 3, 4]">
+                                <app-skeleton-loader [count]="1" [shapeOfLoader]="'circle'"
+                                [theme]="{height: '20px', width: '80%', 'border-radius': '0'}" />
+                            </td>
+                        </tr>
+                    </ng-container>
 
-                        <td>
-                            &#8377;{{payment.amount}}
-                        </td>
-
-                        <td>
-                            {{payment.receivedOn | date:'medium'}}
-                        </td>
-
-                        <td>
-                            {{payment.remarks}}
-                        </td>
-                    </tr>
+                    <ng-container *ngIf="!_isLoading">
+                        <tr *ngFor="let payment of _paymentsData;index as i">
+                            <td>
+                                {{i+1}}
+                            </td>
+                    
+                            <td>
+                                {{payment.paymentType | titlecase}}
+                            </td>
+                    
+                            <td>
+                                &#8377;{{payment.amount}}
+                            </td>
+                    
+                            <td>
+                                {{payment.receivedOn | date:'medium'}}
+                            </td>
+                    
+                            <td>
+                                {{payment.remarks}}
+                            </td>
+                        </tr>
+                    </ng-container>
                 </tbody>
 
             </table>

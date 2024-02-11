@@ -225,7 +225,9 @@
                 (searchQuery)="handleSearchQuery($event)"
                 (pageChangeEvent)="handlePageChange($event)" 
                 (refreshDataSource)="getCustomerOrders()" [entityText]="'Customer Orders'"
-                [sortByColumn]="'orderDate'"></app-data-table>
+                [sortByColumn]="'orderDate'"
+                [isLoading]="isLoadingCustomerOrders">
+            </app-data-table>
         </div>
     </div>
 </div>

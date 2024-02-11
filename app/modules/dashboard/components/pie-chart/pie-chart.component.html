@@ -3,8 +3,16 @@
         <h6>Top Selling Products</h6>
     </div>
     <div class="card-body text-center">
+        <app-skeleton-loader *ngIf="_topSellingProducts.length == 0"
+        [count]="5"
+        [shapeOfLoader]="'circle'" 
+        [theme]="{'height': '15px', width: '100px', 'border-radius':'2px'}" />
         <div class="chart-container align-items-center justify-content-center"  style="position: relative;">
-            <canvas id="pieChart" style="max-height:20rem;">{{ chart }}</canvas>
+            <app-skeleton-loader *ngIf="_topSellingProducts.length == 0"
+            [count]="1"
+            [shapeOfLoader]="'circle'" 
+            [theme]="{'height': '20rem', width: '50%'}" />
+            <canvas id="pieChart" [hidden]="_topSellingProducts.length == 0" style="max-height:20rem;">{{ chart }}</canvas>
         </div>
     </div>
 </div>

@@ -83,6 +83,7 @@ displayNameForColumns: ColumnSchema[] =
 
   getAllOrdersSubscription = new Subscription
   ordersData:OrdersDataModel[] = []
+  protected isLoading = false;
   constructor(
     private ordersService: OrderService,
     private decimalPipe: DecimalPipe,
@@ -96,6 +97,7 @@ displayNameForColumns: ColumnSchema[] =
 
   getAllOrders(itemsPerPage = this.itemsPerPage, pageNumber = 1, searchQuery:string = '') {
     this.loggerService.LogInfo("getAllOrders() Request Started.")
+    this.isLoading = true
 
     this.loaderService.start()
     this.getAllOrdersSubscription = this.ordersService.getAllOrders(itemsPerPage, pageNumber, searchQuery)
@@ -107,10 +109,12 @@ displayNameForColumns: ColumnSchema[] =
       next: (response)=> {
         this.totalRecords = response[0].totalRecords
         this.ordersData = this.prepareOrdersData(response.slice(1))
+        this.isLoading = false
         this.loggerService.LogInfo("getAllOrders() Request Completed.")
         this.loaderService.stop()
       },
       error: (error)=> {
+        this.isLoading = false
         this.loggerService.LogError(error, "getAllOrders()")
         this.loaderService.stop()
       }
