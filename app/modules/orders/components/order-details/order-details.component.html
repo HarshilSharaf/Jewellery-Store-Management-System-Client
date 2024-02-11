@@ -150,6 +150,7 @@
         <app-order-payments [paymentsData]="paymentsData" [orderGuid]="orderGuid"
             [isPaymentDone]=" orderData && orderData.isPaymentDone"
             (refreshPaymentsData)="getOrderDetails()"
+            [isLoading]="isLoading"
             ></app-order-payments>
     </div>
 

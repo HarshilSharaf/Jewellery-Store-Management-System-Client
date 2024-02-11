@@ -27,7 +27,7 @@ export class OrderDetailsComponent implements OnInit {
   paymentsData:PaymentsDataModel[] = []
   totalPaymentRecieved = 0
   imageLoaded = false
-
+  isLoading = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -59,7 +59,7 @@ export class OrderDetailsComponent implements OnInit {
 
   getOrderDetails() {
     this.loggerService.LogInfo("getOrderDetails() Request Started.")
-
+    this.isLoading = true;
     this.loaderService.start()
     this.orderService.getOrderDetails(this.orderGuid).subscribe({
       next: (response:any) => {
@@ -88,10 +88,12 @@ export class OrderDetailsComponent implements OnInit {
           this.totalPaymentRecieved += Number(payment.amount)
         })
         this.invoiceData.next(this.orderData)
+        this.isLoading = false;
         this.loaderService.stop()
         this.loggerService.LogInfo("getOrderDetails() Request Completed.")
       },
       error: (error)=> {
+        this.isLoading = false;
         this.loaderService.stop()
         this.loggerService.LogError(error, "getOrderDetails()")
       }

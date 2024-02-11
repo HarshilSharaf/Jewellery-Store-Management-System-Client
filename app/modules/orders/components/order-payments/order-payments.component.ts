@@ -29,6 +29,11 @@ export class OrderPaymentsComponent implements OnInit {
 
   recordPaymentSubscription = new Subscription()
 
+  _isLoading = false;
+  @Input() set isLoading(value: boolean){
+    this._isLoading = value;
+  }
+
   constructor(
     private formBuilder: FormBuilder,
     private orderService: OrderService,
