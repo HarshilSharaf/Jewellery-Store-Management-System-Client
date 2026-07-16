@@ -1,7 +1,17 @@
-.goBack{
-    color: black;
-    &:hover {
-        cursor: pointer;
-        color: whitesmoke;
-    }
+.page-title {
+  color: #2D3142;
+  font-weight: 700;
+  font-size: 1.4rem;
+  letter-spacing: -0.3px;
+}
+
+.goBack {
+  color: #6B7194;
+  margin-right: 0.5rem;
+  transition: color 0.2s ease;
+
+  &:hover {
+    cursor: pointer;
+    color: #7C8CF8;
+  }
 }

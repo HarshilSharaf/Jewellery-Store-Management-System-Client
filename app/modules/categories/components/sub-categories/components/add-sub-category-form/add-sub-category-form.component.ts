@@ -1,6 +1,6 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { Subscription } from 'rxjs';
+import { Component, EventEmitter, OnInit, OnDestroy, Output } from '@angular/core';
+import { FormGroup, FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { HttpResponse } from '../../../../../../models/http-response';
 import { SubCategoryService } from '../../services/sub-category.service';
 import { LoggerService } from '../../../../../../../../Backend/Shared/logger.service';
@@ -8,10 +8,11 @@ import { LoggerService } from '../../../../../../../../Backend/Shared/logger.ser
 @Component({
   selector: 'app-add-sub-category-form',
   templateUrl: './add-sub-category-form.component.html',
-  styleUrls: ['./add-sub-category-form.component.scss']
+  styleUrls: ['./add-sub-category-form.component.scss'],
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule]
 })
-export class AddSubCategoryFormComponent implements OnInit {
-  private subCategoryServiceSubscription: Subscription = new Subscription;
+export class AddSubCategoryFormComponent implements OnInit,OnDestroy {
   public addSubCategoryResponse: HttpResponse = { status: 0, message: '' }
   @Output() refreshDataEvent = new EventEmitter<boolean>()
 
@@ -29,7 +30,7 @@ export class AddSubCategoryFormComponent implements OnInit {
   }
 
   ngOnDestroy(): void {
-    this.subCategoryServiceSubscription?.unsubscribe();
+    // No subscriptions to unsubscribe from
   }
 
   ngOnInit(): void {
@@ -47,19 +48,18 @@ export class AddSubCategoryFormComponent implements OnInit {
     });
     
     this.loggerService.LogInfo("addSubCategory() Request Started.")
-    this.subCategoryServiceSubscription = this.subCategoryService.addSubCategory(addSubCategoryFormData).subscribe({
-      next: (response) => {
+    this.subCategoryService.addSubCategory(addSubCategoryFormData)
+      .then((response) => {
         this.refreshDataEvent.emit(true)
         this.addSubCategoryResponse.status = 200
         this.addSubCategoryResponse.message = "Sub Category Added Successfully!"
         this.loggerService.LogInfo("addSubCategory() Request Completed.")
-      },
-      error: (error) => {
+      })
+      .catch((error: any) => {
         this.loggerService.LogError(error, "addSubCategory()")
         this.addSubCategoryResponse.status = 500
         this.addSubCategoryResponse.message = error
-      }
-    })
+      })
   }
 
 

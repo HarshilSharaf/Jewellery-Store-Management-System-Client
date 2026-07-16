@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Subscription } from 'rxjs';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { HttpResponse } from '../../../../../../models/http-response';
 import { FileSystemService } from '../../../../../../../../Backend/Shared/file-system.service';
 import { AvailableProductsService } from '../../services/available-products.service';
@@ -12,7 +12,9 @@ import { ProductDataModel } from '../../../../../orders/models/product-data-mode
 @Component({
   selector: 'app-add-product-form',
   templateUrl: './add-product-form.component.html',
-  styleUrls: ['./add-product-form.component.scss']
+  styleUrls: ['./add-product-form.component.scss'],
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, ImageUploadComponent]
 })
 export class AddProductFormComponent implements OnInit,OnDestroy {
 
@@ -20,7 +22,6 @@ export class AddProductFormComponent implements OnInit,OnDestroy {
   addProductFormInitialValues:unknown
   public isLoading: boolean = false;
   public addProductResponse: HttpResponse = { status: 0, message: '' }
-  private addProductSubscription:Subscription = new Subscription;
   @Input() allCategoriesData!:AllCategoriesModel
   @Output() refreshDataEvent = new EventEmitter<boolean>()
   @ViewChild(ImageUploadComponent, { static: false }) productPhotoComponent!: ImageUploadComponent;
@@ -54,8 +55,8 @@ export class AddProductFormComponent implements OnInit,OnDestroy {
 
     this.isLoading = true;
     this.loggerService.LogInfo("addProduct() Request Started.")
-    this.addProductSubscription = this.availableProductService.addProduct(addProductFormData).subscribe({
-      next: async(data:ProductDataModel[]) => {
+    this.availableProductService.addProduct(addProductFormData)
+      .then(async(data:ProductDataModel[]) => {
 
         if (data[0].imagePath != null && data[0].imagePath != '') {
           try {
@@ -69,14 +70,13 @@ export class AddProductFormComponent implements OnInit,OnDestroy {
         this.addProductResponse.message = "Product Added Succesfully!"
         this.isLoading = false
         this.loggerService.LogInfo("addProduct() Request Completed.")
-      },
-      error: (error) => {
+      })
+      .catch((error: any) => {
         this.loggerService.LogError(error,"addProduct()")
         this.addProductResponse.status = 500
         this.addProductResponse.message = error
         this.isLoading = false
-      }
-    })
+      })
   }
 
   clearForm() {
@@ -89,7 +89,7 @@ export class AddProductFormComponent implements OnInit,OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.addProductSubscription.unsubscribe()
+    // No subscriptions to unsubscribe from
   }
 
 }

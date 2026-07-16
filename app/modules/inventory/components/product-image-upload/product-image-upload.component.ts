@@ -1,9 +1,12 @@
 import { Component, Input, OnInit } from '@angular/core';
 
+
 @Component({
   selector: 'product-image-upload',
   templateUrl: './product-image-upload.component.html',
-  styleUrls: ['./product-image-upload.component.scss']
+  styleUrls: ['./product-image-upload.component.scss'],
+  standalone: true,
+  imports: []
 })
 export class ProductImageUploadComponent implements OnInit {
 

@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { Subject } from 'rxjs';
@@ -10,12 +11,19 @@ import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
 import { UtilityService } from 'Backend/Shared/utitlity.service';
 import { CustomerDetails } from '../../../customers/models/customerDetails';
 import { InvoiceProductDataModel } from '../../models/invoice-product-data-model';
+import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
+import { OrderProductsDetailsComponent } from '../order-products-details/order-products-details.component';
+import { OrderPaymentsComponent } from '../order-payments/order-payments.component';
+import { PrintInvoiceComponent } from '../print-invoice/print-invoice.component';
+import { NgxPrintModule } from 'ngx-print';
 
 
 @Component({
   selector: 'app-order-details',
   templateUrl: './order-details.component.html',
-  styleUrls: ['./order-details.component.scss']
+  styleUrls: ['./order-details.component.scss'],
+  standalone: true,
+  imports: [CommonModule, PageHeaderComponent, OrderProductsDetailsComponent, OrderPaymentsComponent, PrintInvoiceComponent, NgxPrintModule]
 })
 export class OrderDetailsComponent implements OnInit {
 
@@ -61,8 +69,8 @@ export class OrderDetailsComponent implements OnInit {
     this.loggerService.LogInfo("getOrderDetails() Request Started.")
     this.isLoading = true;
     this.loaderService.start()
-    this.orderService.getOrderDetails(this.orderGuid).subscribe({
-      next: (response:any) => {
+    this.orderService.getOrderDetails(this.orderGuid)
+      .then((response: any) => {
 
         this.orderData = response[0]
         this.orderData.totalAmountWithGst =  Number(this.orderData?.totalAmountWithGst) ?? 0
@@ -91,13 +99,12 @@ export class OrderDetailsComponent implements OnInit {
         this.isLoading = false;
         this.loaderService.stop()
         this.loggerService.LogInfo("getOrderDetails() Request Completed.")
-      },
-      error: (error)=> {
+      })
+      .catch((error: any) => {
         this.isLoading = false;
         this.loaderService.stop()
         this.loggerService.LogError(error, "getOrderDetails()")
-      }
-    })
+      })
   }
 
 }

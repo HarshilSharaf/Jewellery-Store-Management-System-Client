@@ -1,77 +1,74 @@
 <div class="card-header">
-    <h5>Product Details</h5>
+  <h5>Product Details</h5>
 </div>
 
 
 <div class="table-responsive mt-2 rounded border border-dark">
-    <table class="table table-bordered" [ngClass]="{'table-striped': !_isLoading, 'table-hover': !_isLoading }">
-        <thead class="table-danger">
-            <tr>
-              <th scope="col">#</th>
-              <th scope="col">Product Type</th>
-              <th scope="col">Weight (In gms)</th>
-              <th scope="col">Price</th>
-              <th scope="col">Labour</th>
-              <th scope="col">CGST (In %)</th>
-              <th scope="col">SGST (In %)</th>
-              <th scope="col">Discount</th>
-              <th scope="col">Final Amount</th>
+  <table class="table table-bordered" [ngClass]="{'table-striped': !_isLoading, 'table-hover': !_isLoading }">
+    <thead class="table-danger">
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Product Type</th>
+        <th scope="col">Weight (In gms)</th>
+        <th scope="col">Price</th>
+        <th scope="col">Labour</th>
+        <th scope="col">CGST (In %)</th>
+        <th scope="col">SGST (In %)</th>
+        <th scope="col">Discount</th>
+        <th scope="col">Final Amount</th>
+      </tr>
+    </thead>
+
+    <tbody class="table-group-divider">
+
+      @if (_isLoading) {
+        @for (row of [0, 1, 2, 3, 4]; track row) {
+          <tr class="text-center">
+            @for (cell of [0, 1, 2, 3, 4, 5, 6, 7, 8]; track cell) {
+              <td>
+                <app-skeleton-loader [count]="1" [shapeOfLoader]="'circle'"
+                  [theme]="{height: '20px', width: '80%', 'border-radius': '0'}" />
+                </td>
+              }
             </tr>
-          </thead>
+          }
+        }
 
-          <tbody class="table-group-divider">
-
-            <ng-container *ngIf="_isLoading">
-                <tr *ngFor="let row of [0, 1, 2, 3, 4]" class="text-center">
-                    <td *ngFor="let cell of [0, 1, 2, 3, 4, 5, 6, 7, 8]">
-                        <app-skeleton-loader [count]="1" [shapeOfLoader]="'circle'"
-                        [theme]="{height: '20px', width: '80%', 'border-radius': '0'}" />
-                    </td>
-                </tr>
-            </ng-container>
-
-            <ng-container *ngIf="!_isLoading">
-                <tr *ngFor="let product of _productDetails;index as i">
-                    <th scope="row">
-                        {{i+1}}
-                    </th>
-            
-                    <td>
-                        {{product.masterCategory
-                        +"-"+product.subCategory+
-                        "-"+product.productCategory}}
-                    </td>
-            
-                    <td>
-                        {{product.productWeight}}
-                    </td>
-            
-                    <td>
-                        &#8377;{{product.price}}
-                    </td>
-            
-                    <td>
-                        &#8377;{{product.labour}}
-                    </td>
-            
-                    <td>
-                        {{product.CGST}}
-                    </td>
-            
-                    <td>
-                        {{product.SGST}}
-                    </td>
-            
-                    <td>
-                        &#8377;{{product.discount}}
-                    </td>
-            
-                    <td>
-                        &#8377;{{product.finalAmount}}
-                    </td>
-            
-                </tr>
-            </ng-container>
-          </tbody>
+        @if (!_isLoading) {
+          @for (product of _productDetails; track product; let i = $index) {
+            <tr>
+              <th scope="row">
+                {{i+1}}
+              </th>
+              <td>
+                {{product.masterCategory
+                +"-"+product.subCategory+
+                "-"+product.productCategory}}
+              </td>
+              <td>
+                {{product.productWeight}}
+              </td>
+              <td>
+                &#8377;{{product.price}}
+              </td>
+              <td>
+                &#8377;{{product.labour}}
+              </td>
+              <td>
+                {{product.CGST}}
+              </td>
+              <td>
+                {{product.SGST}}
+              </td>
+              <td>
+                &#8377;{{product.discount}}
+              </td>
+              <td>
+                &#8377;{{product.finalAmount}}
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
     </table>
-</div>
+  </div>

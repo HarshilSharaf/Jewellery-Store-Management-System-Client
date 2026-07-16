@@ -2,16 +2,16 @@
   <app-page-header [pageName]="'Dashboard'"></app-page-header>
 
   <div class="row">
-    <ng-container *ngFor="let cardData of cards">
+    @for (cardData of cards; track cardData) {
       <div class="col">
-      <app-info-card [cardData]="cardData" ></app-info-card>
-    </div>
-    </ng-container>
+        <app-info-card [cardData]="cardData" ></app-info-card>
+      </div>
+    }
   </div>
 
   <div class="row">
     <div class="col-12 col-xl-6 mb-4">
-        <app-bar-chart [monthlySalesAndLabour]="monthlySalesAndLabour"></app-bar-chart>
+      <app-bar-chart [monthlySalesAndLabour]="monthlySalesAndLabour"></app-bar-chart>
     </div>
     <div class="col-12 col-xl-6 mb-4 align-items-stretch">
       <app-pie-chart [topSellingProducts]="topSellingProducts"></app-pie-chart>

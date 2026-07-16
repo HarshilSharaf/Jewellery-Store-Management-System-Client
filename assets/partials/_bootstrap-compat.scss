@@ -1,0 +1,895 @@
+// =============================================================================
+// Bootstrap 5 Compatibility Layer
+// =============================================================================
+// Lightweight replacement for Bootstrap CSS. Only includes classes actually
+// used across the project's 50+ Angular component templates.
+// Imported after _variables.scss so all color tokens are available.
+// =============================================================================
+
+// ---------------------------------------------------------------------------
+// Spacing scale (matches Bootstrap 5)
+// ---------------------------------------------------------------------------
+$spacers: (
+  0: 0,
+  1: 0.25rem,
+  2: 0.5rem,
+  3: 1rem,
+  4: 1.5rem,
+  5: 3rem,
+);
+
+// ---------------------------------------------------------------------------
+// Breakpoints
+// ---------------------------------------------------------------------------
+$grid-breakpoints: (
+  sm: 576px,
+  md: 768px,
+  lg: 992px,
+  xl: 1200px,
+);
+
+// ============================================================================
+// 1. GRID SYSTEM
+// ============================================================================
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 15px;
+  padding-right: 15px;
+  box-sizing: border-box;
+}
+
+.container-fluid {
+  width: 100%;
+  padding-left: 15px;
+  padding-right: 15px;
+  box-sizing: border-box;
+}
+
+.container-xl {
+  width: 100%;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 15px;
+  padding-right: 15px;
+  box-sizing: border-box;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-left: -15px;
+  margin-right: -15px;
+
+  > * {
+    padding-left: 15px;
+    padding-right: 15px;
+    box-sizing: border-box;
+  }
+}
+
+// Gutter overrides: gx-{n} sets horizontal gutters
+@each $size, $val in $spacers {
+  .gx-#{$size} {
+    margin-left: -#{$val};
+    margin-right: -#{$val};
+    > * {
+      padding-left: #{$val};
+      padding-right: #{$val};
+    }
+  }
+}
+
+// .col – equal-width auto column
+.col {
+  flex: 1 0 0%;
+  max-width: 100%;
+}
+
+// .col-auto
+.col-auto {
+  flex: 0 0 auto;
+  width: auto;
+}
+
+// Fixed-width columns: .col-1 through .col-12
+@for $i from 1 through 12 {
+  .col-#{$i} {
+    flex: 0 0 auto;
+    width: calc(100% * #{$i} / 12);
+  }
+}
+
+// Responsive columns: .col-{bp}-* and .col-{bp}
+@each $bp, $min in $grid-breakpoints {
+  @media (min-width: $min) {
+    .col-#{$bp} {
+      flex: 1 0 0%;
+      max-width: 100%;
+    }
+
+    .col-#{$bp}-auto {
+      flex: 0 0 auto;
+      width: auto;
+    }
+
+    @for $i from 1 through 12 {
+      .col-#{$bp}-#{$i} {
+        flex: 0 0 auto;
+        width: calc(100% * #{$i} / 12);
+      }
+    }
+  }
+}
+
+// ============================================================================
+// 2. SPACING UTILITIES
+// ============================================================================
+
+// BS5 direction map: property -> CSS properties
+// t=top, b=bottom, s=start(left), e=end(right), x=left+right, y=top+bottom
+$spacing-props: (
+  m: margin,
+  p: padding,
+);
+
+$spacing-dirs: (
+  t: (top),
+  b: (bottom),
+  s: (left),
+  e: (right),
+  x: (left, right),
+  y: (top, bottom),
+);
+
+// Legacy BS4 direction aliases
+$spacing-dirs-legacy: (
+  l: (left),
+  r: (right),
+);
+
+// Generate: .m-0 … .m-5, .mt-0 … .my-5,  .p-0 … .py-5
+@each $prop-abbr, $prop in $spacing-props {
+  @each $size, $value in $spacers {
+    // All sides: .m-0, .p-3, etc.
+    .#{$prop-abbr}-#{$size} {
+      #{$prop}: $value !important;
+    }
+
+    // Directional: .mt-0, .ps-3, etc.
+    @each $dir-abbr, $sides in $spacing-dirs {
+      .#{$prop-abbr}#{$dir-abbr}-#{$size} {
+        @each $side in $sides {
+          #{$prop}-#{$side}: $value !important;
+        }
+      }
+    }
+
+    // Legacy BS4 names: .ml-0, .mr-3, .pl-2, .pr-2
+    @each $dir-abbr, $sides in $spacing-dirs-legacy {
+      .#{$prop-abbr}#{$dir-abbr}-#{$size} {
+        @each $side in $sides {
+          #{$prop}-#{$side}: $value !important;
+        }
+      }
+    }
+  }
+}
+
+// .m-auto, .mx-auto, .my-auto, .ms-auto, .me-auto, .mt-auto, .mb-auto
+.m-auto  { margin: auto !important; }
+.mx-auto { margin-left: auto !important; margin-right: auto !important; }
+.my-auto { margin-top: auto !important; margin-bottom: auto !important; }
+.ms-auto { margin-left: auto !important; }
+.me-auto { margin-right: auto !important; }
+.mt-auto { margin-top: auto !important; }
+.mb-auto { margin-bottom: auto !important; }
+
+// Legacy BS4: .ml-auto, .mr-auto
+.ml-auto { margin-left: auto !important; }
+.mr-auto { margin-right: auto !important; }
+
+// ============================================================================
+// 3. DISPLAY UTILITIES
+// ============================================================================
+
+.d-none         { display: none !important; }
+.d-block        { display: block !important; }
+.d-flex         { display: flex !important; }
+.d-inline       { display: inline !important; }
+.d-inline-block { display: inline-block !important; }
+.d-inline-flex  { display: inline-flex !important; }
+
+// Responsive display: .d-{bp}-none, .d-{bp}-block, .d-{bp}-flex, etc.
+$display-values: (none, block, flex, inline, inline-block, inline-flex);
+
+@each $bp, $min in $grid-breakpoints {
+  @media (min-width: $min) {
+    @each $val in $display-values {
+      .d-#{$bp}-#{$val} {
+        display: #{$val} !important;
+      }
+    }
+  }
+}
+
+// ============================================================================
+// 4. FLEXBOX UTILITIES
+// ============================================================================
+
+.flex-column { flex-direction: column !important; }
+.flex-row    { flex-direction: row !important; }
+.flex-fill   { flex: 1 1 auto !important; }
+.flex-wrap   { flex-wrap: wrap !important; }
+
+.justify-content-start   { justify-content: flex-start !important; }
+.justify-content-center  { justify-content: center !important; }
+.justify-content-end     { justify-content: flex-end !important; }
+.justify-content-between { justify-content: space-between !important; }
+
+.align-items-start   { align-items: flex-start !important; }
+.align-items-center  { align-items: center !important; }
+.align-items-end     { align-items: flex-end !important; }
+.align-items-stretch { align-items: stretch !important; }
+
+.align-self-center { align-self: center !important; }
+.align-self-end    { align-self: flex-end !important; }
+
+// Gap utilities
+.gap-2 { gap: 0.5rem !important; }
+.gap-3 { gap: 1rem !important; }
+
+// ============================================================================
+// 5. TEXT UTILITIES
+// ============================================================================
+
+.text-center    { text-align: center !important; }
+.text-start,
+.text-left      { text-align: left !important; }
+.text-end,
+.text-right     { text-align: right !important; }
+
+.text-uppercase { text-transform: uppercase !important; }
+.text-lowercase { text-transform: lowercase !important; }
+.text-nowrap    { white-space: nowrap !important; }
+.text-break     { word-wrap: break-word !important; overflow-wrap: break-word !important; }
+
+.text-muted     { color: $text-secondary !important; }
+.text-white     { color: #ffffff !important; }
+.text-danger    { color: $secondary !important; }
+.text-success   { color: $success !important; }
+.text-warning   { color: $warning !important; }
+.text-dark      { color: $text-primary !important; }
+
+.text-sm        { font-size: 0.8rem !important; }
+
+.text-bold,
+.font-weight-bold,
+.fw-bold        { font-weight: 700 !important; }
+
+.text-decoration-none { text-decoration: none !important; }
+
+// ============================================================================
+// 6. FORM CLASSES
+// ============================================================================
+
+// .form-control sizing & layout (base styling is in _themes.scss)
+.form-control {
+  display: block;
+  width: 100%;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  background-color: $surface-color;
+  background-clip: padding-box;
+  appearance: none;
+
+  &:disabled,
+  &[readonly] {
+    background-color: $bg-color;
+    opacity: 1;
+  }
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-inline {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+
+  .form-control {
+    display: inline-block;
+    width: auto;
+    vertical-align: middle;
+  }
+}
+
+.form-label {
+  display: inline-block;
+  margin-bottom: 0.375rem;
+  font-weight: 500;
+  color: $text-primary;
+  font-size: 0.85rem;
+}
+
+.form-select {
+  display: block;
+  width: 100%;
+  padding: 0.45rem 2.25rem 0.45rem 0.75rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: $text-primary;
+  background-color: $surface-color;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%236B7194' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 16px 12px;
+  border: 1px solid $border-color;
+  border-radius: 8px;
+  appearance: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &:focus {
+    border-color: $primary-light;
+    box-shadow: 0 0 0 3px rgba($primary, 0.1);
+    outline: none;
+  }
+}
+
+.form-check-input {
+  width: 1rem;
+  height: 1rem;
+  margin-top: 0.25rem;
+  vertical-align: top;
+  background-color: $surface-color;
+  border: 1px solid $border-color;
+  appearance: none;
+  cursor: pointer;
+
+  &[type="checkbox"] {
+    border-radius: 4px;
+  }
+
+  &[type="radio"] {
+    border-radius: 50%;
+  }
+
+  &:checked {
+    background-color: $primary;
+    border-color: $primary;
+  }
+
+  &:focus {
+    box-shadow: 0 0 0 3px rgba($primary, 0.1);
+    outline: none;
+  }
+}
+
+.form-check-label {
+  cursor: pointer;
+  margin-left: 0.25rem;
+}
+
+.input-group {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  width: 100%;
+
+  > .form-control,
+  > .form-select {
+    position: relative;
+    flex: 1 1 auto;
+    width: 1%;
+    min-width: 0;
+  }
+}
+
+// Search icon positioning helpers
+.has-feedback,
+.has-search {
+  position: relative;
+
+  .form-control-feedback {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 0.75rem;
+    color: $text-secondary;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .form-control {
+    padding-right: 2.25rem;
+  }
+}
+
+// ============================================================================
+// 7. BUTTON CLASSES (layout & sizing – colors are in _themes.scss)
+// ============================================================================
+
+.btn {
+  display: inline-block;
+  padding: 0.45rem 1rem;
+  line-height: 1.5;
+  text-align: center;
+  vertical-align: middle;
+  cursor: pointer;
+  user-select: none;
+  border: 1px solid transparent;
+  text-decoration: none;
+
+  &.btn-sm {
+    padding: 0.25rem 0.65rem;
+    font-size: 0.8rem;
+    border-radius: 6px;
+  }
+
+  &.btn-lg {
+    padding: 0.65rem 1.5rem;
+    font-size: 1.05rem;
+    border-radius: 10px;
+  }
+}
+
+// Colors not already in _themes.scss
+.btn-danger {
+  color: #ffffff;
+  background-color: $secondary;
+  border-color: $secondary;
+
+  &:hover {
+    background-color: darken($secondary, 8%);
+    border-color: darken($secondary, 8%);
+  }
+}
+
+.btn-dark {
+  color: #ffffff;
+  background-color: $text-primary;
+  border-color: $text-primary;
+
+  &:hover {
+    background-color: darken($text-primary, 8%);
+    border-color: darken($text-primary, 8%);
+  }
+}
+
+.btn-outline-dark {
+  color: $text-primary;
+  background-color: transparent;
+  border-color: $text-primary;
+
+  &:hover {
+    color: #ffffff;
+    background-color: $text-primary;
+    border-color: $text-primary;
+  }
+}
+
+.disabled,
+[disabled] {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+// ============================================================================
+// 8. CARD CLASSES (base card styling is in _themes.scss)
+// ============================================================================
+
+.card-body {
+  flex: 1 1 auto;
+  padding: 1.25rem;
+}
+
+.card-header {
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid $border-color;
+  background: none;
+}
+
+.card-footer {
+  padding: 0.85rem 1.25rem;
+}
+
+.card-title {
+  margin-bottom: 0.75rem;
+}
+
+.card-text {
+  color: $text-secondary;
+}
+
+.card-stats {
+  border-left: 3px solid $primary;
+}
+
+// ============================================================================
+// 9. TABLE CLASSES (colors in _themes.scss, layout here)
+// ============================================================================
+
+.table {
+  width: 100%;
+  margin-bottom: 1rem;
+  border-collapse: collapse;
+
+  th,
+  td {
+    padding: 0.65rem 0.85rem;
+    vertical-align: top;
+  }
+
+  thead th {
+    vertical-align: bottom;
+  }
+
+  &.table-bordered {
+    border: 1px solid $border-color;
+
+    th,
+    td {
+      border: 1px solid $border-color;
+    }
+  }
+}
+
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+// Typography helpers
+.h1, .h2, .h3, .h4, .h5, .h6 {
+  font-weight: 600;
+  line-height: 1.2;
+  color: $text-primary;
+}
+
+.h1 { font-size: 2rem; }
+.h2 { font-size: 1.75rem; }
+.h3 { font-size: 1.5rem; }
+.h4 { font-size: 1.25rem; }
+.h5 { font-size: 1rem; }
+.h6 { font-size: 0.875rem; }
+
+.small {
+  font-size: 0.8rem;
+}
+
+// ============================================================================
+// 10. BADGE & ALERT
+// ============================================================================
+
+.badge {
+  display: inline-block;
+  padding: 0.3em 0.6em;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: 6px;
+  color: #ffffff;
+}
+
+.rounded-pill {
+  border-radius: 50rem !important;
+}
+
+// Background color utilities (for badges, etc.)
+.bg-success { background-color: $success !important; }
+.bg-warning { background-color: $warning !important; color: $text-primary !important; }
+.bg-danger  { background-color: $secondary !important; }
+.bg-info    { background-color: $accent !important; }
+.bg-primary { background-color: $primary !important; }
+
+.alert {
+  position: relative;
+  padding: 0.85rem 1.25rem;
+  margin-bottom: 1rem;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.alert-danger {
+  color: darken($secondary, 25%);
+  background-color: rgba($secondary, 0.12);
+  border-color: rgba($secondary, 0.25);
+}
+
+.alert-success {
+  color: darken($success, 25%);
+  background-color: rgba($success, 0.12);
+  border-color: rgba($success, 0.25);
+}
+
+.alert-warning {
+  color: darken($warning, 30%);
+  background-color: rgba($warning, 0.12);
+  border-color: rgba($warning, 0.25);
+}
+
+// ============================================================================
+// 11. MODAL CLASSES
+// ============================================================================
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid $border-color;
+}
+
+.modal-body {
+  position: relative;
+  flex: 1 1 auto;
+  padding: 1.25rem;
+}
+
+.modal-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0.85rem 1.25rem;
+  border-top: 1px solid $border-color;
+  gap: 0.5rem;
+}
+
+// ============================================================================
+// 12. IMAGE UTILITIES
+// ============================================================================
+
+.img-fluid {
+  max-width: 100%;
+  height: auto;
+}
+
+.img-thumbnail {
+  padding: 0.25rem;
+  background-color: $surface-color;
+  border: 1px solid $border-color;
+  border-radius: 8px;
+  max-width: 100%;
+  height: auto;
+}
+
+// ============================================================================
+// 13. SHADOW UTILITIES
+// ============================================================================
+
+.shadow    { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important; }
+.shadow-sm { box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important; }
+.shadow-lg { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important; }
+
+// ============================================================================
+// 14. BORDER UTILITIES
+// ============================================================================
+
+.rounded        { border-radius: 8px !important; }
+.rounded-circle { border-radius: 50% !important; }
+// .rounded-pill is defined above in Badge section
+
+.border        { border: 1px solid $border-color !important; }
+.border-0      { border: 0 !important; }
+.border-top    { border-top: 1px solid $border-color !important; }
+.border-bottom { border-bottom: 1px solid $border-color !important; }
+
+// ============================================================================
+// 15. FLOAT UTILITIES
+// ============================================================================
+
+.float-right,
+.float-end   { float: right !important; }
+.float-left,
+.float-start { float: left !important; }
+
+// ============================================================================
+// 16. SIZING UTILITIES
+// ============================================================================
+
+.w-100 { width: 100% !important; }
+.w-50  { width: 50% !important; }
+.h-100 { height: 100% !important; }
+
+// ============================================================================
+// 17. OVERFLOW UTILITIES
+// ============================================================================
+
+.overflow-auto   { overflow: auto !important; }
+.overflow-hidden { overflow: hidden !important; }
+
+// ============================================================================
+// 18. POSITION UTILITIES
+// ============================================================================
+
+.position-relative { position: relative !important; }
+.position-absolute { position: absolute !important; }
+.position-fixed    { position: fixed !important; }
+
+// Bootstrap navbar positioning
+.fixed-top {
+  position: fixed !important;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 1030;
+}
+
+// Navbar expand helpers
+.navbar-expand-md {
+  @media (min-width: 768px) {
+    flex-wrap: nowrap;
+  }
+}
+
+// ============================================================================
+// 19. MISCELLANEOUS UTILITIES
+// ============================================================================
+
+// ============================================================================
+// 20. DROPDOWN
+// ============================================================================
+
+.dropdown {
+  position: relative;
+}
+
+.dropdown-toggle {
+  cursor: pointer;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1050;
+  display: none;
+  min-width: 10rem;
+  padding: 0.5rem 0;
+  margin: 0.125rem 0 0;
+  background-color: $surface-color;
+  border: 1px solid $border-color;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.dropdown.show > .dropdown-menu,
+.dropdown-menu.show {
+  display: block;
+}
+
+.dropdown-header {
+  display: block;
+  padding: 0.5rem 1rem;
+  font-size: 0.75rem;
+  color: $text-secondary;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.dropdown-item {
+  display: block;
+  width: 100%;
+  padding: 0.4rem 1rem;
+  clear: both;
+  font-weight: 400;
+  color: $text-primary;
+  text-decoration: none;
+  white-space: nowrap;
+  background-color: transparent;
+  border: 0;
+  font-size: 0.875rem;
+  cursor: pointer;
+
+  &:hover {
+    background-color: $bg-color;
+  }
+
+  i {
+    margin-right: 0.5rem;
+    width: 1rem;
+    text-align: center;
+  }
+}
+
+.dropdown-divider {
+  height: 0;
+  margin: 0.25rem 0;
+  overflow: hidden;
+  border-top: 1px solid $border-color;
+}
+
+// ============================================================================
+// 21. MODAL (Bootstrap-compatible)
+// ============================================================================
+
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1055;
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  outline: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+
+  &.show {
+    display: block;
+  }
+}
+
+.modal-dialog {
+  position: relative;
+  width: auto;
+  margin: 1.75rem auto;
+  max-width: 500px;
+  pointer-events: none;
+}
+
+.modal-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  pointer-events: auto;
+  background-color: $surface-color;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  outline: 0;
+}
+
+.btn-close {
+  box-sizing: content-box;
+  width: 1em;
+  height: 1em;
+  padding: 0.25em;
+  color: $text-primary;
+  background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%232D3142'%3e%3cpath d='M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z'/%3e%3c/svg%3e") center/1em auto no-repeat;
+  border: 0;
+  border-radius: 4px;
+  opacity: 0.65;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.cursor-pointer { cursor: pointer !important; }
+
+// Required-field red asterisk
+.mandatory::after {
+  content: ' *';
+  color: $secondary;
+  font-weight: 700;
+}
+
+// Screen-reader only (accessible hide)
+.visually-hidden,
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}

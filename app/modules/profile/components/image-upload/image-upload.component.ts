@@ -1,9 +1,12 @@
 import { Component, Input, OnInit } from '@angular/core';
 
+
 @Component({
   selector: 'app-image-upload',
   templateUrl: './image-upload.component.html',
-  styleUrls: ['./image-upload.component.scss']
+  styleUrls: ['./image-upload.component.scss'],
+  standalone: true,
+  imports: []
 })
 export class ImageUploadComponent implements OnInit {
 

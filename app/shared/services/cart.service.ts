@@ -1,46 +1,38 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { Injectable, signal } from '@angular/core';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CartService {
 
-  cartItemList:any = localStorage.getItem('cart_items') ? JSON.parse(localStorage.getItem('cart_items') ?? '') : []
-  productList = new BehaviorSubject<any>([])
+  readonly productList = signal<any[]>(
+    localStorage.getItem('cart_items') ? JSON.parse(localStorage.getItem('cart_items') ?? '') : []
+  );
 
   constructor() { }
 
   getProducts() {
-    this.productList.next(this.cartItemList)
-    return this.productList.asObservable()
+    return this.productList.asReadonly();
   }
 
   setProduct(product:any) {
-    this.cartItemList.push(product)
-    this.productList.next(product)
+    this.productList.update(items => [...items, product]);
   }
 
   addToCart(productDetails:any) {
-    this.cartItemList.push(productDetails)
-    localStorage.setItem('cart_items',JSON.stringify(this.cartItemList))
-    this.productList.next(this.cartItemList)
+    const updatedCart = [...this.productList(), productDetails];
+    localStorage.setItem('cart_items', JSON.stringify(updatedCart));
+    this.productList.set(updatedCart);
   }
 
   removeCartItem(product:any) {
-    this.cartItemList.map((item:any,index:any)=>{
-      if(product.id === item.id)
-      {
-        this.cartItemList.splice(index,1)
-      }
-    })
-    localStorage.setItem('cart_items',JSON.stringify(this.cartItemList))
-    this.productList.next(this.cartItemList)
+    const updatedCart = this.productList().filter((item: any) => product.id !== item.id);
+    localStorage.setItem('cart_items', JSON.stringify(updatedCart));
+    this.productList.set(updatedCart);
   }
 
   emptyCart() {
-    this.cartItemList = []
-    localStorage.setItem('cart_items',JSON.stringify(this.cartItemList))
-    this.productList.next(this.cartItemList)
+    localStorage.setItem('cart_items', JSON.stringify([]));
+    this.productList.set([]);
   }
 }

@@ -1,6 +1,6 @@
 import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Subscription } from 'rxjs';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { HttpResponse } from '../../../../../../models/http-response';
 import { MasterCategoryService } from '../../services/master-category.service';
 import { LoggerService } from '../../../../../../../../Backend/Shared/logger.service';
@@ -8,11 +8,12 @@ import { LoggerService } from '../../../../../../../../Backend/Shared/logger.ser
 @Component({
   selector: 'app-add-master-category-form',
   templateUrl: './add-master-category-form.component.html',
-  styleUrls: ['./add-master-category-form.component.scss']
+  styleUrls: ['./add-master-category-form.component.scss'],
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule]
 })
 export class AddMasterCategoryFormComponent implements OnInit, OnDestroy {
 
-  private masterCategoryServiceSubscription: Subscription = new Subscription;
   public addMasterCategoryResponse: HttpResponse = { status: 0, message: '' }
   @Output() refreshDataEvent = new EventEmitter<boolean>()
 
@@ -29,7 +30,7 @@ export class AddMasterCategoryFormComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.masterCategoryServiceSubscription?.unsubscribe();
+    // No subscriptions to unsubscribe from
   }
 
   ngOnInit(): void {
@@ -47,18 +48,17 @@ export class AddMasterCategoryFormComponent implements OnInit, OnDestroy {
     });
     
     this.loggerService.LogInfo("addMasterCategory() Request Started.")
-    this.masterCategoryServiceSubscription = this.masterCategoryService.addMasterCategory(addMasterCategoryFormData).subscribe({
-      next: (response) => {
+    this.masterCategoryService.addMasterCategory(addMasterCategoryFormData)
+      .then((response) => {
         this.refreshDataEvent.emit(true)
         this.addMasterCategoryResponse.status = 200
         this.addMasterCategoryResponse.message = "Master Category Added Successfully!"
         this.loggerService.LogInfo("addMasterCategory() Request Completed.")
-      },
-      error: (error) => {
+      })
+      .catch((error: any) => {
         this.loggerService.LogError(error, "addMasterCategory()")
         this.addMasterCategoryResponse.status = 500
         this.addMasterCategoryResponse.message = error
-      }
-    })
+      })
   }
 }

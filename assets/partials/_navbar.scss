@@ -3,14 +3,14 @@
   nav.navbar {
     height: $navbar-height;
     padding: 0;
-    border-bottom: 1px solid;
+    border-bottom: none;
 
     .navbar-header {
 
       .navbar-brand {
         font-size: 1rem;
-        font-weight: normal;
-        letter-spacing: 2px;
+        font-weight: 700;
+        letter-spacing: 1px;
 
         span {
           display: none;
@@ -21,24 +21,25 @@
     .nav-toggler-right {
       position: relative;
 
-
       button {
-
         width: 35px;
         height: 35px;
         padding: 0;
         border: none;
         overflow: hidden;
         border-radius: 50%;
-        border: 1px solid #fff;
+        border: 2px solid $border-color;
+        transition: border-color 0.2s ease;
+
+        &:hover {
+          border-color: $primary-light;
+        }
 
         img {
-
           height: 100%;
           width: 100%;
           object-fit: cover;
           object-position: center;
-
         }
       }
 
@@ -48,7 +49,6 @@
         width: 9px;
         height: 9px;
       }
-
     }
 
     .nav-alert {
@@ -58,7 +58,7 @@
       border-radius: 50%;
       position: absolute;
       top: 0;
-      border: 3px solid #1c1e21;
+      border: 2px solid $surface-color;
       transform: translateX(13px);
 
       @media (min-width: 768px) {
@@ -71,12 +71,10 @@
       }
     }
 
-
     .navbar-header {
       height: 100%;
       display: flex;
       align-items: center;
-
     }
 
     .user-profile {
@@ -86,7 +84,7 @@
     }
 
     .right-nav {
-      border-top: 1px solid;
+      border-top: 1px solid $border-color;
       padding-top: 1rem;
       padding-bottom: 1rem;
       height: calc(100vh - #{$navbar-height} + 1px) !important;
@@ -111,12 +109,13 @@
 
             .link-text {
               margin-top: 10px;
-              font-size: .9rem;
+              font-size: 0.8rem;
+              font-weight: 500;
               text-transform: uppercase;
+              letter-spacing: 0.5px;
             }
           }
         }
-
       }
     }
 
@@ -127,23 +126,22 @@
         font-size: 1.1rem;
         width: 40px;
         height: 40px;
-        line-height: 40px;    
-        border-radius: 0;
+        line-height: 40px;
+        border-radius: 8px;
       }
     }
 
     .left-nav {
       display: none;
 
-
       input.navbar-search {
         max-width: 500px;
-        border-radius: 0;
-        border: none;
+        border-radius: 8px;
+        border: 1px solid $border-color;
         height: 40px;
-        font-size: .9rem;
+        font-size: 0.9rem;
+        padding: 0 1rem;
       }
-
     }
 
     @media (min-width: 768px) {
@@ -154,20 +152,20 @@
 
       .navbar-header {
         width: $sidebar-width;
-        margin-left: 0!important;
+        margin-left: 0 !important;
+
         .navbar-brand span {
           display: inline-block;
         }
       }
-
 
       .left-nav {
         display: flex;
       }
 
       .nav-link {
-        padding-left: .3rem;
-        padding-right: .3rem;
+        padding-left: 0.3rem;
+        padding-right: 0.3rem;
       }
 
       .nav-alert {
@@ -180,7 +178,6 @@
         background: none !important;
 
         ul {
-
           margin-left: auto;
           flex-wrap: nowrap;
 
@@ -188,16 +185,13 @@
             padding: 0;
 
             .nav-link {
-
               .link-text {
                 display: none;
               }
             }
           }
         }
-
       }
     }
-
   }
 }

@@ -1,19 +1,12 @@
-@import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
-@import url('https://fonts.googleapis.com/css?family=Poppins&display=swap');
-
-$bg-color:#f2f3f8;
-$navbar-bg-color : #242939;
-$navbar-color:#6e7899;
-$sidebar-bg-color:#fff;
-$sidebar-color:#3d4465;
-$sidebar-icon-color:#c4cff9;
-$border-color: #f2f3f8;
+@use 'sass:color';
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 body {
-  font-family: 'Poppins','Roboto', sans-serif;
-  font-size: .9rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  color: $text-primary;
+  background: $bg-color;
 }
-
 
 .wrapper.default-theme {
 
@@ -21,18 +14,30 @@ body {
 
   nav.navbar {
     background: $navbar-bg-color;
-    border-color: rgba($navbar-color, .3);
+    border-color: transparent;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
 
     .navbar-brand {
-      color: lighten($navbar-color, 25%);
+      color: $text-primary;
+      font-weight: 700;
     }
 
     .left-nav {
       input.navbar-search {
-        background: #282f48;
-        color:$navbar-color;
-        &::placeholder{
-          color:rgba($navbar-color, .6);
+        background: $bg-color;
+        color: $text-primary;
+        border: 1px solid $border-color;
+        border-radius: 8px;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+        &::placeholder {
+          color: $text-secondary;
+        }
+
+        &:focus {
+          border-color: $primary-light;
+          box-shadow: 0 0 0 3px rgba($primary, 0.1);
+          outline: none;
         }
       }
     }
@@ -42,136 +47,151 @@ body {
     }
 
     .nav-link {
-      color: $navbar-color;
+      color: $text-secondary;
 
       i {
-        border-color: $navbar-color;
-        background: #282f48;
+        border-color: $border-color;
+        background: $bg-color;
+        color: $text-secondary;
+        transition: color 0.2s ease, background 0.2s ease;
       }
 
       &:hover {
-        color: lighten($navbar-color, 15%);
+        color: $primary;
+
+        i {
+          color: $primary;
+          background: $primary-lighter;
+        }
       }
     }
 
     .nav-alert {
-      border-color: #2f3546;
+      border-color: $navbar-bg-color;
 
       &.notifications {
-        background-color: #ff61c5;
-        box-shadow: 0px 0px 4px #ff61c5;
-
+        background-color: $secondary;
+        box-shadow: 0 0 4px rgba($secondary, 0.5);
       }
 
       &.messages {
-        background-color: #61b8ff;
-        box-shadow: 0px 0px 4px #61b8ff;
-
+        background-color: $primary;
+        box-shadow: 0 0 4px rgba($primary, 0.5);
       }
     }
   }
 
   main {
     .overlay {
-      background: #242939;
+      background: rgba($text-primary, 0.3);
+      backdrop-filter: blur(2px);
     }
 
     .sidebar {
       background: $sidebar-bg-color;
+      box-shadow: 1px 0 3px rgba(0, 0, 0, 0.04);
 
-      >div {
-        border-color: rgba($sidebar-color, .1);
+      > div {
+        border-color: $border-color;
       }
 
       a.sidebar-link {
         color: $sidebar-color;
-
       }
 
       .sidebar-profile {
         .name {
           color: $sidebar-color;
+          font-weight: 700;
         }
 
         .role {
-          color: rgba($sidebar-color, .8);
+          color: $text-secondary;
         }
       }
 
       .sidebar-menu {
         .menu-header {
-          color: rgba($sidebar-color, .5);
+          color: $text-secondary;
+          font-weight: 600;
+          letter-spacing: 0.5px;
         }
 
         .menu-items {
           a {
-            color: rgba($sidebar-color, .7);
+            color: $text-secondary;
+            border-radius: 8px;
+            transition: background 0.2s ease, color 0.2s ease;
 
             i {
               color: $sidebar-icon-color;
-              color: #abb7da;
-              color: rgba(140, 165, 239, 0.6);
               border: none;
               width: auto;
               font-size: 1rem;
+              transition: color 0.2s ease;
             }
 
             &:hover,
             &.active {
-              background: #f5f5f9;
-              color: rgba($sidebar-color, .9);
+              background: $sidebar-active-bg;
+              color: $primary;
 
               i {
-                color: #95b0ff;
+                color: $primary;
               }
             }
           }
+
           .list-item {
             position: relative;
             margin-bottom: 5px;
           }
+
           .list-item::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             height: 100%;
-            width: 5px;
-            background-color:  orange;
-            // set opacity to 0 by default
+            width: 4px;
+            background-color: $primary;
+            border-radius: 0 4px 4px 0;
             opacity: 0;
             transform: scaleY(0);
-            transition: transform 0.8s, opacity 0.8s;
+            transition: transform 0.3s ease, opacity 0.3s ease;
           }
-          
-          .list-item.active  {
-            &::before{
-              opacity: 1; 
-              transform: scaleY(1);
-              // transition: transform 0.2s, opacity 0.2s;
-  
-            }
-            // &::before {
-  
-            // }
-          }
-        
-        }
 
+          .list-item.active {
+            &::before {
+              opacity: 1;
+              transform: scaleY(1);
+            }
+          }
+        }
       }
     }
   }
 
   .card {
-    box-shadow: 1px 1px 2px rgba(#5b6582, .1);
+    background: $surface-color;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+    transition: box-shadow 0.2s ease;
+
+    &:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
 
     .card-title {
-      color: rgba($sidebar-color, .8);
+      color: $text-primary;
+      font-weight: 600;
+      border-bottom: 1px solid $border-color;
     }
 
     .card-icon {
       i {
-        color: #98a4c7;
+        color: $primary;
       }
     }
 
@@ -179,63 +199,126 @@ body {
       border-top: 1px solid $border-color;
       background: none;
     }
-
-    .card-title {
-      border-bottom: 1px solid $border-color;
-    }
   }
 
   .table {
 
     th,
     td {
-      border-top: 1px solid darken($border-color,2%);
+      border-top: 1px solid $border-color;
+      color: $text-primary;
     }
 
     thead th {
-      border-bottom: 2px solid darken($border-color,2%);
+      border-bottom: 2px solid $border-color;
+      color: $text-secondary;
+      font-weight: 600;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     &.table-striped tbody tr:nth-of-type(odd) {
-      background-color: lighten($border-color,1%);
+      background-color: $bg-color;
     }
 
     &.table-hover tbody tr:hover {
-      background-color: lighten($border-color, 1%);
+      background-color: $primary-lighter;
     }
   }
 
   .btn {
-    font-size: .9rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.2s ease;
 
+    &.btn-primary,
     &.btn-lightning {
-      color: #f0f3ff;
-      background-color: #5b6582;
-      border-color: #5b6582;
+      color: #FFFFFF;
+      background-color: $primary;
+      border-color: $primary;
+      box-shadow: 0 2px 4px rgba($primary, 0.3);
 
       &:hover {
-        background-color: #4c5671;
+        background-color: color.adjust($primary, $lightness: -8%);
+        border-color: color.adjust($primary, $lightness: -8%);
+        box-shadow: 0 4px 8px rgba($primary, 0.4);
+      }
+
+      &:active,
+      &:focus {
+        background-color: color.adjust($primary, $lightness: -12%);
+        box-shadow: 0 0 0 3px rgba($primary, 0.25);
       }
     }
 
-    &.btn-outline-lightning {
-      color: #5b6582;
-      background-color: transparent;
-      border-color: #5b6582;
+    &.btn-secondary {
+      color: #FFFFFF;
+      background-color: $secondary;
+      border-color: $secondary;
 
       &:hover {
-        color: #f0f3ff;
-        background-color: #5b6582;
-        border-color: #5b6582;
+        background-color: color.adjust($secondary, $lightness: -8%);
+        border-color: color.adjust($secondary, $lightness: -8%);
+      }
+    }
+
+    &.btn-success {
+      color: #FFFFFF;
+      background-color: $success;
+      border-color: $success;
+
+      &:hover {
+        background-color: color.adjust($success, $lightness: -8%);
+        border-color: color.adjust($success, $lightness: -8%);
+      }
+    }
+
+    &.btn-warning {
+      color: $text-primary;
+      background-color: $warning;
+      border-color: $warning;
+
+      &:hover {
+        background-color: color.adjust($warning, $lightness: -8%);
+        border-color: color.adjust($warning, $lightness: -8%);
+      }
+    }
+
+    &.btn-outline-primary,
+    &.btn-outline-lightning {
+      color: $primary;
+      background-color: transparent;
+      border-color: $primary;
+
+      &:hover {
+        color: #FFFFFF;
+        background-color: $primary;
+        border-color: $primary;
+        box-shadow: 0 2px 4px rgba($primary, 0.3);
       }
     }
   }
 
   .form-control {
-    font-size: .9rem;
+    font-size: 0.9rem;
+    border: 1px solid $border-color;
+    border-radius: 8px;
+    color: $text-primary;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+    &:focus {
+      border-color: $primary-light;
+      box-shadow: 0 0 0 3px rgba($primary, 0.1);
+    }
+
+    &::placeholder {
+      color: $text-secondary;
+    }
   }
 
   .text-lightning {
-    color: #98a4c7;
+    color: $primary;
   }
 }

@@ -1,27 +1,28 @@
 import { Injectable } from '@angular/core';
+import { signal, Signal } from '@angular/core';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SideBarService {
 
-  isSidebarPinned = false;
-  isSidebarToggeled = false;
+  readonly isSidebarPinned = signal<boolean>(false);
+  readonly isSidebarToggeled = signal<boolean>(false);
 
   constructor() { }
 
   toggleSidebar() {
-    this.isSidebarToggeled = ! this.isSidebarToggeled;
+    this.isSidebarToggeled.update(value => !value);
   }
 
   toggleSidebarPin() {
-    this.isSidebarPinned = ! this.isSidebarPinned;
+    this.isSidebarPinned.update(value => !value);
   }
 
   getSidebarStat() {
     return {
-      isSidebarPinned: this.isSidebarPinned,
-      isSidebarToggeled: this.isSidebarToggeled
+      isSidebarPinned: this.isSidebarPinned(),
+      isSidebarToggeled: this.isSidebarToggeled()
     }
   }
 

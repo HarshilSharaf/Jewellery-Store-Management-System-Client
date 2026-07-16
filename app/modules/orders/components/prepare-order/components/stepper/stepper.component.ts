@@ -1,16 +1,24 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { StepperOrientation, STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
-import { Component, OnInit } from '@angular/core';
-import { Validators, FormBuilder } from '@angular/forms';
-import { Observable, map, Subscription } from 'rxjs';
+import { Component, OnInit, effect } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Validators, FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { MatStepperModule } from '@angular/material/stepper';
+import { MatButtonModule } from '@angular/material/button';
+import { Observable, map } from 'rxjs';
 import { CustomerDetails } from '../../../../../customers/models/customerDetails';
 import { ProductDataModel } from '../../../../models/product-data-model';
 import { CartService } from '../../../../../../shared/services/cart.service';
+import { CreateInvoiceComponent } from '../create-invoice/create-invoice.component';
+import { CartItemsComponent } from '../../../../../../shared/components/cart-items/cart-items.component';
+import { SelectCustomerComponent } from '../select-customer/select-customer.component';
 
 @Component({
   selector: 'app-stepper',
   templateUrl: './stepper.component.html',
   styleUrls: ['./stepper.component.scss'],
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, MatStepperModule, MatButtonModule, CreateInvoiceComponent, CartItemsComponent, SelectCustomerComponent],
   providers: [
     {
       provide: STEPPER_GLOBAL_OPTIONS,
@@ -21,7 +29,6 @@ import { CartService } from '../../../../../../shared/services/cart.service';
 })
 export class StepperComponent implements OnInit {
 
-  getProductsSubscription = new Subscription
   cartItems: ProductDataModel[] = []
   selectedCustomerData!: CustomerDetails
   products = this._formBuilder.group({
@@ -40,9 +47,11 @@ export class StepperComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.getProductsSubscription = this.cartService.getProducts().subscribe((items) => {
-      this.cartItems = [...items]
-    })
+    // Watch the Signal for changes
+    effect(() => {
+      const products = this.cartService.getProducts();
+      this.cartItems = Array.isArray(products) ? [...products] : [];
+    });
   }
 
   setCustomerData(customerData: CustomerDetails) {

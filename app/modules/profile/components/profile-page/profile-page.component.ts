@@ -1,7 +1,7 @@
 import { AfterViewChecked, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ImageUploadComponent } from '../image-upload/image-upload.component';
-import { Subscription } from 'rxjs';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { StoreService } from '../../../../../../Backend/Shared/store.service';
 import { UserService } from '../../services/user.service';
@@ -11,12 +11,15 @@ import { UtilityService } from 'Backend/Shared/utitlity.service';
 import { FileSystemService } from '../../../../../../Backend/Shared/file-system.service';
 import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
 import { UserDetailsModel } from '../../models/user-details-model';
+import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 
 
 @Component({
   selector: 'app-profile-page',
   templateUrl: './profile-page.component.html',
   styleUrls: ['./profile-page.component.scss'],
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, ImageUploadComponent, PageHeaderComponent]
 })
 export class ProfilePageComponent
   implements OnInit, OnDestroy, AfterViewChecked
@@ -24,9 +27,6 @@ export class ProfilePageComponent
   thumbnail: any;
   public isLoading: boolean = false;
   @ViewChild(ImageUploadComponent) imageUploadComponent!: ImageUploadComponent;
-  private getImageSubscription!: Subscription;
-  private updateImageSubscription!: Subscription;
-  private getUserDetailsSubscription!: Subscription;
   protected userCurrentImage: any;
   protected initialUserImageSrc: any;
   userDetailsForm!: FormGroup;
@@ -63,7 +63,7 @@ export class ProfilePageComponent
   }
 
   populateUserDetailsForm(userDetails: UserDetailsModel) {
-    this.userService.userName.next(userDetails.userName)
+    this.userService.userName.set(userDetails.userName)
     this.userDetailsForm = this.formBuilder.group({
       userName: [userDetails.userName, Validators.required],
       email: [userDetails.email],
@@ -76,20 +76,18 @@ export class ProfilePageComponent
     this.loggerService.LogInfo("getUserDetails() Request Started.")
 
     this.loaderService.start();
-    this.getUserDetailsSubscription = this.userService
+    this.userService
       .getUserDetails(this.userID)
-      .subscribe({
-        next: (response) => {
-          if (response.length > 0) {
-            this.populateUserDetailsForm(response[0]);
-          }
-          this.loaderService.stop();
-          this.loggerService.LogInfo("getUserDetails() Request Completed.")
-        },
-        error: (error) => {
-          this.loggerService.LogError(error, "getUserDetails()")
-          this.loaderService.stop();
-        },
+      .then((response: any) => {
+        if (response.length > 0) {
+          this.populateUserDetailsForm(response[0]);
+        }
+        this.loaderService.stop();
+        this.loggerService.LogInfo("getUserDetails() Request Completed.")
+      })
+      .catch((error: any) => {
+        this.loggerService.LogError(error, "getUserDetails()")
+        this.loaderService.stop();
       });
   }
 
@@ -107,8 +105,8 @@ export class ProfilePageComponent
 
     userDetails.uid = this.userID;
 
-    this.userService.updateUserDetails(userDetails).subscribe({
-      next: (response: any) => {
+    this.userService.updateUserDetails(userDetails)
+      .then((response: any) => {
         Swal.fire('Updated!', 'Your details updated successfully!', 'success');
 
         // update the data in the authData object in the store
@@ -117,13 +115,13 @@ export class ProfilePageComponent
           data.email = userDetails.email;
           this.storeService.set('authData', { ...data }).then(() => {
             // emit the new values for the subscribers
-            this.userService.userName.next(userDetails.userName);
+            this.userService.userName.set(userDetails.userName);
           });
         });
         this.loggerService.LogInfo("updateUserDetails() Request Completed.")
         this.getUserDetails();
-      },
-      error: (error) => {
+      })
+      .catch((error: any) => {
         this.loggerService.LogError(error, "updateUserDetails()")
         this.loaderService.stop();
         Swal.fire({
@@ -131,43 +129,40 @@ export class ProfilePageComponent
           title: 'Failed',
           text: `Error occured to update details: ${error}`,
         });
-      },
-    });
+      });
   }
   
   getUserImage() {
     this.loggerService.LogInfo("getUserImage() Request Started From profile-page component.")
 
     this.loaderService.start();
-    this.getImageSubscription = this.userService
+    this.userService
       .getUserImage(this.userID)
-      .subscribe({
-        next: (response: any) => {
-          if (response[0].imagePath) {
-            this.thumbnail = this.utilityService.getFilePath(
-              this.fileSystemService.userImagesDir +
-                '\\' +
-                response[0].imagePath
-            );
-            this.initialUserImageSrc = this.thumbnail ?? '';
-            this.imageUploadComponent.imageSrc = this.thumbnail;
-            this.loaderService.stop();
-          }
-          else {
-            this.initialUserImageSrc =  '';
-            this.imageUploadComponent.imageSrc = '';
-            this.loaderService.stop()
-          }
-
-          // This line of code is updating the userImage which will be subscribed in sidebar and top-navbar
-          this.userService.userImage.next(this.initialUserImageSrc);
-          this.loggerService.LogInfo("getUserImage() Request Completed From profile-page component.")
-          
-        },
-        error: (error) => {
+      .then((response: any) => {
+        if (response[0].imagePath) {
+          this.thumbnail = this.utilityService.getFilePath(
+            this.fileSystemService.userImagesDir +
+              '\\' +
+              response[0].imagePath
+          );
+          this.initialUserImageSrc = this.thumbnail ?? '';
+          this.imageUploadComponent.imageSrc = this.thumbnail;
           this.loaderService.stop();
-          this.loggerService.LogError(error, "getUserImage() From profile-page component")
-        },
+        }
+        else {
+          this.initialUserImageSrc =  '';
+          this.imageUploadComponent.imageSrc = '';
+          this.loaderService.stop()
+        }
+
+        // This line of code is updating the userImage which will be subscribed in sidebar and top-navbar
+        this.userService.userImage.set(this.initialUserImageSrc);
+        this.loggerService.LogInfo("getUserImage() Request Completed From profile-page component.")
+        
+      })
+      .catch((error: any) => {
+        this.loaderService.stop();
+        this.loggerService.LogError(error, "getUserImage() From profile-page component")
       });
   }
 
@@ -179,8 +174,8 @@ export class ProfilePageComponent
       uid: this.userID,
       image: this.imageUploadComponent.userPhoto?.name ?? null
     }
-    this.updateImageSubscription = this.userService.updateUserImage(formData).subscribe({
-      next: async(response) =>  {
+    this.userService.updateUserImage(formData)
+      .then(async (response: any) =>  {
         
         if(response[0].imagePath) {
           this.fileSystemService.updateUserImage(
@@ -196,8 +191,8 @@ export class ProfilePageComponent
           this.loaderService.stop()
         }
         this.loggerService.LogInfo("updateUserImage() Request Completed.")
-      },
-      error: (error) => {
+      })
+      .catch((error: any) => {
         this.loggerService.LogError(error, "updateUserImage()")
         this.loaderService.stop()
         Swal.fire({
@@ -205,8 +200,7 @@ export class ProfilePageComponent
           title: 'Failed to update Image!!',
           text: error,
         })
-      }
-    })
+      })
   }
 
   deleteUserImage() {
@@ -222,8 +216,8 @@ export class ProfilePageComponent
       if (result.isConfirmed) {
         this.loggerService.LogInfo("deleteUserImage() Request Started.")
 
-        this.userService.deleteUserImage(this.userID).subscribe({
-          next: async(response:any) => {
+        this.userService.deleteUserImage(this.userID)
+          .then(async (response:any) => {
             await this.fileSystemService.deleteUserImage(response[0].oldFileName)
             this.loggerService.LogInfo("deleteUserImage() Request Completed.")
             this.getUserImage()
@@ -232,16 +226,15 @@ export class ProfilePageComponent
               response.message,
               'success'
             )
-          },
-          error: (error) => {
+          })
+          .catch((error: any) => {
             this.loggerService.LogError(error, "deleteUserImage()")
             Swal.fire(
               'Error!',
               error,
               'error'
             )
-          }
-        })
+          })
       }
     }
     )
@@ -256,8 +249,6 @@ export class ProfilePageComponent
   }
 
   ngOnDestroy(): void {
-    this.getImageSubscription.unsubscribe();
-    this.getUserDetailsSubscription.unsubscribe();
-    this.updateImageSubscription?.unsubscribe();
+    // No subscriptions to unsubscribe from
   }
 }

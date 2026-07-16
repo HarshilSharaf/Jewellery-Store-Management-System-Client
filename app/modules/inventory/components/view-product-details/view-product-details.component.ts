@@ -1,4 +1,5 @@
 import { AfterViewChecked, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
@@ -11,11 +12,15 @@ import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
 import { UtilityService } from 'Backend/Shared/utitlity.service';
 import { AllCategoriesModel } from '../../../categories/models/categories-model';
 import { ProductDataModel } from '../../../orders/models/product-data-model';
+import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
+import { ProductDetailsFormComponent } from '../product-details-form/product-details-form.component';
 
 @Component({
   selector: 'app-view-product-details',
   templateUrl: './view-product-details.component.html',
-  styleUrls: ['./view-product-details.component.scss']
+  styleUrls: ['./view-product-details.component.scss'],
+  standalone: true,
+  imports: [CommonModule, ProductImageUploadComponent, PageHeaderComponent, ProductDetailsFormComponent]
 })
 export class ViewProductDetailsComponent implements OnInit,OnDestroy, AfterViewChecked {
 
@@ -66,8 +71,8 @@ export class ViewProductDetailsComponent implements OnInit,OnDestroy, AfterViewC
     this.loggerService.LogInfo("getProductImage() Request Started.")
 
     this.loaderService.start()
-    this.getImageSubscription = this.ProductService.getProductImage(this.productGuid).subscribe({
-      next: async (response:any) => {
+    this.ProductService.getProductImage(this.productGuid)
+      .then(async (response: any) => {
 
         if(response.length > 0 && response[0].imagePath) {
           this.thumbnail = this.utilityService.getFilePath(this.fileSystemService.productImagesDir + '\\' +  response[0].imagePath)
@@ -80,15 +85,14 @@ export class ViewProductDetailsComponent implements OnInit,OnDestroy, AfterViewC
         this.imageUploadComponent.imageSrc = this.thumbnail
         this.loaderService.stop()
         this.loggerService.LogInfo("getProductImage() Request Completed.")
-      },
-      error: (error) => {
+      })
+      .catch((error: any) => {
         this.loaderService.stop()
         this.imageUploadComponent.imageSrc = ''
         this.imageUploadComponent.productImage = null
         this.productCurrentImage = null
         this.loggerService.LogError(error, "getProductImage()")
-      }
-    })
+      })
   }
 
   deleteProductImage() {
@@ -104,8 +108,8 @@ export class ViewProductDetailsComponent implements OnInit,OnDestroy, AfterViewC
       if (result.isConfirmed) {
         
         this.loggerService.LogInfo("deleteProductImage() Request Started.")
-        this.ProductService.deleteProductImage(this.productGuid).subscribe({
-          next: async(data:any) => {
+        this.ProductService.deleteProductImage(this.productGuid)
+          .then(async(data: any) => {
 
             await this.fileSystemService.deleteProductImage(data[0].oldFileName)
             this.loggerService.LogInfo("deleteProductImage() Request Completed.")
@@ -116,16 +120,15 @@ export class ViewProductDetailsComponent implements OnInit,OnDestroy, AfterViewC
               "Product is successfully Deleted!",
               'success'
             )
-          },
-          error: (error) => {
+          })
+          .catch((error: any) => {
             this.loggerService.LogError(error, "deleteProductImage()")
             Swal.fire(
               'Error!',
               "Failed to delete product.Internal Server Error Occured!",
               'error'
             )
-          }
-        })
+          })
 
 
       }
@@ -141,8 +144,8 @@ export class ViewProductDetailsComponent implements OnInit,OnDestroy, AfterViewC
       productGuid: this.productGuid,
       image: this.imageUploadComponent.productImage?.name ?? null
     }
-    this.updateImageSubscription = this.ProductService.updateProductImage(formData).subscribe({
-      next: async(data:any) => {
+    this.ProductService.updateProductImage(formData)
+      .then(async(data: any) => {
 
         if (data[0].imagePath) {
           await this.fileSystemService.updateProductImage(
@@ -159,8 +162,8 @@ export class ViewProductDetailsComponent implements OnInit,OnDestroy, AfterViewC
         this.loaderService.stop()
        }
       this.loggerService.LogInfo("updateProductImage() Request Completed.")
-      },
-      error: (error) => {
+      })
+      .catch((error: any) => {
         this.loaderService.stop()
         this.loggerService.LogError(error, "updateProductImage()")
         Swal.fire({
@@ -168,48 +171,42 @@ export class ViewProductDetailsComponent implements OnInit,OnDestroy, AfterViewC
           title: 'Failed to update Image!!',
           text: error.error.message,
         })
-      }
-    })
+      })
   }
 
   getAllCategoriesData() {
     this.loggerService.LogInfo("getAllCategoriesData() Request Started From view-product-details component.")
     
-    this.getAllCategoriesSubscription = this.ProductService.getAllCategories().subscribe({
-      next: (response) => {
+    this.ProductService.getAllCategories()
+      .then((response: any) => {
         this.allCategoriesData = {
           masterCategories: response[0].MasterCategoriesData,
           subCategories: response[1].SubCategoriesData,
           productCategories: response[2].ProductCategoriesData
         }
         this.loggerService.LogInfo("getAllCategoriesData() Request Completed From view-product-details component.")
-      },
-      error: (error)=>{
+      })
+      .catch((error: any) => {
         this.loggerService.LogError(error, "getAllCategoriesData() From view-product-details component")
         console.log("Error from getAllCategoriesData():",error)
-      }
-    })
+      })
   }
 
   getProductDetails(){
     this.loggerService.LogInfo("getProductDetails() Request Started.")
 
-    this.getProductDetailsSubscription = this.ProductService.getProductDetails(this.productGuid).subscribe({
-      next:(response:any)=> {
+    this.ProductService.getProductDetails(this.productGuid)
+      .then((response: any) => {
         this.productDetails = response[0]
         this.loggerService.LogInfo("getProductDetails() Request Completed.")
-      },
-      error: (error) => {
+      })
+      .catch((error: any) => {
         this.loggerService.LogError(error, "getProductDetails()")
-      }
-    })
+      })
   }
 
   ngOnDestroy(): void {
-    this.getProductDetailsSubscription.unsubscribe()
-    this.getImageSubscription.unsubscribe()
-    this.getAllCategoriesSubscription.unsubscribe()
-    this.updateImageSubscription.unsubscribe()
+    // No subscriptions to unsubscribe from
   }
 
 }

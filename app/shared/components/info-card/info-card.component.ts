@@ -1,9 +1,12 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-info-card',
   templateUrl: './info-card.component.html',
-  styleUrls: ['./info-card.component.scss']
+  styleUrls: ['./info-card.component.scss'],
+  standalone: true,
+  imports: [CommonModule]
 })
 export class InfoCardComponent implements OnInit {
 

@@ -7,12 +7,16 @@ import { OrdersDataModel, PaymentStatus } from '../../models/orders-data-model';
 import { OrderService } from '../../services/order.service';
 import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
 import Swal from 'sweetalert2';
-import { Router} from '@angular/router';
+import { Router, RouterLink} from '@angular/router';
+import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
+import { DataTableComponent } from '../../../../shared/components/data-table/data-table.component';
 
 @Component({
   selector: 'app-orders-page',
   templateUrl: './orders-page.component.html',
   styleUrls: ['./orders-page.component.scss'],
+  standalone: true,
+  imports: [PageHeaderComponent, DataTableComponent, RouterLink],
   providers: [DecimalPipe]
 })
 export class OrdersPageComponent implements OnInit {
@@ -100,25 +104,19 @@ displayNameForColumns: ColumnSchema[] =
     this.isLoading = true
 
     this.loaderService.start()
-    this.getAllOrdersSubscription = this.ordersService.getAllOrders(itemsPerPage, pageNumber, searchQuery)
-    .pipe(
-      debounceTime(300), // Delay for 300 milliseconds
-      distinctUntilChanged(), 
-    )
-    .subscribe({
-      next: (response)=> {
+    this.ordersService.getAllOrders(itemsPerPage, pageNumber, searchQuery)
+      .then((response: any) => {
         this.totalRecords = response[0].totalRecords
         this.ordersData = this.prepareOrdersData(response.slice(1))
         this.isLoading = false
         this.loggerService.LogInfo("getAllOrders() Request Completed.")
         this.loaderService.stop()
-      },
-      error: (error)=> {
+      })
+      .catch((error: any) => {
         this.isLoading = false
         this.loggerService.LogError(error, "getAllOrders()")
         this.loaderService.stop()
-      }
-    })
+      })
   }
 
   handlePageChange(event:any) {
@@ -172,8 +170,8 @@ displayNameForColumns: ColumnSchema[] =
     }).then((result) => {
       if (result.isConfirmed) {
         this.loggerService.LogInfo("cancelOrder() Request Started.")
-        this.ordersService.cancelOrder(orderData.orderGuid).subscribe({
-          next: (data) => {
+        this.ordersService.cancelOrder(orderData.orderGuid)
+          .then((data: any) => {
             this.getAllOrders()
             if (data.length == 0 || !data[0]?.message) {
               Swal.fire(
@@ -191,16 +189,15 @@ displayNameForColumns: ColumnSchema[] =
                 'error'
               )
             }
-          },
-          error: (error) => {
+          })
+          .catch((error: any) => {
             this.loggerService.LogError(error, "cancelOrder()")
             Swal.fire(
               'Error!',
               error,
               'error'
             )
-          }
-        })
+          })
 
 
       }

@@ -1,34 +1,33 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { DbUserService } from 'Backend/Users/db-user.service';
-import { BehaviorSubject, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
 
-  userImage = new BehaviorSubject<string>('')
-  userName = new BehaviorSubject<string>('')
+  readonly userImage = signal<string>('');
+  readonly userName = signal<string>('');
 
   constructor(private dbUserService:DbUserService) { }
 
-  getUserDetails(userId:number): Observable<any> {
+  getUserDetails(userId:number): Promise<any> {
     return this.dbUserService.getUserDetails(userId)
   }
 
-  updateUserDetails(userDetails:any): Observable<any> {
+  updateUserDetails(userDetails:any): Promise<any> {
     return this.dbUserService.updateUserDetails(userDetails)
   }
 
-  getUserImage(uid:number) {
+  getUserImage(uid:number): Promise<any> {
     return this.dbUserService.getUserImage(uid)
   }
 
-  updateUserImage(userDetails:any):Observable<any> {
+  updateUserImage(userDetails:any): Promise<any> {
     return this.dbUserService.updateUserImage(userDetails.uid, userDetails.image)
   }
 
-  deleteUserImage(uid:number): Observable<any> {
+  deleteUserImage(uid:number): Promise<any> {
     return this.dbUserService.deleteUserImage(uid)
   }
 }

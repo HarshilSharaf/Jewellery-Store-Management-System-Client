@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, effect } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { AuthService } from '../../services/Auth/auth.service';
 import { StoreService } from '../../../../../Backend/Shared/store.service';
 import { UserService } from '../../../modules/profile/services/user.service';
@@ -10,6 +12,8 @@ import { LoggerService } from '../../../../../Backend/Shared/logger.service';
   selector: 'app-sidebar',
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.scss'],
+  standalone: true,
+  imports: [CommonModule, RouterModule]
 })
 export class SidebarComponent implements OnInit {
   userData = {
@@ -49,6 +53,7 @@ export class SidebarComponent implements OnInit {
       icon: 'fa-solid fa-people-group',
     },
   ];
+  
   constructor(
     private authService: AuthService,
     private storeService: StoreService,
@@ -56,7 +61,16 @@ export class SidebarComponent implements OnInit {
     private fileSystemService: FileSystemService,
     private loggerService: LoggerService,
     private utilityService: UtilityService
-  ) {}
+  ) {
+    // Create effects to watch for Signal changes
+    effect(() => {
+      this.userData.image = this.userService.userImage();
+    });
+
+    effect(() => {
+      this.userData.displayName = this.userService.userName();
+    });
+  }
 
   ngOnInit(): void {
     this.storeService.get('authData').then((data: any) => {
@@ -69,8 +83,8 @@ export class SidebarComponent implements OnInit {
 
       this.loggerService.LogInfo("getUserImage() Request Started From sidebar component.")
 
-      this.userService.getUserImage(data.uid).subscribe({
-        next: (data:any) => {
+      this.userService.getUserImage(data.uid)
+        .then((data:any) => {
           if (data[0].imagePath) {
             imagePath = this.utilityService.getFilePath(
               this.fileSystemService.userImagesDir +
@@ -79,23 +93,13 @@ export class SidebarComponent implements OnInit {
             ); 
           }
           this.userData.image = imagePath
+          this.userService.userImage.set(imagePath);
           this.loggerService.LogInfo("getUserImage() Request Completed From sidebar component.")
-        },
-        error: (error) => {
+        })
+        .catch((error: any) => {
           this.loggerService.LogError(error, "getUserImage() From sidebar component")
-        }
-      })
+        })
     });
-
-    // listen if the user updates their profile image
-    this.userService.userImage.subscribe((imagePath:string) => {
-      this.userData.image = imagePath
-    })
-
-    // listen if the user updates their userName
-    this.userService.userName.subscribe((name:string) => {
-      this.userData.displayName = name
-    })
   }
 
   public async logout() {

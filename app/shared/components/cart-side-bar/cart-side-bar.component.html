@@ -1,16 +1,17 @@
-<ng-template #cartSideBar let-offcanvas>
-	<div class="offcanvas-header">
-		<h4 class="offcanvas-title">Cart Items</h4>
-		<button type="button" class="btn-close" aria-label="Close" (click)="offcanvas.dismiss('Cross click')"></button>
-	</div>
-	<hr>
-	<div class="offcanvas-body">
-		<div class="container">
-			<app-cart-items></app-cart-items>
-		</div>
+<!-- Backdrop -->
+<div class="cart-backdrop" [class.show]="isOpen" (click)="onBackdropClick()"></div>
 
-		<div class="text-end">
-			<button type="button" class="btn btn-outline-dark" (click)="offcanvas.close('Close click')">Close</button>
-		</div>
-	</div>
-</ng-template>
+<!-- Side panel -->
+<div class="cart-panel" [class.open]="isOpen">
+  <div class="cart-panel-header">
+    <h4>Cart Items</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="close()"></button>
+  </div>
+  <hr>
+  <div class="cart-panel-body">
+    <app-cart-items></app-cart-items>
+  </div>
+  <div class="cart-panel-footer">
+    <button type="button" class="btn btn-outline-dark" (click)="close()">Close</button>
+  </div>
+</div>

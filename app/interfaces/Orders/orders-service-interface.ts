@@ -1,5 +1,3 @@
-import { Observable } from "rxjs";
-
 /**
  * Represents an interface for an orders service that provides operations related to order management.
  */
@@ -8,24 +6,24 @@ export interface OrdersServiceInterface {
      * Retrieves sales and labor information for a specified time interval.
      * 
      * @param {number} timeInterval - The time interval (in months) for which to retrieve sales and labor data.
-     * @returns {Observable<unknown>} An Observable that emits the sales and labor information.
+     * @returns {Promise<unknown>} A Promise that resolves with the sales and labor information.
      */
-    getSalesAndLabour(timeInterval: number): Observable<unknown>;
+    getSalesAndLabour(timeInterval: number): Promise<unknown>;
   
     /**
      * Retrieves recent orders based on the specified number of orders to retrieve.
      * 
      * @param {number} numberOfOrders - The number of recent orders to retrieve.
-     * @returns {Observable<unknown>} An Observable that emits the list of recent orders.
+     * @returns {Promise<unknown>} A Promise that resolves with the list of recent orders.
      */
-    getRecentOrders(numberOfOrders: number): Observable<unknown>;
+    getRecentOrders(numberOfOrders: number): Promise<unknown>;
   
     /**
      * Retrieves the total revenue for the last 6 months.
      * 
-     * @returns {Observable<unknown>} An Observable that emits the total revenue data.
+     * @returns {Promise<unknown>} A Promise that resolves with the total revenue data.
      */
-    getTotalRevenueInLast6Months(): Observable<unknown>;
+    getTotalRevenueInLast6Months(): Promise<unknown>;
   
     /**
      * Retrieves a list of all orders based on specified parameters.
@@ -33,40 +31,40 @@ export interface OrdersServiceInterface {
      * @param {number} itemsPerPage - The number of items to retrieve per page.
      * @param {number} pageNumber - The page number to retrieve. Default value is 1
      * @param {string} searchQuery - A search query to filter orders. Default value is ''
-     * @returns {Observable<any>} An Observable that emits the list of orders.
+     * @returns {Promise<any>} A Promise that resolves with the list of orders.
      */
-    getAllOrders(itemsPerPage: number, pageNumber: number, searchQuery: string): Observable<any>;
+    getAllOrders(itemsPerPage: number, pageNumber: number, searchQuery: string): Promise<any>;
   
     /**
      * Retrieves the details of an order with the specified orderGuid.
      * 
      * @param {string} orderGuid - The GUID of the order.
-     * @returns {Observable<any>} An Observable that emits the order details.
+     * @returns {Promise<any>} A Promise that resolves with the order details.
      */
-    getOrderDetails(orderGuid: string): Observable<any>;
+    getOrderDetails(orderGuid: string): Promise<any>;
   
     /**
      * Saves an order with the provided order data.
      * 
      * @param {any} orderData - The data of the new order.
-     * @returns {Observable<unknown>} An Observable that emits the result of the save operation.
+     * @returns {Promise<unknown>} A Promise that resolves with the result of the save operation.
      */
-    saveOrder(orderData: any): Observable<unknown>;
+    saveOrder(orderData: any): Promise<unknown>;
   
     /**
      * Cancels an order with the specified orderGuid.
      * 
      * @param {string} orderGuid - The GUID of the order to cancel.
-     * @returns {Observable<unknown>} An Observable that emits the result of the cancellation.
+     * @returns {Promise<unknown>} A Promise that resolves with the result of the cancellation.
      */
-    cancelOrder(orderGuid: string): Observable<unknown>;
+    cancelOrder(orderGuid: string): Promise<unknown>;
   
     /**
      * Records a payment for an order with the provided payment data.
      * 
      * @param {any} paymentData - The data of the payment to be recorded.
-     * @returns {Observable<unknown>} An Observable that emits the result of the payment recording.
+     * @returns {Promise<unknown>} A Promise that resolves with the result of the payment recording.
      */
-    recordPayment(paymentData: any): Observable<unknown>;
+    recordPayment(paymentData: any): Promise<unknown>;
   }
   

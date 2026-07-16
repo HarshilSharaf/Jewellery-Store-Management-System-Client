@@ -1,19 +1,22 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, OnDestroy } from '@angular/core';
+
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
-import { Subscription } from 'rxjs';
 import { SubCategoryService } from './services/sub-category.service';
 import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
 import { SubCategoriesModel } from '../../models/categories-model';
+import { AddSubCategoryFormComponent } from './components/add-sub-category-form/add-sub-category-form.component';
+import { AvailableSubCategoriesComponent } from './components/available-sub-categories/available-sub-categories.component';
 
 @Component({
   selector: 'app-sub-categories',
   templateUrl: './sub-categories.component.html',
-  styleUrls: ['./sub-categories.component.scss']
+  styleUrls: ['./sub-categories.component.scss'],
+  standalone: true,
+  imports: [AddSubCategoryFormComponent, AvailableSubCategoriesComponent]
 })
-export class SubCategoriesComponent implements OnInit {
+export class SubCategoriesComponent implements OnInit,OnDestroy {
 
-  getSubCategoriesSubscription: Subscription = new Subscription;
   subCategoriesData: SubCategoriesModel[] = []
   isLoading = false;
   constructor(
@@ -30,23 +33,22 @@ export class SubCategoriesComponent implements OnInit {
     this.loggerService.LogInfo("getSubCategories() Request Started From sub-categories component.")
     this.isLoading = true;
     this.loaderService.start()
-    this.getSubCategoriesSubscription = this.subCategoryService.getSubCategories().subscribe({
-      next: (response: SubCategoriesModel[]) => {
+    this.subCategoryService.getSubCategories()
+      .then((response: SubCategoriesModel[]) => {
         this.subCategoriesData = [...response]
         this.isLoading = false;
         this.loaderService.stop()
         this.loggerService.LogInfo("getSubCategories() Request Completed From sub-categories component.")
-      },
-      error: (error) => {
+      })
+      .catch((error: any) => {
         this.isLoading = false;
         this.loggerService.LogError(error, "getSubCategories() From sub-categories component")
         this.loaderService.stop()
-      }
-    })
+      })
   }
 
   ngOnDestroy(): void {
-    this.getSubCategoriesSubscription.unsubscribe()
+    // No subscriptions to unsubscribe from
   }
 
 

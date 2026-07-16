@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
 import { AvailableProductsService } from '../available-products/services/available-products.service';
 import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
@@ -11,7 +11,9 @@ import { ProductDataModel } from '../../../orders/models/product-data-model';
 @Component({
   selector: 'app-product-details-form',
   templateUrl: './product-details-form.component.html',
-  styleUrls: ['./product-details-form.component.scss']
+  styleUrls: ['./product-details-form.component.scss'],
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule]
 })
 export class ProductDetailsFormComponent implements OnInit,OnChanges {
 
@@ -68,8 +70,8 @@ export class ProductDetailsFormComponent implements OnInit,OnChanges {
 
     updateProductDetailsFormData.productGuid = this.productData.productGuid
     this.isLoading = true;
-    this.ProductService.updateProductDetails(updateProductDetailsFormData).subscribe({
-      next: (data) => {
+    this.ProductService.updateProductDetails(updateProductDetailsFormData)
+      .then((data) => {
         this.isLoading = false
         this.refreshProductDetails.emit(true)
         Swal.fire(
@@ -78,8 +80,8 @@ export class ProductDetailsFormComponent implements OnInit,OnChanges {
           'success'
         )
         this.loggerService.LogInfo("updateProductDetails() Request Completed.")
-      },
-      error: (error) => {
+      })
+      .catch((error: any) => {
         this.loggerService.LogError(error, "updateProductDetails()")
         this.isLoading = false
         Swal.fire({
@@ -87,9 +89,6 @@ export class ProductDetailsFormComponent implements OnInit,OnChanges {
           title: 'Oops...',
           text: "Failed to update product details.Internal server error occured!",
         })
-      }
-    })
-
-
+      })
   }
 }

@@ -1,6 +1,6 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { Subscription } from 'rxjs';
+import { Component, EventEmitter, OnInit, OnDestroy, Output } from '@angular/core';
+import { FormGroup, FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { HttpResponse } from '../../../../../../models/http-response';
 import { ProductCategoryService } from '../../services/product-category.service';
 import { LoggerService } from '../../../../../../../../Backend/Shared/logger.service';
@@ -8,11 +8,12 @@ import { LoggerService } from '../../../../../../../../Backend/Shared/logger.ser
 @Component({
   selector: 'app-add-product-category-form',
   templateUrl: './add-product-category-form.component.html',
-  styleUrls: ['./add-product-category-form.component.scss']
+  styleUrls: ['./add-product-category-form.component.scss'],
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule]
 })
-export class AddProductCategoryFormComponent implements OnInit {
+export class AddProductCategoryFormComponent implements OnInit,OnDestroy {
 
-  private productCategoryServiceSubscription: Subscription = new Subscription;
   public addProductCategoryResponse: HttpResponse = { status: 0, message: '' }
   @Output() refreshDataEvent = new EventEmitter<boolean>()
 
@@ -30,8 +31,7 @@ export class AddProductCategoryFormComponent implements OnInit {
   }
 
   ngOnDestroy(): void {
-    console.log("Add product category form destroyed!!")
-    this.productCategoryServiceSubscription?.unsubscribe();
+    // No subscriptions to unsubscribe from
   }
 
   ngOnInit(): void {
@@ -49,19 +49,18 @@ export class AddProductCategoryFormComponent implements OnInit {
     });
     
     this.loggerService.LogInfo("addProductCategory() Request Started.")
-    this.productCategoryServiceSubscription = this.productCategoryService.addProductCategory(addProductCategoryFormData).subscribe({
-      next: (response) => {
+    this.productCategoryService.addProductCategory(addProductCategoryFormData)
+      .then((response) => {
         this.refreshDataEvent.emit(true)
         this.addProductCategoryResponse.status = 200
         this.addProductCategoryResponse.message = "Product Category Added Successfully!"
         this.loggerService.LogInfo("addProductCategory() Request Completed.")
-      },
-      error: (error) => {
+      })
+      .catch((error: any) => {
         this.loggerService.LogError(error, "addProductCategory()")
         this.addProductCategoryResponse.status = 500
         this.addProductCategoryResponse.message = error
-      }
-    })
+      })
   }
 
 }

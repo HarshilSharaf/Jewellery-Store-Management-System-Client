@@ -1,18 +1,21 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+
 import { NgxUiLoaderService } from 'ngx-ui-loader';
-import { Subscription } from 'rxjs/internal/Subscription';
 import { MasterCategoryService } from './services/master-category.service';
 import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
 import { MasterCategoriesModel } from '../../models/categories-model';
+import { AddMasterCategoryFormComponent } from './components/add-master-category-form/add-master-category-form.component';
+import { AvailableMasterCategoriesComponent } from './components/available-master-categories/available-master-categories.component';
 
 @Component({
   selector: 'app-master-categories',
   templateUrl: './master-categories.component.html',
-  styleUrls: ['./master-categories.component.scss']
+  styleUrls: ['./master-categories.component.scss'],
+  standalone: true,
+  imports: [AddMasterCategoryFormComponent, AvailableMasterCategoriesComponent]
 })
 export class MasterCategoriesComponent implements OnInit,OnDestroy {
 
-  getMasterCategoriesSubscription: Subscription = new Subscription;
   isLoading = false;
 
   constructor(
@@ -32,23 +35,22 @@ export class MasterCategoriesComponent implements OnInit,OnDestroy {
     this.isLoading = true;
 
     this.loaderService.start()
-    this.getMasterCategoriesSubscription = this.masterCategoryService.getMasterCategories().subscribe({
-      next: (response:MasterCategoriesModel[]) => {
+    this.masterCategoryService.getMasterCategories()
+      .then((response:MasterCategoriesModel[]) => {
         this.masterCategoriesData = [...response]
         this.loggerService.LogInfo("getMasterCategoriesData() Request Completed From master-categories component.")
         this.isLoading = false;
         this.loaderService.stop()
-      },
-      error: (error) => {
+      })
+      .catch((error: any) => {
         this.loggerService.LogError(error, "getMasterCategoriesData() From master-categories component")
         this.isLoading = false;
         this.loaderService.stop()
-      }
-    })
+      })
   }
 
   ngOnDestroy(): void {
-    this.getMasterCategoriesSubscription.unsubscribe()
+    // No subscriptions to unsubscribe from
   }
 
 }

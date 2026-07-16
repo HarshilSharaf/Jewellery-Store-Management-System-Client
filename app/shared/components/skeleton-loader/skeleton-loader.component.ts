@@ -1,15 +1,19 @@
 import { Component, Input } from '@angular/core';
 
+import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
+
 @Component({
   selector: 'app-skeleton-loader',
   templateUrl: './skeleton-loader.component.html',
-  styleUrl: './skeleton-loader.component.scss'
+  styleUrl: './skeleton-loader.component.scss',
+  standalone: true,
+  imports: [NgxSkeletonLoaderModule]
 })
 export class SkeletonLoaderComponent {
   _count = 1;
   _shapeOfLoader:'circle' | 'line' | 'custom-content' | '' = '';
   _theme = {};
-  _animation = 'pulse';
+  _animation: false | 'progress' | 'progress-dark' | 'pulse' | 'pulse-dark' = 'pulse';
 
   @Input() set count(countOfLoader: number) {
     this._count = countOfLoader;
@@ -23,7 +27,7 @@ export class SkeletonLoaderComponent {
     this._theme = { ...themeOfLoader };
   }
 
-  @Input() set animation(animationType: string) {
-    this._animation = animationType ?? this._animation;
+  @Input() set animation(animationType: false | 'progress' | 'progress-dark' | 'pulse' | 'pulse-dark') {
+    this._animation = animationType ?? 'pulse';
   }
 }

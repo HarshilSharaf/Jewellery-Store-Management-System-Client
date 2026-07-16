@@ -1,6 +1,6 @@
 @import "./partials/variables";
+@import "./partials/bootstrap-compat";
 @import "./partials/navbar";
-@import "./partials/navbar.scss";
 @import "./partials/sidebar";
 @import "./partials/themes";
 
@@ -12,9 +12,11 @@
   height: 35px;
   text-align: center;
   line-height: 35px;
-  border-radius: 50%;
-  border: 1px solid;
-  font-size: .9rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: $sidebar-icon-color;
+  background: $primary-lighter;
+  border: none;
 }
 
 body {
@@ -32,7 +34,7 @@ body {
 
     .pages {
       overflow: auto;
-      background-image: linear-gradient(to right ,#1CD8D2,#93EDC7);
+      background: $bg-color;
     }
 
     .overlay {
@@ -41,13 +43,16 @@ body {
       right: 0;
       bottom: 0;
       left: 0;
-      z-index: 100;  
-      opacity: .7;
+      z-index: 100;
+      opacity: 0;
+      background: rgba($text-primary, 0.3);
+      backdrop-filter: blur(2px);
       display: none;
+      transition: opacity 0.3s ease;
 
       &.show {
-
         display: block;
+        opacity: 1;
 
         @media (min-width: 768px) {
           display: none;
@@ -60,6 +65,7 @@ body {
     main {
       .overlay {
         display: block;
+        opacity: 1;
 
         @media (min-width: 768px) {
           display: none;

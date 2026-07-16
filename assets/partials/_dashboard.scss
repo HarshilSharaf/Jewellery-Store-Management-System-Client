@@ -5,14 +5,41 @@
       height: 50px;
       line-height: 50px;
       text-align: center;
-      border-radius: 50%;
-      font-size: 3rem;
+      border-radius: 12px;
+      font-size: 1.5rem;
+
+      &.icon-primary {
+        color: $primary;
+        background: $primary-lighter;
+      }
+
+      &.icon-secondary {
+        color: $secondary;
+        background: $secondary-light;
+      }
+
+      &.icon-accent {
+        color: $accent;
+        background: $accent-light;
+      }
+
+      &.icon-warning {
+        color: $warning;
+        background: $warning-light;
+      }
+
+      &.icon-success {
+        color: $success;
+        background: $success-light;
+      }
     }
   }
-  .legend{
-    span:first-child{
+
+  .legend {
+    span:first-child {
       width: 10px;
       height: 10px;
+      border-radius: 50%;
     }
   }
 }

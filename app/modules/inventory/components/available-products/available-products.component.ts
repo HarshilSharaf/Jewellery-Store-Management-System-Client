@@ -1,4 +1,5 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+
 import { Subscription } from 'rxjs';
 import { ColumnSchema } from '../../../../shared/models/columnsSchema';
 import { FileSystemService } from '../../../../../../Backend/Shared/file-system.service';
@@ -9,11 +10,15 @@ import { AllCategoriesModel } from '../../../../modules/categories/models/catego
 import { ProductDataModel } from '../../../../modules//orders/models/product-data-model';
 import { ActivatedRoute, Router } from '@angular/router';
 import Swal from 'sweetalert2';
+import { AddProductFormComponent } from './components/add-product-form/add-product-form.component';
+import { DataTableComponent } from '../../../../shared/components/data-table/data-table.component';
 
 @Component({
   selector: 'app-available-products',
   templateUrl: './available-products.component.html',
-  styleUrls: ['./available-products.component.scss']
+  styleUrls: ['./available-products.component.scss'],
+  standalone: true,
+  imports: [AddProductFormComponent, DataTableComponent]
 })
 export class AvailableProductsComponent implements OnInit, OnDestroy {
 
@@ -101,8 +106,8 @@ export class AvailableProductsComponent implements OnInit, OnDestroy {
   getAllCategoriesData() {
     this.loggerService.LogInfo("getAllCategoriesData() Request Started From available-products component.")
 
-    this.availableCategoriesSubscription = this.availableProductService.getAllCategories().subscribe({
-      next: (response) => {
+    this.availableProductService.getAllCategories()
+      .then((response: any) => {
 
         this.allCategoriesData = {
           masterCategories: response[0].MasterCategoriesData,
@@ -110,11 +115,10 @@ export class AvailableProductsComponent implements OnInit, OnDestroy {
           productCategories: response[2].ProductCategoriesData
         }
         this.loggerService.LogInfo("getAllCategoriesData() Request Completed From available-products component.")
-      },
-      error: (error) => {
+      })
+      .catch((error: any) => {
         this.loggerService.LogError(error, "getAllCategoriesData() From available-products component")
-      }
-    })
+      })
   }
 
   handlePageChange(event:any) {
@@ -132,42 +136,27 @@ export class AvailableProductsComponent implements OnInit, OnDestroy {
   getAllProductsData(itemsPerPage = this.itemsPerPage, pageNumber = 1, searchQuery:string = '') {
     this.loggerService.LogInfo("getAllProductsData() Request Started.")
     this.isLoading = true;
-    this.allProductsDataSubscription = this.availableProductService.getAllProductsData(itemsPerPage, pageNumber,searchQuery).subscribe({
-      next: async (response: any) => {
+    this.availableProductService.getAllProductsData(itemsPerPage, pageNumber,searchQuery)
+      .then(async (response: any) => {
         this.totalRecords = response[0].totalRecords
         const productsData:ProductDataModel[] = response.slice(1)
         for (let product of productsData) {
-          /*
-               NOTE: The following commented out code was taking so long to load all the images of customer
-          */
-          // product.image = await this.fileSystemService.getProductImageInBase64(product.imagePath)
-
-          /*
-              To resolve the above mentioned issue i've used the convertFileSrc() method of tauri which initiates protocol config
-              FOR MORE INFO REFER THIS LINKS: 1) https://github.com/tauri-apps/tauri/discussions/1438
-                                              2) https://github.com/breadthe/sd-buddy/commit/8ded008431f07f6a028ebcac2a73f10c76c193f4
-                                              3) https://tauri.app/v1/api/js/tauri/#convertfilesrc
-          */
-         
           if(product.imagePath){
             product.image = this.utilityService.getFilePath( this.fileSystemService.productImagesDir + '\\' + product.imagePath)
           }
           else {
             product.image = 'assets/img/No-Image-Icon.png'
           }
-                                              
-
         }
         
         this.allProductsData = [...productsData]
         this.isLoading = false;
         this.loggerService.LogInfo("getAllProductsData() Request Completed.")
-      },
-      error: (error) => {
+      })
+      .catch((error: any) => {
         this.isLoading = false;
         this.loggerService.LogError(error, "getAllProductsData()")
-      }
-    })
+      })
   }
 
   goToViewProductDetails(product: ProductDataModel) {
@@ -186,8 +175,8 @@ export class AvailableProductsComponent implements OnInit, OnDestroy {
     }).then((result) => {
       if (result.isConfirmed) {
         this.loggerService.LogInfo("deleteProduct() Request Started.")
-        this.deleteProductSubscription = this.availableProductService.deleteProduct(product.productGuid).subscribe({
-          next: (response)=>{
+        this.availableProductService.deleteProduct(product.productGuid)
+          .then((response: any) => {
             this.getAllProductsData()
             Swal.fire(
               'Deleted!',
@@ -195,22 +184,21 @@ export class AvailableProductsComponent implements OnInit, OnDestroy {
               'success'
             )
             this.loggerService.LogInfo("deleteProduct() Request Completed.")
-          },
-          error: (error) => {
+          })
+          .catch((error: any) => {
             Swal.fire(
               'Error!',
               error.error.message,
               'error'
             )
             this.loggerService.LogError(error, "deleteProduct()")
-          }
-        })
+          })
       }
     })
   }
 
   ngOnDestroy(): void {
-    this.availableCategoriesSubscription.unsubscribe()
+    // No subscriptions to unsubscribe from
   }
 
 }

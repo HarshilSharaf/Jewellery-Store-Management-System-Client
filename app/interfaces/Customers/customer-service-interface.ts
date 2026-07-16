@@ -1,16 +1,15 @@
 import { CustomerDetails } from "client/app/modules/customers/models/customerDetails";
-import { Observable } from "rxjs";
 
 /**
  * Represents an interface for a customer service that provides operations related to customers.
  */
 export interface CustomerServiceInterface {
     /**
-     * Retrieves the total number of customers as an Observable.
+     * Retrieves the total number of customers as a Promise.
      * 
-     * @returns {Observable<unknown>} An Observable that emits the total number of customers.
+     * @returns {Promise<unknown>} A Promise that resolves with the total number of customers.
      */
-    getTotalCustomers(): Observable<unknown>;
+    getTotalCustomers(): Promise<unknown>;
   
     /**
      * Retrieves a list of customers based on specified parameters.
@@ -20,75 +19,75 @@ export interface CustomerServiceInterface {
      * @param {number} pageNumber - The page number to retrieve. Default value is 1
      * @param {string} searchQuery - A search query to filter customers. Default value is ''
      * @param {boolean} fetchAll - Indicates whether to fetch all customers. Default value is false
-     * @returns {Observable<unknown>} An Observable that emits the list of customers.
+     * @returns {Promise<unknown>} A Promise that resolves with the list of customers.
      */
-    getAllCustomers(fetchImage: boolean, itemsPerPage: number, pageNumber: number, searchQuery: string, fetchAll: boolean): Observable<unknown>;
+    getAllCustomers(fetchImage: boolean, itemsPerPage: number, pageNumber: number, searchQuery: string, fetchAll: boolean): Promise<unknown>;
   
     /**
      * Adds a new customer with the provided customer details.
      * 
      * @param {CustomerDetails} customerDetails - The details of the new customer.
-     * @returns {Observable<unknown>} An Observable that emits the result of the add operation.
+     * @returns {Promise<unknown>} A Promise that resolves with the result of the add operation.
      */
-    addCustomer(customerDetails: CustomerDetails): Observable<unknown>;
+    addCustomer(customerDetails: CustomerDetails): Promise<unknown>;
   
     /**
      * Deletes a customer with the specified customer GUID.
      * 
      * @param {string} customerGuid - The GUID of the customer to delete.
      * @param {number} hardDelete - Indicates whether to perform a hard delete. Default value is 0
-     * @returns {Observable<unknown>} An Observable that emits the result of the delete operation.
+     * @returns {Promise<unknown>} A Promise that resolves with the result of the delete operation.
      */
-    deleteCustomer(customerGuid: string, hardDelete: number): Observable<unknown>;
+    deleteCustomer(customerGuid: string, hardDelete: number): Promise<unknown>;
   
     /**
      * Retrieves the details of a customer with the specified customer GUID.
      * 
      * @param {string} customerGuid - The GUID of the customer.
-     * @returns {Observable<unknown>} An Observable that emits the customer details.
+     * @returns {Promise<unknown>} A Promise that resolves with the customer details.
      */
-    getCustomerDetails(customerGuid: string): Observable<unknown>;
+    getCustomerDetails(customerGuid: string): Promise<unknown>;
   
     /**
      * Retrieves the image of a customer with the specified customer GUID.
      * 
      * @param {string} customerGuid - The GUID of the customer.
-     * @returns {Observable<unknown>} An Observable that emits the customer's image.
+     * @returns {Promise<unknown>} A Promise that resolves with the customer's image.
      */
-    getCustomerImage(customerGuid: string): Observable<unknown>;
+    getCustomerImage(customerGuid: string): Promise<unknown>;
   
     /**
      * Updates the image of a customer with the specified customer GUID.
      * 
      * @param {string} customerGuid - The GUID of the customer.
      * @param {string} imagePath - The path to the updated image.
-     * @returns {Observable<unknown>} An Observable that emits the result of the image update.
+     * @returns {Promise<unknown>} A Promise that resolves with the result of the image update.
      */
-    updateCustomerImage(customerGuid: string, imagePath: string): Observable<unknown>;
+    updateCustomerImage(customerGuid: string, imagePath: string): Promise<unknown>;
   
     /**
      * Deletes the image of a customer with the specified customer GUID.
      * 
      * @param {string} customerGuid - The GUID of the customer.
-     * @returns {Observable<unknown>} An Observable that emits the result of the image delete operation.
+     * @returns {Promise<unknown>} A Promise that resolves with the result of the image delete operation.
      */
-    deleteCustomerImage(customerGuid: string): Observable<unknown>;
+    deleteCustomerImage(customerGuid: string): Promise<unknown>;
   
     /**
      * Updates the details of a customer with the provided customer details.
      * 
      * @param {any} customerDetails - The updated customer details.
-     * @returns {Observable<unknown>} An Observable that emits the result of the customer details update.
+     * @returns {Promise<unknown>} A Promise that resolves with the result of the customer details update.
      */
-    updateCustomerDetails(customerDetails: any): Observable<unknown>;
+    updateCustomerDetails(customerDetails: any): Promise<unknown>;
   
     /**
      * Retrieves the total amount of products bought by a customer with the specified customer GUID.
      * 
      * @param {string} customerGuid - The GUID of the customer.
-     * @returns {Observable<unknown>} An Observable that emits the total amount of products bought by the customer.
+     * @returns {Promise<unknown>} A Promise that resolves with the total amount of products bought by the customer.
      */
-    getTotalAmountOfProductsBoughtForCustomer(customerGuid: string): Observable<unknown>;
+    getTotalAmountOfProductsBoughtForCustomer(customerGuid: string): Promise<unknown>;
   
     /**
      * Retrieves the orders of a customer with the specified customer GUID based on specified parameters.
@@ -98,8 +97,8 @@ export interface CustomerServiceInterface {
      * @param {number} pageNumber - The page number to retrieve. Default value is 1
      * @param {string} searchQuery - A search query to filter orders. Default value is ''
      * @param {number} getCancelledOrders - Indicates whether to retrieve canceled orders. Default value is 1
-     * @returns {Observable<unknown>} An Observable that emits the list of customer orders.
+     * @returns {Promise<unknown>} A Promise that resolves with the list of customer orders.
      */
-    getCustomerOrders(customerGuid: string, itemsPerPage: number, pageNumber: number, searchQuery: string, getCancelledOrders: number): Observable<unknown>;
+    getCustomerOrders(customerGuid: string, itemsPerPage: number, pageNumber: number, searchQuery: string, getCancelledOrders: number): Promise<unknown>;
   }
   

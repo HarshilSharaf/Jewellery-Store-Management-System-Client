@@ -1,10 +1,18 @@
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterOutlet } from '@angular/router';
 import { SideBarService } from '../../../../shared/services/sidebar.service';
+import { NavbarComponent } from '../../../../shared/components/navbar/navbar.component';
+import { SidebarComponent } from '../../../../shared/components/sidebar/sidebar.component';
+import { FooterComponent } from '../../../../shared/components/footer/footer.component';
+import { CartSideBarComponent } from '../../../../shared/components/cart-side-bar/cart-side-bar.component';
 
 @Component({
   selector: 'app-main',
   templateUrl: './main.component.html',
-  styleUrls: ['./main.component.scss']
+  styleUrls: ['./main.component.scss'],
+  standalone: true,
+  imports: [CommonModule, RouterOutlet, NavbarComponent, SidebarComponent, FooterComponent, CartSideBarComponent]
 })
 export class MainComponent implements OnInit {
 

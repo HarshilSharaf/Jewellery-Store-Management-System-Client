@@ -1,15 +1,19 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Component, EventEmitter, Input, OnInit, Output, OnDestroy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { HttpResponse } from '../../../../models/http-response';
 import { PaymentsDataModel, PaymentType } from '../../models/payments-data-model';
 import { OrderService } from '../../services/order.service';
 import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
+import { SkeletonLoaderComponent } from '../../../../shared/components/skeleton-loader/skeleton-loader.component';
 
 @Component({
   selector: 'app-order-payments',
   templateUrl: './order-payments.component.html',
-  styleUrls: ['./order-payments.component.scss']
+  styleUrls: ['./order-payments.component.scss'],
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, SkeletonLoaderComponent]
 })
 export class OrderPaymentsComponent implements OnInit {
 
@@ -71,8 +75,8 @@ export class OrderPaymentsComponent implements OnInit {
       paymentDate: this.recordPaymentForm.get('paymentDate')?.value,
       remarks: this.recordPaymentForm.get('remarks')?.value
     }
-    this.recordPaymentSubscription = this.orderService.recordPayment(paymentData).subscribe({
-      next: (response) => {
+    this.orderService.recordPayment(paymentData)
+      .then((response: any) => {
       
         if (response.length == 0 || !response[0]?.message) {
           const paymentResponse:HttpResponse = {
@@ -94,16 +98,15 @@ export class OrderPaymentsComponent implements OnInit {
           this.recordPaymentResponse = {...paymentResponse}
         }
         this.loggerService.LogInfo("recordPayment() Request Completed.") 
-      },
-      error: (error) => {
+      })
+      .catch((error: any) => {
         const paymentResponse:HttpResponse = {
           status: 500,
           message: error
         }
         this.recordPaymentResponse = {...paymentResponse}
         this.loggerService.LogError(error, "recordPayment()")
-      }
-    })
+      })
 
   }
 

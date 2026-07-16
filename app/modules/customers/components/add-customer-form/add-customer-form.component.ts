@@ -1,15 +1,19 @@
 import { Component, EventEmitter, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { HttpResponse } from '../../../../models/http-response';
 import { FileSystemService } from '../../../../../../Backend/Shared/file-system.service';
 import { CustomerDetails } from '../../models/customerDetails';
 import { CustomerDataService } from '../../services/customer-data.service';
 import { ImageUploadComponent } from '../image-upload/image-upload.component';
 import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
+
 @Component({
   selector: 'app-add-customer-form',
   templateUrl: './add-customer-form.component.html',
-  styleUrls: ['./add-customer-form.component.scss']
+  styleUrls: ['./add-customer-form.component.scss'],
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, ImageUploadComponent]
 })
 export class AddCustomerFormComponent implements OnInit, OnDestroy {
 
@@ -45,39 +49,35 @@ export class AddCustomerFormComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
   }
 
-  submitForm() {
+  async submitForm() {
     this.loggerService.LogInfo("addCustomer() Request Started.")
 
     const addCustomerFormData:CustomerDetails =  {...this.customerDetailsForm.value}
-
 
     addCustomerFormData.imagePath = this.customerPhotoComponent.customerPhoto?.name ?? null
 
     this.isLoading = true;
 
-    this.customerService.addCustomer(addCustomerFormData).subscribe({
-      next: async (data: CustomerDetails[]) => {
-        if (data[0].imagePath != null && this.customerPhotoComponent.customerPhoto != null)
-        {
-          try {
-            await this.fileSystemService.saveCustomerImage(this.customerPhotoComponent.customerPhoto, data[0].imagePath)
-          } catch (error) {
-            this.loggerService.LogError(error as string, "saveCustomerImage() From add-customer component.")
-          }
+    try {
+      const data: CustomerDetails[] = await this.customerService.addCustomer(addCustomerFormData);
+      if (data[0].imagePath != null && this.customerPhotoComponent.customerPhoto != null) {
+        try {
+          await this.fileSystemService.saveCustomerImage(this.customerPhotoComponent.customerPhoto, data[0].imagePath)
+        } catch (error) {
+          this.loggerService.LogError(error as string, "saveCustomerImage() From add-customer component.")
         }
-        this.refreshDataSource.emit(true);
-        this.addCustomerResponse.status = 200
-        this.addCustomerResponse.message = "Customer Added Successfully!"
-        this.isLoading = false
-        this.loggerService.LogInfo("addCustomer() Request Completed.")
-      },
-      error: (error) => {
-        this.addCustomerResponse.status = 500
-        this.addCustomerResponse.message = error
-        this.isLoading = false
-        this.loggerService.LogError(error, "addCustomer()")
       }
-    })
+      this.refreshDataSource.emit(true);
+      this.addCustomerResponse.status = 200
+      this.addCustomerResponse.message = "Customer Added Successfully!"
+      this.isLoading = false
+      this.loggerService.LogInfo("addCustomer() Request Completed.")
+    } catch (error) {
+      this.addCustomerResponse.status = 500
+      this.addCustomerResponse.message = error as string
+      this.isLoading = false
+      this.loggerService.LogError(error, "addCustomer()")
+    }
   }
 
   clearForm() {

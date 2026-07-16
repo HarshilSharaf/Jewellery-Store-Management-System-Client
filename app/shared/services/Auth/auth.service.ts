@@ -1,6 +1,5 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { from, Observable } from 'rxjs';
 import { Router } from '@angular/router';
 import { Auth } from 'Backend/Auth/auth';
 import * as bcrypt from 'bcryptjs';
@@ -11,9 +10,7 @@ import { LoggerService } from '../../../../../Backend/Shared/logger.service';
   providedIn: 'root'
 })
 export class AuthService {
-  // public responseData: BehaviorSubject<HttpResponse> = new BehaviorSubject<HttpResponse>({ status: 400, message: "Some Error Occured!" });
-  public isLoggedIn = false
-  // myData: BehaviorSubject<number> = new BehaviorSubject<number>(0);
+  public isLoggedIn = signal<boolean>(false);
 
   constructor(
     private router: Router,
@@ -39,6 +36,7 @@ export class AuthService {
             expiration: new Date(new Date().getTime() + (24 * 60 * 60 * 1000)).toISOString()
           }
           await this.storeService.set('authData', authData)
+          this.isLoggedIn.set(true);
 
           resolve({
             status: 200,
@@ -50,12 +48,10 @@ export class AuthService {
         reject('Username Not Found')
       }
     })
-
   }
 
-
-  public checkLogin(): Observable<boolean> {
-    return from(new Promise<boolean>(async (resolve,reject) => {
+  public async checkLogin(): Promise<boolean> {
+    return new Promise<boolean>(async (resolve, reject) => {
       const authData = await this.storeService.get('authData')
 
       if (!authData) {
@@ -66,27 +62,27 @@ export class AuthService {
         const currentDate = new Date().getTime()
         const expirationDate = new Date(authData.expiration).getTime()
           if (authData && (currentDate < expirationDate)) {
+            this.isLoggedIn.set(true);
             resolve(true)
           }
           else {
             await this.storeService.delete('authData')
+            this.isLoggedIn.set(false);
             reject(false)
           }
       }
-    }))
+    })
   }
 
   public async logout() {
     this.loggerService.LogInfo('logout() Request Started.');
     try {
       await this.storeService.delete('authData');
+      this.isLoggedIn.set(false);
       this.loggerService.LogInfo('logout() Request Completed.');
       this.router.navigate(['login']);
     } catch (error) {
       this.loggerService.LogError(error as string, "logout()")
     }
-
-
   }
-
 } 

@@ -1,6 +1,7 @@
-import { DecimalPipe } from '@angular/common';
+import { DecimalPipe, CommonModule } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { CustomerDetails } from '../../../../../customers/models/customerDetails';
 import { InvoiceProductDataModel } from '../../../../models/invoice-product-data-model';
@@ -14,6 +15,8 @@ import Swal from 'sweetalert2';
   selector: 'app-create-invoice',
   templateUrl: './create-invoice.component.html',
   styleUrls: ['./create-invoice.component.scss'],
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   providers: [DecimalPipe]
 })
 export class CreateInvoiceComponent implements OnInit {
@@ -180,8 +183,8 @@ export class CreateInvoiceComponent implements OnInit {
       paymentMethod: this.paymentMethod
     }
 
-    this.orderService.saveOrder(requestData).subscribe({
-      next: (response)=> {
+    this.orderService.saveOrder(requestData)
+      .then((response: any) => {
         this.loaderService.stop()
         if (response.length == 0 || !response[0]?.message ) {
           this.cartService.emptyCart()
@@ -209,16 +212,15 @@ export class CreateInvoiceComponent implements OnInit {
 
         }
 
-      },
-      error: (error) => {
+      })
+      .catch((error: any) => {
         this.loggerService.LogError(error, "saveOrder()")
         this.loaderService.stop()
         Swal.fire(
           'Error',
           error?? 'Failed to save order',
           'error')
-      }
-    })
+      })
   }
 
 }

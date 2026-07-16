@@ -1,18 +1,23 @@
-import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
-import { catchError, debounceTime, distinctUntilChanged } from 'rxjs';
 import { ColumnSchema } from '../../../../shared/models/columnsSchema';
 import { CustomerDetails } from '../../models/customerDetails';
 import { CustomerDataService } from '../../services/customer-data.service';
 import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
 import Swal from 'sweetalert2';
 import { ActivatedRoute, Router } from '@angular/router';
+import { DataTableComponent } from '../../../../shared/components/data-table/data-table.component';
+import { AddCustomerFormComponent } from '../add-customer-form/add-customer-form.component';
+import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 
 @Component({
   selector: 'app-customers-page',
   templateUrl: './customers-page.component.html',
-  styleUrls: ['./customers-page.component.scss']
+  styleUrls: ['./customers-page.component.scss'],
+  standalone: true,
+  imports: [MatDialogModule, DataTableComponent, AddCustomerFormComponent, PageHeaderComponent]
 })
 export class CustomersPageComponent implements OnInit, AfterViewInit, OnDestroy {
 
@@ -58,15 +63,18 @@ export class CustomersPageComponent implements OnInit, AfterViewInit, OnDestroy 
       },
     ]
 
-  private getCustomerDataSubscription: any
+  private debounceTimer: any;
+  private lastRequest: Promise<any> | null = null;
   private itemsPerPage = 5
   public totalRecords = 0
   private currentSearchQuery= ''
   protected isLoading = false;
 
+  showAddCustomerForm = false;
+
   constructor(
     private customerService: CustomerDataService,
-    private modalService: NgbModal,
+    private dialog: MatDialog,
     private cdref: ChangeDetectorRef,
     private router: Router,
     private route: ActivatedRoute,
@@ -81,44 +89,39 @@ export class CustomersPageComponent implements OnInit, AfterViewInit, OnDestroy 
   ngOnInit(): void {
   }
 
-  open(content: any) {
-    this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' }).result.then(
-      (result) => {
-        console.log(`Closed with: ${result}`);
-      }
-    );
+  openAddCustomerDialog(): void {
+    const dialogRef = this.dialog.open(AddCustomerFormComponent, {
+      width: '600px',
+      panelClass: 'add-customer-dialog'
+    });
+
+    dialogRef.afterClosed().subscribe(() => {
+      this.getAllCustomersData();
+    });
   }
 
-  getAllCustomersData(itemsPerPage = this.itemsPerPage, pageNumber = 1,  searchQuery:string = '') {
-    this.loggerService.LogInfo("getAllCustomersData() Request Started From customers-page component.")
-    this.loaderService.start()
-    this.isLoading = true;
-    this.getCustomerDataSubscription = this.customerService.getAllCustomers(false, itemsPerPage, pageNumber, searchQuery)
-    .pipe(
-      debounceTime(300), // Delay for 300 milliseconds
-      distinctUntilChanged(), 
-    )
-    .subscribe({
-        next: (response:any) => {
-          {
-            this.totalRecords = response[0].totalRecords
-            const responseData:CustomerDetails[] = response.slice(1)
-            responseData.forEach((element) => {
-              element.customerName = element.firstName + ' ' + element.lastName
-            });
-            this.customerData = responseData;
-            this.isLoading = false;
-            this.loaderService.stop()
-            this.loggerService.LogInfo("getAllCustomersData() Request Completed From customers-page component.")
-          }
-        },
-        error: (error:any)=>{
-          this.isLoading = false;
-          this.loaderService.stop()
-          this.loggerService.LogError(error, "getAllCustomersData() From customers-page component")
-        }
-
-      })
+  async getAllCustomersData(itemsPerPage = this.itemsPerPage, pageNumber = 1,  searchQuery:string = '') {
+    try {
+      this.loggerService.LogInfo("getAllCustomersData() Request Started From customers-page component.")
+      this.loaderService.start()
+      this.isLoading = true;
+      
+      const response:any = await this.customerService.getAllCustomers(false, itemsPerPage, pageNumber, searchQuery);
+      
+      this.totalRecords = response[0].totalRecords
+      const responseData:CustomerDetails[] = response.slice(1)
+      responseData.forEach((element) => {
+        element.customerName = element.firstName + ' ' + element.lastName
+      });
+      this.customerData = responseData;
+      this.isLoading = false;
+      this.loaderService.stop()
+      this.loggerService.LogInfo("getAllCustomersData() Request Completed From customers-page component.")
+    } catch (error: any) {
+      this.isLoading = false;
+      this.loaderService.stop()
+      this.loggerService.LogError(error, "getAllCustomersData() From customers-page component")
+    }
   }
 
   handlePageChange(event:any) {
@@ -129,15 +132,23 @@ export class CustomersPageComponent implements OnInit, AfterViewInit, OnDestroy 
 
   handleSearchQuery(searchQuery: string) {
     this.currentSearchQuery = searchQuery
-    this.getAllCustomersData(this.itemsPerPage, 1, this.currentSearchQuery)
+    
+    // Debounce search requests
+    if (this.debounceTimer) {
+      clearTimeout(this.debounceTimer);
+    }
+    
+    this.debounceTimer = setTimeout(() => {
+      this.getAllCustomersData(this.itemsPerPage, 1, this.currentSearchQuery)
+    }, 300);
   }
 
   goToViewDetails(customerData: CustomerDetails) {
     this.router.navigate([`view-customer-details/${customerData.customerGuid}`] ,{relativeTo:this.route}); 
   }
 
-  openDeletePopUpForItem(customerData: CustomerDetails) {
-    Swal.fire({
+  async openDeletePopUpForItem(customerData: CustomerDetails) {
+    const result = await Swal.fire({
       title: `Are you sure you want to delete ${customerData.customerName}?`,
       text: "You won't be able to revert this!",
       icon: 'warning',
@@ -145,37 +156,34 @@ export class CustomersPageComponent implements OnInit, AfterViewInit, OnDestroy 
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
       confirmButtonText: 'Yes, delete it!'
-    }).then((result) => {
-      if (result.isConfirmed) {
+    });
+
+    if (result.isConfirmed) {
+      try {
         this.loggerService.LogInfo("deleteCustomer() Request Started.")
-        this.customerService.deleteCustomer(customerData.customerGuid as string).subscribe({
-          next: (data) => {
-            this.getAllCustomersData()
-            Swal.fire(
-              'Deleted!',
-              "Customer Deleted SuccessFully.",
-              'success'
-            )
-            this.loggerService.LogInfo("deleteCustomer() Request Completed.")
-          },
-          error: (error) => {
-            this.loggerService.LogError(error, "deleteCustomer()")
-            Swal.fire(
-              'Error!',
-              error,
-              'error'
-            )
-          }
-        })
-
-
+        await this.customerService.deleteCustomer(customerData.customerGuid as string);
+        this.getAllCustomersData()
+        await Swal.fire(
+          'Deleted!',
+          "Customer Deleted SuccessFully.",
+          'success'
+        )
+        this.loggerService.LogInfo("deleteCustomer() Request Completed.")
+      } catch (error) {
+        this.loggerService.LogError(error, "deleteCustomer()")
+        await Swal.fire(
+          'Error!',
+          error as string,
+          'error'
+        )
       }
-    })
+    }
   }
 
-
   ngOnDestroy() {
-    this.getCustomerDataSubscription.unsubscribe();
+    if (this.debounceTimer) {
+      clearTimeout(this.debounceTimer);
+    }
   }
 
 }

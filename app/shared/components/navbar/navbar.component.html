@@ -14,7 +14,7 @@
   </div>
 
 
-  
+
   <!-- left box -->
   <ul class="navbar-nav flex-fill mt-1 align-items-center left-nav">
     <li class="nav-item navicon">
@@ -33,7 +33,9 @@
 
 
   <!-- profile icon dropdown -->
-  <app-profile-dropdown *ngIf="userID > 0" [userID]="userID"></app-profile-dropdown>
+  @if (userID > 0) {
+    <app-profile-dropdown [userID]="userID"></app-profile-dropdown>
+  }
 
   <!-- userDisplayName section -->
   <div class="user-display-name d-md-flex d-none">

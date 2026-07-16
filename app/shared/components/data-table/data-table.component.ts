@@ -8,19 +8,27 @@ import {
   OnInit,
   Output,
   ViewChild,
+  effect,
 } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatSortModule } from '@angular/material/sort';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import Swal from 'sweetalert2';
 import { ColumnSchema } from '../../models/columnsSchema';
 import { Router } from '@angular/router';
 import { CartService } from '../../services/cart.service';
+import { SkeletonLoaderComponent } from '../skeleton-loader/skeleton-loader.component';
 
 @Component({
   selector: 'app-data-table',
   templateUrl: './data-table.component.html',
   styleUrls: ['./data-table.component.scss'],
+  standalone: true,
+  imports: [CommonModule, MatTableModule, MatPaginatorModule, MatSortModule, MatProgressSpinnerModule, SkeletonLoaderComponent]
 })
 export class DataTableComponent<T> implements OnInit,AfterViewInit {
   public _tableData: MatTableDataSource<T> = new MatTableDataSource();
@@ -89,7 +97,16 @@ export class DataTableComponent<T> implements OnInit,AfterViewInit {
   constructor(
     private cdr: ChangeDetectorRef,
     private cartService: CartService
-  ) {}
+  ) {
+    // React to cart items Signal changes
+    effect(() => {
+      const items = this.cartService.getProducts()();
+      this.disableButtonForProducts = [];
+      items.forEach((element: any) => {
+        this.disableButtonForProducts.push(element.productGuid);
+      });
+    });
+  }
 
   ngAfterViewInit(): void {
     // set value of paginator after complete initialization
@@ -99,7 +116,6 @@ export class DataTableComponent<T> implements OnInit,AfterViewInit {
   }
 
   ngOnInit(): void {
-    this.getCartItems();
   }
 
   startLoader() {
@@ -138,16 +154,6 @@ export class DataTableComponent<T> implements OnInit,AfterViewInit {
     this.currentPage = event.pageIndex + 1;
     event.searchQuery = this.currentSearchTerm
     this.pageChangeEvent.emit(event);
-  }
-
-  getCartItems() {
-    this.cartService.getProducts().subscribe((data) => {
-      //empty the current array to enable buttons which are removed from carts
-      this.disableButtonForProducts = [];
-      data.forEach((element: any) => {
-        this.disableButtonForProducts.push(element.productGuid);
-      });
-    });
   }
 
   addToCart(product: any) {

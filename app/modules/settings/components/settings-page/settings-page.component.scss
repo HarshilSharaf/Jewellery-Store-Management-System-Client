@@ -1,20 +1,16 @@
-
-
 .settings-container {
-    // background: white;
-    background-image: linear-gradient(to right ,#1CD8D2,#93EDC7) !important;
-
+  background: linear-gradient(135deg, #E8EAFF 0%, #F0E6FF 50%, #FFE6F0 100%) !important;
 }
 
 .goBack:hover {
-    cursor: pointer;
+  cursor: pointer;
+  color: #7C8CF8;
 }
 
 .icon {
-    display: inline-block;
-    width: 24px;
-    height: 24px;
-    margin-right: 5px;
-    vertical-align: middle;
-  }
-  
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  margin-right: 5px;
+  vertical-align: middle;
+}
