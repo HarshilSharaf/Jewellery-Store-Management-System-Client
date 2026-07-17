@@ -13,7 +13,7 @@
   </div>
   <nav class="sidebar-menu pt-3 pb-3">
     <ul class="menu-items">
-      @for (item of items; track item) {
+      @for (item of items; track item.link) {
         <li>
           <a [routerLink]="[item.link]" class="list-item" routerLinkActive="active"  data-toggle="tooltip" data-placement="right" title="{{item.title}}">
             <i [ngClass]="item.icon"></i>

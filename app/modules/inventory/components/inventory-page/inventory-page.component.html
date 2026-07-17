@@ -2,7 +2,7 @@
 
 
 <div class="row">
-  @for (cardData of infoCardsData; track cardData) {
+  @for (cardData of infoCardsData; track cardData.cardTitle) {
     <div class="col">
       <app-info-card [cardData]="cardData"></app-info-card>
     </div>

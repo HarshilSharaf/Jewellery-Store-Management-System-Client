@@ -27,7 +27,7 @@
       </thead>
 
       <tbody>
-        @for (customer of dataToBeShown; track customer) {
+        @for (customer of dataToBeShown; track customer.customerGuid ?? customer.id ?? $index) {
           <tr>
             <td>
               <input class="form-check-input mt-0" type="radio" formControlName="selectedCustomerId"

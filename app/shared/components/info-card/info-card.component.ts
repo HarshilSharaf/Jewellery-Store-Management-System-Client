@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -6,30 +6,26 @@ import { CommonModule } from '@angular/common';
   templateUrl: './info-card.component.html',
   styleUrls: ['./info-card.component.scss'],
   standalone: true,
-  imports: [CommonModule]
+  imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class InfoCardComponent implements OnInit {
+export class InfoCardComponent {
 
-  cardTitle!:string
-  cardValue!:string
-  cardIcon!:string
-  cardIconImage:string = ''
-  percentageIncrease:number = 0
-  monthsString = 'Since '
+  cardTitle!: string;
+  cardValue!: string;
+  cardIcon!: string;
+  cardIconImage: string = '';
+  percentageIncrease: number = 0;
+  // Rebuild the prefix on each cardData set so re-binding doesn't produce
+  // "Since Since last 6 months" concatenation on route revisit.
+  monthsString = '';
 
-  @Input() set cardData(data:any){
-    this.cardTitle = data.cardTitle
-    this.cardValue = data.cardValue
-    this.cardIcon = data.cardIcon
-    this.cardIconImage= data.cardIconImage
-    this.percentageIncrease = data.percentageIncrease
-    this.monthsString += data.monthsString
+  @Input() set cardData(data: any) {
+    this.cardTitle = data.cardTitle;
+    this.cardValue = data.cardValue;
+    this.cardIcon = data.cardIcon;
+    this.cardIconImage = data.cardIconImage;
+    this.percentageIncrease = data.percentageIncrease;
+    this.monthsString = `Since ${data.monthsString}`;
   }
- 
-
-  constructor() { }
-
-  ngOnInit(): void {
-  }
-
 }

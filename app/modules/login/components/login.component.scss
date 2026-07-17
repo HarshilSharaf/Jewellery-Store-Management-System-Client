@@ -262,6 +262,20 @@ $text-secondary: #6B7194;
 }
 
 // Responsive
+@media (max-width: 900px) {
+  .login-card {
+    max-width: 640px;
+  }
+
+  .brand-panel {
+    padding: 2rem;
+  }
+
+  .form-panel {
+    padding: 2rem;
+  }
+}
+
 @media (max-width: 640px) {
   .brand-panel {
     display: none;

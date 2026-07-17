@@ -73,9 +73,11 @@ table {
     }
   }
 
+  // Let the table shrink to fit small viewports; use a horizontal scroll
+  // container in the template if the intrinsic column widths overflow.
   mat-row,
   mat-header-row {
-    min-width: 800px;
+    min-width: 0;
   }
 
   mat-cell {
@@ -115,6 +117,13 @@ table {
   padding-right: 0.2rem !important;
 }
 
+// On narrow viewports, allow the table to scroll horizontally instead
+// of forcing the whole layout to blow out with a fixed 800px min-width.
+.table-scroll-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 .loader-container {
   display: flex;
   justify-content: center;
@@ -133,14 +142,15 @@ table {
 }
 
 @media only screen and (max-width: 321px) {
-  .mat-paginator-range-label {
-    font-size: 1px !important;
-  }
-
   ::ng-deep .mat-paginator {
     .mat-paginator-container {
       justify-content: center;
       margin-top: 5px;
+      flex-wrap: wrap;
+    }
+
+    .mat-paginator-range-label {
+      font-size: 0.7rem;
     }
 
     .mat-paginator-page-size {
@@ -150,18 +160,15 @@ table {
 }
 
 @media only screen and (min-width: 321px) and (max-width: 768px) {
-  .mat-paginator-range-label {
-    font-size: 1px !important;
-  }
-
   ::ng-deep .mat-paginator {
     .mat-paginator-container {
       justify-content: center;
       margin-top: 5px;
+      flex-wrap: wrap;
     }
 
     .mat-paginator-range-label {
-      font-size: 0.7rem;
+      font-size: 0.75rem;
     }
 
     .mat-paginator-page-size {

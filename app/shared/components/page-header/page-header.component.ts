@@ -1,5 +1,5 @@
 import { Location } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
 
 @Component({
@@ -7,9 +7,10 @@ import { Component, Input, OnInit } from '@angular/core';
   templateUrl: './page-header.component.html',
   styleUrls: ['./page-header.component.scss'],
   standalone: true,
-  imports: []
+  imports: [],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class PageHeaderComponent implements OnInit {
+export class PageHeaderComponent {
 
   _pageName: string = '';
 
@@ -18,8 +19,6 @@ export class PageHeaderComponent implements OnInit {
   }
 
   constructor(private location: Location) {}
-
-  ngOnInit(): void {}
 
   goBack() {
     this.location.back();

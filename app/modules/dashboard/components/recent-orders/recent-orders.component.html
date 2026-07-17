@@ -33,7 +33,7 @@
               }
             }
 
-            @for (order of _recentOrders; track order) {
+            @for (order of _recentOrders; track order.orderGuid ?? $index) {
               <tr  class="text-center">
                 <th scope="row">{{order.id}}</th>
                 <td>{{order.total_products}}</td>

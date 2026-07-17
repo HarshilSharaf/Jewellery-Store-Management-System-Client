@@ -34,7 +34,7 @@
   <!-- Populate Data Table -->
 
   <div class="row my-3 dataTableContainer">
-    <div class="col">
+    <div class="col table-scroll-wrapper">
       @if (!_isLoading) {
         <mat-table matSort [matSortActive]="sortByColumn"  class="dataTable" matSortDirection="asc" [dataSource]="_tableData" [ngClass]="{'mat-table-header-row-if-loader' : showLoader}">
           @for (column of COLUMNS_SCHEMA; track column) {

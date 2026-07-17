@@ -23,7 +23,7 @@
         }
       }
 
-      @for (category of dataToBeShown; track category) {
+      @for (category of dataToBeShown; track category.id ?? category.productCategoryName) {
         <tr>
           <th scope="row">{{category.id}}</th>
           <td>{{category.productCategoryName}}</td>

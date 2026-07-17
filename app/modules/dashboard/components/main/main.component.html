@@ -1,9 +1,9 @@
 <div class="main-container">
   <app-page-header [pageName]="'Dashboard'"></app-page-header>
 
-  <div class="row">
-    @for (cardData of cards; track cardData) {
-      <div class="col">
+  <div class="row g-3">
+    @for (cardData of cards; track cardData.cardTitle) {
+      <div class="col-12 col-sm-6 col-lg-4">
         <app-info-card [cardData]="cardData" ></app-info-card>
       </div>
     }

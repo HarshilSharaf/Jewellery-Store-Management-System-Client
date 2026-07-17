@@ -63,7 +63,7 @@
               </tr>
             </thead>
             <tbody>
-              @for (product of _InvoiceData?.invoice_products; track product) {
+              @for (product of _InvoiceData?.invoice_products; track $index) {
                 <tr>
                   <td>
                     {{product.masterCategory

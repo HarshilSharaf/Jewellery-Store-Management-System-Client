@@ -1,5 +1,5 @@
 @if (cartItems().length > 0) {
-  @for (item of cartItems(); track item) {
+  @for (item of cartItems(); track item.productGuid ?? $index) {
     <div class="row mb-4 border border-3 border-info p-3 rounded">
       <div class="col-3 align-self-center">
         <img [src]="item.image" class="border border-2 rounded" width="50" height="50">
