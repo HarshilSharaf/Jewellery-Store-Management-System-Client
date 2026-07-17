@@ -1,17 +1,16 @@
-<div class="card my-3">
+<div class="card my-3 chart-card">
   <div class="card-title mb-1 p-3 d-flex ">
     <h6>Total Sales And Profit For Last 8 Months</h6>
   </div>
   <div class="card-body">
-    <div class="chart-container" style="position: relative;">
+    <div class="chart-container">
       @if (_monthlySalesAndLabour.length == 0) {
         <app-skeleton-loader
           [count]="1"
           [shapeOfLoader]="'circle'"
-          [theme]="{height: '18rem', width: '100%', 'border-radius': '0'}" />
+          [theme]="{height: '100%', width: '100%', 'border-radius': '0'}" />
       }
-      <canvas id="barChart" [hidden]="_monthlySalesAndLabour.length == 0" style="height:18.7rem; ">{{ chart }}</canvas>
-
+      <canvas id="barChart" [hidden]="_monthlySalesAndLabour.length == 0">{{ chart }}</canvas>
     </div>
   </div>
 </div>

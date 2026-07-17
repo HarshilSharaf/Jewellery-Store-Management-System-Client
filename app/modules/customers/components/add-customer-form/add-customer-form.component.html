@@ -1,209 +1,158 @@
-<div class="modal-body">
-  <form [formGroup]="customerDetailsForm" class="customerDetailsForms" (ngSubmit)="submitForm()" novalidate>
-    <div class="mb-3">
-      <div class="row align-items-center">
+<h2 mat-dialog-title class="dialog-title">
+  Add Customer
+  <button type="button" class="dialog-close" mat-dialog-close aria-label="Close">
+    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+  </button>
+</h2>
 
-        <div class="col-4 col-sm-4">
-          <label for="photo">Customer Photo:</label>
+<mat-dialog-content class="dialog-content">
+  <form [formGroup]="customerDetailsForm"
+        class="customer-form"
+        (ngSubmit)="submitForm()"
+        novalidate>
 
-        </div>
-
-        <div class="col">
-          <div class="input-group justify-content-center">
-            <app-image-upload [activeColor]="'orangered'" [baseColor]="'lightgray'"></app-image-upload>
-          </div>
-        </div>
+    <div class="form-row form-row--photo">
+      <label class="form-row__label">Customer Photo</label>
+      <div class="form-row__control">
+        <app-image-upload [activeColor]="'#7C8CF8'" [baseColor]="'#E8EAF0'"></app-image-upload>
       </div>
+    </div>
 
-      <div class="row mt-5 align-items-center">
-        <div class="col-5 col-sm-4">
-          <label for="firstName">First Name<span class="mandatory">*</span>:</label>
-        </div>
-        <div class="col">
-          <input type="text" class="form-control" name="firstName" id="firstName" formControlName="firstName"
-            placeholder="Enter First Name">
-          </div>
-        </div>
+    <div class="form-row">
+      <label class="form-row__label mandatory" for="firstName">First Name</label>
+      <div class="form-row__control">
+        <input type="text"
+               class="form-control"
+               name="firstName"
+               id="firstName"
+               formControlName="firstName"
+               placeholder="Enter first name">
+        @if (customerDetailsForm.get('firstName')?.touched && customerDetailsForm.get('firstName')?.errors?.['required']) {
+          <small class="field-error">First name is required</small>
+        }
+      </div>
+    </div>
 
-        <!-- First Name Validation Message -->
-        <div class="row">
-          <div class="col text-center">
-            @if ((customerDetailsForm.get('firstName')?.touched || customerDetailsForm.valid) && customerDetailsForm.get('firstName')?.errors?.['required']) {
-              <span class="text-danger text-bold"
-                >
-                First Name is required
-              </span>
-            }
-          </div>
-        </div>
+    <div class="form-row">
+      <label class="form-row__label mandatory" for="lastName">Last Name</label>
+      <div class="form-row__control">
+        <input type="text"
+               class="form-control"
+               name="lastName"
+               id="lastName"
+               formControlName="lastName"
+               placeholder="Enter last name">
+        @if (customerDetailsForm.get('lastName')?.touched && customerDetailsForm.get('lastName')?.errors?.['required']) {
+          <small class="field-error">Last name is required</small>
+        }
+      </div>
+    </div>
 
-        <div class="row mt-2 align-items-center">
-          <div class="col-5 col-sm-4">
-            <label for="lastName">Last Name<span class="mandatory">*</span>:</label>
-          </div>
+    <div class="form-row">
+      <label class="form-row__label" for="dob">Date Of Birth</label>
+      <div class="form-row__control">
+        <input type="date"
+               class="form-control"
+               name="dateOfBirth"
+               id="dob"
+               formControlName="dateOfBirth">
+      </div>
+    </div>
 
-          <div class="col">
-            <input type="text" class="form-control" name="lastName" id="lastName" formControlName="lastName"
-              placeholder="Enter Last Name">
-            </div>
-          </div>
+    <div class="form-row">
+      <label class="form-row__label mandatory">Gender</label>
+      <div class="form-row__control form-row__control--inline">
+        <label class="radio-option">
+          <input type="radio" name="gender" formControlName="gender" value="male" id="male-radio">
+          <span>Male</span>
+        </label>
+        <label class="radio-option">
+          <input type="radio" name="gender" formControlName="gender" value="female" id="female-radio">
+          <span>Female</span>
+        </label>
+      </div>
+    </div>
 
-          <!-- Last Name Validation Message -->
-          <div class="row">
-            <div class="col text-center">
-              @if ((customerDetailsForm.get('lastName')?.touched || customerDetailsForm.valid) && customerDetailsForm.get('lastName')?.errors?.['required']) {
-                <span class="text-danger"
-                  >
-                  Last Name is required
-                </span>
-              }
-            </div>
-          </div>
+    <div class="form-row form-row--stacked">
+      <label class="form-row__label" for="address">Address</label>
+      <div class="form-row__control">
+        <textarea class="form-control"
+                  name="address"
+                  id="address"
+                  formControlName="address"
+                  placeholder="Enter address"
+                  rows="3"></textarea>
+      </div>
+    </div>
 
+    <div class="form-row">
+      <label class="form-row__label mandatory" for="city">City</label>
+      <div class="form-row__control">
+        <input type="text"
+               name="city"
+               class="form-control"
+               id="city"
+               formControlName="city"
+               placeholder="Enter city">
+        @if (customerDetailsForm.get('city')?.touched && customerDetailsForm.get('city')?.errors?.['required']) {
+          <small class="field-error">City cannot be empty</small>
+        }
+      </div>
+    </div>
 
-          <div class="row mt-2 align-items-center">
-            <div class="col-5 col-sm-4">
-              <label for="dob">Date Of Birth:</label>
-            </div>
+    <div class="form-row">
+      <label class="form-row__label" for="email">Email</label>
+      <div class="form-row__control">
+        <input type="email"
+               name="email"
+               class="form-control"
+               id="email"
+               formControlName="email"
+               placeholder="Enter email">
+      </div>
+    </div>
 
-            <div class="col-7 col-sm-8">
-              <input type="date" class="form-control" name="dateOfBirth" id="dob" formControlName="dateOfBirth"
-                placeholder="Enter Date Of Birth">
-              </div>
-            </div>
+    <div class="form-row">
+      <label class="form-row__label mandatory" for="phoneNumber">Phone</label>
+      <div class="form-row__control">
+        <input type="tel"
+               name="phoneNumber"
+               class="form-control"
+               id="phoneNumber"
+               formControlName="phoneNumber"
+               placeholder="Enter phone number">
+        @if (customerDetailsForm.get('phoneNumber')?.touched && customerDetailsForm.get('phoneNumber')?.errors?.['required']) {
+          <small class="field-error">Phone number is required</small>
+        }
+      </div>
+    </div>
 
-            <div class="row mt-2 align-items-center">
-              <div class="col-5 col-sm-4">
-                <label>Select Gender<span class="mandatory">*</span>:</label>
-              </div>
+    @if (addCustomerResponse.status !== 0 || addCustomerResponse.message !== '') {
+      <div class="form-response"
+           [class.form-response--success]="addCustomerResponse.status === 200"
+           [class.form-response--error]="addCustomerResponse.status !== 200 && addCustomerResponse.status !== 0">
+        {{ addCustomerResponse.message }}
+      </div>
+    }
+  </form>
+</mat-dialog-content>
 
-              <div class="col text-center">
-
-                <div class="row">
-                  <div class="col-4 px-0 mx-0">
-                    <input class="form-check-input mx-1" type="radio" name="gender" formControlName="gender"
-                      value="male" id="male-radio">
-                      <label class="form-check-label" for="male-radio">
-                        Male
-                      </label>
-
-                    </div>
-
-                    <div class="col px-0 mx-0">
-                      <input class="form-check-input mx-1" type="radio" name="gender" formControlName="gender"
-                        value="female" id="female-radio" checked>
-                        <label class="form-check-label" for="female-radio">
-                          Female
-                        </label>
-                      </div>
-                    </div>
-
-                  </div>
-                </div>
-
-                <div class="row mt-3 align-items-center">
-                  <div class="col-5 col-sm-4">
-                    <label for="address">Address:</label>
-                  </div>
-
-                  <div class="col">
-                    <textarea class="form-control" name="address" formControlName="address" placeholder="Enter Address"
-                    style="height: 100px"></textarea>
-                  </div>
-                </div>
-
-                <div class="row mt-2 align-items-center">
-                  <div class="col-5 col-sm-4">
-                    <label for="City">City<span class="mandatory">*</span>:</label>
-                  </div>
-
-                  <div class="col">
-                    <input type="text" name="city" class="form-control" id="city" formControlName="city"
-                      placeholder="Enter City">
-                    </div>
-                  </div>
-
-                  <div class="row">
-                    <div class="col text-center">
-                      @if ((customerDetailsForm.get('city')?.touched || customerDetailsForm.valid) && customerDetailsForm.get('city')?.errors?.['required']) {
-                        <span class="text-danger text-bold"
-                          >
-                          City Cannot be empty
-                        </span>
-                      }
-                    </div>
-                  </div>
-
-                  <div class="row mt-2 align-items-center">
-                    <div class="col-5 col-sm-4">
-                      <label for="email">Email:</label>
-                    </div>
-
-                    <div class="col">
-                      <input type="email" name="email" class="form-control" id="email" formControlName="email"
-                        placeholder="Enter Email">
-                      </div>
-                    </div>
-
-                    <div class="row mt-2 align-items-center">
-                      <div class="col-5 col-sm-4">
-                        <label for="lastName">Phone<span class="mandatory">*</span>:</label>
-                      </div>
-
-                      <div class="col">
-                        <input type="tel" name="phoneNumber" class="form-control" id="number" formControlName="phoneNumber"
-                          placeholder="Enter Phone Number">
-                        </div>
-                      </div>
-
-                      <!-- Phone Number Validation Message -->
-                      <div class="row">
-                        <div class="col text-center">
-                          @if ((customerDetailsForm.get('phoneNumber')?.touched || customerDetailsForm.valid) && customerDetailsForm.get('phoneNumber')?.errors?.['required']) {
-                            <span class="text-danger text-bold"
-                              >
-                              Phone Number is required
-                            </span>
-                          }
-                        </div>
-                      </div>
-                    </div>
-                    @if (addCustomerResponse.status!=0 || addCustomerResponse.message!='') {
-                      <hr>
-                        <div class="row">
-                          <div class="col text-center">
-                            <span [ngClass]="{'text-danger': addCustomerResponse.status !=200, 'text-success': addCustomerResponse.status==200 }"
-                            style="font-weight: bold;">{{addCustomerResponse.message}}</span>
-                          </div>
-                        </div>
-                      }
-                      <!-- Trick to use submit buttons outside the form -->
-                      <input type="submit" id="submit-form" class="d-none" />
-                      <input type="reset" id="reset-form" class="d-none" />
-                    </form>
-                  </div>
-                  <div class="modal-footer">
-                    <!-- Following labels actually points to the buttons in the form so when we click
-                    any of these it is actually clicking the buttons inside the form -->
-
-
-                    <label for="submit-form" class="btn btn-primary btn-success"
-                      [ngClass]="{'disabled': !customerDetailsForm.valid || isLoading}" tabindex="0">
-
-                      <!-- Need to put this in div as fontAwesome generates <svg> to show icon
-                      hence if we put *ngIf in <i> it will still show the spinner -->
-                      @if (isLoading) {
-                        <div>
-                          <i class="fa fa-spinner fa-spin"></i>
-                        </div>
-                      }
-
-                      @if (!isLoading) {
-                        <div>
-                          Submit
-                        </div>
-                      }
-
-                    </label>
-                    <label for="reset-form" (click)="clearForm()" [ngClass]="{'disabled': isLoading}" class="btn btn-outline-dark" tabindex="0">Clear</label>
-                  </div>
+<mat-dialog-actions class="dialog-actions" align="end">
+  <button type="button"
+          class="btn btn-outline-secondary"
+          (click)="clearForm()"
+          [disabled]="isLoading">
+    Clear
+  </button>
+  <button type="button"
+          class="btn btn-primary"
+          (click)="submitForm()"
+          [disabled]="!customerDetailsForm.valid || isLoading">
+    @if (isLoading) {
+      <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>
+      Saving...
+    } @else {
+      Save Customer
+    }
+  </button>
+</mat-dialog-actions>

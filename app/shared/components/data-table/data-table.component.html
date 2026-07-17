@@ -1,34 +1,20 @@
-<!-- Create Paginator and Filter Input For Data Table -->
-
-<div class="row mx-1">
-  <div class="card col">
-
-    <div class="card-body row align-items-center">
-      <div class=" col-sm-3 col-md-3 col-lg-2">
-        <div class="form-group has-feedback has-search">
-          <span class="fa fa-search form-control-feedback my-2"></span>
-          <input type="text" class="form-control" (keyup)="filterChanged($event)" id="filter"
-            aria-label="Filter rows" placeholder="Filter">
-          </div>
-
-        </div>
-
-        <div class="col-sm-3 col-md-4 col-lg-2 mt-3 mt-sm-0 text-center">
-          <small> Showing Page <b style="color: red;">{{currentPage}} </b> of {{totalNumberOfPages}}</small>
-        </div>
-
-        <div class="col-sm-6 col-md-5 col-lg-8">
-          <mat-paginator #paginator [pageSizeOptions]="[5, 10, 20]"
-            [length]="_totalRecords"
-            (page)="onPageChange($event)" showFirstLastButtons>
-          </mat-paginator>
-
-        </div>
-      </div>
-
-    </div>
-
+<!-- Filter + paginator toolbar. Flexbox instead of the old .row/.col grid
+     which caused the paginator to overflow into the filter and the page
+     indicator to overlap on medium widths. -->
+<div class="data-table-toolbar">
+  <div class="data-table-toolbar__filter has-feedback has-search">
+    <span class="fa fa-search form-control-feedback" aria-hidden="true"></span>
+    <input type="text" class="form-control" (keyup)="filterChanged($event)" id="filter"
+      aria-label="Filter rows" placeholder="Filter">
   </div>
+
+  <div class="data-table-toolbar__paginator">
+    <mat-paginator #paginator [pageSizeOptions]="[5, 10, 20]"
+      [length]="_totalRecords"
+      (page)="onPageChange($event)" showFirstLastButtons>
+    </mat-paginator>
+  </div>
+</div>
 
 
   <!-- Populate Data Table -->
@@ -51,20 +37,34 @@
                 <!-- Dont add the sort feature for the Actions column -->
                 <mat-header-cell *matHeaderCellDef> {{column.label}}</mat-header-cell>
                 <mat-cell *matCellDef="let element">
-                  @if (showAddToCartButton) {
-                    <button class="btn btn-success" [ngClass]="{disabled: disableButtonForProducts.includes(element.productGuid)}" (click)="addToCart(element)" aria-label="Add to cart">
-                      <i class="fa-solid fa-cart-plus fa-lg" aria-hidden="true"></i>
+                  <div class="row-actions">
+                    @if (showAddToCartButton) {
+                      <button type="button"
+                        class="row-actions__btn row-actions__btn--add"
+                        [class.row-actions__btn--disabled]="disableButtonForProducts.includes(element.productGuid)"
+                        (click)="addToCart(element)"
+                        aria-label="Add to cart"
+                        title="Add to cart">
+                        <i class="fa-solid fa-cart-plus" aria-hidden="true"></i>
+                      </button>
+                    }
+                    <button type="button"
+                      class="row-actions__btn row-actions__btn--view"
+                      [class.row-actions__btn--disabled]="element.cancelledAt!=null"
+                      (click)="goToViewDetails(element)"
+                      aria-label="View details"
+                      title="View details">
+                      <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
                     </button>
-                  }
-                  <button type="button" class="btn btn-primary" (click)="goToViewDetails(element)"
-                    [ngClass]="{disabled: element.cancelledAt!=null}" aria-label="View details">
-                    <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
-                  </button>
-                  <span class="mx-1"></span>
-                  <button type="button" class="btn btn-danger" [ngClass]="{disabled: element.cancelledAt!=null}"
-                    (click)="openDeletePopUpForItem(element)" aria-label="Delete or cancel">
-                    <i class="fa-solid fa-ban" aria-hidden="true"></i>
-                  </button>
+                    <button type="button"
+                      class="row-actions__btn row-actions__btn--delete"
+                      [class.row-actions__btn--disabled]="element.cancelledAt!=null"
+                      (click)="openDeletePopUpForItem(element)"
+                      aria-label="Delete or cancel"
+                      title="Cancel or delete">
+                      <i class="fa-solid fa-ban" aria-hidden="true"></i>
+                    </button>
+                  </div>
                 </mat-cell>
               }
               @if (column.key =='paymentStatus') {
@@ -94,8 +94,13 @@
           }
           <ng-container matColumnDef="noData">
             <mat-footer-cell *matFooterCellDef colspan="6">
-              No data Found.
-              <img src="./assets/img/No-Data-Found.jpg" width="200" height="200">
+              <div class="empty-state">
+                <div class="empty-state__icon" aria-hidden="true">
+                  <i class="fa-solid fa-inbox"></i>
+                </div>
+                <div class="empty-state__title">Nothing to show yet</div>
+                <div class="empty-state__hint">Try clearing the filter or add a new entry.</div>
+              </div>
             </mat-footer-cell>
           </ng-container>
           <mat-header-row *matHeaderRowDef="tableColumns"></mat-header-row>

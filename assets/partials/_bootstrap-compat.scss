@@ -32,16 +32,9 @@ $grid-breakpoints: (
 // 1. GRID SYSTEM
 // ============================================================================
 
-.container {
-  width: 100%;
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: 15px;
-  padding-right: 15px;
-  box-sizing: border-box;
-}
-
+// Fluid variant: always fills its parent, no max-width cap. This is the
+// intended default in an admin app whose available width is already
+// constrained by the sidebar + page gutters.
 .container-fluid {
   width: 100%;
   padding-left: 15px;
@@ -49,11 +42,17 @@ $grid-breakpoints: (
   box-sizing: border-box;
 }
 
+// `.container` and `.container-xl` behave like `.container-fluid` inside
+// the admin shell (there is no marketing-page top-level layout here where
+// a centred narrow column would make sense). Previously they capped at
+// 1200px and centred, which after subtracting the sidebar left a very
+// narrow visible column on wide monitors and made pages look "shrunk".
+.container,
 .container-xl {
   width: 100%;
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
+  max-width: 100%;
+  margin-left: 0;
+  margin-right: 0;
   padding-left: 15px;
   padding-right: 15px;
   box-sizing: border-box;
@@ -287,6 +286,10 @@ $display-values: (none, block, flex, inline, inline-block, inline-flex);
   background-color: $surface-color;
   background-clip: padding-box;
   appearance: none;
+  // `width: 100%` + native padding would otherwise overflow the parent by
+  // ~24px and trigger a horizontal scrollbar inside any tight container
+  // (dialogs, filter toolbars, sidebars).
+  box-sizing: border-box;
 
   &:disabled,
   &[readonly] {
@@ -636,6 +639,7 @@ $display-values: (none, block, flex, inline, inline-block, inline-flex);
   position: relative;
   flex: 1 1 auto;
   padding: 1.25rem;
+  overflow-y: auto;
 }
 
 .modal-footer {
@@ -728,11 +732,90 @@ $display-values: (none, block, flex, inline, inline-block, inline-flex);
   z-index: 1030;
 }
 
+// -------------------------------------------------------------------------
+// Navbar base layout (was missing entirely; without this the navbar had no
+// flexbox, `<ul class="navbar-nav">` still had default disc bullets, and
+// child links stacked vertically). All the "visually broken" navbar
+// symptoms trace back to this omission.
+// -------------------------------------------------------------------------
+.navbar {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem;
+  min-height: $navbar-height;
+
+  > .container,
+  > .container-fluid,
+  > .container-xl {
+    display: flex;
+    flex-wrap: inherit;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.navbar-brand {
+  display: inline-flex;
+  align-items: center;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  margin-right: 1rem;
+  font-size: 1.05rem;
+  text-decoration: none;
+  white-space: nowrap;
+
+  img {
+    display: inline-block;
+    vertical-align: middle;
+  }
+}
+
+.navbar-nav {
+  display: flex;
+  flex-direction: row;
+  padding-left: 0;
+  margin: 0;
+  list-style: none;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+}
+
+.nav-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 0.75rem;
+  color: inherit;
+  text-decoration: none;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
 // Navbar expand helpers
 .navbar-expand-md {
   @media (min-width: 768px) {
     flex-wrap: nowrap;
   }
+}
+
+// Global list reset for structural <ul>/<ol> that carry Bootstrap
+// utility classes but should not render bullets (menu, cart items, etc.).
+ul.list-unstyled,
+ol.list-unstyled,
+.navbar-nav,
+.menu-items {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
 }
 
 // ============================================================================
@@ -830,16 +913,25 @@ $display-values: (none, block, flex, inline, inline-block, inline-flex);
   background-color: rgba(0, 0, 0, 0.5);
 
   &.show {
-    display: block;
+    // Center the .modal-dialog both axes. Previously the dialog stuck
+    // to the top of the viewport with `margin: 1.75rem auto` regardless
+    // of screen height — annoying on tall monitors.
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
   }
 }
 
 .modal-dialog {
   position: relative;
-  width: auto;
-  margin: 1.75rem auto;
+  width: 100%;
+  margin: 0 auto;
   max-width: 500px;
+  max-height: calc(100vh - 3rem);
   pointer-events: none;
+  display: flex;
+  flex-direction: column;
 }
 
 .modal-content {
@@ -847,11 +939,13 @@ $display-values: (none, block, flex, inline, inline-block, inline-flex);
   display: flex;
   flex-direction: column;
   width: 100%;
+  max-height: 100%;
   pointer-events: auto;
   background-color: $surface-color;
   border-radius: 12px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
   outline: 0;
+  overflow: hidden;
 }
 
 .btn-close {

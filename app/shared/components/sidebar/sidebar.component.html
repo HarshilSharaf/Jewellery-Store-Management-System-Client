@@ -1,33 +1,40 @@
 <aside class="sidebar shadow-sm">
 
-  <div class="sidebar-profile d-flex flex-column justify-content-center pt-5 pb-3">
-    <div class="picture-wrapper mb-4">
+  <div class="sidebar-profile d-flex flex-column justify-content-center">
+    <div class="picture-wrapper">
       <div class="user-picture m-auto">
-        <img [src]="userData.image || './assets/img/user.jpg'" class="img-fluid" alt="Profile picture of {{ userData.displayName || 'the current user' }}">
+        @if (userData.image) {
+          <img [src]="userData.image" class="img-fluid" alt="Profile picture of {{ userData.displayName || 'the current user' }}">
+        } @else {
+          <div class="user-picture-fallback" [attr.aria-label]="'Profile picture of ' + (userData.displayName || 'the current user')">
+            {{ (userData.displayName || '?') | slice:0:1 | uppercase }}
+          </div>
+        }
       </div>
     </div>
-    <div class="profile-details text-center pb-4">
+    <div class="profile-details text-center">
       <p class="mb-0 text-uppercase name">{{userData.displayName}}</p>
       <small class="text-uppercase role">{{userData.type}}</small>
     </div>
   </div>
-  <nav class="sidebar-menu pt-3 pb-3">
+  <nav class="sidebar-menu">
     <ul class="menu-items">
       @for (item of items; track item.link) {
         <li>
-          <a [routerLink]="[item.link]" class="list-item" routerLinkActive="active"  data-toggle="tooltip" data-placement="right" title="{{item.title}}">
-            <i [ngClass]="item.icon"></i>
+          <a [routerLink]="[item.link]" class="list-item" routerLinkActive="active" title="{{item.title}}">
+            <i [ngClass]="item.icon" aria-hidden="true"></i>
             <span>{{item.title}}</span>
           </a>
         </li>
       }
-      <li>
-        <button type="button" class="text-danger logout-btn list-item" (click)="logout()">
-          <i class="fa-solid fa-right-from-bracket text-danger" aria-hidden="true"></i>
-          <span>Logout</span>
-        </button>
-      </li>
     </ul>
 
   </nav>
+
+  <div class="sidebar-footer">
+    <button type="button" class="logout-btn" (click)="logout()">
+      <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
+      <span>Logout</span>
+    </button>
+  </div>
 </aside>

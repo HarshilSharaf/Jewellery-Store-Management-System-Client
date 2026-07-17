@@ -4,17 +4,60 @@ $text-primary: #2D3142;
 $text-secondary: #6B7194;
 $border-color: #E8EAF0;
 $bg-color: #F8F9FC;
+$danger: #E44D65;
+$danger-tint: rgba(228, 77, 101, 0.1);
+$success: #4CAF50;
+$success-tint: rgba(76, 175, 80, 0.1);
+$primary-tint: rgba(124, 140, 248, 0.1);
 
 table {
   width: 100%;
 }
 
+// -------------------------------------------------------------------------
+// Toolbar (filter + paginator) - clean flex layout, no more overlapping
+// grid columns from the old .row/.col markup.
+// -------------------------------------------------------------------------
+.data-table-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  margin: 0 0.5rem;
+  background: #ffffff;
+  border: 1px solid $border-color;
+  border-radius: 12px;
+  flex-wrap: wrap;
+
+  &__filter {
+    position: relative;
+    flex: 0 1 320px;
+    min-width: 200px;
+  }
+
+  &__paginator {
+    flex: 1 1 auto;
+    min-width: 280px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+
+    ::ng-deep .mat-mdc-paginator {
+      background: transparent;
+    }
+  }
+}
+
 .has-search .form-control {
   padding-left: 2.375rem;
+  height: 40px;
 }
 
 .has-search .form-control-feedback {
   position: absolute;
+  top: 50%;
+  left: 12px;
+  transform: translateY(-50%);
   z-index: 2;
   display: block;
   width: 1.1rem;
@@ -23,7 +66,6 @@ table {
   text-align: center;
   pointer-events: none;
   color: $text-secondary;
-  margin-left: 10px;
 }
 
 .has-search input {
@@ -35,6 +77,107 @@ table {
   &:focus {
     border-color: $primary;
     box-shadow: 0 0 0 3px rgba($primary, 0.1);
+  }
+}
+
+// -------------------------------------------------------------------------
+// Compact icon-only row action buttons. Previous version rendered as full
+// coloured blocks that dominated every row.
+// -------------------------------------------------------------------------
+.row-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  justify-content: center;
+
+  &__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    background: transparent;
+    color: $text-secondary;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba($primary, 0.25);
+    }
+
+    &--view {
+      color: $primary;
+      &:hover:not(.row-actions__btn--disabled) {
+        background: $primary-tint;
+        border-color: rgba($primary, 0.35);
+      }
+    }
+
+    &--delete {
+      color: $danger;
+      &:hover:not(.row-actions__btn--disabled) {
+        background: $danger-tint;
+        border-color: rgba($danger, 0.35);
+      }
+    }
+
+    &--add {
+      color: $success;
+      &:hover:not(.row-actions__btn--disabled) {
+        background: $success-tint;
+        border-color: rgba($success, 0.35);
+      }
+    }
+
+    &--disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+  }
+}
+
+// -------------------------------------------------------------------------
+// Empty state: replaces the stray No-Data-Found.jpg cartoon.
+// -------------------------------------------------------------------------
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1rem;
+  width: 100%;
+  color: $text-secondary;
+  text-align: center;
+
+  &__icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: $primary-tint;
+    color: $primary;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    margin-bottom: 0.75rem;
+  }
+
+  &__title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: $text-primary;
+    margin-bottom: 0.25rem;
+  }
+
+  &__hint {
+    font-size: 0.8rem;
+    color: $text-secondary;
   }
 }
 
@@ -110,6 +253,18 @@ table {
 
 .hideMatTable {
   display: none;
+}
+
+// The mat-footer-cell holding the empty-state needs to span the whole row.
+mat-footer-row {
+  min-height: 200px;
+
+  mat-footer-cell {
+    flex: 1 1 100%;
+    justify-content: center;
+    padding: 0;
+    border: none;
+  }
 }
 
 .dataTableContainer {

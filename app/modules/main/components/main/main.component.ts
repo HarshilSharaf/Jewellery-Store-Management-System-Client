@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { SideBarService } from '../../../../shared/services/sidebar.service';
@@ -14,21 +14,19 @@ import { CartSideBarComponent } from '../../../../shared/components/cart-side-ba
   standalone: true,
   imports: [CommonModule, RouterOutlet, NavbarComponent, SidebarComponent, FooterComponent, CartSideBarComponent]
 })
-export class MainComponent implements OnInit {
+export class MainComponent {
+
+  // Reactive class map: previously this was a plain method whose output
+  // never updated the DOM after boot because the sidebar-service state
+  // lives in signals but the read went through a plain function call.
+  readonly wrapperClasses = computed(() => ({
+    'pinned-sidebar': this.appService.isSidebarPinned(),
+    'toggeled-sidebar': this.appService.isSidebarToggeled(),
+  }));
 
   constructor(private appService: SideBarService) { }
-  getClasses() {
-    const classes = {
-      'pinned-sidebar': this.appService.getSidebarStat().isSidebarPinned,
-      'toggeled-sidebar': this.appService.getSidebarStat().isSidebarToggeled
-    }
-    return classes;
-  }
+
   toggleSidebar() {
     this.appService.toggleSidebar();
   }
-
-  ngOnInit(): void {
-  }
-
 }

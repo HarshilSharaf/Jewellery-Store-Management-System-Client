@@ -1,6 +1,7 @@
-import { Component, EventEmitter, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { MatDialogModule } from '@angular/material/dialog';
 import { HttpResponse } from '../../../../models/http-response';
 import { FileSystemService } from '../../../../../../Backend/Shared/file-system.service';
 import { CustomerDetails } from '../../models/customerDetails';
@@ -13,9 +14,9 @@ import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
   templateUrl: './add-customer-form.component.html',
   styleUrls: ['./add-customer-form.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ImageUploadComponent]
+  imports: [CommonModule, ReactiveFormsModule, MatDialogModule, ImageUploadComponent]
 })
-export class AddCustomerFormComponent implements OnInit, OnDestroy {
+export class AddCustomerFormComponent {
 
   public isLoading: boolean = false;
   public addCustomerResponse: HttpResponse = { status: 0, message: '' }
@@ -41,12 +42,6 @@ export class AddCustomerFormComponent implements OnInit, OnDestroy {
       phoneNumber: ['', Validators.required],
       city: ['', Validators.required],
     });
-  }
-
-  ngOnDestroy(): void {
-  }
-
-  ngOnInit(): void {
   }
 
   async submitForm() {

@@ -6,11 +6,12 @@
         <span class="h2 font-weight-bold mb-0">{{cardValue}}</span>
       </div>
       <div class="col-auto">
-        <div class="icon-div icon-shape" style="background: #EEF0FF; color: #7C8CF8;">
-          @if (cardIcon==''|| cardIcon==null || cardIconImage) {
-            <img class="item-icon" [attr.src]="cardIconImage">
+        <div class="icon-div icon-shape">
+          @if (cardIconImage) {
+            <img class="item-icon" [attr.src]="cardIconImage" alt="">
+          } @else if (cardIcon) {
+            <i class="item-icon" [ngClass]="cardIcon" aria-hidden="true"></i>
           }
-          <i class="item-icon" [ngClass]="cardIcon"></i>
         </div>
       </div>
     </div>

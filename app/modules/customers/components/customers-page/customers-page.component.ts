@@ -92,8 +92,10 @@ export class CustomersPageComponent implements OnInit, AfterViewInit, OnDestroy 
 
   openAddCustomerDialog(): void {
     const dialogRef = this.dialog.open(AddCustomerFormComponent, {
-      width: '600px',
-      panelClass: 'add-customer-dialog'
+      width: '560px',
+      maxWidth: '95vw',
+      panelClass: 'add-customer-dialog',
+      autoFocus: 'first-tabbable',
     });
 
     // afterClosed() completes when the dialog closes; take(1) makes intent

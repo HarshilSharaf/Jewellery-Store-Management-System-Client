@@ -10,8 +10,13 @@
       left: -$sidebar-width;
       top: 0;
       z-index: 111;
-      overflow: auto;
+      // Only allow vertical scroll; a stray horizontal scrollbar was
+      // showing up because `overflow: auto` triggers both axes and long
+      // profile names / the footer button caused a few px of x-overflow.
+      overflow-x: hidden;
+      overflow-y: auto;
       transition: all 0.3s ease-in-out;
+      box-sizing: border-box;
 
       > div {
         border-bottom: 1px solid $border-color;
@@ -22,10 +27,15 @@
       }
 
       .sidebar-profile {
+        padding: 1rem 0.75rem 0.75rem;
+
+        .picture-wrapper {
+          margin-bottom: 0.5rem;
+        }
 
         .user-picture {
-          width: 60px;
-          height: 60px;
+          width: 52px;
+          height: 52px;
           border-radius: 50%;
           overflow: hidden;
           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -39,15 +49,22 @@
         }
 
         .profile-details {
+          padding: 0 0.25rem;
+          min-width: 0;
+
           .name {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 700;
             color: $text-primary;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            margin-bottom: 0.1rem;
           }
 
           .role {
-            font-size: 0.7rem;
-            letter-spacing: 1px;
+            font-size: 0.65rem;
+            letter-spacing: 0.8px;
             font-weight: 600;
             color: $text-secondary;
           }
@@ -59,13 +76,15 @@
       }
 
       .sidebar-menu {
+        padding: 0.5rem 0.5rem;
+
         > div {
-          padding: 0 1.5rem;
+          padding: 0 0.5rem;
         }
 
         .menu-header {
-          padding: 0 1.5rem;
-          font-size: 0.7rem;
+          padding: 0 0.75rem;
+          font-size: 0.65rem;
           text-transform: uppercase;
           font-weight: 600;
           letter-spacing: 0.5px;
@@ -85,10 +104,10 @@
               display: flex;
               align-items: center;
               width: 100%;
-              height: 45px;
-              line-height: 45px;
-              padding: 0 1.5rem;
-              font-size: 0.8rem;
+              height: 38px;
+              line-height: 1;
+              padding: 0 0.75rem;
+              font-size: 0.85rem;
               letter-spacing: 0px;
               font-weight: 500;
               border-radius: 8px;
@@ -96,12 +115,15 @@
 
               i {
                 @extend .icon-style;
-                font-size: 1rem;
+                font-size: 0.95rem;
+                width: 20px;
+                height: 20px;
+                line-height: 20px;
               }
 
               span {
                 color: inherit;
-                margin-left: 1rem;
+                margin-left: 0.6rem;
               }
             }
           }

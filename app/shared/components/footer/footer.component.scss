@@ -1,0 +1,20 @@
+.app-footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  color: #6B7194;
+  font-size: 0.8rem;
+
+  a {
+    color: #6B7194;
+    text-decoration: none;
+    font-weight: 500;
+
+    &:hover,
+    &:focus-visible {
+      color: #7C8CF8;
+      text-decoration: underline;
+    }
+  }
+}

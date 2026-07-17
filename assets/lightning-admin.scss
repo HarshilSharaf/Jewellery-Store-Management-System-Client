@@ -7,15 +7,20 @@
 @import "./partials/dashboard";
 
 
+// Neutral icon slot for sidebar/nav items. Previously carried a solid
+// pastel background which read as a "box border" on every menu row and
+// clashed with the active-state highlight. Now it's just a fixed-size
+// container so icons line up; color changes live in the anchor's hover
+// / active styles in _themes.scss.
 .icon-style {
-  width: 35px;
-  height: 35px;
+  width: 28px;
+  height: 28px;
   text-align: center;
-  line-height: 35px;
+  line-height: 28px;
   border-radius: 8px;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   color: $sidebar-icon-color;
-  background: $primary-lighter;
+  background: transparent;
   border: none;
 }
 

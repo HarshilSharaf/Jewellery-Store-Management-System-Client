@@ -28,31 +28,37 @@
   color: #2D3142;
 }
 
-.item-icon {
-  display: block;
-  width: 26px;
-  height: 26px;
-  border-radius: 20px;
-}
-
-.icon-div {
+.icon-div.icon-shape {
+  // Fixed square with tinted primary background; centres the icon
+  // (image OR font-awesome) exactly. Previously the template rendered
+  // BOTH an <img> and an empty <i> which pushed the image off-centre.
+  display: inline-flex;
   width: 3rem;
   height: 3rem;
-}
-
-.icon-div i {
-  font-size: 1.25rem;
-  margin-right: 0;
-  max-height: 20px;
-}
-
-.icon-shape {
-  display: inline-flex;
-  padding: 12px;
-  text-align: center;
+  padding: 0;
   border-radius: 14px;
+  background: #EEF0FF;
+  color: #7C8CF8;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+}
+
+.item-icon {
+  display: block;
+  max-width: 60%;
+  max-height: 60%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+// Font-awesome variant of item-icon: font-size instead of intrinsic dims.
+i.item-icon {
+  font-size: 1.2rem;
+  line-height: 1;
+  width: auto;
+  height: auto;
 }
 
 .text-sm {
