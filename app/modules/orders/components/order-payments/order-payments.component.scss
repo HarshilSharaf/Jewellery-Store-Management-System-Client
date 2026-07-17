@@ -1,0 +1,7 @@
+// Ensure the payments panel spans the full width of its container
+// on the order-details page (Angular custom elements are inline by
+// default and collapse to content width without this).
+:host {
+  display: block;
+  width: 100%;
+}

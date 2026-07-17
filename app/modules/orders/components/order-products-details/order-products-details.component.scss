@@ -1,0 +1,8 @@
+// The component was rendering at content width inside a Bootstrap
+// `.row` flex parent because Angular custom elements default to
+// `display: inline`. `display: block` + `width: 100%` lets the
+// wrapping card/table span the full row width.
+:host {
+  display: block;
+  width: 100%;
+}
