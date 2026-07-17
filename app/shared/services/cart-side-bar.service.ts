@@ -10,7 +10,15 @@ export class CartSideBarService {
   constructor() { }
 
   toggleCartSideBar() {
-    this.toggleSideBar.set(true)
+    this.toggleSideBar.update(open => !open);
+  }
+
+  openCartSideBar() {
+    this.toggleSideBar.set(true);
+  }
+
+  closeCartSideBar() {
+    this.toggleSideBar.set(false);
   }
 
   getCartSideBarStatus() {

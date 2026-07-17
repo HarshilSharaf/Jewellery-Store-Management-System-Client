@@ -3,7 +3,7 @@
   <div class="sidebar-profile d-flex flex-column justify-content-center pt-5 pb-3">
     <div class="picture-wrapper mb-4">
       <div class="user-picture m-auto">
-        <img [src]="userData.image || './assets/img/user.jpg'" class="img-fluid" alt="">
+        <img [src]="userData.image || './assets/img/user.jpg'" class="img-fluid" alt="Profile picture of {{ userData.displayName || 'the current user' }}">
       </div>
     </div>
     <div class="profile-details text-center pb-4">
@@ -22,11 +22,10 @@
         </li>
       }
       <li>
-        <a  class="text-danger logout-btn" (click)="logout()" routerLinkActive="active">
-          <i class="fa-solid fa-right-from-bracket text-danger"></i>
+        <button type="button" class="text-danger logout-btn list-item" (click)="logout()">
+          <i class="fa-solid fa-right-from-bracket text-danger" aria-hidden="true"></i>
           <span>Logout</span>
-
-        </a>
+        </button>
       </li>
     </ul>
 

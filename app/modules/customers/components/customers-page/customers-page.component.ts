@@ -1,4 +1,5 @@
 import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { take } from 'rxjs';
 
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
@@ -95,7 +96,9 @@ export class CustomersPageComponent implements OnInit, AfterViewInit, OnDestroy 
       panelClass: 'add-customer-dialog'
     });
 
-    dialogRef.afterClosed().subscribe(() => {
+    // afterClosed() completes when the dialog closes; take(1) makes intent
+    // explicit and guards against future stream extensions leaking a sub.
+    dialogRef.afterClosed().pipe(take(1)).subscribe(() => {
       this.getAllCustomersData();
     });
   }

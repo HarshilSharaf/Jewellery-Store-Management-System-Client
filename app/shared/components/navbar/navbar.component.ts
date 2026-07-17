@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Signal } from '@angular/core';
 
 import { SideBarService } from '../../services/sidebar.service';
 import { StoreService } from '../../../../../Backend/Shared/store.service';
@@ -14,31 +14,33 @@ import { AddToCartComponent } from './add-to-cart/add-to-cart.component';
   imports: [ProfileDropdownComponent, AddToCartComponent]
 })
 export class NavbarComponent implements OnInit {
-  userDisplayName = '';
-  userID = 0
-  
+  // Bind the template directly to the UserService signal so profile-page
+  // updates propagate to the navbar without a manual refresh.
+  readonly userDisplayName: Signal<string>;
+  userID = 0;
+  isCollapsed = true;
+
   constructor(
     private appService: SideBarService,
     private storeService: StoreService,
     private userService: UserService
-  ) {}
-  
-  isCollapsed = true;
-  
+  ) {
+    this.userDisplayName = this.userService.userName.asReadonly();
+  }
+
   ngOnInit() {
     this.storeService.get('authData').then((data: any) => {
-      this.userDisplayName = data.userName;
-      this.userID = data.uid
+      // Seed the signal from persisted auth data so the initial paint has
+      // the right value; subsequent updates flow via ProfilePage.
+      this.userService.userName.set(data.userName);
+      this.userID = data.uid;
     });
-
-    // Subscribe to the Signal using effect or watch the signal directly
-    this.userDisplayName = this.userService.userName();
   }
 
   toggleSidebarPin() {
     this.appService.toggleSidebarPin();
   }
-  
+
   toggleSidebar() {
     this.appService.toggleSidebar();
   }

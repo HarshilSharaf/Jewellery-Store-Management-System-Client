@@ -11,7 +11,7 @@
               <p>Purchase Invoice</p>
             </div>
             <div class="position-relative">
-              <p>Order No. <span>XXXX</span></p>
+              <p>Order No. <span>{{ _InvoiceData?.orderId ?? '—' }}</span></p>
             </div>
           </div>
         </section>
@@ -23,14 +23,15 @@
                 <p>Store Details,</p>
                 <h2>Jewellery Store</h2>
                 <p class="address"> 777 Brockton Avenue, <br> Abington MA 2351, <br>Vestavia Hills AL </p>
-                <div class="txn mt-2">GSTIN: XXXXXXX</div>
+                <!-- GSTIN placeholder pending real store configuration -->
+                <div class="txn mt-2">GSTIN: &mdash;</div>
               </div>
               @if (_InvoiceData.customer_details) {
                 <div class="col text-end">
                   <p>Customer Details,</p>
                   <h2>{{_InvoiceData.customer_details.firstName + ' ' + _InvoiceData.customer_details.lastName }}</h2>
                   <p class="address"> 777 Brockton Avenue, <br> Abington MA 2351, <br>Vestavia Hills AL </p>
-                  <div class="txn mt-2">TXN: XXXXXXX</div>
+                  <div class="txn mt-2">TXN: {{ _InvoiceData?.orderGuid ?? '—' }}</div>
                 </div>
               }
             </div>

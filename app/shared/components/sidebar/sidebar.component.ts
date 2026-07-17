@@ -47,11 +47,6 @@ export class SidebarComponent implements OnInit {
       link: '/inventory',
       icon: 'fa-solid fa-warehouse',
     },
-    {
-      title: 'Employees',
-      link: '/employees',
-      icon: 'fa-solid fa-people-group',
-    },
   ];
   
   constructor(

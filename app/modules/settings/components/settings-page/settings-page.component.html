@@ -9,9 +9,9 @@
       <span class="container">
         <h1>
           @if (!errorMessageAfterReLaunch) {
-            <a class="goBack" (click)="goBack()">
-              <i class="fa-solid fa-arrow-left text-success"></i>
-            </a>
+            <button type="button" class="goBack btn btn-link p-0" (click)="goBack()" aria-label="Go back">
+              <i class="fa-solid fa-arrow-left text-success" aria-hidden="true"></i>
+            </button>
           }
           Settings
         </h1>

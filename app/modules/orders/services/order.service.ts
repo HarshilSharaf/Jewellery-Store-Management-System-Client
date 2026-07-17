@@ -1,4 +1,3 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { DbOrdersService } from 'Backend/Orders/db-orders.service';
 import { HttpResponse } from '../../../models/http-response';
@@ -8,8 +7,7 @@ import { HttpResponse } from '../../../models/http-response';
 })
 export class OrderService {
 
-  apiUrl = 'http://localhost:5000/orders/'
-  constructor(private http:HttpClient, private dbOrderService:DbOrdersService) { }
+  constructor(private dbOrderService:DbOrdersService) { }
 
   getSalesAndLabour(timeInterval = 8): Promise<any> {
     return this.dbOrderService.getSalesAndLabour(timeInterval)

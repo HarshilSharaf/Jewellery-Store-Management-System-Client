@@ -44,7 +44,7 @@ export class OrderPaymentsComponent implements OnInit {
     private loggerService: LoggerService
   ) {
     this.recordPaymentForm = this.formBuilder.group({
-      amount: [0, Validators.required],
+      amount: [0, [Validators.required, Validators.min(1)]],
       paymentType: [PaymentType.CASH, Validators.required],
       paymentDate: [this.formatDate(new Date())],
       remarks: [''],

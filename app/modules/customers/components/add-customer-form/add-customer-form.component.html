@@ -91,7 +91,7 @@
 
                     <div class="col px-0 mx-0">
                       <input class="form-check-input mx-1" type="radio" name="gender" formControlName="gender"
-                        value="female" id="gender" checked>
+                        value="female" id="female-radio" checked>
                         <label class="form-check-label" for="female-radio">
                           Female
                         </label>
@@ -159,7 +159,7 @@
                       <!-- Phone Number Validation Message -->
                       <div class="row">
                         <div class="col text-center">
-                          @if ((customerDetailsForm.get('phone')?.touched || customerDetailsForm.valid) && customerDetailsForm.get('phone')?.errors?.['required']) {
+                          @if ((customerDetailsForm.get('phoneNumber')?.touched || customerDetailsForm.valid) && customerDetailsForm.get('phoneNumber')?.errors?.['required']) {
                             <span class="text-danger text-bold"
                               >
                               Phone Number is required
