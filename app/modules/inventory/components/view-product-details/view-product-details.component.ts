@@ -78,7 +78,6 @@ export class ViewProductDetailsComponent implements OnInit {
         this.loaderService.stop()
         this.imageUploadComponent.imageSrc = ''
         this.imageUploadComponent.productImage = null
-        this.productCurrentImage = null
         this.loggerService.LogError(error, "getProductImage()")
       })
   }

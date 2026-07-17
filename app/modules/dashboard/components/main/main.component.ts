@@ -1,5 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 
+type DashboardCardSlot = 'revenue' | 'stock' | 'customers';
+
 import { Chart } from 'chart.js';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { ProductCategoryService } from '../../../categories/components/product-categories/services/product-category.service';
@@ -34,7 +36,14 @@ import { InfoCardComponent } from '../../../../shared/components/info-card/info-
 ]
 })
 export class MainComponent implements OnInit, OnDestroy {
-  cards: InfoCardData[] = [];
+  // Backed by a slot map so re-entry (route revisits) replaces each card
+  // rather than appending duplicates. `cards` is derived on read.
+  private cardSlots: Partial<Record<DashboardCardSlot, InfoCardData>> = {};
+  get cards(): InfoCardData[] {
+    return (['revenue', 'stock', 'customers'] as DashboardCardSlot[])
+      .map(k => this.cardSlots[k])
+      .filter((c): c is InfoCardData => c !== undefined);
+  }
   recentOrders:RecentOrdersModel[] = []
   topSellingProducts:TopProductCategoriesModel[] = []
   monthlySalesAndLabour:MonthlySalesAndLabourModel[] = []
@@ -109,14 +118,13 @@ export class MainComponent implements OnInit, OnDestroy {
       this.loaderService.start();
       const response: TotalCustomersModel[] = await this.customerService.getTotalCustomers();
       this.loaderService.stop();
-      const totalCustomers: InfoCardData = {
+      this.cardSlots.customers = {
         cardTitle: 'Customers',
         cardIcon: 'fa-solid fa-users',
         cardValue: response[0].total ?? 0,
         percentageIncrease: response[0].percent_increase,
         monthsString: 'last 6 months',
       };
-      this.cards.push(totalCustomers);
       this.loggerService.LogInfo("getTotalCustomers() Request Completed.")
     } catch (error) {
       this.loggerService.LogError(error, "getTotalCustomers()")
@@ -130,14 +138,13 @@ export class MainComponent implements OnInit, OnDestroy {
       this.loaderService.start();
       const response: TotalStockModel[] = await this.inventoryService.getTotalStock();
       this.loaderService.stop();
-      const totalStock: InfoCardData = {
+      this.cardSlots.stock = {
         cardTitle: 'Total Stock',
         cardIcon: 'fa-solid fa-warehouse',
         cardValue: `${response[0].total ?? 0} gms`,
         percentageIncrease: response[0].percent_increase,
         monthsString: 'last 6 months',
       };
-      this.cards.push(totalStock);
       this.loggerService.LogInfo("getTotalStock() Request Completed.")
     } catch (error) {
       this.loggerService.LogError(error, "getTotalStock()")
@@ -151,14 +158,13 @@ export class MainComponent implements OnInit, OnDestroy {
       this.loaderService.start();
       const response: TotalRevenueModel[] = await this.ordersService.getTotalRevenueInLast6Months();
       this.loaderService.stop();
-      const totalRevenue: InfoCardData = {
+      this.cardSlots.revenue = {
         cardTitle: 'Revenue In 6 Months',
         cardIcon: 'fa-solid fa-suitcase',
         cardValue: `₹ ${response[0].total ?? 0}`,
         percentageIncrease: response[0].percent_increase,
         monthsString: 'last month',
       };
-      this.cards.push(totalRevenue);
       this.loggerService.LogInfo("getTotalRevenueInLast6Months() Request Completed.")
     } catch (error) {
       this.loggerService.LogError(error, "getTotalRevenueInLast6Months()")

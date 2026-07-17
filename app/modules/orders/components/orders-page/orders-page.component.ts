@@ -1,7 +1,6 @@
 import { DecimalPipe } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
-import { Subscription, debounceTime, distinctUntilChanged } from 'rxjs';
 import { ColumnSchema } from '../../../../shared/models/columnsSchema';
 import { OrdersDataModel, PaymentStatus } from '../../models/orders-data-model';
 import { OrderService } from '../../services/order.service';
@@ -19,7 +18,7 @@ import { DataTableComponent } from '../../../../shared/components/data-table/dat
   imports: [PageHeaderComponent, DataTableComponent, RouterLink],
   providers: [DecimalPipe]
 })
-export class OrdersPageComponent implements OnInit {
+export class OrdersPageComponent implements OnInit, OnDestroy {
 
 
   /*
@@ -84,8 +83,8 @@ displayNameForColumns: ColumnSchema[] =
   itemsPerPage = 5;
   totalRecords = 0
   currentSearchQuery = ''
+  private searchDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 
-  getAllOrdersSubscription = new Subscription
   ordersData:OrdersDataModel[] = []
   protected isLoading = false;
   constructor(
@@ -127,7 +126,19 @@ displayNameForColumns: ColumnSchema[] =
 
   handleSearchQuery(searchQuery: string) {
     this.currentSearchQuery = searchQuery
-    this.getAllOrders(this.itemsPerPage, 1, this.currentSearchQuery)
+    if (this.searchDebounceTimer) {
+      clearTimeout(this.searchDebounceTimer);
+    }
+    this.searchDebounceTimer = setTimeout(() => {
+      this.getAllOrders(this.itemsPerPage, 1, this.currentSearchQuery)
+    }, 300);
+  }
+
+  ngOnDestroy(): void {
+    if (this.searchDebounceTimer) {
+      clearTimeout(this.searchDebounceTimer);
+      this.searchDebounceTimer = null;
+    }
   }
 
   prepareOrdersData(orders:any):OrdersDataModel[] {

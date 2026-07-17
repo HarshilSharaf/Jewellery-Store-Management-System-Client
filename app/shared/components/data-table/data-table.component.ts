@@ -1,14 +1,15 @@
 import {
-  AfterViewChecked,
   AfterViewInit,
   ChangeDetectorRef,
   Component,
+  DestroyRef,
   EventEmitter,
   Input,
-  OnInit,
+  OnDestroy,
   Output,
   ViewChild,
   effect,
+  inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatPaginator } from '@angular/material/paginator';
@@ -30,7 +31,7 @@ import { SkeletonLoaderComponent } from '../skeleton-loader/skeleton-loader.comp
   standalone: true,
   imports: [CommonModule, MatTableModule, MatPaginatorModule, MatSortModule, MatProgressSpinnerModule, SkeletonLoaderComponent]
 })
-export class DataTableComponent<T> implements OnInit,AfterViewInit {
+export class DataTableComponent<T> implements AfterViewInit, OnDestroy {
   public _tableData: MatTableDataSource<T> = new MatTableDataSource();
   public _totalRecords = 0;
   private _paginator:any
@@ -86,6 +87,7 @@ export class DataTableComponent<T> implements OnInit,AfterViewInit {
   showLoader: boolean = false;
   currentSearchTerm = ''
   disableButtonForProducts: string[] = [];
+  private filterTimer: ReturnType<typeof setTimeout> | null = null;
 
   protected _isLoading = false;
   @Input() set isLoading(value: boolean)
@@ -110,12 +112,16 @@ export class DataTableComponent<T> implements OnInit,AfterViewInit {
 
   ngAfterViewInit(): void {
     // set value of paginator after complete initialization
-    // as it was not updating the paginator pageIndex value to 0 when 
+    // as it was not updating the paginator pageIndex value to 0 when
     // search string is not empty
     this._tableData.paginator = this._paginator
   }
 
-  ngOnInit(): void {
+  ngOnDestroy(): void {
+    if (this.filterTimer) {
+      clearTimeout(this.filterTimer);
+      this.filterTimer = null;
+    }
   }
 
   startLoader() {
@@ -127,15 +133,19 @@ export class DataTableComponent<T> implements OnInit,AfterViewInit {
   }
 
   filterChanged(event: Event) {
-    setTimeout(() => {
-      const filterValue = (event.target as HTMLInputElement).value;
-      if(!this.isOnlyWhitespace(filterValue) && this.currentSearchTerm != filterValue || filterValue == '' )
-      {
-        this.currentSearchTerm = filterValue
-        this.searchQuery.emit(filterValue)
-        this._paginator.pageIndex = 0
+    if (this.filterTimer) {
+      clearTimeout(this.filterTimer);
+    }
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.filterTimer = setTimeout(() => {
+      if ((!this.isOnlyWhitespace(filterValue) && this.currentSearchTerm != filterValue) || filterValue == '') {
+        this.currentSearchTerm = filterValue;
+        this.searchQuery.emit(filterValue);
+        if (this._paginator) {
+          this._paginator.pageIndex = 0;
+        }
       }
-    }, 500); //delay sending request to server for 500ms
+    }, 300); // debounce server queries
   }
 
   isOnlyWhitespace(str: string): boolean {

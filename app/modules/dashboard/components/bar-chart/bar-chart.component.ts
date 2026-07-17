@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy } from '@angular/core';
 
 import Chart from 'chart.js/auto';
 import { MonthlySalesAndLabourModel } from '../../models/sales-and-labour-model';
@@ -11,8 +11,8 @@ import { SkeletonLoaderComponent } from '../../../../shared/components/skeleton-
   standalone: true,
   imports: [SkeletonLoaderComponent]
 })
-export class BarChartComponent implements OnInit {
-  public chart: any;
+export class BarChartComponent implements OnDestroy {
+  public chart: Chart | null = null;
   public _monthlySalesAndLabour:MonthlySalesAndLabourModel[] = []
   @Input() set monthlySalesAndLabour(data:MonthlySalesAndLabourModel[]) {
     this._monthlySalesAndLabour = [...data]
@@ -21,12 +21,15 @@ export class BarChartComponent implements OnInit {
       this.createChart();
     }
   }
-  constructor() { }
 
-  ngOnInit(): void {
+  ngOnDestroy(): void {
+    this.chart?.destroy();
+    this.chart = null;
   }
 
   createChart() {
+    // Destroy any prior canvas binding so re-render doesn't leak.
+    this.chart?.destroy();
     this.chart = new Chart("barChart", {
       type: 'bar', //this denotes tha type of chart
 

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy } from '@angular/core';
 
 import Chart from 'chart.js/auto';
 import { TopProductCategoriesModel } from '../../models/top-product-categories-model';
@@ -11,8 +11,8 @@ import { SkeletonLoaderComponent } from '../../../../shared/components/skeleton-
   standalone: true,
   imports: [SkeletonLoaderComponent]
 })
-export class PieChartComponent implements OnInit {
-  public chart: any;
+export class PieChartComponent implements OnDestroy {
+  public chart: Chart | null = null;
   public _topSellingProducts:TopProductCategoriesModel[] = []
   @Input() set topSellingProducts(data:TopProductCategoriesModel[]) {
     this._topSellingProducts = [...data]
@@ -22,13 +22,14 @@ export class PieChartComponent implements OnInit {
     }
   }
 
-  constructor() { }
-
-  ngOnInit(): void {
+  ngOnDestroy(): void {
+    this.chart?.destroy();
+    this.chart = null;
   }
 
   createChart() {
-
+    // Destroy any prior canvas binding so re-render doesn't leak.
+    this.chart?.destroy();
     this.chart = new Chart('pieChart', {
       type: 'pie', //this denotes tha type of chart
 

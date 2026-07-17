@@ -59,22 +59,16 @@ export class InventoryPageComponent implements OnInit {
 
           // When all promises have completed, handle the responses
           Promise.all(promises).then((responses: TotalStockModel[][]) => {
-            // Iterate through the responses array
-            responses.forEach((response, index) => {
-              // Create an infoCardData object for the current response.
-              const infoCardData: InfoCardData = {
-                cardTitle: `Total ${goldAndSilverCategory[index].masterCategoryName} Stock`,
-                cardIcon: '',
-                cardValue: `${response[0].total ?? 0} gms`,
-                percentageIncrease: response[0].percent_increase,
-                cardIconImage: `./assets/img/${goldAndSilverCategory[
-                  index
-                ].masterCategoryName.toLowerCase()}-bars.png`,
-                monthsString: 'last 6 months',
-              };
-              // Add each infoCardData object to the infoCardsData array.
-              this.infoCardsData.push(infoCardData);
-            });
+            // Rebuild the array from scratch so we never accumulate stale
+            // duplicates when the user navigates back to /inventory.
+            this.infoCardsData = responses.map((response, index) => ({
+              cardTitle: `Total ${goldAndSilverCategory[index].masterCategoryName} Stock`,
+              cardIcon: '',
+              cardValue: `${response[0].total ?? 0} gms`,
+              percentageIncrease: response[0].percent_increase,
+              cardIconImage: `./assets/img/${goldAndSilverCategory[index].masterCategoryName.toLowerCase()}-bars.png`,
+              monthsString: 'last 6 months',
+            }));
           });
         }
         this.loggerService.LogInfo("getMasterCategories() Request Completed From inventory-page component.")
