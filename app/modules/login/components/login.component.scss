@@ -53,17 +53,17 @@ $text-secondary: #6B7194;
 
 .brand-title {
   font-family: 'Inter', sans-serif;
-  font-size: 1.6rem;
-  font-weight: 700;
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-bold);
   margin: 0 0 0.25rem;
   letter-spacing: -0.5px;
 }
 
 .brand-subtitle {
-  font-size: 0.9rem;
+  font-size: var(--fs-base);
   opacity: 0.85;
   margin: 0;
-  font-weight: 400;
+  font-weight: var(--fw-regular);
 }
 
 .brand-decoration {
@@ -116,14 +116,14 @@ $text-secondary: #6B7194;
 
 .form-title {
   font-family: 'Inter', sans-serif;
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-bold);
   color: $text-primary;
   margin: 0 0 0.25rem;
 }
 
 .form-subtitle {
-  font-size: 0.85rem;
+  font-size: var(--fs-sm);
   color: $text-secondary;
   margin: 0 0 2rem;
 }
@@ -137,11 +137,11 @@ $text-secondary: #6B7194;
   border: 1px solid #FFD4D4;
   border-radius: 10px;
   color: #DC3545;
-  font-size: 0.85rem;
+  font-size: var(--fs-sm);
   margin-bottom: 1.5rem;
 
   i {
-    font-size: 1rem;
+    font-size: var(--fs-md);
     flex-shrink: 0;
   }
 }
@@ -151,8 +151,8 @@ $text-secondary: #6B7194;
 
   label {
     display: block;
-    font-size: 0.8rem;
-    font-weight: 600;
+    font-size: var(--fs-xs);
+    font-weight: var(--fw-semibold);
     color: $text-secondary;
     margin-bottom: 0.4rem;
     text-transform: uppercase;
@@ -169,7 +169,7 @@ $text-secondary: #6B7194;
     top: 50%;
     transform: translateY(-50%);
     color: $primary-light;
-    font-size: 0.9rem;
+    font-size: var(--fs-base);
     transition: color 0.2s ease;
   }
 
@@ -178,7 +178,7 @@ $text-secondary: #6B7194;
     padding: 0.75rem 0.75rem 0.75rem 2.5rem;
     border: 1.5px solid #E8EAF0;
     border-radius: 10px;
-    font-size: 0.9rem;
+    font-size: var(--fs-base);
     font-family: 'Inter', sans-serif;
     color: $text-primary;
     background: #FAFBFE;
@@ -214,10 +214,10 @@ $text-secondary: #6B7194;
 }
 
 .forgot-link {
-  font-size: 0.8rem;
+  font-size: var(--fs-xs);
   color: $primary;
   text-decoration: none;
-  font-weight: 500;
+  font-weight: var(--fw-medium);
 
   &:hover {
     text-decoration: underline;
@@ -232,8 +232,8 @@ $text-secondary: #6B7194;
   background: linear-gradient(135deg, $primary 0%, #9BA6FA 100%);
   color: #FFFFFF;
   font-family: 'Inter', sans-serif;
-  font-size: 0.95rem;
-  font-weight: 600;
+  font-size: var(--fs-md);
+  font-weight: var(--fw-semibold);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -252,7 +252,7 @@ $text-secondary: #6B7194;
   }
 
   i {
-    font-size: 0.85rem;
+    font-size: var(--fs-sm);
     transition: transform 0.2s ease;
   }
 

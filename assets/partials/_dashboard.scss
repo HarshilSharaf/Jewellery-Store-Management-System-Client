@@ -6,7 +6,7 @@
       line-height: 50px;
       text-align: center;
       border-radius: 12px;
-      font-size: 1.5rem;
+      font-size: var(--fs-xl);
 
       &.icon-primary {
         color: $primary;

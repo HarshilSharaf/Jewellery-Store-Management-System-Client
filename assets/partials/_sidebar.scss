@@ -53,8 +53,8 @@
           min-width: 0;
 
           .name {
-            font-size: 0.85rem;
-            font-weight: 700;
+            font-size: var(--fs-base);
+            font-weight: var(--fw-bold);
             color: $text-primary;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -63,9 +63,9 @@
           }
 
           .role {
-            font-size: 0.65rem;
+            font-size: var(--fs-xs);
             letter-spacing: 0.8px;
-            font-weight: 600;
+            font-weight: var(--fw-semibold);
             color: $text-secondary;
           }
         }
@@ -84,9 +84,9 @@
 
         .menu-header {
           padding: 0 0.75rem;
-          font-size: 0.65rem;
+          font-size: var(--fs-xs);
           text-transform: uppercase;
-          font-weight: 600;
+          font-weight: var(--fw-semibold);
           letter-spacing: 0.5px;
           color: $text-secondary;
         }
@@ -107,15 +107,15 @@
               height: 38px;
               line-height: 1;
               padding: 0 0.75rem;
-              font-size: 0.85rem;
+              font-size: var(--fs-sm);
               letter-spacing: 0px;
-              font-weight: 500;
+              font-weight: var(--fw-medium);
               border-radius: 8px;
               transition: background 0.2s ease, color 0.2s ease;
 
               i {
                 @extend .icon-style;
-                font-size: 0.95rem;
+                font-size: var(--fs-base);
                 width: 20px;
                 height: 20px;
                 line-height: 20px;

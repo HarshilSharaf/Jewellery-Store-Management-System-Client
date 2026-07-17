@@ -21,8 +21,8 @@ $success: #4CAF50;
   padding: 1rem 1.25rem;
   margin: 0;
   border-bottom: 1px solid $border-color;
-  font-size: 1.05rem;
-  font-weight: 600;
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-semibold);
   color: $text-primary;
 }
 
@@ -78,8 +78,8 @@ $success: #4CAF50;
   gap: 0.75rem;
 
   &__label {
-    font-size: 0.85rem;
-    font-weight: 600;
+    font-size: var(--fs-base);
+    font-weight: var(--fw-semibold);
     color: $text-primary;
     margin: 0;
   }
@@ -121,8 +121,8 @@ $success: #4CAF50;
 
 .field-error {
   color: $danger;
-  font-size: 0.75rem;
-  font-weight: 500;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
 }
 
 // -------------------------------------------------------------------------
@@ -132,7 +132,7 @@ $success: #4CAF50;
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  font-size: 0.85rem;
+  font-size: var(--fs-base);
   color: $text-primary;
   cursor: pointer;
   user-select: none;
@@ -149,8 +149,8 @@ $success: #4CAF50;
 .form-response {
   padding: 0.6rem 0.85rem;
   border-radius: 8px;
-  font-size: 0.85rem;
-  font-weight: 500;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
   text-align: center;
 
   &--success {

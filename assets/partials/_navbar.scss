@@ -8,8 +8,8 @@
     .navbar-header {
 
       .navbar-brand {
-        font-size: 1rem;
-        font-weight: 700;
+        font-size: var(--fs-md);
+        font-weight: var(--fw-bold);
         letter-spacing: 1px;
 
         span {
@@ -109,8 +109,8 @@
 
             .link-text {
               margin-top: 10px;
-              font-size: 0.8rem;
-              font-weight: 500;
+              font-size: var(--fs-xs);
+              font-weight: var(--fw-medium);
               text-transform: uppercase;
               letter-spacing: 0.5px;
             }
@@ -123,7 +123,7 @@
       padding: 0;
 
       i {
-        font-size: 1.1rem;
+        font-size: var(--fs-md);
         width: 40px;
         height: 40px;
         line-height: 40px;
@@ -145,7 +145,7 @@
         border-radius: 8px;
         border: 1px solid $border-color;
         height: 38px;
-        font-size: 0.9rem;
+        font-size: var(--fs-base);
         padding: 0 1rem;
       }
     }

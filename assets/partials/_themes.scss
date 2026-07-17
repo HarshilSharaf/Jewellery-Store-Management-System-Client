@@ -3,7 +3,7 @@
 
 body {
   font-family: 'Inter', sans-serif;
-  font-size: 0.9rem;
+  // Root font-size comes from styles.scss body rule (uses --fs-base).
   color: $text-primary;
   background: $bg-color;
 }
@@ -127,7 +127,7 @@ body {
               color: $sidebar-icon-color;
               border: none;
               width: auto;
-              font-size: 1rem;
+              font-size: var(--fs-md);
               transition: color 0.2s ease;
             }
 
@@ -212,8 +212,8 @@ body {
     thead th {
       border-bottom: 2px solid $border-color;
       color: $text-secondary;
-      font-weight: 600;
-      font-size: 0.8rem;
+      font-weight: var(--fw-semibold);
+      font-size: var(--fs-xs);
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
@@ -228,8 +228,8 @@ body {
   }
 
   .btn {
-    font-size: 0.9rem;
-    font-weight: 500;
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-medium);
     border-radius: 8px;
     transition: all 0.2s ease;
 
@@ -302,7 +302,7 @@ body {
   }
 
   .form-control {
-    font-size: 0.9rem;
+    font-size: var(--fs-base);
     border: 1px solid $border-color;
     border-radius: 8px;
     color: $text-primary;

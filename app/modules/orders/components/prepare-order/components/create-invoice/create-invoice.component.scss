@@ -1,5 +1,5 @@
 input::-webkit-input-placeholder {
-  font-size: 0.75rem !important;
+  font-size: var(--fs-xs) !important;
 }
 
 #amountPaidInput {

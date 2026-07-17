@@ -101,7 +101,7 @@ table {
     color: $text-secondary;
     border: 1px solid transparent;
     border-radius: 8px;
-    font-size: 0.85rem;
+    font-size: var(--fs-sm);
     cursor: pointer;
     transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 
@@ -164,19 +164,19 @@ table {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.25rem;
+    font-size: var(--fs-lg);
     margin-bottom: 0.75rem;
   }
 
   &__title {
-    font-size: 0.95rem;
-    font-weight: 600;
+    font-size: var(--fs-md);
+    font-weight: var(--fw-semibold);
     color: $text-primary;
     margin-bottom: 0.25rem;
   }
 
   &__hint {
-    font-size: 0.8rem;
+    font-size: var(--fs-sm);
     color: $text-secondary;
   }
 }
@@ -189,8 +189,8 @@ table {
 
   mat-header-cell {
     color: $text-secondary;
-    font-weight: 600;
-    font-size: 0.8rem;
+    font-weight: var(--fw-semibold);
+    font-size: var(--fs-xs);
     text-transform: uppercase;
     letter-spacing: 0.3px;
     flex-direction: column;
@@ -228,7 +228,7 @@ table {
     text-align: center;
     justify-content: center;
     text-overflow: ellipsis;
-    font-size: 0.85rem;
+    font-size: var(--fs-base);
   }
 
   .totalAmountWithGst::before {
@@ -239,8 +239,8 @@ table {
 .loadingTable {
   mat-header-cell {
     color: $text-secondary;
-    font-weight: 600;
-    font-size: 0.8rem;
+    font-weight: var(--fw-semibold);
+    font-size: var(--fs-xs);
     flex-direction: column;
     justify-content: center;
   }
@@ -305,7 +305,7 @@ mat-footer-row {
     }
 
     .mat-paginator-range-label {
-      font-size: 0.7rem;
+      font-size: var(--fs-xs);
     }
 
     .mat-paginator-page-size {
@@ -323,7 +323,7 @@ mat-footer-row {
     }
 
     .mat-paginator-range-label {
-      font-size: 0.75rem;
+      font-size: var(--fs-xs);
     }
 
     .mat-paginator-page-size {

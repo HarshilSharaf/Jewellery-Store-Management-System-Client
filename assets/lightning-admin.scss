@@ -18,7 +18,7 @@
   text-align: center;
   line-height: 28px;
   border-radius: 8px;
-  font-size: 0.95rem;
+  font-size: var(--fs-base);
   color: $sidebar-icon-color;
   background: transparent;
   border: none;

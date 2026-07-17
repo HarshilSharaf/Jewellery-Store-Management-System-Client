@@ -264,7 +264,7 @@ $display-values: (none, block, flex, inline, inline-block, inline-flex);
 .text-warning   { color: $warning !important; }
 .text-dark      { color: $text-primary !important; }
 
-.text-sm        { font-size: 0.8rem !important; }
+.text-sm        { font-size: var(--fs-sm) !important; }
 
 .text-bold,
 .font-weight-bold,
@@ -281,7 +281,7 @@ $display-values: (none, block, flex, inline, inline-block, inline-flex);
   display: block;
   width: 100%;
   padding: 0.45rem 0.75rem;
-  font-size: 0.9rem;
+  font-size: var(--fs-base);
   line-height: 1.5;
   background-color: $surface-color;
   background-clip: padding-box;
@@ -317,16 +317,16 @@ $display-values: (none, block, flex, inline, inline-block, inline-flex);
 .form-label {
   display: inline-block;
   margin-bottom: 0.375rem;
-  font-weight: 500;
+  font-weight: var(--fw-medium);
   color: $text-primary;
-  font-size: 0.85rem;
+  font-size: var(--fs-sm);
 }
 
 .form-select {
   display: block;
   width: 100%;
   padding: 0.45rem 2.25rem 0.45rem 0.75rem;
-  font-size: 0.9rem;
+  font-size: var(--fs-base);
   line-height: 1.5;
   color: $text-primary;
   background-color: $surface-color;
@@ -433,13 +433,13 @@ $display-values: (none, block, flex, inline, inline-block, inline-flex);
 
   &.btn-sm {
     padding: 0.25rem 0.65rem;
-    font-size: 0.8rem;
+    font-size: var(--fs-xs);
     border-radius: 6px;
   }
 
   &.btn-lg {
     padding: 0.65rem 1.5rem;
-    font-size: 1.05rem;
+    font-size: var(--fs-md);
     border-radius: 10px;
   }
 }
@@ -550,22 +550,17 @@ $display-values: (none, block, flex, inline, inline-block, inline-flex);
   -webkit-overflow-scrolling: touch;
 }
 
-// Typography helpers
+// Typography helpers.
+// The `.h1..h6` classes here defer size/weight to the global scale in
+// styles.scss (fs tokens applied via h1..h6 element selectors). This
+// block just carries shared colour so anything using .h1..h6 utility
+// classes still gets the primary text tone.
 .h1, .h2, .h3, .h4, .h5, .h6 {
-  font-weight: 600;
-  line-height: 1.2;
   color: $text-primary;
 }
 
-.h1 { font-size: 2rem; }
-.h2 { font-size: 1.75rem; }
-.h3 { font-size: 1.5rem; }
-.h4 { font-size: 1.25rem; }
-.h5 { font-size: 1rem; }
-.h6 { font-size: 0.875rem; }
-
 .small {
-  font-size: 0.8rem;
+  font-size: var(--fs-sm);
 }
 
 // ============================================================================
@@ -575,8 +570,8 @@ $display-values: (none, block, flex, inline, inline-block, inline-flex);
 .badge {
   display: inline-block;
   padding: 0.3em 0.6em;
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
   line-height: 1;
   text-align: center;
   white-space: nowrap;
@@ -602,7 +597,7 @@ $display-values: (none, block, flex, inline, inline-block, inline-flex);
   margin-bottom: 1rem;
   border: 1px solid transparent;
   border-radius: 8px;
-  font-size: 0.9rem;
+  font-size: var(--fs-base);
 }
 
 .alert-danger {
@@ -763,7 +758,8 @@ $display-values: (none, block, flex, inline, inline-block, inline-flex);
   padding-top: 0.25rem;
   padding-bottom: 0.25rem;
   margin-right: 1rem;
-  font-size: 1.05rem;
+  font-size: var(--fs-md);
+  font-weight: var(--fw-bold);
   text-decoration: none;
   white-space: nowrap;
 
@@ -857,10 +853,10 @@ ol.list-unstyled,
 .dropdown-header {
   display: block;
   padding: 0.5rem 1rem;
-  font-size: 0.75rem;
+  font-size: var(--fs-xs);
   color: $text-secondary;
   white-space: nowrap;
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
 }
 
 .dropdown-item {
@@ -868,13 +864,13 @@ ol.list-unstyled,
   width: 100%;
   padding: 0.4rem 1rem;
   clear: both;
-  font-weight: 400;
+  font-weight: var(--fw-regular);
   color: $text-primary;
   text-decoration: none;
   white-space: nowrap;
   background-color: transparent;
   border: 0;
-  font-size: 0.875rem;
+  font-size: var(--fs-base);
   cursor: pointer;
 
   &:hover {

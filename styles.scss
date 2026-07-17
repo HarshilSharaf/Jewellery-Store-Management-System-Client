@@ -27,6 +27,61 @@ html {
 // Global styles
 html, body { height: 100%; }
 
+// -------------------------------------------------------------------------
+// Typography scale (single source of truth). Every component-level rule
+// should read from these tokens instead of hard-coding a font-size in rem.
+// The scale is intentionally tight and modular so the whole UI reads as
+// one system.
+//
+//   --fs-xs   0.75rem (12px)  meta, badges, table subtext, "since 6 months"
+//   --fs-sm   0.8125rem (13px) buttons, secondary body, tight tables
+//   --fs-base 0.875rem (14px)  body, form inputs, table cells - the DEFAULT
+//   --fs-md   1rem (16px)     primary card values, page-header subtitle
+//   --fs-lg   1.125rem (18px)  card titles, sub-section headings
+//   --fs-xl   1.375rem (22px)  page-header title, dialog title
+//   --fs-2xl  1.75rem (28px)   dashboard KPI number
+//   --fs-3xl  2rem  (32px)     largest headline, login brand
+//
+// Line heights and weights alongside so each token stands on its own.
+// -------------------------------------------------------------------------
+:root {
+  --fs-xs:    0.75rem;
+  --fs-sm:    0.8125rem;
+  --fs-base:  0.875rem;
+  --fs-md:    1rem;
+  --fs-lg:    1.125rem;
+  --fs-xl:    1.375rem;
+  --fs-2xl:   1.75rem;
+  --fs-3xl:   2rem;
+
+  --lh-tight:  1.2;
+  --lh-normal: 1.5;
+
+  --fw-regular: 400;
+  --fw-medium:  500;
+  --fw-semibold: 600;
+  --fw-bold:    700;
+}
+
+body {
+  font-size: var(--fs-base);
+  line-height: var(--lh-normal);
+}
+
+// Baseline heading scale (component styles may override with a specific
+// token, but by default h1..h6 use these).
+h1, .h1 { font-size: var(--fs-3xl); font-weight: var(--fw-bold);     line-height: var(--lh-tight); }
+h2, .h2 { font-size: var(--fs-2xl); font-weight: var(--fw-bold);     line-height: var(--lh-tight); }
+h3, .h3 { font-size: var(--fs-xl);  font-weight: var(--fw-semibold); line-height: var(--lh-tight); }
+h4, .h4 { font-size: var(--fs-lg);  font-weight: var(--fw-semibold); line-height: var(--lh-tight); }
+h5, .h5 { font-size: var(--fs-md);  font-weight: var(--fw-semibold); line-height: var(--lh-tight); }
+h6, .h6 { font-size: var(--fs-base); font-weight: var(--fw-semibold); line-height: var(--lh-tight); }
+
+small, .text-sm { font-size: var(--fs-sm); }
+.text-xs { font-size: var(--fs-xs); }
+.text-md { font-size: var(--fs-md); }
+.text-lg { font-size: var(--fs-lg); }
+
 // SweetAlert2 pastel theme overrides
 .swal2-popup {
   border-radius: 16px !important;
@@ -36,13 +91,13 @@ html, body { height: 100%; }
 
 .swal2-title {
   color: #2D3142 !important;
-  font-weight: 700 !important;
-  font-size: 1.3rem !important;
+  font-weight: var(--fw-bold) !important;
+  font-size: var(--fs-xl) !important;
 }
 
 .swal2-html-container {
   color: #6B7194 !important;
-  font-size: 0.9rem !important;
+  font-size: var(--fs-base) !important;
 }
 
 .swal2-confirm {
