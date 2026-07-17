@@ -1,6 +1,6 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { StepperOrientation, STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
-import { Component, OnInit, effect } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Validators, FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { MatStepperModule } from '@angular/material/stepper';
@@ -24,13 +24,22 @@ import { SelectCustomerComponent } from '../select-customer/select-customer.comp
       provide: STEPPER_GLOBAL_OPTIONS,
       useValue: { showError: true }
     }
-  ]
-
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class StepperComponent implements OnInit {
+export class StepperComponent {
 
-  cartItems: ProductDataModel[] = []
-  selectedCustomerData!: CustomerDetails
+  // Reactive view of cart items sourced directly from the CartService signal.
+  // Using a computed keeps the stepper in sync automatically without the
+  // previous ngOnInit-based `effect()` call (which was created outside of a
+  // valid injection context and never registered).
+  readonly cartItems = computed<ProductDataModel[]>(() => {
+    const products = this.cartService.getProducts()();
+    return Array.isArray(products) ? [...products] : [];
+  });
+
+  selectedCustomerData!: CustomerDetails;
+
   products = this._formBuilder.group({
     firstCtrl: ['', Validators.required],
   });
@@ -46,16 +55,8 @@ export class StepperComponent implements OnInit {
       .pipe(map(({ matches }) => (matches ? 'horizontal' : 'vertical')));
   }
 
-  ngOnInit(): void {
-    // Watch the Signal for changes
-    effect(() => {
-      const products = this.cartService.getProducts();
-      this.cartItems = Array.isArray(products) ? [...products] : [];
-    });
-  }
-
   setCustomerData(customerData: CustomerDetails) {
-    this.selectedCustomerData = customerData
+    this.selectedCustomerData = customerData;
   }
 
 }
