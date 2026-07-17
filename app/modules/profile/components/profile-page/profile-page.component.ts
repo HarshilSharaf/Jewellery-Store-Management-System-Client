@@ -1,11 +1,11 @@
-import { AfterViewChecked, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ImageUploadComponent } from '../image-upload/image-upload.component';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { StoreService } from '../../../../../../Backend/Shared/store.service';
 import { UserService } from '../../services/user.service';
-import * as bcrypt from 'bcryptjs'
+import { AuthService } from '../../../../shared/services/Auth/auth.service';
 import Swal from 'sweetalert2';
 import { UtilityService } from 'Backend/Shared/utitlity.service';
 import { FileSystemService } from '../../../../../../Backend/Shared/file-system.service';
@@ -21,44 +21,32 @@ import { PageHeaderComponent } from '../../../../shared/components/page-header/p
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, ImageUploadComponent, PageHeaderComponent]
 })
-export class ProfilePageComponent
-  implements OnInit, OnDestroy, AfterViewChecked
-{
+export class ProfilePageComponent implements OnInit {
   thumbnail: any;
   public isLoading: boolean = false;
   @ViewChild(ImageUploadComponent) imageUploadComponent!: ImageUploadComponent;
-  protected userCurrentImage: any;
+  protected get userCurrentImage(): any { return this.imageUploadComponent?.userPhoto; }
   protected initialUserImageSrc: any;
   userDetailsForm!: FormGroup;
   userDetailsFormInitialValues: any;
   private userID!: number;
-  private saltRounds = 10;
-  private salt: any;
 
   constructor(
-    private changeRef: ChangeDetectorRef,
     private loaderService: NgxUiLoaderService,
     private formBuilder: FormBuilder,
     private storeService: StoreService,
     private userService: UserService,
+    private authService: AuthService,
     private fileSystemService: FileSystemService,
     private loggerService: LoggerService,
     private utilityService:  UtilityService
   ) {}
-
-  ngAfterViewChecked(): void {
-    this.userCurrentImage = this.imageUploadComponent.userPhoto;
-    this.changeRef.detectChanges();
-  }
 
   ngOnInit(): void {
     this.storeService.get('authData').then((data: any) => {
       this.userID = Number(data.uid);
       this.getUserDetails();
       this.getUserImage();
-      bcrypt.genSalt().then((salt: any) => {
-        this.salt = salt;
-      });
     });
   }
 
@@ -91,14 +79,14 @@ export class ProfilePageComponent
       });
   }
 
-  updateUserDetails() {
+  async updateUserDetails() {
     this.loggerService.LogInfo("updateUserDetails() Request Started.")
 
     this.loaderService.start();
     const userDetails = { ...this.userDetailsForm.value };
     if (userDetails.password !== '') {
-      //hash password before storing to database
-      userDetails.password = bcrypt.hashSync(userDetails.password, this.salt);
+      // Hash password in the Electron main process; renderer never sees bcrypt.
+      userDetails.password = await this.authService.hashPassword(userDetails.password);
     } else {
       userDetails.password = null;
     }
@@ -246,9 +234,5 @@ export class ProfilePageComponent
 
   clearImage() {
     this.imageUploadComponent.imageSrc = this.initialUserImageSrc ?? '';
-  }
-
-  ngOnDestroy(): void {
-    // No subscriptions to unsubscribe from
   }
 }

@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
@@ -36,6 +37,7 @@ export class OrderDetailsComponent implements OnInit {
   totalPaymentRecieved = 0
   imageLoaded = false
   isLoading = false;
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(
     private route: ActivatedRoute,
@@ -45,14 +47,13 @@ export class OrderDetailsComponent implements OnInit {
     private loaderService: NgxUiLoaderService,
     private loggerService: LoggerService,
     private utilityService: UtilityService
-  ) {
-    this.route.params.subscribe((params) => {
-      this.orderGuid = params['orderGuid'];
-    });
-  }
+  ) {}
 
   ngOnInit(): void {
-    this.getOrderDetails()
+    this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
+      this.orderGuid = params['orderGuid'];
+      this.getOrderDetails();
+    });
   }
 
   printInvoice() {

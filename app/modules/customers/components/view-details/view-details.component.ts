@@ -1,4 +1,5 @@
-import { AfterViewChecked, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, DestroyRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
@@ -27,14 +28,15 @@ import { PageHeaderComponent } from '../../../../shared/components/page-header/p
   imports: [CommonModule, ReactiveFormsModule, ImageUploadComponent, DataTableComponent, PageHeaderComponent],
   providers: [DecimalPipe]
 })
-export class ViewDetailsComponent implements OnInit, OnDestroy, AfterViewChecked {
+export class ViewDetailsComponent implements OnInit, OnDestroy {
 
   thumbnail: any;
   public isLoading: boolean = false;
   private customerGuid: string = ''
   @ViewChild(ImageUploadComponent) imageUploadComponent!: ImageUploadComponent
-  protected customerCurrentImage: any
+  protected get customerCurrentImage(): any { return this.imageUploadComponent?.customerPhoto; }
   protected initialCustomerImageSrc: any
+  private readonly destroyRef = inject(DestroyRef);
   customerDetailsForm!: FormGroup;
   customerDetailsFormInitialValues: any
   totalAmount = 0
@@ -100,7 +102,6 @@ export class ViewDetailsComponent implements OnInit, OnDestroy, AfterViewChecked
   constructor(private customerDataService: CustomerDataService,
     private route: ActivatedRoute,
     private sanitizer: DomSanitizer,
-    private changeRef: ChangeDetectorRef,
     private formBuilder: FormBuilder,
     private fileSystemService: FileSystemService,
     private loaderService:NgxUiLoaderService,
@@ -109,22 +110,16 @@ export class ViewDetailsComponent implements OnInit, OnDestroy, AfterViewChecked
     private router: Router,
     private decimalPipe: DecimalPipe,
     private utilityService: UtilityService
-    ) {
-    this.route.params.subscribe(params => {
-      this.customerGuid = params['customerGuid']
-    })
-    this.getCustomerDetails();
-    this.getCustomerOrders();
-  }
-
-  ngAfterViewChecked(): void {
-    this.customerCurrentImage = this.imageUploadComponent.customerPhoto
-    this.changeRef.detectChanges()
-  }
+    ) {}
 
   ngOnInit(): void {
-    this.getCustomerImage();
-    this.getTotalAmountOfProductsBoughtForCustomer();
+    this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
+      this.customerGuid = params['customerGuid'];
+      this.getCustomerDetails();
+      this.getCustomerOrders();
+      this.getCustomerImage();
+      this.getTotalAmountOfProductsBoughtForCustomer();
+    });
   }
 
   populateCustomerDetailsForm(customerDetails: CustomerDetails) {
@@ -190,7 +185,6 @@ export class ViewDetailsComponent implements OnInit, OnDestroy, AfterViewChecked
       this.loaderService.stop()
       this.loggerService.LogInfo("getCustomerDetails() Request Completed From view-customer-details component.")
     } catch (error) {
-      console.log("ERROR TO GET Customer Details:", error)
       this.loggerService.LogError(error, "getCustomerDetails() from view-customer-details component")
       this.loaderService.stop()
     }
@@ -222,7 +216,6 @@ export class ViewDetailsComponent implements OnInit, OnDestroy, AfterViewChecked
     } catch (error) {
       this.loaderService.stop()
       this.loggerService.LogError(error, "updateCustomerImage()")
-      console.log("Error from updateCustomerImage():", error)
       Swal.fire({
         icon: 'error',
         title: 'Failed to update Image!!',

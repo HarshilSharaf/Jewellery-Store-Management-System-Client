@@ -83,6 +83,15 @@ export class AuthService {
     });
   }
 
+  /**
+   * Hash a plaintext password in the Electron main process.
+   * Renderer never sees bcryptjs directly. Delegates to the same IPC
+   * channel bridge used by login() for hash comparison.
+   */
+  public async hashPassword(plaintext: string): Promise<string> {
+    return await this.electronAPI.auth.generateHash(plaintext);
+  }
+
   public async logout() {
     this.loggerService.LogInfo('logout() Request Started.');
     try {

@@ -1,9 +1,9 @@
-import { AfterViewChecked, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, DestroyRef, OnInit, ViewChild, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
-import { Subscription } from 'rxjs';
 import { FileSystemService } from '../../../../../../Backend/Shared/file-system.service';
 import Swal from 'sweetalert2';
 import { AvailableProductsService } from '../available-products/services/available-products.service';
@@ -22,7 +22,7 @@ import { ProductDetailsFormComponent } from '../product-details-form/product-det
   standalone: true,
   imports: [CommonModule, ProductImageUploadComponent, PageHeaderComponent, ProductDetailsFormComponent]
 })
-export class ViewProductDetailsComponent implements OnInit,OnDestroy, AfterViewChecked {
+export class ViewProductDetailsComponent implements OnInit {
 
   thumbnail: any;
   public isLoading: boolean = false;
@@ -30,37 +30,25 @@ export class ViewProductDetailsComponent implements OnInit,OnDestroy, AfterViewC
   allCategoriesData!:AllCategoriesModel
   productDetails!:ProductDataModel
   @ViewChild(ProductImageUploadComponent) imageUploadComponent!: ProductImageUploadComponent
-  private getImageSubscription: Subscription = new Subscription
-  private updateImageSubscription: Subscription = new Subscription
-  private getAllCategoriesSubscription: Subscription = new Subscription
-  private getProductDetailsSubscription: Subscription = new Subscription
-  protected productCurrentImage: any
+  protected get productCurrentImage(): any { return this.imageUploadComponent?.productImage; }
   protected initialProductImageSrc: any
-
-
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(private ProductService: AvailableProductsService,
     private route: ActivatedRoute,
     private sanitizer: DomSanitizer,
-    private changeRef: ChangeDetectorRef,
     private fileSystemService:FileSystemService,
     private loaderService:NgxUiLoaderService,
     private loggerService: LoggerService,
-    private utilityService: UtilityService) {
-      this.route.params.subscribe(params => {
-        this.productGuid= params['productGuid']
-      })
-     }
-
-  ngAfterViewChecked(): void {
-  this.productCurrentImage = this.imageUploadComponent.productImage
-  this.changeRef.detectChanges()
-  }
+    private utilityService: UtilityService) {}
 
   ngOnInit(): void {
-    this.getAllCategoriesData()
-    this.getProductDetails()
-    this.getProductImage()
+    this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
+      this.productGuid = params['productGuid'];
+      this.getAllCategoriesData();
+      this.getProductDetails();
+      this.getProductImage();
+    });
   }
 
   clearImage() {
@@ -188,7 +176,6 @@ export class ViewProductDetailsComponent implements OnInit,OnDestroy, AfterViewC
       })
       .catch((error: any) => {
         this.loggerService.LogError(error, "getAllCategoriesData() From view-product-details component")
-        console.log("Error from getAllCategoriesData():",error)
       })
   }
 
