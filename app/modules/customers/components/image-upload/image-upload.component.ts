@@ -1,5 +1,7 @@
 import { Component, Input } from '@angular/core';
 import Swal from 'sweetalert2';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideCloudUpload } from '@ng-icons/lucide';
 
 
 @Component({
@@ -7,7 +9,8 @@ import Swal from 'sweetalert2';
   templateUrl: './image-upload.component.html',
   styleUrls: ['./image-upload.component.scss'],
   standalone: true,
-  imports: []
+  imports: [NgIcon],
+  viewProviders: [provideIcons({ lucideCloudUpload })],
 })
 export class ImageUploadComponent {
 

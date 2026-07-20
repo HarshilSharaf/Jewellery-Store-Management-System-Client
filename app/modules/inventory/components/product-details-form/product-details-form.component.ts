@@ -8,13 +8,16 @@ import { AllCategoriesModel } from '../../../categories/models/categories-model'
 import { ProductDataModel } from '../../../orders/models/product-data-model';
 import { PuritiesService } from '../../../../shared/services/Purities/purities.service';
 import { Purity } from '../../../../interfaces/Shared/purity';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideLoader, lucideSave, lucideRotateCcw } from '@ng-icons/lucide';
 
 @Component({
   selector: 'app-product-details-form',
   templateUrl: './product-details-form.component.html',
   styleUrls: ['./product-details-form.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule]
+  imports: [CommonModule, ReactiveFormsModule, NgIcon],
+  viewProviders: [provideIcons({ lucideLoader, lucideSave, lucideRotateCcw })],
 })
 export class ProductDetailsFormComponent implements OnInit, OnChanges {
 

@@ -4,13 +4,16 @@ import { CommonModule } from '@angular/common';
 import { HttpResponse } from '../../../../../../models/http-response';
 import { SubCategoryService } from '../../services/sub-category.service';
 import { LoggerService } from '../../../../../../../../Backend/Shared/logger.service';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucidePlus } from '@ng-icons/lucide';
 
 @Component({
   selector: 'app-add-sub-category-form',
   templateUrl: './add-sub-category-form.component.html',
   styleUrls: ['./add-sub-category-form.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule]
+  imports: [CommonModule, ReactiveFormsModule, NgIcon],
+  viewProviders: [provideIcons({ lucidePlus })],
 })
 export class AddSubCategoryFormComponent implements OnInit,OnDestroy {
   public addSubCategoryResponse: HttpResponse = { status: 0, message: '' }

@@ -18,6 +18,17 @@ import { TotalCustomersModel } from '../../models/total-customers-model';
 import { TotalStockModel } from '../../models/total-stock-model';
 import { TotalRevenueModel } from '../../models/total-revenue-model';
 
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import {
+  lucideIndianRupee,
+  lucidePackage,
+  lucideUsers,
+  lucideTrendingUp,
+  lucideTrendingDown,
+  lucideChartLine,
+  lucideArrowRight,
+  lucideGem,
+} from '@ng-icons/lucide';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 import { ThemeService } from '../../../../shared/services/theme.service';
 import { MetalRatesService } from '../../../../shared/services/MetalRates/metal-rates.service';
@@ -49,7 +60,19 @@ interface LiveRate {
   templateUrl: './main.component.html',
   styleUrls: ['./main.component.scss'],
   standalone: true,
-  imports: [CommonModule, RouterModule, PageHeaderComponent],
+  imports: [CommonModule, RouterModule, PageHeaderComponent, NgIcon],
+  viewProviders: [
+    provideIcons({
+      lucideIndianRupee,
+      lucidePackage,
+      lucideUsers,
+      lucideTrendingUp,
+      lucideTrendingDown,
+      lucideChartLine,
+      lucideArrowRight,
+      lucideGem,
+    }),
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
@@ -294,7 +317,7 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
         value: this.formatNumber(response[0].total ?? 0),
         sublabel: 'active last 6 months',
         delta: response[0].percent_increase ?? 0,
-        icon: 'fa-users',
+        icon: 'lucideUsers',
         format: 'count',
       };
       this.loggerService.LogInfo('getTotalCustomers() Request Completed.');
@@ -316,7 +339,7 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
         value: this.formatNumber(total),
         sublabel: 'gms of metal',
         delta: response[0].percent_increase ?? 0,
-        icon: 'fa-warehouse',
+        icon: 'lucidePackage',
         format: 'weight',
       };
       this.loggerService.LogInfo('getTotalStock() Request Completed.');
@@ -364,7 +387,7 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
         value: this.formatCurrency(response[0].total ?? 0),
         sublabel: 'trailing 6 months',
         delta: response[0].percent_increase ?? 0,
-        icon: 'fa-indian-rupee-sign',
+        icon: 'lucideIndianRupee',
         format: 'currency',
       };
       this.loggerService.LogInfo('getTotalRevenueInLast6Months() Request Completed.');

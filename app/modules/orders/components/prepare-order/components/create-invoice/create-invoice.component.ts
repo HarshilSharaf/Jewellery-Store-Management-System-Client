@@ -20,13 +20,16 @@ import { CartLineComputed, CartLineInput, CartTotals, MakingMode, TaxSlab } from
 import { MetalRateRow } from '../../../../../../interfaces/Shared/metal-rate';
 import { ShopSettings } from '../../../../../../interfaces/Shared/shop-settings';
 import { SaveOrderPayload } from '../../../../../../interfaces/Orders/orders-service-interface';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideSave } from '@ng-icons/lucide';
 
 @Component({
   selector: 'app-create-invoice',
   templateUrl: './create-invoice.component.html',
   styleUrls: ['./create-invoice.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, NgIcon],
+  viewProviders: [provideIcons({ lucideSave })],
   providers: [DecimalPipe]
 })
 export class CreateInvoiceComponent implements OnInit {

@@ -140,7 +140,7 @@
       <div class="col">
         <button class="btn btn-success" (click)="saveOrder()"
                 [disabled]="!_selectedProductsData.length || !_selectedCustomersInfo || totals.grandTotal <= 0">
-          <i class="fa-solid fa-floppy-disk"></i> Save Invoice
+          <ng-icon name="lucideSave" aria-hidden="true"></ng-icon> Save Invoice
         </button>
       </div>
     </div>

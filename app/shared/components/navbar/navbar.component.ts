@@ -8,13 +8,14 @@ import { UserService } from '../../../modules/profile/services/user.service';
 import { ThemeService } from '../../services/theme.service';
 import { ProfileDropdownComponent } from './profile-dropdown/profile-dropdown.component';
 import { AddToCartComponent } from './add-to-cart/add-to-cart.component';
+import { RatePillComponent } from './rate-pill/rate-pill.component';
 
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss'],
   standalone: true,
-  imports: [ProfileDropdownComponent, AddToCartComponent, NgIcon],
+  imports: [ProfileDropdownComponent, AddToCartComponent, RatePillComponent, NgIcon],
   viewProviders: [provideIcons({ lucideSun, lucideMoon, lucideMenu, lucideSearch })],
 })
 export class NavbarComponent implements OnInit {

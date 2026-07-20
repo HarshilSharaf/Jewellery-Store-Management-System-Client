@@ -10,13 +10,16 @@ import { AllCategoriesModel } from '../../../../../categories/models/categories-
 import { ProductDataModel } from '../../../../../orders/models/product-data-model';
 import { PuritiesService } from '../../../../../../shared/services/Purities/purities.service';
 import { Purity } from '../../../../../../interfaces/Shared/purity';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucidePlus } from '@ng-icons/lucide';
 
 @Component({
   selector: 'app-add-product-form',
   templateUrl: './add-product-form.component.html',
   styleUrls: ['./add-product-form.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ImageUploadComponent]
+  imports: [CommonModule, ReactiveFormsModule, ImageUploadComponent, NgIcon],
+  viewProviders: [provideIcons({ lucidePlus })],
 })
 export class AddProductFormComponent implements OnInit, OnDestroy {
 

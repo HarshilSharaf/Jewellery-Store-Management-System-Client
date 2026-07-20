@@ -1,5 +1,7 @@
 import { Location } from '@angular/common';
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideArrowLeft } from '@ng-icons/lucide';
 
 
 @Component({
@@ -7,7 +9,8 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
   templateUrl: './page-header.component.html',
   styleUrls: ['./page-header.component.scss'],
   standalone: true,
-  imports: [],
+  imports: [NgIcon],
+  viewProviders: [provideIcons({ lucideArrowLeft })],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PageHeaderComponent {

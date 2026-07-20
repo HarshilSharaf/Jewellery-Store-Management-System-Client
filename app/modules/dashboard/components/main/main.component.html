@@ -14,12 +14,12 @@
       <article class="kpi">
         <div class="kpi-top">
           <span class="kpi-label">{{ kpi.label }}</span>
-          <i class="fa-solid" [ngClass]="kpi.icon" aria-hidden="true"></i>
+          <ng-icon [name]="kpi.icon" class="kpi-icon" aria-hidden="true"></ng-icon>
         </div>
         <p class="kpi-value font-serif tabular-nums">{{ kpi.value }}</p>
         <div class="kpi-bottom">
           <span class="delta tabular-nums" [class.delta-up]="kpi.delta >= 0" [class.delta-down]="kpi.delta < 0">
-            <i class="fa-solid" [ngClass]="kpi.delta >= 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down'" aria-hidden="true"></i>
+            <ng-icon [name]="kpi.delta >= 0 ? 'lucideTrendingUp' : 'lucideTrendingDown'" aria-hidden="true"></ng-icon>
             {{ kpi.delta || 0 }}%
           </span>
           <span class="kpi-sublabel">{{ kpi.sublabel }}</span>
@@ -50,7 +50,7 @@
         <canvas #salesLineChart></canvas>
         @if (!monthlySalesAndLabour.length) {
           <div class="chart-empty">
-            <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
+            <ng-icon name="lucideChartLine" aria-hidden="true"></ng-icon>
             <span>No sales yet</span>
           </div>
         }
@@ -111,7 +111,7 @@
           <li class="product-row">
             <span class="product-rank tabular-nums">{{ idx + 1 }}</span>
             <div class="product-thumb" aria-hidden="true">
-              <i class="fa-solid fa-gem"></i>
+              <ng-icon name="lucideGem"></ng-icon>
             </div>
             <div class="product-info">
               <span class="product-name">{{ p.productCategoryName | titlecase }}</span>
@@ -142,7 +142,7 @@
           <h2 class="panel-title">Recent orders</h2>
           <p class="panel-sub">Latest counter activity.</p>
         </div>
-        <a class="link-muted" routerLink="/orders">All orders <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+        <a class="link-muted" routerLink="/orders">All orders <ng-icon name="lucideArrowRight" aria-hidden="true"></ng-icon></a>
       </header>
 
       <div class="table-wrap">

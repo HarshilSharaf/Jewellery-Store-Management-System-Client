@@ -14,13 +14,16 @@ import { AllCategoriesModel } from '../../../categories/models/categories-model'
 import { ProductDataModel } from '../../../orders/models/product-data-model';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 import { ProductDetailsFormComponent } from '../product-details-form/product-details-form.component';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucidePencil, lucideTrash, lucideRotateCcw } from '@ng-icons/lucide';
 
 @Component({
   selector: 'app-view-product-details',
   templateUrl: './view-product-details.component.html',
   styleUrls: ['./view-product-details.component.scss'],
   standalone: true,
-  imports: [CommonModule, ProductImageUploadComponent, PageHeaderComponent, ProductDetailsFormComponent]
+  imports: [CommonModule, ProductImageUploadComponent, PageHeaderComponent, ProductDetailsFormComponent, NgIcon],
+  viewProviders: [provideIcons({ lucidePencil, lucideTrash, lucideRotateCcw })],
 })
 export class ViewProductDetailsComponent implements OnInit {
 

@@ -12,6 +12,8 @@ import { FileSystemService } from '../../../../../../Backend/Shared/file-system.
 import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
 import { UserDetailsModel } from '../../models/user-details-model';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucidePencil, lucideTrash, lucideRotateCcw, lucideSave, lucideLoader } from '@ng-icons/lucide';
 
 
 @Component({
@@ -19,7 +21,8 @@ import { PageHeaderComponent } from '../../../../shared/components/page-header/p
   templateUrl: './profile-page.component.html',
   styleUrls: ['./profile-page.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ImageUploadComponent, PageHeaderComponent]
+  imports: [CommonModule, ReactiveFormsModule, ImageUploadComponent, PageHeaderComponent, NgIcon],
+  viewProviders: [provideIcons({ lucidePencil, lucideTrash, lucideRotateCcw, lucideSave, lucideLoader })],
 })
 export class ProfilePageComponent implements OnInit {
   thumbnail: any;

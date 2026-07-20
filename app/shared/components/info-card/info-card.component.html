@@ -10,14 +10,14 @@
           @if (cardIconImage) {
             <img class="item-icon" [attr.src]="cardIconImage" alt="">
           } @else if (cardIcon) {
-            <i class="item-icon" [ngClass]="cardIcon" aria-hidden="true"></i>
+            <ng-icon [name]="cardIcon" class="item-icon" aria-hidden="true"></ng-icon>
           }
         </div>
       </div>
     </div>
     <p class="mt-3 mb-0 text-muted text-sm">
-      <span class="mr-2" [ngClass]="percentageIncrease >= 0 ? 'text-success' : 'text-danger'"><i class="fa-solid"
-      [ngClass]="percentageIncrease >= 0 ? 'fa-arrow-up' : 'fa-arrow-down'"></i> {{percentageIncrease || 0}}%</span>
+      <span class="mr-2" [ngClass]="percentageIncrease >= 0 ? 'text-success' : 'text-danger'"><ng-icon
+      [name]="percentageIncrease >= 0 ? 'lucideArrowUp' : 'lucideArrowDown'" aria-hidden="true"></ng-icon> {{percentageIncrease || 0}}%</span>
       <span class="text-nowrap"> {{monthsString}}</span>
     </p>
   </div>

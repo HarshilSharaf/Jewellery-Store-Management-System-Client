@@ -1,27 +1,21 @@
 <app-page-header [pageName]="'Orders'"></app-page-header>
 
-<div class="row mb-2 mx-1">
-    <div class="col">
-        <a routerLink="prepare-order">
-            <button class="btn btn-success float-end">
-                <i class="fa-solid fa-cart-plus"></i>
-                <span> Prepare an order</span>
-            </button>
-        </a>
-    </div>
+<div class="orders-toolbar">
+    <a routerLink="prepare-order" class="hlm-btn hlm-btn-primary">
+        <ng-icon name="lucideShoppingCart" aria-hidden="true"></ng-icon>
+        <span>Prepare an order</span>
+    </a>
 </div>
 
-<div class="row">
-    <div class="col">
-        <app-data-table [COLUMNS_SCHEMA]="displayNameForColumns" [tableColumns]="tableColumns"
-            (viewDetails)="goToViewDetails($event)" (deleteItem)="openDeletePopUpForItem($event)"
-            [tableData]="ordersData" (refreshDataSource)="getAllOrders()"
-            [entityText]="'Orders'"
-            [sortByColumn]="'orderDate'"
-            [totalRecords]="totalRecords"
-            (searchQuery)="handleSearchQuery($event)"
-            (pageChangeEvent)="handlePageChange($event)"
-            [isLoading]="isLoading"
-            ></app-data-table>
-    </div>
+<div class="orders-table-wrap">
+    <app-data-table [COLUMNS_SCHEMA]="displayNameForColumns" [tableColumns]="tableColumns"
+        (viewDetails)="goToViewDetails($event)" (deleteItem)="openDeletePopUpForItem($event)"
+        [tableData]="ordersData" (refreshDataSource)="getAllOrders()"
+        [entityText]="'Orders'"
+        [sortByColumn]="'orderDate'"
+        [totalRecords]="totalRecords"
+        (searchQuery)="handleSearchQuery($event)"
+        (pageChangeEvent)="handlePageChange($event)"
+        [isLoading]="isLoading"
+        ></app-data-table>
 </div>

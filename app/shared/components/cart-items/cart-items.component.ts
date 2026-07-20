@@ -1,4 +1,6 @@
 import { Component, OnInit, computed } from '@angular/core';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideCircleMinus } from '@ng-icons/lucide';
 
 import { CartService } from '../../services/cart.service';
 
@@ -7,7 +9,8 @@ import { CartService } from '../../services/cart.service';
   templateUrl: './cart-items.component.html',
   styleUrls: ['./cart-items.component.scss'],
   standalone: true,
-  imports: []
+  imports: [NgIcon],
+  viewProviders: [provideIcons({ lucideCircleMinus })],
 })
 export class CartItemsComponent implements OnInit {
 

@@ -18,19 +18,19 @@
                                     <button [ngClass]="{'disabled': productCurrentImage == null || productCurrentImage == undefined || 
                                     imageUploadComponent.imageSrc == initialProductImageSrc}"
                     class="btn btn-success mt-3" type="button" (click)="updateProductImage()">
-                    <i class="fa-solid fa-pen-to-square"></i> Update
+                    <ng-icon name="lucidePencil" aria-hidden="true"></ng-icon> Update
                   </button>
                 </div>
                 <div class="col">
                   <button class="btn btn-danger mt-3" type="button" (click)="deleteProductImage()"
                     [ngClass]="{'disabled': initialProductImageSrc == '' || initialProductImageSrc == null}">
-                    <i class="fa-solid fa-trash"></i> Delete
+                    <ng-icon name="lucideTrash" aria-hidden="true"></ng-icon> Delete
                   </button>
 
                 </div>
                 <div class="col">
                   <button type="button" class="btn btn-outline-dark mt-3" (click)="clearImage()">
-                    <i class="fa-solid fa-rotate-left"></i> Reset
+                    <ng-icon name="lucideRotateCcw" aria-hidden="true"></ng-icon> Reset
                   </button>
 
                 </div>

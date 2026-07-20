@@ -4,13 +4,16 @@ import { CommonModule } from '@angular/common';
 import { HttpResponse } from '../../../../../../models/http-response';
 import { MasterCategoryService } from '../../services/master-category.service';
 import { LoggerService } from '../../../../../../../../Backend/Shared/logger.service';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucidePlus } from '@ng-icons/lucide';
 
 @Component({
   selector: 'app-add-master-category-form',
   templateUrl: './add-master-category-form.component.html',
   styleUrls: ['./add-master-category-form.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule]
+  imports: [CommonModule, ReactiveFormsModule, NgIcon],
+  viewProviders: [provideIcons({ lucidePlus })],
 })
 export class AddMasterCategoryFormComponent implements OnInit, OnDestroy {
 

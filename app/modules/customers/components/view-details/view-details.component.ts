@@ -19,13 +19,23 @@ import { DeleteCustomerImageModel, UpdateCustomerImageModel } from '../../models
 import { OrderService } from '../../../orders/services/order.service';
 import { DataTableComponent } from '../../../../shared/components/data-table/data-table.component';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import {
+  lucidePencil,
+  lucideTrash,
+  lucideRotateCcw,
+  lucideSave,
+  lucideLoader,
+  lucideUser,
+} from '@ng-icons/lucide';
 
 @Component({
   selector: 'app-view-details',
   templateUrl: './view-details.component.html',
   styleUrls: ['./view-details.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ImageUploadComponent, DataTableComponent, PageHeaderComponent],
+  imports: [CommonModule, ReactiveFormsModule, ImageUploadComponent, DataTableComponent, PageHeaderComponent, NgIcon],
+  viewProviders: [provideIcons({ lucidePencil, lucideTrash, lucideRotateCcw, lucideSave, lucideLoader, lucideUser })],
   providers: [DecimalPipe]
 })
 export class ViewDetailsComponent implements OnInit, OnDestroy {

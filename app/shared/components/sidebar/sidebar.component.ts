@@ -1,6 +1,16 @@
 import { Component, OnInit, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import {
+  lucideLayoutDashboard,
+  lucideShoppingCart,
+  lucideUsers,
+  lucidePackage,
+  lucideTags,
+  lucideSettings,
+  lucideLogOut,
+} from '@ng-icons/lucide';
 import { AuthService } from '../../services/Auth/auth.service';
 import { StoreService } from '../../../../../Backend/Shared/store.service';
 import { UserService } from '../../../modules/profile/services/user.service';
@@ -13,7 +23,18 @@ import { LoggerService } from '../../../../../Backend/Shared/logger.service';
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.scss'],
   standalone: true,
-  imports: [CommonModule, RouterModule]
+  imports: [CommonModule, RouterModule, NgIcon],
+  viewProviders: [
+    provideIcons({
+      lucideLayoutDashboard,
+      lucideShoppingCart,
+      lucideUsers,
+      lucidePackage,
+      lucideTags,
+      lucideSettings,
+      lucideLogOut,
+    }),
+  ],
 })
 export class SidebarComponent implements OnInit {
   userData = {
@@ -22,33 +43,13 @@ export class SidebarComponent implements OnInit {
     image: ''
   };
   items = [
-    {
-      title: 'Dashboard',
-      link: '/dashboard',
-      icon: 'fa fa-tv',
-    },
-    {
-      title: 'Orders',
-      link: '/orders',
-      icon: 'fa-solid fa-cash-register fa-lg',
-    },
-    {
-      title: 'Customers',
-      link: '/customers',
-      icon: 'fa fa-users',
-    },
-    {
-      title: 'Categories',
-      link: '/categories',
-      icon: 'fa-solid fa-sitemap',
-    },
-    {
-      title: 'Inventory',
-      link: '/inventory',
-      icon: 'fa-solid fa-warehouse',
-    },
+    { title: 'Dashboard', link: '/dashboard', icon: 'lucideLayoutDashboard' },
+    { title: 'Orders', link: '/orders', icon: 'lucideShoppingCart' },
+    { title: 'Customers', link: '/customers', icon: 'lucideUsers' },
+    { title: 'Categories', link: '/categories', icon: 'lucideTags' },
+    { title: 'Inventory', link: '/inventory', icon: 'lucidePackage' },
   ];
-  
+
   constructor(
     private authService: AuthService,
     private storeService: StoreService,
@@ -57,7 +58,6 @@ export class SidebarComponent implements OnInit {
     private loggerService: LoggerService,
     private utilityService: UtilityService
   ) {
-    // Create effects to watch for Signal changes
     effect(() => {
       this.userData.image = this.userService.userImage();
     });
@@ -85,7 +85,7 @@ export class SidebarComponent implements OnInit {
               this.fileSystemService.userImagesDir +
                 '\\' +
                 data[0].imagePath
-            ); 
+            );
           }
           this.userData.image = imagePath
           this.userService.userImage.set(imagePath);

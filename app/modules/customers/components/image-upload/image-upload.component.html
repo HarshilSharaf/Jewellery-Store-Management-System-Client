@@ -4,9 +4,9 @@
     [style.outlineColor]="dragging ? activeColor : baseColor" (dragenter)="handleDragEnter()"
     (dragleave)="handleDragLeave()" (drop)="handleDrop($event)">
 
-    <i class="icon icon-upload fa-solid fa-cloud-arrow-up" [style.color]="dragging 
+    <ng-icon name="lucideCloudUpload" class="icon icon-upload" [style.color]="dragging
         ? ((imageSrc.length > 0) ? overlayColor : activeColor)
-        : ((imageSrc.length > 0) ? overlayColor : baseColor)"></i>
+        : ((imageSrc.length > 0) ? overlayColor : baseColor)"></ng-icon>
     <img [src]="imageSrc" (load)="handleImageLoad()" [class.loaded]="imageLoaded" />
 
     <input type="file" name="customerPhoto" accept="image/*" (change)="handleInputChange($event)">

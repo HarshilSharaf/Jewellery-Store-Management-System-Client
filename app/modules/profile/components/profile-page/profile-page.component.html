@@ -20,19 +20,19 @@
                                     <button [ngClass]="{'disabled': userCurrentImage == null || userCurrentImage == undefined || 
                                     imageUploadComponent.imageSrc == initialUserImageSrc}" class="btn btn-success mt-3"
                     type="button" (click)="updateUserImage()">
-                    <i class="fa-solid fa-pen-to-square"></i> Update
+                    <ng-icon name="lucidePencil" aria-hidden="true"></ng-icon> Update
                   </button>
                 </div>
                 <div class="col">
                   <button class="btn btn-danger mt-3" type="button" (click)="deleteUserImage()"
                     [ngClass]="{'disabled': initialUserImageSrc == '' || initialUserImageSrc == null}">
-                    <i class="fa-solid fa-trash"></i> Delete
+                    <ng-icon name="lucideTrash" aria-hidden="true"></ng-icon> Delete
                   </button>
 
                 </div>
                 <div class="col">
                   <button type="button" class="btn btn-outline-dark mt-3" (click)="clearImage()">
-                    <i class="fa-solid fa-rotate-left"></i> Reset
+                    <ng-icon name="lucideRotateCcw" aria-hidden="true"></ng-icon> Reset
                   </button>
 
                 </div>
@@ -95,19 +95,19 @@
                                     !userDetailsForm.valid}" type="submit">
                           @if (isLoading) {
                             <div>
-                              <i class="fa fa-spinner fa-spin"></i>
+                              <ng-icon name="lucideLoader" class="animate-spin" aria-hidden="true"></ng-icon>
                             </div>
                           }
                           @if (!isLoading) {
                             <div>
-                              <i class="fa-solid fa-floppy-disk"></i> Save changes
+                              <ng-icon name="lucideSave" aria-hidden="true"></ng-icon> Save changes
                             </div>
                           }
                         </button>
                         <button class="btn btn-danger mx-4 mt-xs-2 mt-md-0"
                           [ngClass]="{'disabled': !userDetailsForm.dirty}" type="button"
                           (click)="resetForm()">
-                          <i class="fa-solid fa-rotate-left"></i> Reset
+                          <ng-icon name="lucideRotateCcw" aria-hidden="true"></ng-icon> Reset
                         </button>
                       </div>
                     </div>

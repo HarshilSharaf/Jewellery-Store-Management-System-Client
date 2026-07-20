@@ -7,6 +7,8 @@ import { OrderService } from '../../services/order.service';
 import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
 import Swal from 'sweetalert2';
 import { Router, RouterLink} from '@angular/router';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideShoppingCart } from '@ng-icons/lucide';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 import { DataTableComponent } from '../../../../shared/components/data-table/data-table.component';
 
@@ -15,7 +17,8 @@ import { DataTableComponent } from '../../../../shared/components/data-table/dat
   templateUrl: './orders-page.component.html',
   styleUrls: ['./orders-page.component.scss'],
   standalone: true,
-  imports: [PageHeaderComponent, DataTableComponent, RouterLink],
+  imports: [PageHeaderComponent, DataTableComponent, RouterLink, NgIcon],
+  viewProviders: [provideIcons({ lucideShoppingCart })],
   providers: [DecimalPipe]
 })
 export class OrdersPageComponent implements OnInit, OnDestroy {

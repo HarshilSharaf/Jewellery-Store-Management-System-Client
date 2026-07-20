@@ -7,13 +7,16 @@ import { PaymentsDataModel, PaymentType } from '../../models/payments-data-model
 import { OrderService } from '../../services/order.service';
 import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
 import { SkeletonLoaderComponent } from '../../../../shared/components/skeleton-loader/skeleton-loader.component';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideIndianRupee } from '@ng-icons/lucide';
 
 @Component({
   selector: 'app-order-payments',
   templateUrl: './order-payments.component.html',
   styleUrls: ['./order-payments.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, SkeletonLoaderComponent]
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, SkeletonLoaderComponent, NgIcon],
+  viewProviders: [provideIcons({ lucideIndianRupee })],
 })
 export class OrderPaymentsComponent implements OnInit {
 

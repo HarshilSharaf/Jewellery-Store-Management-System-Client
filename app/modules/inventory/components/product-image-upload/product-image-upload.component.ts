@@ -1,4 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideCloudUpload } from '@ng-icons/lucide';
 
 
 @Component({
@@ -6,7 +8,8 @@ import { Component, Input, OnInit } from '@angular/core';
   templateUrl: './product-image-upload.component.html',
   styleUrls: ['./product-image-upload.component.scss'],
   standalone: true,
-  imports: []
+  imports: [NgIcon],
+  viewProviders: [provideIcons({ lucideCloudUpload })],
 })
 export class ProductImageUploadComponent implements OnInit {
 

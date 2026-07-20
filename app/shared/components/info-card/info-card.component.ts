@@ -1,12 +1,15 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideArrowUp, lucideArrowDown } from '@ng-icons/lucide';
 
 @Component({
   selector: 'app-info-card',
   templateUrl: './info-card.component.html',
   styleUrls: ['./info-card.component.scss'],
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, NgIcon],
+  viewProviders: [provideIcons({ lucideArrowUp, lucideArrowDown })],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class InfoCardComponent {

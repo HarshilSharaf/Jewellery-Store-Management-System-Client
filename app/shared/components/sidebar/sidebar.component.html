@@ -22,7 +22,7 @@
       @for (item of items; track item.link) {
         <li>
           <a [routerLink]="[item.link]" class="list-item" routerLinkActive="active" title="{{item.title}}">
-            <i [ngClass]="item.icon" aria-hidden="true"></i>
+            <ng-icon [name]="item.icon" class="menu-icon" aria-hidden="true"></ng-icon>
             <span>{{item.title}}</span>
           </a>
         </li>
@@ -33,7 +33,7 @@
 
   <div class="sidebar-footer">
     <button type="button" class="logout-btn" (click)="logout()">
-      <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
+      <ng-icon name="lucideLogOut" class="menu-icon" aria-hidden="true"></ng-icon>
       <span>Logout</span>
     </button>
   </div>

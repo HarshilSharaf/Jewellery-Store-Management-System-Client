@@ -17,6 +17,8 @@ import { OrderProductsDetailsComponent } from '../order-products-details/order-p
 import { OrderPaymentsComponent } from '../order-payments/order-payments.component';
 import { PrintInvoiceComponent } from '../print-invoice/print-invoice.component';
 import { NgxPrintModule } from 'ngx-print';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucidePrinter } from '@ng-icons/lucide';
 
 
 @Component({
@@ -24,7 +26,8 @@ import { NgxPrintModule } from 'ngx-print';
   templateUrl: './order-details.component.html',
   styleUrls: ['./order-details.component.scss'],
   standalone: true,
-  imports: [CommonModule, PageHeaderComponent, OrderProductsDetailsComponent, OrderPaymentsComponent, PrintInvoiceComponent, NgxPrintModule]
+  imports: [CommonModule, PageHeaderComponent, OrderProductsDetailsComponent, OrderPaymentsComponent, PrintInvoiceComponent, NgxPrintModule, NgIcon],
+  viewProviders: [provideIcons({ lucidePrinter })],
 })
 export class OrderDetailsComponent implements OnInit {
 

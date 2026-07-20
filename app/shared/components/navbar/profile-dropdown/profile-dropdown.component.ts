@@ -7,6 +7,8 @@ import { UtilityService } from 'Backend/Shared/utitlity.service';
 import { FileSystemService } from '../../../../../../Backend/Shared/file-system.service';
 import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
 import { CommonModule } from '@angular/common';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideUser, lucideSettings, lucidePower } from '@ng-icons/lucide';
 
 
 @Component({
@@ -14,7 +16,8 @@ import { CommonModule } from '@angular/common';
   templateUrl: './profile-dropdown.component.html',
   styleUrls: ['./profile-dropdown.component.scss'],
   standalone: true,
-  imports: [CommonModule]
+  imports: [CommonModule, NgIcon],
+  viewProviders: [provideIcons({ lucideUser, lucideSettings, lucidePower })],
 })
 export class ProfileDropdownComponent implements OnInit {
   userImage = '';
