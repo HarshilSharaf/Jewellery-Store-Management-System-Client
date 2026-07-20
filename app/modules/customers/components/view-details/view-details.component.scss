@@ -33,6 +33,10 @@
     letter-spacing: -0.02em;
     color: var(--color-fg);
     font-weight: 400;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
   }
 
   &__sub {

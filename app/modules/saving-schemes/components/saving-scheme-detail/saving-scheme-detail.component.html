@@ -5,7 +5,7 @@
         <ng-icon name="lucideArrowLeft" size="18" aria-hidden="true"></ng-icon>
       </button>
       <div class="view-header__meta">
-        <h1 class="view-header__name font-serif">{{ s.planName }}</h1>
+        <h1 class="view-header__name font-serif" [title]="s.planName">{{ s.planName }}</h1>
         <div class="view-header__sub">
           <span [class]="statusClass(s.status)">
             @if (s.status === 'active') { Active }

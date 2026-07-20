@@ -5,7 +5,7 @@
         <ng-icon name="lucideArrowLeft" size="18" aria-hidden="true"></ng-icon>
       </button>
       <div class="view-header__meta">
-        <h1 class="view-header__name font-serif">{{ productDetails.productDescription || productDetails.subCategory || productDetails.sku }}</h1>
+        <h1 class="view-header__name font-serif" [title]="productDetails.productDescription || productDetails.subCategory || productDetails.sku">{{ productDetails.productDescription || productDetails.subCategory || productDetails.sku }}</h1>
         <div class="view-header__sub">
           <span class="purity-chip">
             {{ productDetails.purityLabel || productDetails.purityCode }}
@@ -46,7 +46,7 @@
         <section class="product-hero">
           <div class="product-hero__image">
             @if (thumbnail) {
-              <img [src]="thumbnail" [alt]="productDetails.sku" />
+              <img [src]="thumbnail" [alt]="productDetails.sku" loading="lazy" />
             } @else {
               <div class="product-hero__placeholder">
                 <ng-icon name="lucidePackage" size="48" aria-hidden="true"></ng-icon>

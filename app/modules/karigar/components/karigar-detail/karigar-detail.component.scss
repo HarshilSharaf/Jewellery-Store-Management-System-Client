@@ -20,6 +20,7 @@
     display: flex;
     flex-direction: column;
     gap: 4px;
+    min-width: 0;
   }
 
   &__name {
@@ -29,6 +30,10 @@
     line-height: 1.05;
     letter-spacing: -0.02em;
     color: var(--color-fg);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
   }
 
   &__sub {
