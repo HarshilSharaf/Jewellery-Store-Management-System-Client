@@ -33,7 +33,10 @@ import {
   lucideLoader,
   lucideCircleCheck,
   lucideCircleX,
+  lucideDownload,
+  lucideUpload,
 } from '@ng-icons/lucide';
+import { MigrationService } from '../../../../shared/services/Migration/migration.service';
 
 interface StockTile {
   metalName: string;
@@ -65,6 +68,8 @@ type ViewMode = 'grid' | 'table';
       lucideLoader,
       lucideCircleCheck,
       lucideCircleX,
+      lucideDownload,
+      lucideUpload,
     }),
   ],
 })
@@ -91,7 +96,9 @@ export class AvailableProductsComponent implements OnInit, OnDestroy {
   protected isLoading = false;
   protected isAdmin = false;
   protected showAddProductForm = false;
+  protected exportingCsv = false;
   readonly permissions = inject(PermissionsService);
+  private readonly migrationService = inject(MigrationService);
 
   protected selectedPurities = new Set<string>();
   protected selectedMasterCategories = new Set<number>();
@@ -360,6 +367,24 @@ export class AvailableProductsComponent implements OnInit, OnDestroy {
 
   formatGrams(g: number): string {
     return new Intl.NumberFormat('en-IN', { maximumFractionDigits: 1 }).format(g);
+  }
+
+  async exportProductsCsv(): Promise<void> {
+    if (this.exportingCsv) { return; }
+    this.exportingCsv = true;
+    try {
+      await this.migrationService.triggerExportProducts(this.permissions.costsVisible());
+    } catch (error) {
+      this.loggerService.LogError(error, 'exportProductsCsv()');
+      Swal.fire('Export failed', 'Unable to export products.', 'error');
+    } finally {
+      this.exportingCsv = false;
+      this.cdref.detectChanges();
+    }
+  }
+
+  openMigrationImport(): void {
+    this.router.navigate(['/settings'], { queryParams: { tab: 'migration' } });
   }
 
   showEmptyState(): boolean {

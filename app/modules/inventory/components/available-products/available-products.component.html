@@ -5,10 +5,20 @@
       <span class="page-title__count">({{ totalRecords }} product{{ totalRecords === 1 ? '' : 's' }})</span>
     }
   </div>
-  <button type="button" class="hlm-btn hlm-btn-primary" (click)="openAddProductForm()">
-    <ng-icon name="lucidePlus" size="16" aria-hidden="true"></ng-icon>
-    <span>Add product</span>
-  </button>
+  <div class="page-title__actions">
+    <button type="button" class="hlm-btn hlm-btn-ghost" (click)="openMigrationImport()">
+      <ng-icon name="lucideUpload" size="14" aria-hidden="true"></ng-icon>
+      <span>Import CSV</span>
+    </button>
+    <button type="button" class="hlm-btn hlm-btn-ghost" (click)="exportProductsCsv()" [disabled]="exportingCsv">
+      <ng-icon name="lucideDownload" size="14" aria-hidden="true"></ng-icon>
+      <span>{{ exportingCsv ? 'Exporting...' : 'Export CSV' }}</span>
+    </button>
+    <button type="button" class="hlm-btn hlm-btn-primary" (click)="openAddProductForm()">
+      <ng-icon name="lucidePlus" size="16" aria-hidden="true"></ng-icon>
+      <span>Add product</span>
+    </button>
+  </div>
 </div>
 
 @if (stockTiles.length > 0) {

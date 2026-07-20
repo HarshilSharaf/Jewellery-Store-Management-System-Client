@@ -15,7 +15,10 @@ import {
   lucideTrash2,
   lucideExternalLink,
   lucideLoader,
+  lucideDownload,
+  lucideUpload,
 } from '@ng-icons/lucide';
+import { MigrationService } from '../../../../shared/services/Migration/migration.service';
 import { CustomerDetails } from '../../models/customerDetails';
 import { CustomerDataService } from '../../services/customer-data.service';
 import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
@@ -47,6 +50,8 @@ import {
       lucideTrash2,
       lucideExternalLink,
       lucideLoader,
+      lucideDownload,
+      lucideUpload,
     }),
   ],
 })
@@ -60,7 +65,9 @@ export class CustomersPageComponent implements OnInit, OnDestroy {
   protected isLoading = false;
 
   protected showAddCustomerForm = false;
+  protected exportingCsv = false;
   readonly permissions = inject(PermissionsService);
+  private readonly migrationService = inject(MigrationService);
 
   private debounceTimer: any;
 
@@ -190,6 +197,24 @@ export class CustomersPageComponent implements OnInit, OnDestroy {
     this.searchQuery = '';
     this.pageIndex = 0;
     this.getAllCustomersData();
+  }
+
+  async exportCustomersCsv(): Promise<void> {
+    if (this.exportingCsv) { return; }
+    this.exportingCsv = true;
+    try {
+      await this.migrationService.triggerExportCustomers();
+    } catch (error) {
+      this.loggerService.LogError(error, 'exportCustomersCsv()');
+      await Swal.fire('Export failed', 'Unable to export customers.', 'error');
+    } finally {
+      this.exportingCsv = false;
+      this.cdref.detectChanges();
+    }
+  }
+
+  openMigrationImport(): void {
+    this.router.navigate(['/settings'], { queryParams: { tab: 'migration' } });
   }
 
   ngOnDestroy(): void {
