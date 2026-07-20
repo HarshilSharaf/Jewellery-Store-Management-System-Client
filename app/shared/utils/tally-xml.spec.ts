@@ -1,4 +1,10 @@
-import { escapeXml, buildDayBookXml, buildSalesRegisterXml } from './tally-xml';
+import {
+  escapeXml,
+  buildDayBookXml,
+  buildSalesRegisterXml,
+  TALLY_STOCK_ITEM,
+  TALLY_CASH_SALES_LEDGER,
+} from './tally-xml';
 import { DayBookRow } from '../../interfaces/Reports/report-day-book';
 import { SalesRegisterRow } from '../../interfaces/Reports/report-sales-register';
 
@@ -25,6 +31,31 @@ describe('buildDayBookXml', () => {
     const xml = buildDayBookXml(rows);
     const voucherCount = (xml.match(/<VOUCHER /g) || []).length;
     expect(voucherCount).toBe(5);
+  });
+
+  it('routes receipt vouchers through Cash Sales party ledger', () => {
+    const rows: DayBookRow[] = [
+      { txDate: '2026-07-20', cash: 1000, cheque: 0, upi: 500, card: 0, online: 0, total: 1500, invoiceCount: 2, totalTaxableValue: 1300 },
+    ];
+    const xml = buildDayBookXml(rows);
+    expect(xml).toContain(`<PARTYLEDGERNAME>${TALLY_CASH_SALES_LEDGER}</PARTYLEDGERNAME>`);
+    // Both cash-bucket and UPI-bucket vouchers must use Cash Sales, not the
+    // payment method, as PARTYLEDGERNAME. Payment method belongs in the
+    // ALLLEDGERENTRIES.LIST rows.
+    expect(xml).not.toContain('<PARTYLEDGERNAME>Cash</PARTYLEDGERNAME>');
+    expect(xml).not.toContain('<PARTYLEDGERNAME>UPI Suspense</PARTYLEDGERNAME>');
+  });
+
+  it('emits a <GUID> tag on every receipt voucher', () => {
+    const rows: DayBookRow[] = [
+      { txDate: '2026-07-20', cash: 1000, cheque: 0, upi: 500, card: 0, online: 0, total: 1500, invoiceCount: 2, totalTaxableValue: 1300 },
+    ];
+    const xml = buildDayBookXml(rows);
+    const voucherCount = (xml.match(/<VOUCHER /g) || []).length;
+    const guidCount = (xml.match(/<GUID>/g) || []).length;
+    expect(guidCount).toBe(voucherCount);
+    expect(xml).toContain('<GUID>tally-receipt-20260720-cash</GUID>');
+    expect(xml).toContain('<GUID>tally-receipt-20260720-upi-suspense</GUID>');
   });
 });
 
@@ -69,5 +100,33 @@ describe('buildSalesRegisterXml', () => {
     expect(xml).toContain('<AMOUNT>10000.00</AMOUNT>');
     expect(xml).toContain('<AMOUNT>-10300.00</AMOUNT>');
     expect(xml).toContain('<AMOUNT>150.00</AMOUNT>');
+  });
+
+  it('uses "Jewellery — Composite" as the stock item name', () => {
+    const xml = buildSalesRegisterXml([salesRow]);
+    expect(xml).toContain(`<STOCKITEMNAME>${TALLY_STOCK_ITEM}</STOCKITEMNAME>`);
+    // Synthetic identifiers like "HSN 7113 - B2B" caused Tally to reject.
+    expect(xml).not.toContain('HSN 7113 - B2B');
+  });
+
+  it('emits a <GUID> tag on every sales voucher', () => {
+    const xml = buildSalesRegisterXml([salesRow, { ...salesRow, id: 2, invoiceNumber: 'INV/002' }]);
+    const voucherCount = (xml.match(/<VOUCHER /g) || []).length;
+    const guidCount = (xml.match(/<GUID>/g) || []).length;
+    expect(guidCount).toBe(voucherCount);
+    expect(xml).toContain('<GUID>tally-sales-inv-001</GUID>');
+    expect(xml).toContain('<GUID>tally-sales-inv-002</GUID>');
+  });
+
+  it('falls back to Cash Sales when customerName is null', () => {
+    const xml = buildSalesRegisterXml([
+      { ...salesRow, customerName: null as unknown as string, customerGstin: null },
+    ]);
+    expect(xml).toContain(`<PARTYNAME>${TALLY_CASH_SALES_LEDGER}</PARTYNAME>`);
+    expect(xml).toContain(`<PARTYLEDGERNAME>${TALLY_CASH_SALES_LEDGER}</PARTYLEDGERNAME>`);
+    expect(xml).not.toContain('<PARTYNAME></PARTYNAME>');
+    // No customerGstin → PARTYGSTIN tag is omitted entirely, not left empty.
+    expect(xml).not.toContain('<PARTYGSTIN>');
+    expect(xml).not.toContain('<PARTYGSTIN></PARTYGSTIN>');
   });
 });
