@@ -1,35 +1,22 @@
-import { ErrorHandler, Injectable } from '@angular/core';
-import type SwalT from 'sweetalert2';
+import { ErrorHandler, Injectable, inject } from '@angular/core';
 import { LoggerService } from '../../../../Backend/Shared/logger.service';
+import { AppToastService } from './AppToast/app-toast.service';
 
 @Injectable()
 export class GlobalErrorHandlerService implements ErrorHandler {
-  private toast: ReturnType<typeof SwalT.mixin> | null = null;
+  private readonly toast = inject(AppToastService);
 
   constructor(private loggerService: LoggerService) {}
 
   handleError(error: any): void {
-    this.showToast().catch(() => { /* silent */ });
+    this.toast.error(
+      'An unexpected error occurred. Please check logs for more details.',
+      undefined,
+      { position: 'bottom-end', timer: 3000 }
+    );
     this.loggerService.LogError(
       `An unexpected error occured: { ${error} }`,
       'GlobalErrorHandler'
     );
-  }
-
-  private async showToast(): Promise<void> {
-    if (!this.toast) {
-      const { default: Swal } = await import('sweetalert2');
-      this.toast = Swal.mixin({
-        toast: true,
-        position: 'bottom-end',
-        showConfirmButton: false,
-        timer: 3000,
-        timerProgressBar: true,
-      });
-    }
-    await this.toast.fire({
-      icon: 'error',
-      title: 'An unexpected error occurred. Please check logs for more details.',
-    });
   }
 }

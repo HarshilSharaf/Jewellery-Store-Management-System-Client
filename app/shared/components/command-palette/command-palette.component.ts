@@ -42,6 +42,7 @@ import {
 } from '@ng-icons/lucide';
 import { CommandAction, CommandPaletteService, SubPaletteId } from './command-palette.service';
 import { ThemeService } from '../../services/theme.service';
+import { AppToastService, ToastVariant } from '../../services/AppToast/app-toast.service';
 import { CustomerDataService } from '../../../modules/customers/services/customer-data.service';
 import { OrderService } from '../../../modules/orders/services/order.service';
 import { SavingSchemesService } from '../../services/SavingSchemes/saving-schemes.service';
@@ -123,6 +124,7 @@ export class CommandPaletteComponent implements OnInit, AfterViewInit {
   private readonly metalRates = inject(MetalRatesService);
   private readonly purities = inject(PuritiesService);
   private readonly storeService = inject(StoreService);
+  private readonly appToast = inject(AppToastService);
   readonly palette = inject(CommandPaletteService);
 
   readonly query = signal<string>('');
@@ -597,17 +599,8 @@ export class CommandPaletteComponent implements OnInit, AfterViewInit {
     return 500 + firstMatchIdx;
   }
 
-  private toast(icon: 'success' | 'warning' | 'info' | 'error', title: string): void {
-    void import('sweetalert2').then(({ default: Swal }) => {
-      Swal.fire({
-        toast: true,
-        position: 'top-end',
-        icon,
-        title,
-        showConfirmButton: false,
-        timer: icon === 'error' ? 3600 : 2400,
-      });
-    });
+  private toast(icon: ToastVariant, title: string): void {
+    this.appToast.show({ variant: icon, title, position: 'top-end', timer: icon === 'error' ? 3600 : 2400 });
   }
 
   private errText(err: unknown): string {
