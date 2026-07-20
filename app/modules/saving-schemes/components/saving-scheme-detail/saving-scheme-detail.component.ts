@@ -3,7 +3,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import Swal from 'sweetalert2';
+import { AppDialogService } from '../../../../shared/services/AppDialog/app-dialog.service';
+import { AppToastService } from '../../../../shared/services/AppToast/app-toast.service';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideArrowLeft,
@@ -77,6 +78,8 @@ export class SavingSchemeDetailComponent implements OnInit {
   private readonly storeService = inject(StoreService);
   private readonly loggerService = inject(LoggerService);
   private readonly fb = inject(FormBuilder);
+  private readonly dialog = inject(AppDialogService);
+  private readonly toast = inject(AppToastService);
 
   private schemeGuid = '';
 
@@ -232,7 +235,7 @@ export class SavingSchemeDetailComponent implements OnInit {
       this.saving.set(false);
       this.showRecord.set(false);
       await this.load();
-      Swal.fire({ title: 'Installment recorded', icon: 'success', timer: 1400, showConfirmButton: false });
+      this.toast.success('Installment recorded', undefined, { timer: 1400 });
     } catch (error) {
       this.saving.set(false);
       const msg = (error as any)?.message ?? String(error);
@@ -245,28 +248,27 @@ export class SavingSchemeDetailComponent implements OnInit {
     if (!this.canForfeit()) return;
     const s = this.scheme();
     if (!s?.schemeGuid) return;
-    const result = await Swal.fire({
-      title: 'Forfeit this scheme?',
+    const reason = await this.dialog.prompt('Forfeit this scheme?', {
       text: 'Bonus is forfeited; only the customer contribution stays on record.',
       icon: 'warning',
-      showCancelButton: true,
+      variant: 'danger',
       input: 'text',
       inputPlaceholder: 'Reason (kept on file)',
       confirmButtonText: 'Yes, forfeit',
     });
-    if (!result.isConfirmed) return;
+    if (reason === null) return;
     try {
       const authData: any = await this.storeService.get('authData');
       await this.schemesService.forfeit({
         schemeGuid: s.schemeGuid,
-        reason: result.value ?? 'No reason recorded',
+        reason: reason || 'No reason recorded',
         actorUserId: authData?.uid ?? null,
       });
       await this.load();
-      Swal.fire({ title: 'Forfeited', icon: 'success', timer: 1400, showConfirmButton: false });
+      this.toast.success('Forfeited', undefined, { timer: 1400 });
     } catch (error) {
       this.loggerService.LogError(error, 'SavingSchemeDetail.forfeit');
-      Swal.fire('Error', (error as any)?.message ?? String(error), 'error');
+      this.toast.error((error as any)?.message ?? String(error), 'Error');
     }
   }
 
@@ -296,7 +298,7 @@ export class SavingSchemeDetailComponent implements OnInit {
     ].filter(Boolean).join('\n');
     if (typeof navigator !== 'undefined' && (navigator as any).clipboard?.writeText) {
       (navigator as any).clipboard.writeText(receipt);
-      Swal.fire({ title: 'Copied receipt', icon: 'success', timer: 900, showConfirmButton: false });
+      this.toast.success('Copied receipt', undefined, { timer: 900 });
     }
   }
 

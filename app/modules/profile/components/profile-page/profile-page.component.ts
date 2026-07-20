@@ -2,7 +2,8 @@ import { ChangeDetectionStrategy, Component, OnInit, ViewChild, computed, inject
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
-import Swal from 'sweetalert2';
+import { AppDialogService } from '../../../../shared/services/AppDialog/app-dialog.service';
+import { AppToastService } from '../../../../shared/services/AppToast/app-toast.service';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucidePencil,
@@ -56,6 +57,8 @@ export class ProfilePageComponent implements OnInit {
   private readonly fileSystemService = inject(FileSystemService);
   private readonly loggerService = inject(LoggerService);
   private readonly utilityService = inject(UtilityService);
+  private readonly dialog = inject(AppDialogService);
+  private readonly toast = inject(AppToastService);
 
   readonly userDetails = signal<UserDetailsModel | null>(null);
   readonly thumbnail = signal<string>('');
@@ -127,11 +130,11 @@ export class ProfilePageComponent implements OnInit {
     // Password change validation: new must match confirm; both empty means no-change.
     if ((raw.password ?? '') !== '' || (raw.confirmPassword ?? '') !== '') {
       if (raw.password !== raw.confirmPassword) {
-        Swal.fire({ icon: 'error', title: 'Passwords do not match', text: 'New password and confirmation must be identical.' });
+        this.dialog.fire({ icon: 'error', title: 'Passwords do not match', text: 'New password and confirmation must be identical.' });
         return;
       }
       if ((raw.password ?? '').length < 4) {
-        Swal.fire({ icon: 'error', title: 'Password too short', text: 'Use at least 4 characters.' });
+        this.dialog.fire({ icon: 'error', title: 'Password too short', text: 'Use at least 4 characters.' });
         return;
       }
     }
@@ -153,7 +156,7 @@ export class ProfilePageComponent implements OnInit {
 
     this.userService.updateUserDetails(userDetails)
       .then(() => {
-        Swal.fire({ icon: 'success', title: 'Profile updated', timer: 1400, showConfirmButton: false });
+        this.toast.success('Profile updated', undefined, { timer: 1400 });
 
         this.storeService.get('authData').then((data: any) => {
           data.userName = userDetails.userName;
@@ -167,7 +170,7 @@ export class ProfilePageComponent implements OnInit {
       })
       .catch((error: any) => {
         this.loggerService.LogError(error, 'updateUserDetails()');
-        Swal.fire({ icon: 'error', title: 'Failed', text: `Error occured to update details: ${error}` });
+        this.dialog.fire({ icon: 'error', title: 'Failed', text: `Error occured to update details: ${error}` });
       })
       .finally(() => {
         this.loaderService.stop();
@@ -223,32 +226,26 @@ export class ProfilePageComponent implements OnInit {
       .catch((error: any) => {
         this.loggerService.LogError(error, 'updateUserImage()');
         this.loaderService.stop();
-        Swal.fire({ icon: 'error', title: 'Failed to update image', text: error });
+        this.dialog.fire({ icon: 'error', title: 'Failed to update image', text: String(error) });
       });
   }
 
   deleteUserImage() {
-    Swal.fire({
-      title: 'Delete profile photo?',
-      text: "You won't be able to revert this.",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
+    this.dialog.danger('Delete profile photo?', "You won't be able to revert this.", {
       confirmButtonText: 'Yes, delete',
-    }).then((result) => {
-      if (!result.isConfirmed) { return; }
+    }).then((confirmed) => {
+      if (!confirmed) { return; }
       this.loggerService.LogInfo('deleteUserImage() Request Started.');
       this.userService.deleteUserImage(this.userID)
         .then(async (response: any) => {
           await this.fileSystemService.deleteUserImage(response[0].oldFileName);
           this.getUserImage();
-          Swal.fire({ icon: 'success', title: 'Deleted', timer: 1200, showConfirmButton: false });
+          this.toast.success('Deleted', undefined, { timer: 1200 });
           this.loggerService.LogInfo('deleteUserImage() Request Completed.');
         })
         .catch((error: any) => {
           this.loggerService.LogError(error, 'deleteUserImage()');
-          Swal.fire({ icon: 'error', title: 'Failed', text: error });
+          this.dialog.fire({ icon: 'error', title: 'Failed', text: String(error) });
         });
     });
   }
