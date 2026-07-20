@@ -974,6 +974,59 @@
       </div>
     }
 
+    @if (activeTab() === 'appearance') {
+      <div class="panel-head">
+        <h2 class="panel-title" i18n="@@settings.appearance.title">Appearance</h2>
+        <p class="panel-sub" i18n="@@settings.appearance.sub">Choose a typography preset. Applies live across the whole app; save to make it stick across relaunches.</p>
+      </div>
+
+      <div class="form-section">
+        <h3 class="section-heading" i18n="@@settings.appearance.typography-heading">Typography</h3>
+
+        @for (preset of typographyPresets; track preset.id) {
+          <label class="typography-choice"
+                 [class.is-active]="isTypographyPresetActive(preset.id)">
+            <input type="radio" name="typography-preset"
+                   class="typography-choice__radio"
+                   [value]="preset.id"
+                   [checked]="isTypographyPresetActive(preset.id)"
+                   (change)="onTypographyPresetSelect(preset.id)">
+            <span class="typography-choice__body">
+              <span class="typography-choice__label">{{ preset.label }}</span>
+              <span class="typography-choice__desc">{{ preset.description }}</span>
+
+              <span class="typography-preview"
+                    [style.--preview-display]="preset.vars['--font-family-display']"
+                    [style.--preview-body]="preset.vars['--font-family-body']"
+                    [style.--preview-devanagari]="preset.vars['--font-family-devanagari']"
+                    [style.--preview-base]="preset.vars['--font-size-base']"
+                    [style.--preview-scale]="preset.vars['--font-size-scale']">
+                <span class="typography-preview__display">{{ preset.previewSample.display }}</span>
+                <span class="typography-preview__body">{{ preset.previewSample.body }}</span>
+                <span class="typography-preview__devanagari">{{ preset.previewSample.devanagari }}</span>
+                <span class="typography-preview__caption" i18n="@@settings.appearance.preview-caption">Grand total</span>
+              </span>
+            </span>
+          </label>
+        }
+
+        <div class="form-actions">
+          <button type="button" class="hlm-btn hlm-btn-ghost"
+                  [disabled]="!typographyDirty() || typographySaving()"
+                  (click)="cancelTypographyPreset()"
+                  i18n="@@settings.appearance.cancel">
+            Cancel
+          </button>
+          <button type="button" class="hlm-btn hlm-btn-primary"
+                  [disabled]="!typographyDirty() || typographySaving()"
+                  (click)="saveTypographyPreset()"
+                  i18n="@@settings.appearance.save">
+            Save &amp; apply
+          </button>
+        </div>
+      </div>
+    }
+
     @if (activeTab() === 'language') {
       <div class="panel-head">
         <h2 class="panel-title" i18n="@@settings.language.title">Language</h2>

@@ -2068,3 +2068,194 @@ html[data-theme="dark"] .btn.btn-outline-lightning {
     }
   }
 }
+
+// -------------------------------------------------------------------------
+// Workstream Y — typography presets
+//
+// Four curated presets swap the display/body/devanagari/mono font stacks
+// plus a base size + line-height. The preset is selected by TypographyService
+// via `document.documentElement.dataset.typographyPreset`. A pre-hydration
+// inline script in index.html applies the attribute BEFORE Angular boots
+// so cold starts don't flash the editorial default when the user's chosen
+// preset is compact/traditional-devanagari.
+//
+// Two token layers coexist:
+//  1. New tokens (--font-family-display / --font-family-body /
+//     --font-family-devanagari / --font-family-mono / --font-size-base /
+//     --font-size-scale / --line-height-base) — canonical.
+//  2. Legacy tokens (--font-sans / --font-serif / --font-mono) — already
+//     referenced by every component .scss file. Each preset block below
+//     mirrors the family tokens into the legacy names so existing call
+//     sites become preset-aware without a per-file refactor.
+//
+// The service also writes the same properties inline on <html>.style so
+// live-preview under Settings > Appearance is immediate (dataset-only
+// attribute changes wouldn't trigger a repaint of `var(--font-serif)`).
+// -------------------------------------------------------------------------
+:root {
+  --font-family-display:    var(--font-serif);
+  --font-family-body:       var(--font-sans);
+  --font-family-devanagari: 'Hind', 'Inter', system-ui, sans-serif;
+  --font-family-mono:       var(--font-mono);
+  --font-size-base:         0.875rem;
+  --font-size-scale:        1;
+  --line-height-base:       var(--lh-normal);
+}
+
+:root[data-typography-preset="editorial"] {
+  --font-family-display:    "Instrument Serif", "Fraunces", ui-serif, Georgia, serif;
+  --font-family-body:       'Inter', 'Hind', system-ui, sans-serif;
+  --font-family-devanagari: 'Hind', 'Inter', system-ui, sans-serif;
+  --font-family-mono:       ui-monospace, monospace;
+  --font-size-base:         0.875rem;
+  --font-size-scale:        1;
+  --line-height-base:       1.5;
+
+  --font-sans:  'Inter', 'Hind', system-ui, sans-serif;
+  --font-serif: "Instrument Serif", "Fraunces", ui-serif, Georgia, serif;
+  --font-mono:  ui-monospace, monospace;
+}
+
+:root[data-typography-preset="modern_sans"] {
+  --font-family-display:    'Inter', 'Hind', system-ui, sans-serif;
+  --font-family-body:       'Inter', 'Hind', system-ui, sans-serif;
+  --font-family-devanagari: 'Hind', 'Inter', system-ui, sans-serif;
+  --font-family-mono:       ui-monospace, monospace;
+  --font-size-base:         0.875rem;
+  --font-size-scale:        0.98;
+  --line-height-base:       1.5;
+
+  --font-sans:  'Inter', 'Hind', system-ui, sans-serif;
+  --font-serif: 'Inter', 'Hind', system-ui, sans-serif;
+  --font-mono:  ui-monospace, monospace;
+}
+
+:root[data-typography-preset="traditional_devanagari"] {
+  --font-family-display:    'Hind', "Instrument Serif", ui-serif, sans-serif;
+  --font-family-body:       'Hind', 'Inter', system-ui, sans-serif;
+  --font-family-devanagari: 'Hind', 'Inter', system-ui, sans-serif;
+  --font-family-mono:       ui-monospace, monospace;
+  --font-size-base:         0.875rem;
+  --font-size-scale:        1;
+  --line-height-base:       1.6;
+
+  --font-sans:  'Hind', 'Inter', system-ui, sans-serif;
+  --font-serif: 'Hind', "Instrument Serif", ui-serif, sans-serif;
+  --font-mono:  ui-monospace, monospace;
+}
+
+:root[data-typography-preset="compact"] {
+  --font-family-display:    "Instrument Serif", "Fraunces", ui-serif, Georgia, serif;
+  --font-family-body:       'Inter', 'Hind', system-ui, sans-serif;
+  --font-family-devanagari: 'Hind', 'Inter', system-ui, sans-serif;
+  --font-family-mono:       ui-monospace, monospace;
+  --font-size-base:         0.8125rem;
+  --font-size-scale:        0.95;
+  --line-height-base:       1.4;
+
+  --font-sans:  'Inter', 'Hind', system-ui, sans-serif;
+  --font-serif: "Instrument Serif", "Fraunces", ui-serif, Georgia, serif;
+  --font-mono:  ui-monospace, monospace;
+}
+
+// Body now honors the preset's base size + line-height. Body font-family
+// already reads from --font-sans (line ~426) which each preset overrides.
+body {
+  font-size: calc(var(--font-size-base) * var(--font-size-scale, 1));
+  line-height: var(--line-height-base);
+}
+
+// Preview panel inside Settings > Appearance. Renders one sample per
+// preset in the preset's own tokens by scoping the tokens to the block.
+.typography-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  border: 1px dashed var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-subtle);
+  margin-top: 8px;
+  margin-bottom: 6px;
+
+  &__display {
+    font-family: var(--preview-display, var(--font-family-display));
+    font-size: calc(1.5rem * var(--preview-scale, var(--font-size-scale, 1)));
+    line-height: 1.15;
+    color: var(--color-fg);
+    letter-spacing: -0.005em;
+  }
+
+  &__body {
+    font-family: var(--preview-body, var(--font-family-body));
+    font-size: calc(var(--preview-base, var(--font-size-base)) * var(--preview-scale, var(--font-size-scale, 1)));
+    color: var(--color-fg);
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
+  }
+
+  &__devanagari {
+    font-family: var(--preview-devanagari, var(--font-family-devanagari));
+    font-size: calc(var(--preview-base, var(--font-size-base)) * var(--preview-scale, var(--font-size-scale, 1)));
+    color: var(--color-fg-muted);
+  }
+
+  &__caption {
+    margin-top: 2px;
+    font-family: var(--preview-body, var(--font-family-body));
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-fg-muted);
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
+  }
+}
+
+.typography-choice {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px 14px;
+  padding: 14px 16px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--color-panel, transparent);
+  transition: border-color 120ms ease-out, background 120ms ease-out;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--color-border-strong);
+  }
+
+  &.is-active {
+    border-color: var(--color-accent);
+    background: var(--color-accent-subtle);
+  }
+
+  & + & {
+    margin-top: 10px;
+  }
+
+  &__radio {
+    margin-top: 4px;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+  }
+
+  &__label {
+    font-weight: 600;
+    color: var(--color-fg);
+    font-size: var(--fs-md);
+  }
+
+  &__desc {
+    color: var(--color-fg-muted);
+    font-size: var(--fs-sm);
+    line-height: 1.5;
+  }
+}

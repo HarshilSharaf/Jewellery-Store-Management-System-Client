@@ -56,8 +56,9 @@ import {
 import { exportToCSV } from '../../../../shared/utils/csv-export';
 import { WhatsAppService } from '../../../../shared/services/WhatsApp/whatsapp.service';
 import { WhatsappSendLogRow, WhatsappStatus } from '../../../../interfaces/WhatsApp/whatsapp';
+import { TypographyService, TypographyPreset, PresetDefinition } from '../../../../shared/services/Typography/typography.service';
 
-type TabId = 'shop' | 'tax' | 'rates' | 'print' | 'backup' | 'users' | 'database' | 'migration' | 'whatsapp' | 'whatsapp-activity' | 'language';
+type TabId = 'shop' | 'tax' | 'rates' | 'print' | 'appearance' | 'backup' | 'users' | 'database' | 'migration' | 'whatsapp' | 'whatsapp-activity' | 'language';
 type MigrationEntity = 'customers' | 'products' | 'rates';
 
 interface MigrationEntityState {
@@ -127,6 +128,7 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
     { id: 'migration', label: $localize`:@@settings.tab.migration:Migration` },
     { id: 'whatsapp',          label: $localize`:@@settings.tab.whatsapp:WhatsApp` },
     { id: 'whatsapp-activity', label: $localize`:@@settings.tab.whatsapp-activity:WhatsApp activity` },
+    { id: 'appearance', label: $localize`:@@settings.tab.appearance:Appearance` },
     { id: 'language',  label: $localize`:@@settings.tab.language:Language` },
     { id: 'database',  label: $localize`:@@settings.tab.database:Database` },
   ];
@@ -287,7 +289,15 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
   private readonly backupService = inject(BackupService);
   readonly permissions = inject(PermissionsService);
   private readonly whatsappService = inject(WhatsAppService);
+  private readonly typographyService = inject(TypographyService);
   private readonly destroyRef = inject(DestroyRef);
+
+  // Typography preset tab state.
+  readonly typographyPresets: readonly PresetDefinition[] = this.typographyService.presets;
+  readonly typographyOriginalPreset = signal<TypographyPreset>(this.typographyService.activePreset());
+  readonly typographySelectedPreset = signal<TypographyPreset>(this.typographyService.activePreset());
+  readonly typographySaving = signal<boolean>(false);
+  readonly typographyDirty = signal<boolean>(false);
 
   readonly LOCALE_STORAGE_KEY = 'radiance.locale.preference';
   readonly availableLocales = [
@@ -310,6 +320,44 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
     this.requestedLocale.set(code);
     this.localeDirty.set(this.requestedLocale() !== this.activeLocale());
     this.localeSaved.set(false);
+  }
+
+  // -------------------------------------------------------------------------
+  // Appearance — typography presets (Workstream Y)
+  // -------------------------------------------------------------------------
+  onTypographyPresetSelect(preset: TypographyPreset): void {
+    this.typographySelectedPreset.set(preset);
+    this.typographyDirty.set(preset !== this.typographyOriginalPreset());
+    // Live preview — apply immediately without persisting. The Cancel path
+    // reverts, and Save & apply commits to ShopSettings.
+    this.typographyService.applyPreset(preset, { persistLocal: false });
+  }
+
+  isTypographyPresetActive(preset: TypographyPreset): boolean {
+    return this.typographySelectedPreset() === preset;
+  }
+
+  cancelTypographyPreset(): void {
+    const original = this.typographyOriginalPreset();
+    this.typographySelectedPreset.set(original);
+    this.typographyDirty.set(false);
+    this.typographyService.applyPreset(original);
+  }
+
+  saveTypographyPreset(): void {
+    const preset = this.typographySelectedPreset();
+    this.typographySaving.set(true);
+    try {
+      this.typographyService.savePreset(preset);
+      this.typographyOriginalPreset.set(preset);
+      this.typographyDirty.set(false);
+      Swal.fire({ icon: 'success', title: 'Typography preset saved', timer: 1400, showConfirmButton: false });
+    } catch (err) {
+      this.loggerService.LogError(err, 'saveTypographyPreset');
+      Swal.fire('Error', 'Failed to save typography preset.', 'error');
+    } finally {
+      this.typographySaving.set(false);
+    }
   }
 
   saveLocalePreference(): void {
@@ -436,6 +484,9 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
       invoiceStartFrom:       row.invoiceStartFrom,
       roundOffEnabled:        row.roundOffEnabled ? true : false,
     }, { emitEvent: false });
+
+    // Typography preset lives in localStorage today (see TypographyService).
+    // Nothing to reconcile from ShopSettings.
   }
 
   async onShopLogoSelected(event: Event) {
