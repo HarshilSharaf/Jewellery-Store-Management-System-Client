@@ -1561,3 +1561,183 @@ html[data-theme="dark"] .btn.btn-outline-lightning {
   }
 }
 
+// Workstream R shared recipes (Migration IN/OUT + Tally XML export)
+//
+// Utilities:
+// - .import-section: rounded card sibling to .form-section for import panels.
+// - .import-dropzone: dashed border upload target with hover raise.
+// - .import-preview-table: dense 40px-row preview of parsed CSV rows.
+// - .mapping-select: compact select for column-mapping dropdowns.
+// - .import-row--error: red tint for rows flagged with validation issues.
+// - .import-progress: horizontal progress bar for long-running imports.
+// - .import-caption: text-xs muted italic used for helper captions.
+// - .page-title__actions: right-aligned button cluster in .page-title headers.
+// - .radio-inline: inline radio label for duplicate strategy pickers.
+:root {
+  .import-section {
+    background: var(--color-surface-1);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-top: 20px;
+  }
+
+  .import-dropzone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 32px 20px;
+    border: 1.5px dashed var(--color-border-strong, var(--color-border-subtle));
+    border-radius: 10px;
+    color: var(--color-fg-muted);
+    cursor: pointer;
+    background: var(--color-surface-2, var(--color-surface-1));
+    transition: transform 120ms ease-out, border-color 120ms ease-out, background 120ms ease-out;
+    font-size: 13px;
+  }
+  .import-dropzone:hover {
+    transform: translateY(-1px);
+    border-color: var(--color-accent, var(--color-fg-muted));
+    background: var(--color-surface-1);
+  }
+
+  .import-preview {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 12px;
+  }
+
+  .import-preview__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+  }
+
+  .import-preview__scroll {
+    overflow-x: auto;
+    max-width: 100%;
+    border: 1px solid var(--color-border-subtle);
+    border-radius: 8px;
+  }
+
+  .import-preview-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .import-preview-table th,
+  .import-preview-table td {
+    padding: 6px 10px;
+    height: 40px;
+    border-bottom: 1px solid var(--color-border-subtle);
+    text-align: left;
+    white-space: nowrap;
+    vertical-align: middle;
+  }
+  .import-preview-table th {
+    background: var(--color-surface-2, var(--color-surface-1));
+    font-weight: 600;
+    color: var(--color-fg);
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+
+  .mapping-col {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 160px;
+  }
+  .mapping-col__source {
+    font-size: 11px;
+    color: var(--color-fg-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+  .mapping-select {
+    font-size: 12px;
+    padding: 4px 6px;
+    height: 28px;
+  }
+
+  .import-row--error {
+    background: var(--color-danger-surface, rgba(206, 44, 49, 0.08));
+  }
+  .import-row--error td {
+    color: var(--color-danger-fg, #ce2c31);
+  }
+
+  .import-strategy {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+  .radio-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+
+  .import-progress {
+    width: 100%;
+    height: 6px;
+    background: var(--color-surface-2, var(--color-border-subtle));
+    border-radius: 999px;
+    overflow: hidden;
+    margin-top: 12px;
+  }
+  .import-progress__bar {
+    height: 100%;
+    background: var(--color-accent, var(--color-fg));
+    transition: width 200ms ease-out;
+  }
+
+  .import-result {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .import-result__row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .chip--success {
+    background: var(--color-success-surface, rgba(46, 125, 50, 0.12));
+    color: var(--color-success-fg, #2e7d32);
+    border-color: transparent;
+  }
+  .chip--danger {
+    background: var(--color-danger-surface, rgba(206, 44, 49, 0.12));
+    color: var(--color-danger-fg, #ce2c31);
+    border-color: transparent;
+  }
+  .chip--muted {
+    opacity: 0.55;
+  }
+
+  .import-caption {
+    font-size: 11px;
+    color: var(--color-fg-muted);
+    font-style: italic;
+    margin: 6px 0;
+  }
+
+  .page-title__actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-left: auto;
+  }
+}
+

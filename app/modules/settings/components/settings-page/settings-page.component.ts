@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule, Location } from '@angular/common';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
@@ -20,6 +20,9 @@ import {
   lucideTrash2,
   lucideDownload,
   lucideTriangleAlert,
+  lucideUpload,
+  lucideFileText,
+  lucideFileSpreadsheet,
 } from '@ng-icons/lucide';
 import Swal from 'sweetalert2';
 
@@ -42,8 +45,29 @@ import { ListBackupsEntry } from '../../../../interfaces/Backup/backup';
 import { INDIAN_STATES, GSTIN_REGEX } from '../../../../shared/utils/indian-states';
 import { ScaleService } from '../../../../shared/services/Hardware/scale.service';
 import { ScannerService } from '../../../../shared/services/Hardware/scanner.service';
+import {
+  MigrationService,
+  DuplicateStrategy,
+  ImportResult,
+  CustomerMapping,
+  ProductMapping,
+  RatesMapping,
+} from '../../../../shared/services/Migration/migration.service';
+import { exportToCSV } from '../../../../shared/utils/csv-export';
 
-type TabId = 'shop' | 'tax' | 'rates' | 'print' | 'backup' | 'users' | 'database';
+type TabId = 'shop' | 'tax' | 'rates' | 'print' | 'backup' | 'users' | 'database' | 'migration';
+type MigrationEntity = 'customers' | 'products' | 'rates';
+
+interface MigrationEntityState {
+  fileName: string;
+  headers: string[];
+  rows: Record<string, string>[];
+  issues: number[];
+  mapping: Record<string, string>;
+  duplicateStrategy: DuplicateStrategy;
+  importing: boolean;
+  result: ImportResult | null;
+}
 
 interface TabDef { id: TabId; label: string; }
 
@@ -83,19 +107,23 @@ interface StubUser {
     lucideTrash2,
     lucideDownload,
     lucideTriangleAlert,
+    lucideUpload,
+    lucideFileText,
+    lucideFileSpreadsheet,
   })],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SettingsPageComponent implements OnInit, OnDestroy {
 
   readonly tabs: TabDef[] = [
-    { id: 'shop',     label: 'Shop identity' },
-    { id: 'tax',      label: 'Tax & invoice' },
-    { id: 'rates',    label: 'Metal rates' },
-    { id: 'print',    label: 'Print & hardware' },
-    { id: 'backup',   label: 'Backup' },
-    { id: 'users',    label: 'Users & permissions' },
-    { id: 'database', label: 'Database' },
+    { id: 'shop',      label: 'Shop identity' },
+    { id: 'tax',       label: 'Tax & invoice' },
+    { id: 'rates',     label: 'Metal rates' },
+    { id: 'print',     label: 'Print & hardware' },
+    { id: 'backup',    label: 'Backup' },
+    { id: 'users',     label: 'Users & permissions' },
+    { id: 'migration', label: 'Migration' },
+    { id: 'database',  label: 'Database' },
   ];
 
   readonly activeTab = signal<TabId>('shop');
@@ -148,8 +176,78 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
   private bodyPadding = document.getElementById('body')?.style.paddingTop;
 
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly location = inject(Location);
   private readonly fb = inject(FormBuilder);
+  private readonly migrationService = inject(MigrationService);
+
+  readonly customerFields: Array<{ key: keyof CustomerMapping; label: string }> = [
+    { key: 'firstName',   label: 'First name' },
+    { key: 'lastName',    label: 'Last name' },
+    { key: 'phoneNumber', label: 'Phone (dedupe key)' },
+    { key: 'email',       label: 'Email' },
+    { key: 'gender',      label: 'Gender' },
+    { key: 'dateOfBirth', label: 'Date of birth' },
+    { key: 'address',     label: 'Address' },
+    { key: 'city',        label: 'City' },
+    { key: 'state',       label: 'State' },
+    { key: 'stateCode',   label: 'State code' },
+    { key: 'gstin',       label: 'GSTIN' },
+    { key: 'pan',         label: 'PAN' },
+    { key: 'remarks',     label: 'Remarks' },
+  ];
+
+  readonly productFields: Array<{ key: keyof ProductMapping; label: string }> = [
+    { key: 'sku',                label: 'SKU (dedupe key)' },
+    { key: 'huid',               label: 'HUID' },
+    { key: 'purityCode',         label: 'Purity (22K / 916 / 18K...)' },
+    { key: 'productDescription', label: 'Description' },
+    { key: 'grossWeight',        label: 'Gross weight (g)' },
+    { key: 'netWeight',          label: 'Net weight (g)' },
+    { key: 'stoneWeight',        label: 'Stone weight (g)' },
+    { key: 'stoneCharges',       label: 'Stone charges' },
+    { key: 'makingMode',         label: 'Making mode (flat/perGram/percent)' },
+    { key: 'makingValue',        label: 'Making value' },
+    { key: 'wastagePercent',     label: 'Wastage %' },
+    { key: 'costPrice',          label: 'Cost price (admin only)' },
+    { key: 'tagPrice',           label: 'Tag price' },
+    { key: 'hsnCode',            label: 'HSN' },
+    { key: 'masterCategoryId',   label: 'Master category id' },
+    { key: 'subCategoryId',      label: 'Sub category id' },
+    { key: 'productCategoryId',  label: 'Product category id' },
+  ];
+
+  readonly ratesFields: Array<{ key: keyof RatesMapping; label: string }> = [
+    { key: 'effectiveDate', label: 'Effective date (YYYY-MM-DD)' },
+    { key: 'session',       label: 'Session (AM/PM)' },
+    { key: 'purityCode',    label: 'Purity' },
+    { key: 'ratePerGram',   label: 'Rate per gram' },
+  ];
+
+  readonly migrationState: Record<MigrationEntity, ReturnType<typeof signal<MigrationEntityState>>> = {
+    customers: signal(this.emptyMigrationState()),
+    products:  signal(this.emptyMigrationState()),
+    rates:     signal(this.emptyMigrationState()),
+  };
+
+  private emptyMigrationState(): MigrationEntityState {
+    return {
+      fileName: '',
+      headers: [],
+      rows: [],
+      issues: [],
+      mapping: {},
+      duplicateStrategy: 'skip',
+      importing: false,
+      result: null,
+    };
+  }
+
+  readonly migrationEntities: MigrationEntity[] = ['customers', 'products', 'rates'];
+
+  getMigration(entity: MigrationEntity): MigrationEntityState {
+    return this.migrationState[entity]();
+  }
   private readonly storeService = inject(StoreService);
   private readonly loggerService = inject(LoggerService);
   private readonly utilityService = inject(UtilityService);
@@ -195,6 +293,13 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
     // if no explicit subscription button was clicked.
     this.scannerService.scan$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((code) => {
       this.scanTestBuffer.set(code);
+    });
+
+    this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(qp => {
+      const requested = qp.get('tab') as TabId | null;
+      if (requested && this.tabs.some(t => t.id === requested)) {
+        this.activeTab.set(requested);
+      }
     });
   }
 
@@ -872,6 +977,185 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
   copyPurityAmToPm(code: string) {
     const list = this.rateEditors().map(e => e.purityCode === code ? { ...e, pm: e.am } : e);
     this.rateEditors.set(list);
+  }
+
+  // -------------------------------------------------------------------------
+  // Migration (Workstream R)
+  // -------------------------------------------------------------------------
+
+  private guessMapping(headers: string[], fieldKeys: string[]): Record<string, string> {
+    const map: Record<string, string> = {};
+    const lower = headers.map(h => h.toLowerCase());
+    for (const key of fieldKeys) {
+      const k = key.toLowerCase();
+      const idx = lower.findIndex(h =>
+        h === k ||
+        h === k.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase() ||
+        h.replace(/[^a-z0-9]/g, '') === k.replace(/[^a-z0-9]/g, '')
+      );
+      if (idx >= 0) { map[key] = headers[idx]; }
+    }
+    return map;
+  }
+
+  async onMigrationFileSelected(entity: MigrationEntity, event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) { return; }
+
+    let preview;
+    if (entity === 'customers') {
+      preview = await this.migrationService.previewCustomerCsv(file);
+    } else if (entity === 'products') {
+      preview = await this.migrationService.previewProductCsv(file);
+    } else {
+      preview = await this.migrationService.previewRatesCsv(file);
+    }
+
+    const fields = this.fieldsFor(entity);
+    const mapping = this.guessMapping(preview.headers, fields);
+
+    const state: MigrationEntityState = {
+      fileName: file.name,
+      headers: preview.headers,
+      rows: preview.rows,
+      issues: preview.issues.map(i => i.rowIndex).filter(i => i >= 0),
+      mapping,
+      duplicateStrategy: this.migrationState[entity]().duplicateStrategy,
+      importing: false,
+      result: null,
+    };
+    this.migrationState[entity].set(state);
+  }
+
+  private fieldsFor(entity: MigrationEntity): string[] {
+    if (entity === 'customers') { return this.customerFields.map(f => f.key as string); }
+    if (entity === 'products')  { return this.productFields.map(f => f.key as string); }
+    return this.ratesFields.map(f => f.key as string);
+  }
+
+  fieldDefsFor(entity: MigrationEntity) {
+    if (entity === 'customers') { return this.customerFields; }
+    if (entity === 'products')  { return this.productFields; }
+    return this.ratesFields;
+  }
+
+  onMappingChange(entity: MigrationEntity, targetField: string, sourceHeader: string): void {
+    const s = { ...this.migrationState[entity]() };
+    s.mapping = { ...s.mapping, [targetField]: sourceHeader };
+    this.migrationState[entity].set(s);
+  }
+
+  reverseMappingLookup(entity: MigrationEntity, sourceHeader: string): string {
+    const map = this.migrationState[entity]().mapping;
+    for (const key of Object.keys(map)) {
+      if (map[key] === sourceHeader) { return key; }
+    }
+    return '';
+  }
+
+  setMappingFromSource(entity: MigrationEntity, sourceHeader: string, targetField: string): void {
+    const s = { ...this.migrationState[entity]() };
+    const newMap: Record<string, string> = {};
+    for (const key of Object.keys(s.mapping)) {
+      if (s.mapping[key] !== sourceHeader) { newMap[key] = s.mapping[key]; }
+    }
+    if (targetField) {
+      for (const key of Object.keys(newMap)) {
+        if (key === targetField) { delete newMap[key]; }
+      }
+      newMap[targetField] = sourceHeader;
+    }
+    s.mapping = newMap;
+    this.migrationState[entity].set(s);
+  }
+
+  setDuplicateStrategy(entity: MigrationEntity, strategy: DuplicateStrategy): void {
+    const s = { ...this.migrationState[entity]() };
+    s.duplicateStrategy = strategy;
+    this.migrationState[entity].set(s);
+  }
+
+  previewRows(entity: MigrationEntity, max = 20): Record<string, string>[] {
+    return this.migrationState[entity]().rows.slice(0, max);
+  }
+
+  isRowIssue(entity: MigrationEntity, idx: number): boolean {
+    return this.migrationState[entity]().issues.includes(idx);
+  }
+
+  async runImport(entity: MigrationEntity): Promise<void> {
+    const s = { ...this.migrationState[entity]() };
+    if (!s.rows.length) { return; }
+    s.importing = true;
+    this.migrationState[entity].set(s);
+
+    let result: ImportResult;
+    try {
+      if (entity === 'customers') {
+        result = await this.migrationService.importCustomers(s.rows, s.mapping as CustomerMapping, s.duplicateStrategy);
+      } else if (entity === 'products') {
+        result = await this.migrationService.importProducts(s.rows, s.mapping as ProductMapping, s.duplicateStrategy);
+      } else {
+        result = await this.migrationService.importRates(s.rows, s.mapping as RatesMapping, s.duplicateStrategy);
+      }
+    } catch (err: any) {
+      this.loggerService.LogError(err, 'runImport');
+      result = { imported: 0, updated: 0, skipped: 0, failed: s.rows.length, failedRows: s.rows.map(r => ({ ...r, _error: String(err?.message ?? err) })) };
+    }
+
+    const done = { ...this.migrationState[entity]() };
+    done.importing = false;
+    done.result = result;
+    this.migrationState[entity].set(done);
+  }
+
+  downloadFailedRows(entity: MigrationEntity): void {
+    const result = this.migrationState[entity]().result;
+    if (!result || !result.failedRows.length) { return; }
+    exportToCSV(result.failedRows, `failed-${entity}-${Date.now()}.csv`);
+  }
+
+  resetMigrationState(entity: MigrationEntity): void {
+    this.migrationState[entity].set(this.emptyMigrationState());
+  }
+
+  async exportCustomersNow(): Promise<void> {
+    try {
+      await this.migrationService.triggerExportCustomers();
+    } catch (err) {
+      this.loggerService.LogError(err, 'exportCustomersNow');
+      Swal.fire('Export failed', 'Unable to export customers.', 'error');
+    }
+  }
+
+  async exportProductsNow(): Promise<void> {
+    try {
+      await this.migrationService.triggerExportProducts(this.permissions.costsVisible());
+    } catch (err) {
+      this.loggerService.LogError(err, 'exportProductsNow');
+      Swal.fire('Export failed', 'Unable to export products.', 'error');
+    }
+  }
+
+  async exportRatesNow(): Promise<void> {
+    try {
+      await this.migrationService.triggerExportRates();
+    } catch (err) {
+      this.loggerService.LogError(err, 'exportRatesNow');
+      Swal.fire('Export failed', 'Unable to export rates.', 'error');
+    }
+  }
+
+  progressPercent(entity: MigrationEntity): number {
+    const s = this.migrationState[entity]();
+    if (!s.result) { return s.importing ? 40 : 0; }
+    const total = Math.max(1, s.rows.length);
+    return Math.min(100, Math.round(((s.result.imported + s.result.updated + s.result.skipped + s.result.failed) / total) * 100));
+  }
+
+  costsHidden(): boolean {
+    return !this.permissions.costsVisible();
   }
 
   getShopFieldError(name: string): string {

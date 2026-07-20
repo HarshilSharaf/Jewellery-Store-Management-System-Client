@@ -661,6 +661,161 @@
       }
     }
 
+    @if (activeTab() === 'migration') {
+      <div class="panel-head">
+        <h2 class="panel-title">Migration</h2>
+        <p class="panel-sub">Import from CSV and export to CSV / Tally XML. Anti-lock-in tools for Marg / DevLogic / Ornate switchers.</p>
+      </div>
+
+      <div class="form-section">
+        <h3 class="section-heading">Export current data</h3>
+        <p class="import-caption">Quick download of everything currently in the database as CSV.</p>
+        <div class="form-actions">
+          <button type="button" class="hlm-btn hlm-btn-ghost" (click)="exportCustomersNow()">
+            <ng-icon name="lucideDownload" size="14" aria-hidden="true"></ng-icon>
+            Export customers CSV
+          </button>
+          <button type="button" class="hlm-btn hlm-btn-ghost" (click)="exportProductsNow()">
+            <ng-icon name="lucideDownload" size="14" aria-hidden="true"></ng-icon>
+            Export products CSV
+          </button>
+          <button type="button" class="hlm-btn hlm-btn-ghost" (click)="exportRatesNow()">
+            <ng-icon name="lucideDownload" size="14" aria-hidden="true"></ng-icon>
+            Export metal rates CSV
+          </button>
+        </div>
+      </div>
+
+      @for (entity of migrationEntities; track entity) {
+        <div class="import-section form-section">
+          <h3 class="section-heading">
+            Import
+            @if (entity === 'customers') { customers }
+            @if (entity === 'products')  { products }
+            @if (entity === 'rates')     { metal rates }
+          </h3>
+          <p class="import-caption">
+            @if (entity === 'customers') { Dedupe key: <b>phone number</b>. Purity + making mode auto-normalised. }
+            @if (entity === 'products')  { Dedupe key: <b>SKU</b>. Purity: 22K/916/gold-22k all map to 916. Making mode: $/PG/% recognised. }
+            @if (entity === 'rates')     { Dedupe key: <b>(effectiveDate, session, purity)</b>. Session must be AM or PM. }
+          </p>
+
+          @if (!getMigration(entity).rows.length) {
+            <label class="import-dropzone">
+              <ng-icon name="lucideUpload" size="20" aria-hidden="true"></ng-icon>
+              <span>Choose CSV file to import</span>
+              <input type="file" accept=".csv,text/csv" hidden
+                     (change)="onMigrationFileSelected(entity, $event)">
+            </label>
+          } @else {
+            <div class="import-preview">
+              <div class="import-preview__head">
+                <span><b>{{ getMigration(entity).fileName }}</b> · {{ getMigration(entity).rows.length }} rows</span>
+                <button type="button" class="hlm-btn hlm-btn-ghost" (click)="resetMigrationState(entity)">Choose different file</button>
+              </div>
+
+              <div class="mapping-header">
+                <p class="import-caption">Map each source column to a target field. Blank = ignore this column.</p>
+              </div>
+
+              <div class="import-preview__scroll">
+                <table class="import-preview-table tabular-nums">
+                  <thead>
+                    <tr>
+                      @for (h of getMigration(entity).headers; track h) {
+                        <th>
+                          <div class="mapping-col">
+                            <span class="mapping-col__source">{{ h }}</span>
+                            <select class="hlm-input mapping-select"
+                                    [value]="reverseMappingLookup(entity, h)"
+                                    (change)="setMappingFromSource(entity, h, $any($event.target).value)">
+                              <option value="">— ignore —</option>
+                              @for (f of fieldDefsFor(entity); track f.key) {
+                                @if (!(entity === 'products' && f.key === 'costPrice' && costsHidden())) {
+                                  <option [value]="f.key">{{ f.label }}</option>
+                                }
+                              }
+                            </select>
+                          </div>
+                        </th>
+                      }
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (r of previewRows(entity); let i = $index; track i) {
+                      <tr [class.import-row--error]="isRowIssue(entity, i)">
+                        @for (h of getMigration(entity).headers; track h) {
+                          <td>{{ r[h] }}</td>
+                        }
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+
+              @if (getMigration(entity).issues.length) {
+                <p class="field-error">{{ getMigration(entity).issues.length }} row(s) flagged with issues.</p>
+              }
+
+              <div class="import-strategy">
+                <span class="field-label">On duplicate:</span>
+                <label class="radio-inline">
+                  <input type="radio" name="dup-{{ entity }}"
+                         [checked]="getMigration(entity).duplicateStrategy === 'skip'"
+                         (change)="setDuplicateStrategy(entity, 'skip')">
+                  Skip
+                </label>
+                <label class="radio-inline">
+                  <input type="radio" name="dup-{{ entity }}"
+                         [checked]="getMigration(entity).duplicateStrategy === 'update'"
+                         (change)="setDuplicateStrategy(entity, 'update')">
+                  Update existing
+                </label>
+                <label class="radio-inline">
+                  <input type="radio" name="dup-{{ entity }}"
+                         [checked]="getMigration(entity).duplicateStrategy === 'abort'"
+                         (change)="setDuplicateStrategy(entity, 'abort')">
+                  Abort on first duplicate
+                </label>
+              </div>
+
+              <div class="form-actions">
+                <button type="button" class="hlm-btn hlm-btn-primary"
+                        [disabled]="getMigration(entity).importing"
+                        (click)="runImport(entity)">
+                  {{ getMigration(entity).importing ? 'Importing...' : 'Import ' + getMigration(entity).rows.length + ' rows' }}
+                </button>
+              </div>
+
+              @if (getMigration(entity).importing || getMigration(entity).result) {
+                <div class="import-progress" aria-hidden="true">
+                  <div class="import-progress__bar" [style.width.%]="progressPercent(entity)"></div>
+                </div>
+              }
+
+              @if (getMigration(entity).result; as res) {
+                <div class="import-result">
+                  <div class="import-result__row">
+                    <span class="chip chip--success">Imported: {{ res.imported }}</span>
+                    <span class="chip">Updated: {{ res.updated }}</span>
+                    <span class="chip">Skipped: {{ res.skipped }}</span>
+                    <span class="chip chip--danger" [class.chip--muted]="!res.failed">Failed: {{ res.failed }}</span>
+                    @if (res.aborted) { <span class="chip chip--danger">Aborted</span> }
+                  </div>
+                  @if (res.failedRows.length) {
+                    <button type="button" class="hlm-btn hlm-btn-ghost" (click)="downloadFailedRows(entity)">
+                      <ng-icon name="lucideDownload" size="14" aria-hidden="true"></ng-icon>
+                      Download failed rows
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+    }
+
     @if (activeTab() === 'database') {
       <div class="panel-head">
         <h2 class="panel-title">Database</h2>
