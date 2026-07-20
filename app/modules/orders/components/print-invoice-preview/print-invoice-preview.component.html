@@ -1,0 +1,19 @@
+<div class="preview-shell">
+  <div class="preview-topbar no-print">
+    <button type="button" class="hlm-btn hlm-btn-ghost" (click)="goBack()">
+      &larr; Back
+    </button>
+    <div class="preview-topbar__title">Invoice preview</div>
+    <div class="preview-topbar__spacer"></div>
+  </div>
+
+  @if (loading) {
+    <div class="preview-loading no-print">Loading invoice…</div>
+  } @else if (invoice) {
+    <app-print-invoice [InvoiceData]="invoice" [showToolbar]="true"></app-print-invoice>
+  } @else {
+    <div class="preview-empty no-print">
+      No invoice data. <button type="button" class="hlm-btn hlm-btn-ghost" (click)="goBack()">Return</button>
+    </div>
+  }
+</div>
