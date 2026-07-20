@@ -1,14 +1,12 @@
 import { Routes } from '@angular/router';
-import { SavingSchemesPageComponent } from './components/saving-schemes-page/saving-schemes-page.component';
-import { SavingSchemeDetailComponent } from './components/saving-scheme-detail/saving-scheme-detail.component';
 
 export const savingSchemesRoutes: Routes = [
   {
     path: '',
-    component: SavingSchemesPageComponent,
+    loadComponent: () => import('./components/saving-schemes-page/saving-schemes-page.component').then(m => m.SavingSchemesPageComponent),
   },
   {
     path: ':schemeGuid',
-    component: SavingSchemeDetailComponent,
+    loadComponent: () => import('./components/saving-scheme-detail/saving-scheme-detail.component').then(m => m.SavingSchemeDetailComponent),
   },
 ];

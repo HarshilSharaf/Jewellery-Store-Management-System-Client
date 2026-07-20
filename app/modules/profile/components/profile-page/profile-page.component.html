@@ -15,9 +15,9 @@
         <div class="profile-hero__avatar">
           <div class="avatar avatar--xl">
             @if (imageUploadComponent && imageUploadComponent.imageSrc) {
-              <img [src]="imageUploadComponent.imageSrc" alt="">
+              <img [src]="imageUploadComponent.imageSrc" alt="" loading="lazy">
             } @else if (thumbnail()) {
-              <img [src]="thumbnail()" alt="">
+              <img [src]="thumbnail()" alt="" loading="lazy">
             } @else {
               <span>{{ avatarInitial() }}</span>
             }

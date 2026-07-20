@@ -1,6 +1,6 @@
 import { Component, Input, OnDestroy } from '@angular/core';
 
-import Chart from 'chart.js/auto';
+import type { Chart as ChartType } from 'chart.js';
 import { MonthlySalesAndLabourModel } from '../../models/sales-and-labour-model';
 import { SkeletonLoaderComponent } from '../../../../shared/components/skeleton-loader/skeleton-loader.component';
 
@@ -12,13 +12,13 @@ import { SkeletonLoaderComponent } from '../../../../shared/components/skeleton-
   imports: [SkeletonLoaderComponent]
 })
 export class BarChartComponent implements OnDestroy {
-  public chart: Chart | null = null;
+  public chart: ChartType | null = null;
   public _monthlySalesAndLabour:MonthlySalesAndLabourModel[] = []
   @Input() set monthlySalesAndLabour(data:MonthlySalesAndLabourModel[]) {
     this._monthlySalesAndLabour = [...data]
     if(this._monthlySalesAndLabour.length)
     {
-      this.createChart();
+      void this.createChart();
     }
   }
 
@@ -27,8 +27,8 @@ export class BarChartComponent implements OnDestroy {
     this.chart = null;
   }
 
-  createChart() {
-    // Destroy any prior canvas binding so re-render doesn't leak.
+  async createChart() {
+    const { default: Chart } = await import('chart.js/auto');
     this.chart?.destroy();
     this.chart = new Chart("barChart", {
       type: 'bar', //this denotes tha type of chart

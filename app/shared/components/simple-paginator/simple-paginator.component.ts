@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
@@ -28,6 +28,7 @@ export interface SimplePageEvent {
       lucideChevronsRight,
     }),
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SimplePaginatorComponent {
   @Input() length = 0;

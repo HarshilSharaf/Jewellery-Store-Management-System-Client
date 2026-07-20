@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 
 
 @Component({
@@ -6,7 +6,8 @@ import { Component, OnInit } from '@angular/core';
   templateUrl: './company-logo.component.html',
   styleUrls: ['./company-logo.component.css'],
   standalone: true,
-  imports: []
+  imports: [],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CompanyLogoComponent implements OnInit {
 

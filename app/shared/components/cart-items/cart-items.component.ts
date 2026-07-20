@@ -1,4 +1,4 @@
-import { Component, OnInit, computed } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideCircleMinus } from '@ng-icons/lucide';
 
@@ -11,6 +11,7 @@ import { CartService } from '../../services/cart.service';
   standalone: true,
   imports: [NgIcon],
   viewProviders: [provideIcons({ lucideCircleMinus })],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CartItemsComponent implements OnInit {
 

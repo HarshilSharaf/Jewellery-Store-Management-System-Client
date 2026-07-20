@@ -8,7 +8,7 @@
       <div class="col-auto">
         <div class="icon-div icon-shape">
           @if (cardIconImage) {
-            <img class="item-icon" [attr.src]="cardIconImage" alt="">
+            <img class="item-icon" [attr.src]="cardIconImage" loading="lazy" alt="">
           } @else if (cardIcon) {
             <ng-icon [name]="cardIcon" class="item-icon" aria-hidden="true"></ng-icon>
           }

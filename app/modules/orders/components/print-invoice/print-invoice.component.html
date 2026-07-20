@@ -125,7 +125,7 @@
               </tr>
             </thead>
             <tbody>
-              @for (line of lineItems; track $index) {
+              @for (line of lineItems; track line.productGuid ?? $index) {
                 <tr>
                   <td class="col-sn">{{ $index + 1 }}</td>
                   <td class="col-desc">

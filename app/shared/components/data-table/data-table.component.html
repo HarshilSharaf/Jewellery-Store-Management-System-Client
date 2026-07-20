@@ -87,7 +87,7 @@
                 <td class="data-table__cell" [attr.data-column]="column.key" [ngClass]="column.key">
                   @switch (column.key) {
                     @case ('image') {
-                      <img class="data-table__thumb" [src]="element['image']" height="60" width="60" alt="">
+                      <img class="data-table__thumb" [src]="element['image']" height="60" width="60" loading="lazy" alt="">
                     }
                     @case ('actions') {
                       <div class="row-actions">

@@ -1,14 +1,12 @@
 import { Routes } from '@angular/router';
-import { InventoryPageComponent } from './components/inventory-page/inventory-page.component';
-import { ViewProductDetailsComponent } from './components/view-product-details/view-product-details.component';
 
 export const inventoryRoutes: Routes = [
   {
     path: '',
-    component: InventoryPageComponent
+    loadComponent: () => import('./components/inventory-page/inventory-page.component').then(m => m.InventoryPageComponent)
   },
   {
     path: 'view-product-details/:productGuid',
-    component: ViewProductDetailsComponent
+    loadComponent: () => import('./components/view-product-details/view-product-details.component').then(m => m.ViewProductDetailsComponent)
   }
 ];

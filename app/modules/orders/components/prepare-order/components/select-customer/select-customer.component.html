@@ -40,7 +40,7 @@
                 (click)="selectCustomer(customer)"
                 [attr.aria-pressed]="_selectedId() === customer.id">
           <span class="avatar avatar--md customer-card__avatar">
-            <img [src]="customer.image" alt="">
+            <img [src]="customer.image" alt="" loading="lazy">
           </span>
           <span class="customer-card__body">
             <span class="customer-card__name">{{ customer.firstName }} {{ customer.lastName }}</span>

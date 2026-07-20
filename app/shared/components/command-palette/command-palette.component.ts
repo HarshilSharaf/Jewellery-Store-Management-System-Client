@@ -40,8 +40,6 @@ import {
   lucideChartLine,
   lucideCoins,
 } from '@ng-icons/lucide';
-import Swal from 'sweetalert2';
-
 import { CommandAction, CommandPaletteService, SubPaletteId } from './command-palette.service';
 import { ThemeService } from '../../services/theme.service';
 import { CustomerDataService } from '../../../modules/customers/services/customer-data.service';
@@ -600,13 +598,15 @@ export class CommandPaletteComponent implements OnInit, AfterViewInit {
   }
 
   private toast(icon: 'success' | 'warning' | 'info' | 'error', title: string): void {
-    Swal.fire({
-      toast: true,
-      position: 'top-end',
-      icon,
-      title,
-      showConfirmButton: false,
-      timer: icon === 'error' ? 3600 : 2400,
+    void import('sweetalert2').then(({ default: Swal }) => {
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon,
+        title,
+        showConfirmButton: false,
+        timer: icon === 'error' ? 3600 : 2400,
+      });
     });
   }
 

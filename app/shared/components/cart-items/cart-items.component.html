@@ -3,7 +3,7 @@
     @for (item of cartItems(); track item.productGuid ?? $index) {
       <li class="cart-items__row">
         <div class="cart-items__thumb">
-          @if (item.image) { <img [src]="item.image" alt=""> }
+          @if (item.image) { <img [src]="item.image" alt="" loading="lazy"> }
         </div>
         <div class="cart-items__body">
           <div class="cart-items__top">

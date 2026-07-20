@@ -2,7 +2,7 @@ import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, E
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 
-import { Chart, ChartConfiguration } from 'chart.js/auto';
+import type { Chart as ChartType, ChartConfiguration } from 'chart.js';
 import dayjs from 'dayjs';
 
 import { CustomerDataService } from '../../../customers/services/customer-data.service';
@@ -60,7 +60,8 @@ import { MetalRateRow } from '../../../../interfaces/Shared/metal-rate';
 export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('revenueChart', { static: false }) chartCanvas?: ElementRef<HTMLCanvasElement>;
 
-  private chart: Chart | null = null;
+  private chart: ChartType | null = null;
+  private chartCtor: typeof ChartType | null = null;
   private themeObserver: MutationObserver | null = null;
 
   private readonly customerService = inject(CustomerDataService);
@@ -109,12 +110,19 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.themeObserver = new MutationObserver(() => {
-      if (this.monthlySales.length) { this.renderChart(); }
+      if (this.monthlySales.length) { void this.renderChart(); }
     });
     this.themeObserver.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ['data-theme'],
     });
+  }
+
+  private async ensureChart(): Promise<typeof ChartType> {
+    if (this.chartCtor) { return this.chartCtor; }
+    const mod = await import('chart.js/auto');
+    this.chartCtor = mod.default;
+    return this.chartCtor;
   }
 
   ngOnDestroy(): void {
@@ -158,7 +166,7 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
       const sla: SalesAndLabourModel[] = await this.ordersService.getSalesAndLabour(6);
       if (sla?.[0]?.monthlySalesAndLabour) {
         this.monthlySales = [...sla[0].monthlySalesAndLabour];
-        this.renderChart();
+        void this.renderChart();
       }
       this.cdr.markForCheck();
     } catch (err) {
@@ -253,8 +261,10 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  private renderChart(): void {
+  private async renderChart(): Promise<void> {
     if (!this.chartCanvas || !this.monthlySales.length) { return; }
+    const ChartCtor = await this.ensureChart();
+    if (!this.chartCanvas) { return; }
     this.chart?.destroy();
 
     const styles = getComputedStyle(document.documentElement);
@@ -320,7 +330,7 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
       },
     };
 
-    this.chart = new Chart(this.chartCanvas.nativeElement, config);
+    this.chart = new ChartCtor(this.chartCanvas.nativeElement, config);
   }
 
   private buildGradient(color: string): CanvasGradient | string {

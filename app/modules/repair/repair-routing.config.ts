@@ -1,19 +1,16 @@
 import { Routes } from '@angular/router';
-import { RepairPageComponent } from './components/repair-page/repair-page.component';
-import { CreateTicketPageComponent } from './components/create-ticket-page/create-ticket-page.component';
-import { TicketDetailPageComponent } from './components/ticket-detail-page/ticket-detail-page.component';
 
 export const repairRoutes: Routes = [
   {
     path: '',
-    component: RepairPageComponent,
+    loadComponent: () => import('./components/repair-page/repair-page.component').then(m => m.RepairPageComponent),
   },
   {
     path: 'new',
-    component: CreateTicketPageComponent,
+    loadComponent: () => import('./components/create-ticket-page/create-ticket-page.component').then(m => m.CreateTicketPageComponent),
   },
   {
     path: ':ticketGuid',
-    component: TicketDetailPageComponent,
+    loadComponent: () => import('./components/ticket-detail-page/ticket-detail-page.component').then(m => m.TicketDetailPageComponent),
   },
 ];

@@ -75,7 +75,7 @@
           <div class="detail-section__title">Item</div>
           <div class="repair-detail__item">
             @if (photoSrc) {
-              <img class="repair-detail__photo" [src]="photoSrc" alt="Repair item photo" />
+              <img class="repair-detail__photo" [src]="photoSrc" alt="Repair item photo" loading="lazy" />
             } @else {
               <div class="repair-detail__photo repair-detail__photo--empty">
                 <ng-icon name="lucideWrench" size="28" aria-hidden="true"></ng-icon>

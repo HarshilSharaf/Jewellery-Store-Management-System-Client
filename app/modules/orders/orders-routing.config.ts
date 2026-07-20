@@ -1,24 +1,20 @@
 import { Routes } from '@angular/router';
-import { OrdersPageComponent } from './components/orders-page/orders-page.component';
-import { PrepareOrderComponent } from './components/prepare-order/prepare-order.component';
-import { OrderDetailsComponent } from './components/order-details/order-details.component';
-import { PrintInvoicePreviewComponent } from './components/print-invoice-preview/print-invoice-preview.component';
 
 export const ordersRoutes: Routes = [
   {
     path: '',
-    component: OrdersPageComponent
+    loadComponent: () => import('./components/orders-page/orders-page.component').then(m => m.OrdersPageComponent)
   },
   {
     path: 'prepare-order',
-    component: PrepareOrderComponent
+    loadComponent: () => import('./components/prepare-order/prepare-order.component').then(m => m.PrepareOrderComponent)
   },
   {
     path: 'view-order-details/:orderGuid',
-    component: OrderDetailsComponent
+    loadComponent: () => import('./components/order-details/order-details.component').then(m => m.OrderDetailsComponent)
   },
   {
     path: 'print-invoice/:orderGuid',
-    component: PrintInvoicePreviewComponent
+    loadComponent: () => import('./components/print-invoice-preview/print-invoice-preview.component').then(m => m.PrintInvoicePreviewComponent)
   }
 ];

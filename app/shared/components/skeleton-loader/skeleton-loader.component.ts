@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 
@@ -7,7 +7,8 @@ import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
   templateUrl: './skeleton-loader.component.html',
   styleUrl: './skeleton-loader.component.scss',
   standalone: true,
-  imports: [NgxSkeletonLoaderModule]
+  imports: [NgxSkeletonLoaderModule],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SkeletonLoaderComponent {
   _count = 1;

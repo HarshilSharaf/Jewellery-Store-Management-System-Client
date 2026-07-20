@@ -26,7 +26,7 @@
                 (mouseenter)="pickerIndex.set(i)"
                 (click)="addProduct(p)">
               <span class="picker__thumb">
-                @if (p.image) { <img [src]="p.image" alt=""> }
+                @if (p.image) { <img [src]="p.image" alt="" loading="lazy"> }
               </span>
               <span class="picker__body">
                 <span class="picker__row">
@@ -64,7 +64,7 @@
             <article class="line" [attr.data-line-index]="idx">
               <header class="line__head">
                 <span class="line__thumb">
-                  @if (line.image) { <img [src]="line.image" alt=""> }
+                  @if (line.image) { <img [src]="line.image" alt="" loading="lazy"> }
                 </span>
                 <div class="line__title">
                   <div class="line__title-top">

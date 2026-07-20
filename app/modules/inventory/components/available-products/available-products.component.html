@@ -139,7 +139,7 @@
                (keyup.enter)="goToViewProductDetails(product)">
         <div class="product-card__media">
           @if (product.image) {
-            <img [src]="product.image" [alt]="product.sku" />
+            <img [src]="product.image" [alt]="product.sku" loading="lazy" />
           } @else {
             <ng-icon name="lucidePackage" size="32" aria-hidden="true"></ng-icon>
           }
@@ -212,7 +212,7 @@
            (keyup.enter)="goToViewProductDetails(product)">
         <div class="col-thumb">
           @if (product.image) {
-            <img [src]="product.image" [alt]="product.sku" />
+            <img [src]="product.image" [alt]="product.sku" loading="lazy" />
           } @else {
             <div class="thumb-placeholder">
               <ng-icon name="lucidePackage" size="14" aria-hidden="true"></ng-icon>
