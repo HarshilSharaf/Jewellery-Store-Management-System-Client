@@ -2,6 +2,8 @@ import { ChangeDetectionStrategy, Component, DestroyRef, OnDestroy, OnInit, inje
 import { CommonModule, Location } from '@angular/common';
 import { Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideCopy, lucideArrowLeft } from '@ng-icons/lucide';
 import Swal from 'sweetalert2';
 
 import { StoreService } from '../../../../../../Backend/Shared/store.service';
@@ -42,7 +44,8 @@ interface StubUser {
   templateUrl: './settings-page.component.html',
   styleUrls: ['./settings-page.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, NgIcon],
+  viewProviders: [provideIcons({ lucideCopy, lucideArrowLeft })],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SettingsPageComponent implements OnInit, OnDestroy {
@@ -522,6 +525,26 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
       this.isDefaultDbSettings = true;
       this.dbForm.markAsDirty();
     });
+  }
+
+  // Pick a chip color class based on the purity label/code so gold/silver/platinum
+  // rows read at a glance in the rates grid.
+  purityChipClass(label: string, code: string): string {
+    const key = `${label} ${code}`.toLowerCase();
+    if (key.includes('silver') || key.includes('999')) {
+      // 999 is silver-grade fineness for silver, but 999 gold also exists; disambiguate via label first
+      if (label.toLowerCase().includes('silver')) { return 'chip--silver'; }
+      if (label.toLowerCase().includes('gold'))   { return 'chip--gold'; }
+    }
+    if (key.includes('plat')) { return 'chip--platinum'; }
+    if (key.includes('silver')) { return 'chip--silver'; }
+    // Default all remaining purities (22K, 18K, 14K, 916, 750, 585) to gold.
+    return 'chip--gold';
+  }
+
+  copyPurityAmToPm(code: string) {
+    const list = this.rateEditors().map(e => e.purityCode === code ? { ...e, pm: e.am } : e);
+    this.rateEditors.set(list);
   }
 
   getShopFieldError(name: string): string {
