@@ -1,7 +1,8 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import Swal from 'sweetalert2';
+import { AppDialogService } from '../../../../shared/services/AppDialog/app-dialog.service';
+import { AppToastService } from '../../../../shared/services/AppToast/app-toast.service';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucidePlus,
@@ -78,6 +79,8 @@ export class KarigarPageComponent implements OnInit {
   private readonly loggerService = inject(LoggerService);
   private readonly loaderService = inject(NgxUiLoaderService);
   private readonly storeService = inject(StoreService);
+  private readonly dialog = inject(AppDialogService);
+  private readonly toast = inject(AppToastService);
 
   ngOnInit(): void {
     this.storeService.get('authData').then((auth: any) => {
@@ -187,22 +190,20 @@ export class KarigarPageComponent implements OnInit {
 
   async deleteKarigar(k: Karigar, event: MouseEvent): Promise<void> {
     event.stopPropagation();
-    const result = await Swal.fire({
-      title: `Delete ${k.name}?`,
-      text: 'Karigar will be hidden from lists (soft delete).',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, delete',
-    });
-    if (!result.isConfirmed) return;
+    const confirmed = await this.dialog.danger(
+      `Delete ${k.name}?`,
+      'Karigar will be hidden from lists (soft delete).',
+      { confirmButtonText: 'Yes, delete' }
+    );
+    if (!confirmed) return;
     try {
       const auth: any = await this.storeService.get('authData');
       await this.service.deleteKarigar(k.karigarGuid, auth?.uid ?? null);
       this.loadKarigars();
-      Swal.fire({ title: 'Deleted', icon: 'success', timer: 900, showConfirmButton: false });
+      this.toast.success('Deleted', undefined, { timer: 900 });
     } catch (error) {
       this.loggerService.LogError(error, 'KarigarPage.deleteKarigar');
-      Swal.fire('Error', (error as any)?.message ?? String(error), 'error');
+      this.toast.error((error as any)?.message ?? String(error), 'Error');
     }
   }
 

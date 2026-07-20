@@ -3,7 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import Swal from 'sweetalert2';
+import { AppToastService } from '../../../../shared/services/AppToast/app-toast.service';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideArrowLeft,
@@ -71,6 +71,7 @@ export class JobCardDetailComponent implements OnInit {
   private readonly storeService = inject(StoreService);
   private readonly loggerService = inject(LoggerService);
   private readonly fb = inject(FormBuilder);
+  private readonly toast = inject(AppToastService);
 
   readonly daysOpen = computed<number>(() => {
     const j = this.job();
@@ -205,7 +206,7 @@ export class JobCardDetailComponent implements OnInit {
       this.saving.set(false);
       this.closePanel();
       await this.load();
-      Swal.fire({ title: 'Job received', icon: 'success', timer: 900, showConfirmButton: false });
+      this.toast.success('Job received', undefined, { timer: 900 });
     } catch (error) {
       this.saving.set(false);
       const msg = (error as any)?.message ?? String(error);
@@ -234,7 +235,7 @@ export class JobCardDetailComponent implements OnInit {
       this.saving.set(false);
       this.closePanel();
       await this.load();
-      Swal.fire({ title: 'Job settled', icon: 'success', timer: 900, showConfirmButton: false });
+      this.toast.success('Job settled', undefined, { timer: 900 });
     } catch (error) {
       this.saving.set(false);
       const msg = (error as any)?.message ?? String(error);

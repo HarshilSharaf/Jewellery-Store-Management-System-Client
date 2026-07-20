@@ -12,7 +12,8 @@ import {
   lucidePhoneCall,
   lucideMapPin,
 } from '@ng-icons/lucide';
-import Swal from 'sweetalert2';
+import { AppDialogService } from '../../../../shared/services/AppDialog/app-dialog.service';
+import { AppToastService } from '../../../../shared/services/AppToast/app-toast.service';
 
 import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
 import { StoreService } from '../../../../../../Backend/Shared/store.service';
@@ -80,6 +81,8 @@ export class KarigarDetailComponent implements OnInit {
   private readonly service = inject(KarigarService);
   private readonly loggerService = inject(LoggerService);
   private readonly storeService = inject(StoreService);
+  private readonly dialog = inject(AppDialogService);
+  private readonly toast = inject(AppToastService);
 
   ngOnInit(): void {
     this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
@@ -157,21 +160,16 @@ export class KarigarDetailComponent implements OnInit {
   async deleteKarigar(): Promise<void> {
     const k = this.karigar();
     if (!k) return;
-    const result = await Swal.fire({
-      title: `Delete ${k.name}?`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, delete',
-    });
-    if (!result.isConfirmed) return;
+    const confirmed = await this.dialog.danger(`Delete ${k.name}?`, undefined, { confirmButtonText: 'Yes, delete' });
+    if (!confirmed) return;
     try {
       const auth: any = await this.storeService.get('authData');
       await this.service.deleteKarigar(k.karigarGuid, auth?.uid ?? null);
-      Swal.fire({ title: 'Deleted', icon: 'success', timer: 900, showConfirmButton: false });
+      this.toast.success('Deleted', undefined, { timer: 900 });
       this.router.navigate(['/karigar']);
     } catch (error) {
       this.loggerService.LogError(error, 'KarigarDetail.delete');
-      Swal.fire('Error', (error as any)?.message ?? String(error), 'error');
+      this.toast.error((error as any)?.message ?? String(error), 'Error');
     }
   }
 

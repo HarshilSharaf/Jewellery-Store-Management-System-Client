@@ -3,7 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormArray, FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import Swal from 'sweetalert2';
+import { AppToastService } from '../../../../shared/services/AppToast/app-toast.service';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideArrowLeft,
@@ -57,6 +57,7 @@ export class IssueJobPageComponent implements OnInit {
   private readonly puritiesService = inject(PuritiesService);
   private readonly storeService = inject(StoreService);
   private readonly loggerService = inject(LoggerService);
+  private readonly toast = inject(AppToastService);
 
   constructor() {
     this.form = this.fb.group({
@@ -140,7 +141,7 @@ export class IssueJobPageComponent implements OnInit {
       const newGuid = row?.jobGuid ?? null;
       this.saving.set(false);
       if (newGuid) {
-        Swal.fire({ title: 'Job issued', icon: 'success', timer: 900, showConfirmButton: false });
+        this.toast.success('Job issued', undefined, { timer: 900 });
         this.router.navigate(['/karigar', 'jobs', newGuid]);
       } else {
         this.router.navigate(['/karigar']);
