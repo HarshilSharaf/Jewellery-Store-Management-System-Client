@@ -8,16 +8,21 @@
   </div>
 
   <div class="top-bar__right">
-    <label class="top-bar__search">
+    <button type="button"
+            class="top-bar__search top-bar__search--btn"
+            (click)="openPalette()"
+            (focus)="openPalette()"
+            aria-label="Open command palette">
       <ng-icon name="lucideSearch" size="14" class="top-bar__search-icon" aria-hidden="true"></ng-icon>
       <input #searchInput
              type="text"
              class="top-bar__search-input"
-             [attr.placeholder]="'Search or command   ' + commandHint()"
-             [value]="searchValue()"
-             (input)="onSearchInput($any($event.target).value)"
-             aria-label="Global search">
-    </label>
+             [attr.placeholder]="'Search or run command'"
+             readonly
+             tabindex="-1"
+             aria-hidden="true">
+      <kbd class="top-bar__search-kbd">{{ commandHint() }}</kbd>
+    </button>
 
     <button type="button"
             class="top-bar__icon-btn"

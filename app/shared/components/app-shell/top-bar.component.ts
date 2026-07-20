@@ -1,10 +1,11 @@
-import { ChangeDetectionStrategy, Component, ElementRef, HostListener, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideSun, lucideMoon, lucideSearch } from '@ng-icons/lucide';
 
 import { ThemeService } from '../../services/theme.service';
 import { ShopSettingsService } from '../../services/ShopSettings/shop-settings.service';
+import { CommandPaletteService } from '../command-palette/command-palette.service';
 import { RateTickerComponent } from './rate-ticker/rate-ticker.component';
 import { UserMenuComponent } from './user-menu/user-menu.component';
 import { AddToCartComponent } from '../navbar/add-to-cart/add-to-cart.component';
@@ -21,9 +22,9 @@ import { AddToCartComponent } from '../navbar/add-to-cart/add-to-cart.component'
 export class TopBarComponent implements OnInit {
   protected readonly themeService = inject(ThemeService);
   private readonly shopSettings = inject(ShopSettingsService);
+  private readonly palette = inject(CommandPaletteService);
 
   readonly shopName = signal('Radiance');
-  readonly searchValue = signal('');
   readonly isMac = /Mac|iPhone|iPad|iPod/.test(typeof navigator !== 'undefined' ? navigator.platform : '');
   readonly commandHint = computed(() => this.isMac ? '⌘K' : 'Ctrl+K');
 
@@ -40,15 +41,10 @@ export class TopBarComponent implements OnInit {
     this.themeService.toggle();
   }
 
-  @HostListener('window:keydown.control.k', ['$event'])
-  @HostListener('window:keydown.meta.k', ['$event'])
-  focusSearch(evt: KeyboardEvent): void {
-    evt.preventDefault();
-    this.searchRef?.nativeElement.focus();
-    this.searchRef?.nativeElement.select();
-  }
-
-  onSearchInput(value: string): void {
-    this.searchValue.set(value);
+  openPalette(): void {
+    this.palette.open();
+    // The palette owns focus once open; blur the trigger so the caret does
+    // not stay in the top-bar surrogate input.
+    this.searchRef?.nativeElement.blur();
   }
 }
