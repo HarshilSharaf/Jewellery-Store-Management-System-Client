@@ -22,6 +22,9 @@ export interface SaveOrderPayload {
   paymentRefNumber?: string | null;
   lineItems: CartLineComputed[];
   oldGoldReceipts?: OldGoldReceiptInput[] | null;
+  oldGoldReceiptGuid?: string | null;
+  savingSchemeGuid?: string | null;
+  actorUserId?: number | null;
 }
 
 export interface RecordPaymentPayload {

@@ -20,14 +20,16 @@
 
   <nav class="tabs-strip" role="tablist" aria-label="Settings sections">
     @for (t of tabs; track t.id) {
-      <button type="button"
-              role="tab"
-              class="tab-item"
-              [attr.aria-selected]="activeTab() === t.id"
-              [class.is-active]="activeTab() === t.id"
-              (click)="setTab(t.id)">
-        {{ t.label }}
-      </button>
+      @if (isTabVisible(t.id)) {
+        <button type="button"
+                role="tab"
+                class="tab-item"
+                [attr.aria-selected]="activeTab() === t.id"
+                [class.is-active]="activeTab() === t.id"
+                (click)="setTab(t.id)">
+          {{ t.label }}
+        </button>
+      }
     }
   </nav>
 
@@ -326,37 +328,284 @@
         </form>
       }
 
-      <div class="panel-subhead"><h3>Hardware (Phase 2)</h3></div>
+      <div class="panel-subhead"><h3>Hardware</h3></div>
       <div class="phase2-grid">
+
         <div class="phase2-card">
-          <div class="phase2-card__title">Barcode / HUID scanner</div>
-          <div class="phase2-card__note">USB keyboard-wedge scanners work out of the box today. Full config (device select + focus-anywhere) — Phase 2.</div>
-          <button type="button" class="hlm-btn hlm-btn-ghost" disabled>Configure — Phase 2</button>
+          <div class="phase2-card__title">
+            <ng-icon name="lucideScanBarcode" size="16" aria-hidden="true"></ng-icon>
+            Barcode / HUID scanner
+          </div>
+          <div class="phase2-card__note">
+            USB keyboard-wedge scanners work out of the box. When enabled, scans typed at &gt;120 wpm are captured and routed
+            into the cart's product picker regardless of focus.
+          </div>
+          <label class="inline-check">
+            <input type="checkbox" [checked]="scannerEnabled()" (change)="toggleScannerEnabled()">
+            Enable scanner input on cart
+          </label>
+
+          <div class="hw-form">
+            <label class="field-label" for="scanTest">Scan test</label>
+            <input id="scanTest" class="hlm-input tabular-nums" data-accept-scan="1"
+                   placeholder="Focus this field and scan a barcode, or click Simulate"
+                   [value]="scanTestBuffer()"
+                   (input)="onScanTestInput($any($event.target).value)">
+            <div class="hw-form__actions">
+              <button type="button" class="hlm-btn hlm-btn-ghost" (click)="simulateScan()">Simulate scan</button>
+              <button type="button" class="hlm-btn hlm-btn-ghost" (click)="clearScanTestBuffer()">Clear</button>
+            </div>
+            @if (scannerService.lastScan()) {
+              <span class="scan-badge tabular-nums">Last: {{ scannerService.lastScan() }}</span>
+            }
+          </div>
         </div>
+
         <div class="phase2-card">
-          <div class="phase2-card__title">Weighing scale</div>
-          <div class="phase2-card__note">RS-232 + USB-HID (Essae / Contech) — Phase 2. Alt+W will grab live weight from the scale.</div>
-          <button type="button" class="hlm-btn hlm-btn-ghost" disabled>Configure — Phase 2</button>
+          <div class="phase2-card__title">
+            <ng-icon name="lucideScale" size="16" aria-hidden="true"></ng-icon>
+            Weighing scale
+          </div>
+
+          @if (!scaleService.available()) {
+            <div class="phase2-card__note">
+              <ng-icon name="lucideCircleAlert" size="14" aria-hidden="true"></ng-icon>
+              <span>
+                Serial-port bindings unavailable on this machine. Install MySQL/Windows build tools then relaunch, or use an
+                HID keyboard-wedge scale (press <kbd>Alt</kbd>+<kbd>W</kbd> on a weight input).
+              </span>
+            </div>
+          } @else {
+            <div class="phase2-card__note">
+              RS-232 via <code>serialport</code>. Choose the COM port your scale is on, pick a baud rate, and connect.
+              Live readings feed the "Weigh" button next to each cart net-weight input.
+            </div>
+
+            <div class="hw-form">
+              <label class="field-label" for="scalePort">Serial port</label>
+              <div class="hw-form__row">
+                <select id="scalePort" class="hlm-input" [value]="scaleService.selectedPort() ?? ''"
+                        (change)="onScalePortChange($any($event.target).value)">
+                  <option value="">Select a port</option>
+                  @for (p of scaleService.availablePorts(); track p.path) {
+                    <option [value]="p.path">
+                      {{ p.path }}{{ p.manufacturer ? ' — ' + p.manufacturer : '' }}
+                    </option>
+                  }
+                </select>
+                <button type="button" class="hlm-btn hlm-btn-ghost" (click)="refreshScalePorts()" title="Rescan ports" aria-label="Rescan">
+                  <ng-icon name="lucideRefreshCw" size="14" aria-hidden="true"></ng-icon>
+                </button>
+              </div>
+
+              <label class="field-label" for="scaleBaud">Baud rate</label>
+              <select id="scaleBaud" class="hlm-input tabular-nums" [value]="scaleService.selectedBaud()"
+                      (change)="onScaleBaudChange($any($event.target).value)">
+                @for (b of baudRateOptions; track b) {
+                  <option [value]="b">{{ b }}</option>
+                }
+              </select>
+
+              <div class="hw-form__actions">
+                @if (!scaleService.isConnected()) {
+                  <button type="button" class="hlm-btn hlm-btn-primary"
+                          (click)="connectScale()"
+                          [disabled]="scaleService.connecting() || !scaleService.selectedPort()">
+                    <ng-icon name="lucidePlug" size="14" aria-hidden="true"></ng-icon>
+                    {{ scaleService.connecting() ? 'Connecting…' : 'Connect' }}
+                  </button>
+                } @else {
+                  <button type="button" class="hlm-btn hlm-btn-ghost" (click)="disconnectScale()">
+                    <ng-icon name="lucidePlugZap" size="14" aria-hidden="true"></ng-icon>
+                    Disconnect
+                  </button>
+                }
+                <button type="button" class="hlm-btn hlm-btn-ghost" (click)="testScaleReading()"
+                        [disabled]="!scaleService.isConnected()">
+                  Test reading
+                </button>
+              </div>
+
+              @let reading = scaleService.currentReading();
+              <div class="scale-live">
+                @if (!scaleService.isConnected()) {
+                  <span class="scale-live__label">Current</span>
+                  <span class="scale-live__value muted">—</span>
+                } @else if (reading) {
+                  <span class="scale-live__label">Current</span>
+                  <span class="scale-live__value tabular-nums">{{ reading.grams.toFixed(3) }} g</span>
+                  @if (reading.stable) {
+                    <span class="stable-indicator">
+                      <ng-icon name="lucideCircleCheck" size="12" aria-hidden="true"></ng-icon>
+                      Stable
+                    </span>
+                  } @else {
+                    <span class="stable-indicator stable-indicator--unstable">
+                      <ng-icon name="lucideCircleAlert" size="12" aria-hidden="true"></ng-icon>
+                      Waiting
+                    </span>
+                  }
+                } @else {
+                  <span class="scale-live__label">Current</span>
+                  <span class="scale-live__value muted">Awaiting first reading…</span>
+                }
+              </div>
+
+              @if (scaleTestResult()) {
+                <p class="scan-badge tabular-nums">Test: {{ scaleTestResult() }}</p>
+              }
+              @if (scaleService.lastError()) {
+                <p class="scan-badge scan-badge--warn">{{ scaleService.lastError() }}</p>
+              }
+            </div>
+          }
         </div>
       </div>
     }
 
-    @if (activeTab() === 'backup') {
+    @if (activeTab() === 'backup' && isTabVisible('backup')) {
       <div class="panel-head">
         <h2 class="panel-title">Backup</h2>
         <p class="panel-sub">Encrypted mysqldump archive. Store off-machine.</p>
       </div>
-      <div class="form-section">
-        <h3 class="section-heading">Backup actions</h3>
-        <div class="stub-actions">
-          <button type="button" class="hlm-btn hlm-btn-primary" (click)="exportBackup()">Export encrypted backup</button>
-          <button type="button" class="hlm-btn hlm-btn-ghost" (click)="restoreBackup()">Restore from backup</button>
+
+      @if (backupPrereqWarning()) {
+        <div class="alert-banner alert-banner--warning">
+          <ng-icon name="lucideTriangleAlert" size="14" aria-hidden="true"></ng-icon>
+          {{ backupPrereqWarning() }}
         </div>
-        <p class="panel-sub">Backup / restore lands in Phase 2 with a real IPC channel. Today, these buttons log the intent and toast a not-yet-implemented notice.</p>
+      }
+
+      @if (backupForm) {
+        <form [formGroup]="backupForm" (ngSubmit)="createBackupArchive()">
+          <div class="form-section">
+            <h3 class="section-heading">Create encrypted backup</h3>
+            <p class="panel-sub">AES-256-GCM. Keep the passphrase somewhere safe — losing it means the archive is unrecoverable.</p>
+            <div class="field-grid">
+              <div>
+                <label class="field-label" for="bpPass">Passphrase</label>
+                <div class="input-with-toggle">
+                  <input id="bpPass" class="hlm-input" [type]="showPassphrase() ? 'text' : 'password'" formControlName="passphrase" autocomplete="new-password">
+                  <button type="button" class="icon-btn" (click)="togglePassphraseVisibility()" [attr.aria-label]="showPassphrase() ? 'Hide passphrase' : 'Show passphrase'">
+                    <ng-icon [name]="showPassphrase() ? 'lucideEyeOff' : 'lucideEye'" size="14" aria-hidden="true"></ng-icon>
+                  </button>
+                </div>
+                @if (backupForm.get('passphrase')?.touched && backupForm.get('passphrase')?.invalid) {
+                  <span class="field-error">Passphrase must be at least 8 characters.</span>
+                }
+              </div>
+              <div>
+                <label class="field-label" for="bpPassC">Confirm passphrase</label>
+                <div class="input-with-toggle">
+                  <input id="bpPassC" class="hlm-input" [type]="showConfirmPassphrase() ? 'text' : 'password'" formControlName="confirmPassphrase" autocomplete="new-password">
+                  <button type="button" class="icon-btn" (click)="toggleConfirmPassphraseVisibility()" [attr.aria-label]="showConfirmPassphrase() ? 'Hide' : 'Show'">
+                    <ng-icon [name]="showConfirmPassphrase() ? 'lucideEyeOff' : 'lucideEye'" size="14" aria-hidden="true"></ng-icon>
+                  </button>
+                </div>
+                @if (backupForm.hasError('passphraseMismatch') && backupForm.get('confirmPassphrase')?.touched) {
+                  <span class="field-error">Passphrases do not match.</span>
+                }
+              </div>
+              <div class="form-grid__full">
+                <label class="field-label" for="bpDir">Target directory</label>
+                <div class="input-with-toggle">
+                  <input id="bpDir" class="hlm-input" formControlName="targetDir" placeholder="Leave blank to use the default backup folder">
+                  <button type="button" class="icon-btn" (click)="chooseBackupDirectory()" aria-label="Choose folder" title="Choose folder">
+                    <ng-icon name="lucideFolder" size="14" aria-hidden="true"></ng-icon>
+                  </button>
+                </div>
+                <span class="field-help">If left blank, uses the shop's configured backup directory or the app's user-data folder.</span>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="hlm-btn hlm-btn-primary"
+                      [disabled]="backupBusy() || !backupForm.valid || backupForm.hasError('passphraseMismatch')">
+                {{ backupBusy() ? backupProgress() : 'Create backup' }}
+              </button>
+            </div>
+          </div>
+        </form>
+      }
+
+      <div class="form-section">
+        <div class="panel-subhead" style="display: flex; align-items: center; justify-content: space-between;">
+          <h3 class="section-heading">Existing backups</h3>
+          <button type="button" class="hlm-btn hlm-btn-ghost" (click)="loadBackups()">
+            <ng-icon name="lucideRefreshCw" size="14" aria-hidden="true"></ng-icon>
+            Refresh
+          </button>
+        </div>
+        <table class="ds-table">
+          <thead>
+            <tr>
+              <th></th>
+              <th>File</th>
+              <th>Size</th>
+              <th>Created</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (b of backupList(); track b.path) {
+              <tr [class.is-selected]="selectedBackup()?.path === b.path">
+                <td>
+                  <input type="radio" name="backup-selection"
+                         [checked]="selectedBackup()?.path === b.path"
+                         (change)="selectBackup(b)"
+                         [attr.aria-label]="'Select ' + b.filename">
+                </td>
+                <td class="tabular-nums">{{ b.filename }}</td>
+                <td class="tabular-nums">{{ formatBytes(b.sizeBytes) }}</td>
+                <td class="tabular-nums">{{ formatDateTime(b.createdAt) }}</td>
+                <td>
+                  <button type="button" class="icon-btn icon-btn--danger"
+                          (click)="deleteBackupArchive(b)"
+                          [disabled]="!permissions.canBackup()"
+                          title="Delete backup" aria-label="Delete">
+                    <ng-icon name="lucideTrash2" size="14" aria-hidden="true"></ng-icon>
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr><td colspan="5" class="empty">No backups yet. Create one above.</td></tr>
+            }
+          </tbody>
+        </table>
       </div>
+
+      @if (restoreForm) {
+        <form [formGroup]="restoreForm" (ngSubmit)="restoreBackupArchive()">
+          <div class="form-section">
+            <h3 class="section-heading">Restore from backup</h3>
+            <p class="panel-sub">Select an archive above, enter its passphrase, then confirm the restore. This overwrites the current database.</p>
+            <div class="field-grid">
+              <div>
+                <label class="field-label" for="rpPass">Passphrase</label>
+                <div class="input-with-toggle">
+                  <input id="rpPass" class="hlm-input" [type]="showRestorePassphrase() ? 'text' : 'password'" formControlName="passphrase" autocomplete="off">
+                  <button type="button" class="icon-btn" (click)="toggleRestorePassphraseVisibility()" [attr.aria-label]="showRestorePassphrase() ? 'Hide' : 'Show'">
+                    <ng-icon [name]="showRestorePassphrase() ? 'lucideEyeOff' : 'lucideEye'" size="14" aria-hidden="true"></ng-icon>
+                  </button>
+                </div>
+              </div>
+              <div style="align-self: end;">
+                <button type="submit" class="hlm-btn hlm-btn-primary"
+                        [disabled]="backupBusy() || !restoreForm.valid || !selectedBackup()">
+                  {{ backupBusy() ? backupProgress() : 'Restore backup' }}
+                </button>
+              </div>
+              @if (selectedBackup()) {
+                <div class="form-grid__full">
+                  <span class="field-help">Selected: <b>{{ selectedBackup()?.filename }}</b></span>
+                </div>
+              }
+            </div>
+          </div>
+        </form>
+      }
     }
 
-    @if (activeTab() === 'users') {
+    @if (activeTab() === 'users' && isTabVisible('users')) {
       <div class="panel-head">
         <h2 class="panel-title">Users &amp; permissions</h2>
         <p class="panel-sub">Add cashiers and managers. Full RBAC (route guards + proc-level checks) is Phase 2.</p>

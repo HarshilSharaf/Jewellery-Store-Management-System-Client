@@ -1,9 +1,26 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, OnDestroy, OnInit, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule, Location } from '@angular/common';
 import { Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideCopy, lucideArrowLeft } from '@ng-icons/lucide';
+import {
+  lucideCopy,
+  lucideArrowLeft,
+  lucideScale,
+  lucideScanBarcode,
+  lucidePlug,
+  lucidePlugZap,
+  lucideRefreshCw,
+  lucideCircleCheck,
+  lucideCircleAlert,
+  lucideEye,
+  lucideEyeOff,
+  lucideFolder,
+  lucideTrash2,
+  lucideDownload,
+  lucideTriangleAlert,
+} from '@ng-icons/lucide';
 import Swal from 'sweetalert2';
 
 import { StoreService } from '../../../../../../Backend/Shared/store.service';
@@ -15,11 +32,16 @@ import { SettingsModel } from '../../models/settings-model';
 import { ShopSettingsService } from '../../../../shared/services/ShopSettings/shop-settings.service';
 import { MetalRatesService } from '../../../../shared/services/MetalRates/metal-rates.service';
 import { PuritiesService } from '../../../../shared/services/Purities/purities.service';
+import { BackupService } from '../../../../shared/services/Backup/backup.service';
+import { PermissionsService } from '../../../../shared/services/Auth/permissions.service';
 import { ShopSettings } from '../../../../interfaces/Shared/shop-settings';
 import { MetalRateRow, MetalRateSession, MetalRateUpsertPayload } from '../../../../interfaces/Shared/metal-rate';
 import { Purity } from '../../../../interfaces/Shared/purity';
 import { TaxSlabRow } from '../../../../interfaces/Shared/tax-slab';
+import { ListBackupsEntry } from '../../../../interfaces/Backup/backup';
 import { INDIAN_STATES, GSTIN_REGEX } from '../../../../shared/utils/indian-states';
+import { ScaleService } from '../../../../shared/services/Hardware/scale.service';
+import { ScannerService } from '../../../../shared/services/Hardware/scanner.service';
 
 type TabId = 'shop' | 'tax' | 'rates' | 'print' | 'backup' | 'users' | 'database';
 
@@ -45,7 +67,23 @@ interface StubUser {
   styleUrls: ['./settings-page.component.scss'],
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, NgIcon],
-  viewProviders: [provideIcons({ lucideCopy, lucideArrowLeft })],
+  viewProviders: [provideIcons({
+    lucideCopy,
+    lucideArrowLeft,
+    lucideScale,
+    lucideScanBarcode,
+    lucidePlug,
+    lucidePlugZap,
+    lucideRefreshCw,
+    lucideCircleCheck,
+    lucideCircleAlert,
+    lucideEye,
+    lucideEyeOff,
+    lucideFolder,
+    lucideTrash2,
+    lucideDownload,
+    lucideTriangleAlert,
+  })],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SettingsPageComponent implements OnInit, OnDestroy {
@@ -82,8 +120,26 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
 
   printForm!: FormGroup;
 
+  // Hardware panel state
+  readonly scannerEnabled = signal<boolean>(true);
+  readonly scanTestBuffer = signal<string>('');
+  readonly baudRateOptions = [4800, 9600, 19200, 38400] as const;
+  readonly scaleTestResult = signal<string>('');
+
   usersList = signal<StubUser[]>([]);
   newUserForm!: FormGroup;
+
+  // Backup tab state
+  backupForm!: FormGroup;
+  restoreForm!: FormGroup;
+  readonly backupList = signal<ListBackupsEntry[]>([]);
+  readonly backupBusy = signal<boolean>(false);
+  readonly backupProgress = signal<string>('');
+  readonly backupPrereqWarning = signal<string>('');
+  readonly showPassphrase = signal<boolean>(false);
+  readonly showConfirmPassphrase = signal<boolean>(false);
+  readonly showRestorePassphrase = signal<boolean>(false);
+  readonly selectedBackup = signal<ListBackupsEntry | null>(null);
 
   dbForm!: FormGroup;
   dbFormInitialValues: any;
@@ -101,6 +157,10 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
   private readonly shopSettingsService = inject(ShopSettingsService);
   private readonly metalRatesService = inject(MetalRatesService);
   private readonly puritiesService = inject(PuritiesService);
+  readonly scaleService = inject(ScaleService);
+  readonly scannerService = inject(ScannerService);
+  private readonly backupService = inject(BackupService);
+  readonly permissions = inject(PermissionsService);
   private readonly destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
@@ -112,6 +172,7 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
     this.buildInvoiceForm();
     this.buildPrintForm();
     this.buildNewUserForm();
+    this.buildBackupForms();
 
     this.loadShopSettings();
     this.loadPurities();
@@ -120,6 +181,28 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
     this.loadRateHistory();
     this.loadUsersStub();
     this.loadDbSettings();
+    this.loadBackups();
+    this.permissions.getUserPermissions().then(() => {
+      if (!this.isTabVisible(this.activeTab())) {
+        this.activeTab.set('shop');
+      }
+    });
+    this.hydrateHardwarePreferences();
+    this.scaleService.refreshPorts();
+
+    // Mirror scanner emissions into the test buffer whenever the tab
+    // isn't listening — this makes the "Scan test" field feel live even
+    // if no explicit subscription button was clicked.
+    this.scannerService.scan$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((code) => {
+      this.scanTestBuffer.set(code);
+    });
+  }
+
+  private hydrateHardwarePreferences(): void {
+    const pref = localStorage.getItem('jsms.scanner.cart.enabled');
+    const enabled = pref !== '0';
+    this.scannerEnabled.set(enabled);
+    if (enabled) { this.scannerService.enable(); } else { this.scannerService.disable(); }
   }
 
   ngOnDestroy(): void {
@@ -129,6 +212,12 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
   goBack() { this.location.back(); }
 
   setTab(id: TabId) { this.activeTab.set(id); }
+
+  isTabVisible(id: TabId): boolean {
+    if (id === 'backup') { return this.permissions.permissions().canBackup; }
+    if (id === 'users')  { return this.permissions.permissions().canManageUsers; }
+    return true;
+  }
 
   // -------------------------------------------------------------------------
   // Shop identity
@@ -393,24 +482,262 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
   }
 
   // -------------------------------------------------------------------------
+  // Hardware — scanner
+  // -------------------------------------------------------------------------
+  toggleScannerEnabled(): void {
+    const next = !this.scannerEnabled();
+    this.scannerEnabled.set(next);
+    localStorage.setItem('jsms.scanner.cart.enabled', next ? '1' : '0');
+    if (next) { this.scannerService.enable(); } else { this.scannerService.disable(); }
+  }
+
+  simulateScan(): void {
+    this.scannerService.emit('TEST-BARCODE-' + Math.floor(Math.random() * 10_000));
+  }
+
+  onScanTestInput(value: string): void {
+    this.scanTestBuffer.set(value);
+  }
+
+  clearScanTestBuffer(): void {
+    this.scanTestBuffer.set('');
+  }
+
+  // -------------------------------------------------------------------------
+  // Hardware — weighing scale
+  // -------------------------------------------------------------------------
+  async refreshScalePorts(): Promise<void> {
+    await this.scaleService.refreshPorts();
+  }
+
+  onScalePortChange(portPath: string): void {
+    this.scaleService.setPort(portPath);
+  }
+
+  onScaleBaudChange(baud: string | number): void {
+    this.scaleService.setBaud(Number(baud));
+  }
+
+  async connectScale(): Promise<void> {
+    const ok = await this.scaleService.connect();
+    if (!ok) {
+      Swal.fire('Failed to connect', this.scaleService.lastError() ?? 'Unable to open the selected serial port.', 'error');
+    } else {
+      Swal.fire({
+        icon: 'success', title: 'Scale connected', timer: 1400, showConfirmButton: false,
+      });
+    }
+  }
+
+  async disconnectScale(): Promise<void> {
+    await this.scaleService.disconnect();
+  }
+
+  async testScaleReading(): Promise<void> {
+    const r = await this.scaleService.pollOnce();
+    if (r) {
+      this.scaleTestResult.set(`${r.grams.toFixed(3)} g · ${r.stable ? 'stable' : 'unstable'}`);
+    } else {
+      this.scaleTestResult.set('No reading available. Place an item on the scale.');
+    }
+  }
+
+  // -------------------------------------------------------------------------
   // Backup
   // -------------------------------------------------------------------------
-  async exportBackup() {
-    this.loggerService.LogInfo('Backup export requested (stub)');
-    Swal.fire({
-      icon: 'info',
-      title: 'Not yet implemented',
-      text: 'Encrypted backup export lands in Phase 2 (mysqldump + AES).',
+  private buildBackupForms() {
+    this.backupForm = this.fb.group({
+      passphrase:        ['', [Validators.required, Validators.minLength(8)]],
+      confirmPassphrase: ['', [Validators.required]],
+      targetDir:         [''],
+    }, { validators: (group) => {
+      const a = group.get('passphrase')?.value;
+      const b = group.get('confirmPassphrase')?.value;
+      return a && b && a !== b ? { passphraseMismatch: true } : null;
+    }});
+
+    this.restoreForm = this.fb.group({
+      passphrase: ['', [Validators.required, Validators.minLength(8)]],
     });
   }
 
-  async restoreBackup() {
-    this.loggerService.LogInfo('Backup restore requested (stub)');
-    Swal.fire({
-      icon: 'info',
-      title: 'Not yet implemented',
-      text: 'Backup restore lands in Phase 2 alongside export.',
+  async loadBackups() {
+    try {
+      const dir = this.backupForm?.value?.targetDir || null;
+      const rows = await this.backupService.list(dir);
+      this.backupList.set(rows);
+    } catch (err) {
+      this.loggerService.LogError(err, 'loadBackups');
+      this.backupList.set([]);
+    }
+  }
+
+  togglePassphraseVisibility() { this.showPassphrase.set(!this.showPassphrase()); }
+  toggleConfirmPassphraseVisibility() { this.showConfirmPassphrase.set(!this.showConfirmPassphrase()); }
+  toggleRestorePassphraseVisibility() { this.showRestorePassphrase.set(!this.showRestorePassphrase()); }
+
+  async chooseBackupDirectory() {
+    const picked = await this.backupService.pickDirectory(this.backupForm?.value?.targetDir);
+    if (picked) {
+      this.backupForm.patchValue({ targetDir: picked });
+      await this.loadBackups();
+    }
+  }
+
+  async createBackupArchive() {
+    if (!this.backupForm.valid || this.backupForm.hasError('passphraseMismatch')) {
+      this.backupForm.markAllAsTouched();
+      return;
+    }
+    const raw = this.backupForm.value;
+    this.backupBusy.set(true);
+    this.backupProgress.set('Encrypting...');
+    try {
+      const dbInfo: SettingsModel | null = await this.storeService.get('currentDbInfo');
+      const result = await this.backupService.create({
+        host:       'localhost',
+        port:       Number(dbInfo?.DATABASE_PORT ?? 3306),
+        user:       String(dbInfo?.DATABASE_USERNAME ?? ''),
+        password:   String(dbInfo?.DATABASE_PASSWORD ?? ''),
+        database:   String(dbInfo?.DATABASE_NAME ?? ''),
+        passphrase: raw.passphrase,
+        targetDir:  raw.targetDir || '',
+      });
+      Swal.fire({
+        icon: 'success',
+        title: 'Backup created',
+        html: `<div class="text-left"><b>${result.filename}</b><br/>${this.formatBytes(result.sizeBytes)}</div>`,
+        timer: 2400,
+        showConfirmButton: false,
+      });
+      this.backupPrereqWarning.set('');
+      await this.loadBackups();
+    } catch (err: any) {
+      const msg = String(err?.message || err);
+      this.loggerService.LogError(err, 'createBackupArchive');
+      if (/ENOENT|not found on PATH/i.test(msg)) {
+        this.backupPrereqWarning.set('MySQL client tools not detected on PATH. Install MySQL 8 client (Windows: C:\\Program Files\\MySQL\\MySQL Server 8.0\\bin) and add it to your system PATH.');
+        Swal.fire({
+          icon: 'error',
+          title: 'Install MySQL client tools',
+          text: 'mysqldump was not found on PATH. Install MySQL client tools and try again.',
+        });
+      } else {
+        Swal.fire({ icon: 'error', title: 'Backup failed', text: msg });
+      }
+    } finally {
+      this.backupBusy.set(false);
+      this.backupProgress.set('');
+    }
+  }
+
+  selectBackup(entry: ListBackupsEntry | null) {
+    this.selectedBackup.set(entry);
+  }
+
+  async restoreBackupArchive() {
+    const entry = this.selectedBackup();
+    if (!entry) {
+      Swal.fire({ icon: 'warning', title: 'Select a backup', text: 'Choose an archive from the list first.' });
+      return;
+    }
+    if (!this.restoreForm.valid) {
+      this.restoreForm.markAllAsTouched();
+      return;
+    }
+    const confirm1 = await Swal.fire({
+      icon: 'warning',
+      title: 'Restore this archive?',
+      html: `<div class="text-left">This will overwrite the current database with <b>${entry.filename}</b>.</div>`,
+      showCancelButton: true,
+      confirmButtonText: 'Continue',
     });
+    if (!confirm1.isConfirmed) { return; }
+    const confirm2 = await Swal.fire({
+      icon: 'warning',
+      title: 'Are you sure?',
+      text: 'This action cannot be undone. The app will restart after restoring.',
+      showCancelButton: true,
+      confirmButtonText: 'Restore now',
+      confirmButtonColor: '#ce2c31',
+    });
+    if (!confirm2.isConfirmed) { return; }
+
+    this.backupBusy.set(true);
+    this.backupProgress.set('Restoring...');
+    try {
+      const dbInfo: SettingsModel | null = await this.storeService.get('currentDbInfo');
+      await this.backupService.restore({
+        host:       'localhost',
+        port:       Number(dbInfo?.DATABASE_PORT ?? 3306),
+        user:       String(dbInfo?.DATABASE_USERNAME ?? ''),
+        password:   String(dbInfo?.DATABASE_PASSWORD ?? ''),
+        database:   String(dbInfo?.DATABASE_NAME ?? ''),
+        passphrase: this.restoreForm.value.passphrase,
+        archivePath: entry.path,
+      });
+      Swal.fire({
+        icon: 'success',
+        title: 'Restore complete',
+        html: 'Relaunching the app in a moment...',
+        timer: 2400,
+        showConfirmButton: false,
+      }).then(async () => {
+        try { await this.utilityService.relaunch(); }
+        catch (err) { this.loggerService.LogError(err as string, 'relaunch()'); }
+      });
+    } catch (err: any) {
+      const msg = String(err?.message || err);
+      this.loggerService.LogError(err, 'restoreBackupArchive');
+      Swal.fire({ icon: 'error', title: 'Restore failed', text: msg });
+    } finally {
+      this.backupBusy.set(false);
+      this.backupProgress.set('');
+    }
+  }
+
+  async deleteBackupArchive(entry: ListBackupsEntry) {
+    if (!this.permissions.permissions().canBackup) { return; }
+    const confirm1 = await Swal.fire({
+      icon: 'warning',
+      title: 'Delete this archive?',
+      html: `<div class="text-left"><b>${entry.filename}</b></div>`,
+      showCancelButton: true,
+      confirmButtonText: 'Delete',
+      confirmButtonColor: '#ce2c31',
+    });
+    if (!confirm1.isConfirmed) { return; }
+    const confirm2 = await Swal.fire({
+      icon: 'warning',
+      title: 'Confirm delete',
+      text: 'This cannot be undone.',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete',
+      confirmButtonColor: '#ce2c31',
+    });
+    if (!confirm2.isConfirmed) { return; }
+    try {
+      const authData: any = await this.storeService.get('authData');
+      await this.backupService.delete(entry.path, authData?.type);
+      if (this.selectedBackup()?.path === entry.path) { this.selectBackup(null); }
+      await this.loadBackups();
+      Swal.fire({ icon: 'success', title: 'Deleted', timer: 1200, showConfirmButton: false });
+    } catch (err: any) {
+      this.loggerService.LogError(err, 'deleteBackupArchive');
+      Swal.fire({ icon: 'error', title: 'Delete failed', text: String(err?.message || err) });
+    }
+  }
+
+  formatBytes(bytes: number): string {
+    if (!bytes || bytes < 1024) { return `${bytes || 0} B`; }
+    if (bytes < 1024 * 1024) { return `${(bytes / 1024).toFixed(1)} KB`; }
+    if (bytes < 1024 * 1024 * 1024) { return `${(bytes / (1024 * 1024)).toFixed(2)} MB`; }
+    return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+  }
+
+  formatDateTime(iso: string): string {
+    if (!iso) { return ''; }
+    try { return new Date(iso).toLocaleString(); } catch { return iso; }
   }
 
   // -------------------------------------------------------------------------

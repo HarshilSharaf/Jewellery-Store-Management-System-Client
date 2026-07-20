@@ -27,7 +27,7 @@ export class OrderService {
 
   saveOrder(orderData: SaveOrderPayload): Promise<any> {
     return this.db.execute(
-      'call save_order(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);',
+      'call save_order(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);',
       [
         orderData.customerId,
         orderData.placeOfSupply,
@@ -50,6 +50,9 @@ export class OrderService {
         orderData.paymentRefNumber ?? null,
         orderData.lineItems ? JSON.stringify(orderData.lineItems) : null,
         orderData.oldGoldReceipts ? JSON.stringify(orderData.oldGoldReceipts) : null,
+        orderData.oldGoldReceiptGuid ?? null,
+        orderData.savingSchemeGuid ?? null,
+        orderData.actorUserId ?? null,
       ],
     );
   }
