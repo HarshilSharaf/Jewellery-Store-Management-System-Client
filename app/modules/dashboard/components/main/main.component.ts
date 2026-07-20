@@ -1,11 +1,10 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 import { Chart, ChartConfiguration } from 'chart.js/auto';
-import { NgxUiLoaderService } from 'ngx-ui-loader';
+import dayjs from 'dayjs';
 
-import { ProductCategoryService } from '../../../categories/components/product-categories/services/product-category.service';
 import { CustomerDataService } from '../../../customers/services/customer-data.service';
 import { InventoryService } from '../../../inventory/services/inventory.service';
 import { OrderService } from '../../../orders/services/order.service';
@@ -13,117 +12,106 @@ import { OrderService } from '../../../orders/services/order.service';
 import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
 import { RecentOrdersModel } from '../../models/recent-orders-model';
 import { MonthlySalesAndLabourModel, SalesAndLabourModel } from '../../models/sales-and-labour-model';
-import { TopProductCategoriesModel } from '../../models/top-product-categories-model';
 import { TotalCustomersModel } from '../../models/total-customers-model';
 import { TotalStockModel } from '../../models/total-stock-model';
 import { TotalRevenueModel } from '../../models/total-revenue-model';
+import { TopProductCategoriesModel } from '../../models/top-product-categories-model';
 
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
-  lucideIndianRupee,
-  lucidePackage,
-  lucideUsers,
   lucideTrendingUp,
   lucideTrendingDown,
-  lucideChartLine,
   lucideArrowRight,
+  lucideLock,
+  lucideInbox,
+  lucideChartLine,
   lucideGem,
+  lucideUsers,
+  lucidePackage,
+  lucideWallet,
 } from '@ng-icons/lucide';
-import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
-import { ThemeService } from '../../../../shared/services/theme.service';
+
 import { MetalRatesService } from '../../../../shared/services/MetalRates/metal-rates.service';
+import { ProductCategoryService } from '../../../categories/components/product-categories/services/product-category.service';
 import { MetalRateRow } from '../../../../interfaces/Shared/metal-rate';
-
-type DashboardKpiSlot = 'revenue' | 'stock' | 'customers';
-
-interface Kpi {
-  slot: DashboardKpiSlot;
-  label: string;
-  value: string;
-  sublabel: string;
-  delta: number;
-  icon: string;
-  format?: 'currency' | 'weight' | 'count';
-}
-
-interface LiveRate {
-  purity: string;
-  purityCode: string;
-  ratePerGram: number;
-  session: 'AM' | 'PM';
-  changePct: number;
-  metalType?: string;
-}
 
 @Component({
   selector: 'app-main',
   templateUrl: './main.component.html',
   styleUrls: ['./main.component.scss'],
   standalone: true,
-  imports: [CommonModule, RouterModule, PageHeaderComponent, NgIcon],
+  imports: [CommonModule, RouterLink, NgIcon],
   viewProviders: [
     provideIcons({
-      lucideIndianRupee,
-      lucidePackage,
-      lucideUsers,
       lucideTrendingUp,
       lucideTrendingDown,
-      lucideChartLine,
       lucideArrowRight,
+      lucideLock,
+      lucideInbox,
+      lucideChartLine,
       lucideGem,
+      lucideUsers,
+      lucidePackage,
+      lucideWallet,
     }),
   ],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
-  @ViewChild('salesLineChart', { static: false }) chartCanvas?: ElementRef<HTMLCanvasElement>;
+  @ViewChild('revenueChart', { static: false }) chartCanvas?: ElementRef<HTMLCanvasElement>;
 
   private chart: Chart | null = null;
-  private kpiSlots: Partial<Record<DashboardKpiSlot, Kpi>> = {};
-  private themeAttrObserver: MutationObserver | null = null;
+  private themeObserver: MutationObserver | null = null;
+
+  private readonly customerService = inject(CustomerDataService);
+  private readonly inventoryService = inject(InventoryService);
+  private readonly ordersService = inject(OrderService);
+  private readonly productCategoryService = inject(ProductCategoryService);
+  private readonly metalRatesService = inject(MetalRatesService);
+  private readonly logger = inject(LoggerService);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly router = inject(Router);
+
+  today = dayjs().format('ddd D MMM YYYY');
+
+  monthlySales: MonthlySalesAndLabourModel[] = [];
+  revenueTotal: number | null = null;
+  revenueDelta: number | null = null;
+
+  rate22k: number | null = null;
+  ratesLoaded = false;
 
   recentOrders: RecentOrdersModel[] = [];
-  topSellingProducts: TopProductCategoriesModel[] = [];
-  monthlySalesAndLabour: MonthlySalesAndLabourModel[] = [];
+  recentOrdersLoaded = false;
 
-  liveRates: LiveRate[] = [];
-  liveRatesLoaded = false;
-  liveRatesSession: 'AM' | 'PM' = 'AM';
+  fastMovers: TopProductCategoriesModel[] = [];
+  fastMoversLoaded = false;
 
-  get kpis(): Kpi[] {
-    return (['revenue', 'stock', 'customers'] as DashboardKpiSlot[])
-      .map(k => this.kpiSlots[k])
-      .filter((c): c is Kpi => c !== undefined);
-  }
+  totalCustomers: number | null = null;
+  customersDelta: number | null = null;
 
-  constructor(
-    private customerService: CustomerDataService,
-    private inventoryService: InventoryService,
-    private ordersService: OrderService,
-    private productCategoryService: ProductCategoryService,
-    private loaderService: NgxUiLoaderService,
-    private loggerService: LoggerService,
-    private themeService: ThemeService,
-    private metalRatesService: MetalRatesService
-  ) {}
+  totalStockGrams: number | null = null;
+  stockDelta: number | null = null;
 
-  ngOnInit() {
-    this.getTotalRevenueInLast6Months();
-    this.getTotalStock();
-    this.getTotalCustomers();
-    this.getRecentOrders();
-    this.getTopProductCategories();
-    this.getSalesAndLabour();
-    this.loadLiveRates();
+  pendingCount: number | null = null;
+  pendingAmount: number | null = null;
+  pendingLoaded = false;
+
+  ngOnInit(): void {
+    this.loadRevenue();
+    this.loadRates();
+    this.loadRecentOrders();
+    this.loadFastMovers();
+    this.loadCustomers();
+    this.loadStock();
+    this.loadPending();
   }
 
   ngAfterViewInit(): void {
-    this.themeAttrObserver = new MutationObserver(() => {
-      if (this.monthlySalesAndLabour.length) {
-        this.renderChart();
-      }
+    this.themeObserver = new MutationObserver(() => {
+      if (this.monthlySales.length) { this.renderChart(); }
     });
-    this.themeAttrObserver.observe(document.documentElement, {
+    this.themeObserver.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ['data-theme'],
     });
@@ -132,57 +120,158 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
   ngOnDestroy(): void {
     this.chart?.destroy();
     this.chart = null;
-    this.themeAttrObserver?.disconnect();
-    this.themeAttrObserver = null;
-    this.loaderService.stop();
+    this.themeObserver?.disconnect();
+    this.themeObserver = null;
   }
 
-  trackByPurity = (_: number, r: LiveRate) => r.purity;
-  trackByProduct = (_: number, p: TopProductCategoriesModel) => p.productCategoryName;
   trackByOrder = (_: number, o: RecentOrdersModel) => o.invoiceGuid ?? o.id;
+  trackByMover = (_: number, m: TopProductCategoriesModel) => m.productCategoryName;
 
-  formatCurrency(v: number): string {
-    return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(v);
+  formatINR(value: number | null | undefined): string {
+    const n = Number(value ?? 0);
+    return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(n);
   }
 
-  formatNumber(v: number): string {
-    return new Intl.NumberFormat('en-IN').format(v);
+  formatNumber(value: number | null | undefined): string {
+    return new Intl.NumberFormat('en-IN').format(Number(value ?? 0));
   }
 
-  customerFullName(o: RecentOrdersModel): string {
+  customerName(o: RecentOrdersModel): string {
     const cd = o.customerDetails ?? o.customer_details;
-    const first = cd?.firstName ?? '';
-    const last = cd?.lastName ?? '';
-    return `${first} ${last}`.trim();
+    if (!cd) { return 'Walk-in'; }
+    const parts = [cd.firstName, cd.lastName].filter(Boolean);
+    return parts.join(' ').trim() || 'Walk-in';
   }
 
-  orderTotal(o: RecentOrdersModel): number {
-    return Number(o.grandTotal ?? o.totalAmountWithGst ?? 0);
+  goToLockRate(): void {
+    this.router.navigate(['/settings']);
   }
 
-  orderItemCount(o: RecentOrdersModel): number {
-    return Number(o.totalLineItems ?? o.total_products ?? 0);
+  private async loadRevenue(): Promise<void> {
+    try {
+      const resp: TotalRevenueModel[] = await this.ordersService.getTotalRevenueInLast6Months();
+      const first = Array.isArray(resp) ? resp[0] : resp;
+      if (first) {
+        this.revenueTotal = Number(first.total ?? 0);
+        this.revenueDelta = Number(first.percent_increase ?? 0);
+      }
+      const sla: SalesAndLabourModel[] = await this.ordersService.getSalesAndLabour(6);
+      if (sla?.[0]?.monthlySalesAndLabour) {
+        this.monthlySales = [...sla[0].monthlySalesAndLabour];
+        this.renderChart();
+      }
+      this.cdr.markForCheck();
+    } catch (err) {
+      this.logger.LogError(err, 'MainComponent#loadRevenue');
+    }
+  }
+
+  private async loadRates(): Promise<void> {
+    try {
+      const rows: MetalRateRow[] = await this.metalRatesService.getCurrent();
+      const preferred = rows.find(r => r.purityCode === '916' && r.session === 'PM')
+        ?? rows.find(r => r.purityCode === '916')
+        ?? null;
+      this.rate22k = preferred ? Number(preferred.ratePerGram) : null;
+      this.ratesLoaded = true;
+      this.cdr.markForCheck();
+    } catch (err) {
+      this.ratesLoaded = true;
+      this.logger.LogError(err, 'MainComponent#loadRates');
+    }
+  }
+
+  private async loadRecentOrders(): Promise<void> {
+    try {
+      const orders = await this.ordersService.getRecentOrders(5);
+      this.recentOrders = Array.isArray(orders) ? orders.slice(0, 5) : [];
+      this.recentOrdersLoaded = true;
+      this.cdr.markForCheck();
+    } catch (err) {
+      this.recentOrdersLoaded = true;
+      this.logger.LogError(err, 'MainComponent#loadRecentOrders');
+    }
+  }
+
+  private async loadFastMovers(): Promise<void> {
+    try {
+      const rows: TopProductCategoriesModel[] = await this.productCategoryService.getTopProductCategories();
+      this.fastMovers = (rows ?? []).slice(0, 5);
+      this.fastMoversLoaded = true;
+      this.cdr.markForCheck();
+    } catch (err) {
+      this.fastMoversLoaded = true;
+      this.logger.LogError(err, 'MainComponent#loadFastMovers');
+    }
+  }
+
+  private async loadCustomers(): Promise<void> {
+    try {
+      const resp: TotalCustomersModel[] = await this.customerService.getTotalCustomers();
+      const first = Array.isArray(resp) ? resp[0] : resp;
+      if (first) {
+        this.totalCustomers = Number(first.total ?? 0);
+        this.customersDelta = Number(first.percent_increase ?? 0);
+      }
+      this.cdr.markForCheck();
+    } catch (err) {
+      this.logger.LogError(err, 'MainComponent#loadCustomers');
+    }
+  }
+
+  private async loadStock(): Promise<void> {
+    try {
+      const resp: TotalStockModel[] = await this.inventoryService.getTotalStock();
+      const first = Array.isArray(resp) ? resp[0] : resp;
+      if (first) {
+        this.totalStockGrams = Number(first.total ?? 0);
+        this.stockDelta = Number(first.percent_increase ?? 0);
+      }
+      this.cdr.markForCheck();
+    } catch (err) {
+      this.logger.LogError(err, 'MainComponent#loadStock');
+    }
+  }
+
+  /**
+   * No dedicated pending-payments SP exists yet. Derive from get_all_orders
+   * (first page, page size 500) by filtering isPaymentDone=false. Zero
+   * is a legitimate value; we distinguish "loaded but empty" vs "not loaded".
+   */
+  private async loadPending(): Promise<void> {
+    try {
+      const resp: any = await this.ordersService.getAllOrders(500, 1, '');
+      const rows: any[] = Array.isArray(resp?.[0]) ? resp[0] : Array.isArray(resp) ? resp : [];
+      const pending = rows.filter(r => !r.isPaymentDone && !r.cancelledAt);
+      this.pendingCount = pending.length;
+      this.pendingAmount = pending.reduce((sum, r) => sum + Number(r.grandTotal ?? r.totalAmountWithGst ?? 0), 0);
+      this.pendingLoaded = true;
+      this.cdr.markForCheck();
+    } catch (err) {
+      this.pendingLoaded = true;
+      this.logger.LogError(err, 'MainComponent#loadPending');
+    }
   }
 
   private renderChart(): void {
-    if (!this.chartCanvas || !this.monthlySalesAndLabour.length) return;
+    if (!this.chartCanvas || !this.monthlySales.length) { return; }
     this.chart?.destroy();
 
     const styles = getComputedStyle(document.documentElement);
-    const accent = styles.getPropertyValue('--color-accent').trim() || '#ffc53d';
-    const fg = styles.getPropertyValue('--color-fg').trim() || '#21201c';
     const fgMuted = styles.getPropertyValue('--color-fg-muted').trim() || '#63635e';
-    const border = styles.getPropertyValue('--color-border').trim() || '#dad9d6';
+    const border = styles.getPropertyValue('--color-border-subtle').trim() || '#e9e8e6';
+    const panel = styles.getPropertyValue('--color-panel').trim() || '#fff';
+    const accent = 'oklch(72% 0.14 65)';
 
-    const labels = this.monthlySalesAndLabour.map(m => m.month_year);
-    const data = this.monthlySalesAndLabour.map(m => Number(m.sales) || 0);
+    const labels = this.monthlySales.map(m => m.month_year);
+    const data = this.monthlySales.map(m => Number(m.sales) || 0);
 
     const config: ChartConfiguration<'line'> = {
       type: 'line',
       data: {
         labels,
         datasets: [{
-          label: 'Sales',
+          label: 'Revenue',
           data,
           borderColor: accent,
           backgroundColor: this.buildGradient(accent),
@@ -191,7 +280,7 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
           pointRadius: 3,
           pointHoverRadius: 6,
           pointBackgroundColor: accent,
-          pointBorderColor: styles.getPropertyValue('--color-panel').trim() || '#fff',
+          pointBorderColor: panel,
           fill: true,
         }],
       },
@@ -202,35 +291,30 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
         plugins: {
           legend: { display: false },
           tooltip: {
-            backgroundColor: styles.getPropertyValue('--color-panel').trim() || '#fff',
-            titleColor: fg,
+            backgroundColor: panel,
+            titleColor: styles.getPropertyValue('--color-fg').trim() || '#21201c',
             bodyColor: fgMuted,
             borderColor: border,
             borderWidth: 1,
             padding: 12,
-            boxPadding: 6,
             usePointStyle: true,
             titleFont: { family: 'Inter, Hind, system-ui, sans-serif', weight: 600 },
             bodyFont: { family: 'Inter, Hind, system-ui, sans-serif' },
             callbacks: {
-              label: (ctx) => ` ${this.formatCurrency(Number(ctx.parsed.y ?? 0))}`,
+              label: (ctx) => ` ${this.formatINR(Number(ctx.parsed.y ?? 0))}`,
             },
           },
         },
         scales: {
           x: {
             grid: { display: false },
-            border: { display: false },
-            ticks: { color: fgMuted, font: { family: 'Inter, Hind, system-ui, sans-serif', size: 12 } },
+            border: { color: border, display: true },
+            ticks: { color: fgMuted, font: { family: 'Inter, Hind, system-ui, sans-serif', size: 11 } },
           },
           y: {
-            grid: { color: border, tickLength: 0 },
+            grid: { display: false },
             border: { display: false },
-            ticks: {
-              color: fgMuted,
-              font: { family: 'Inter, Hind, system-ui, sans-serif', size: 12 },
-              callback: (v) => this.formatNumber(Number(v)),
-            },
+            ticks: { display: false },
           },
         },
       },
@@ -241,158 +325,12 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private buildGradient(color: string): CanvasGradient | string {
     const canvas = this.chartCanvas?.nativeElement;
-    if (!canvas) return color;
+    if (!canvas) { return color; }
     const ctx = canvas.getContext('2d');
-    if (!ctx) return color;
-    const gradient = ctx.createLinearGradient(0, 0, 0, 280);
-    gradient.addColorStop(0, this.hexToRgba(color, 0.28));
-    gradient.addColorStop(1, this.hexToRgba(color, 0));
+    if (!ctx) { return color; }
+    const gradient = ctx.createLinearGradient(0, 0, 0, 240);
+    gradient.addColorStop(0, 'color-mix(in oklab, oklch(72% 0.14 65) 8%, transparent)');
+    gradient.addColorStop(1, 'color-mix(in oklab, oklch(72% 0.14 65) 0%, transparent)');
     return gradient;
-  }
-
-  private hexToRgba(color: string, alpha: number): string {
-    const trimmed = color.trim();
-    if (trimmed.startsWith('#') && (trimmed.length === 7 || trimmed.length === 4)) {
-      const hex = trimmed.length === 4
-        ? '#' + trimmed.slice(1).split('').map(c => c + c).join('')
-        : trimmed;
-      const r = parseInt(hex.slice(1, 3), 16);
-      const g = parseInt(hex.slice(3, 5), 16);
-      const b = parseInt(hex.slice(5, 7), 16);
-      return `rgba(${r},${g},${b},${alpha})`;
-    }
-    return trimmed;
-  }
-
-  async getSalesAndLabour() {
-    try {
-      this.loggerService.LogInfo('getSalesAndLabour() Request Started.');
-      const response: SalesAndLabourModel[] = await this.ordersService.getSalesAndLabour();
-      if (response[0].monthlySalesAndLabour) {
-        this.monthlySalesAndLabour = [...response[0].monthlySalesAndLabour];
-        this.renderChart();
-      }
-      this.loggerService.LogInfo('getSalesAndLabour() Request Completed.');
-    } catch (error) {
-      this.loggerService.LogError(error, 'getSalesAndLabour()');
-    }
-  }
-
-  async getTopProductCategories() {
-    try {
-      this.loggerService.LogInfo('getTopProductCategories() Request Started.');
-      const response: TopProductCategoriesModel[] = await this.productCategoryService.getTopProductCategories();
-      this.topSellingProducts = response;
-      this.loggerService.LogInfo('getTopProductCategories() Request Completed.');
-    } catch (error) {
-      this.loggerService.LogError(error, 'getTopProductCategories()');
-    }
-  }
-
-  async getRecentOrders() {
-    try {
-      this.loggerService.LogInfo('getRecentOrders() Request Started.');
-      if (this.loaderService.getLoader()) {
-        this.loaderService.start();
-      }
-      const response: any = await this.ordersService.getRecentOrders();
-      this.recentOrders = [...response];
-      this.loaderService.stop();
-      this.loggerService.LogInfo('getRecentOrders() Request Completed.');
-    } catch (error) {
-      this.loggerService.LogError(error, 'getRecentOrders()');
-      this.loaderService.stop();
-    }
-  }
-
-  async getTotalCustomers() {
-    try {
-      this.loggerService.LogInfo('getTotalCustomers() Request Started.');
-      this.loaderService.start();
-      const response: TotalCustomersModel[] = await this.customerService.getTotalCustomers();
-      this.loaderService.stop();
-      this.kpiSlots.customers = {
-        slot: 'customers',
-        label: 'Customers',
-        value: this.formatNumber(response[0].total ?? 0),
-        sublabel: 'active last 6 months',
-        delta: response[0].percent_increase ?? 0,
-        icon: 'lucideUsers',
-        format: 'count',
-      };
-      this.loggerService.LogInfo('getTotalCustomers() Request Completed.');
-    } catch (error) {
-      this.loggerService.LogError(error, 'getTotalCustomers()');
-    }
-  }
-
-  async getTotalStock() {
-    try {
-      this.loggerService.LogInfo('getTotalStock() Request Started.');
-      this.loaderService.start();
-      const response: TotalStockModel[] = await this.inventoryService.getTotalStock();
-      this.loaderService.stop();
-      const total = response[0].total ?? 0;
-      this.kpiSlots.stock = {
-        slot: 'stock',
-        label: 'Stock on hand',
-        value: this.formatNumber(total),
-        sublabel: 'gms of metal',
-        delta: response[0].percent_increase ?? 0,
-        icon: 'lucidePackage',
-        format: 'weight',
-      };
-      this.loggerService.LogInfo('getTotalStock() Request Completed.');
-    } catch (error) {
-      this.loggerService.LogError(error, 'getTotalStock()');
-    }
-  }
-
-  async loadLiveRates() {
-    try {
-      this.loggerService.LogInfo('loadLiveRates() Request Started.');
-      const rows: MetalRateRow[] = await this.metalRatesService.getCurrent();
-      this.liveRates = rows.map((r) => this.toLiveRate(r));
-      if (rows.length && rows[0].session) {
-        this.liveRatesSession = rows[0].session;
-      }
-      this.liveRatesLoaded = true;
-      this.loggerService.LogInfo('loadLiveRates() Request Completed.');
-    } catch (error) {
-      this.liveRatesLoaded = true;
-      this.loggerService.LogError(error, 'loadLiveRates()');
-    }
-  }
-
-  private toLiveRate(row: MetalRateRow): LiveRate {
-    return {
-      purity: row.purityLabel ?? row.purityCode,
-      purityCode: row.purityCode,
-      ratePerGram: Number(row.ratePerGram) || 0,
-      session: row.session,
-      changePct: 0,
-      metalType: row.metalType,
-    };
-  }
-
-  async getTotalRevenueInLast6Months() {
-    try {
-      this.loggerService.LogInfo('getTotalRevenueInLast6Months() Request Started.');
-      this.loaderService.start();
-      const response: TotalRevenueModel[] = await this.ordersService.getTotalRevenueInLast6Months();
-      this.loaderService.stop();
-      this.kpiSlots.revenue = {
-        slot: 'revenue',
-        label: 'Revenue',
-        value: this.formatCurrency(response[0].total ?? 0),
-        sublabel: 'trailing 6 months',
-        delta: response[0].percent_increase ?? 0,
-        icon: 'lucideIndianRupee',
-        format: 'currency',
-      };
-      this.loggerService.LogInfo('getTotalRevenueInLast6Months() Request Completed.');
-    } catch (error) {
-      this.loggerService.LogError(error, 'getTotalRevenueInLast6Months()');
-    }
   }
 }

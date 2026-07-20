@@ -70,6 +70,29 @@
     width: 36px;
     height: 36px;
   }
+
+  // Dashboard KPI recipe. Reused by G's pattern; H/I/J will pull this
+  // into their screens when they need a stat tile.
+  .kpi-card {
+    @apply rounded-lg border border-border-subtle bg-panel p-6 shadow-sm;
+  }
+  .kpi-label {
+    @apply text-xs font-medium text-fg-muted uppercase tracking-wide;
+  }
+  .kpi-value {
+    @apply mt-2 font-serif text-fg tabular-nums;
+    font-size: 2.25rem;
+    line-height: 1.05;
+  }
+  .kpi-delta {
+    @apply mt-3 text-sm tabular-nums;
+  }
+  .kpi-delta-up {
+    color: var(--color-success-fg);
+  }
+  .kpi-delta-down {
+    color: var(--color-danger-fg);
+  }
 }
 
 // animate.css and lightning-admin are loaded via `@use` at the top of

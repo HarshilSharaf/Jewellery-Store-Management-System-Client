@@ -1,193 +1,202 @@
 <div class="dash">
-  <header class="dash-head">
-    <div>
-      <p class="eyebrow">Overview</p>
-      <h1 class="dash-title">Dashboard</h1>
-    </div>
-    <div class="dash-head-meta">
-      <span class="pill">{{ liveRatesSession }} · Today</span>
-    </div>
+  <!-- Row 1: title + date -->
+  <header class="dash__head">
+    <h1 class="dash__title font-serif">Today</h1>
+    <span class="dash__date tabular-nums">{{ today }}</span>
   </header>
 
-  <section class="kpi-row" aria-label="Key metrics">
-    @for (kpi of kpis; track kpi.slot) {
-      <article class="kpi">
-        <div class="kpi-top">
-          <span class="kpi-label">{{ kpi.label }}</span>
-          <ng-icon [name]="kpi.icon" class="kpi-icon" aria-hidden="true"></ng-icon>
-        </div>
-        <p class="kpi-value font-serif tabular-nums">{{ kpi.value }}</p>
-        <div class="kpi-bottom">
-          <span class="delta tabular-nums" [class.delta-up]="kpi.delta >= 0" [class.delta-down]="kpi.delta < 0">
-            <ng-icon [name]="kpi.delta >= 0 ? 'lucideTrendingUp' : 'lucideTrendingDown'" aria-hidden="true"></ng-icon>
-            {{ kpi.delta || 0 }}%
-          </span>
-          <span class="kpi-sublabel">{{ kpi.sublabel }}</span>
-        </div>
-      </article>
-    }
-    @if (!kpis.length) {
-      @for (i of [0,1,2]; track i) {
-        <article class="kpi kpi-skeleton" aria-hidden="true">
-          <span class="sk sk-line"></span>
-          <span class="sk sk-value"></span>
-          <span class="sk sk-line"></span>
-        </article>
-      }
-    }
-  </section>
-
-  <section class="dash-grid">
-    <article class="panel chart-panel">
-      <header class="panel-head">
+  <!-- Row 2: revenue chart (col-span-8) + lock-rate card (col-span-4) -->
+  <section class="dash__row dash__row--primary">
+    <article class="card card--revenue">
+      <header class="card__head">
         <div>
-          <h2 class="panel-title">Monthly sales</h2>
-          <p class="panel-sub">Trailing six months of revenue.</p>
+          <p class="card__eyebrow">Revenue</p>
+          <p class="card__value font-serif tabular-nums">{{ formatINR(revenueTotal) }}</p>
         </div>
-        <span class="pill pill-muted">INR</span>
+        <div class="card__delta">
+          @if (revenueDelta !== null) {
+            <span class="delta tabular-nums" [class.delta--up]="revenueDelta >= 0" [class.delta--down]="revenueDelta < 0">
+              <ng-icon [name]="revenueDelta >= 0 ? 'lucideTrendingUp' : 'lucideTrendingDown'" size="14" aria-hidden="true"></ng-icon>
+              {{ revenueDelta | number:'1.0-1' }}%
+            </span>
+            <span class="delta__label">vs previous period</span>
+          }
+        </div>
       </header>
+
       <div class="chart-wrap">
-        <canvas #salesLineChart></canvas>
-        @if (!monthlySalesAndLabour.length) {
-          <div class="chart-empty">
-            <ng-icon name="lucideChartLine" aria-hidden="true"></ng-icon>
-            <span>No sales yet</span>
+        @if (monthlySales.length) {
+          <canvas #revenueChart></canvas>
+        } @else {
+          <div class="empty-state">
+            <ng-icon name="lucideChartLine" size="24" aria-hidden="true"></ng-icon>
+            <span>No revenue on file yet</span>
           </div>
         }
       </div>
     </article>
 
-    <article class="panel rate-panel">
-      <header class="panel-head">
+    <article class="card card--rate">
+      <header class="card__head">
         <div>
-          <h2 class="panel-title">Live metal rates</h2>
-          <p class="panel-sub">Per gram · latest session on file</p>
+          <p class="card__eyebrow">Lock today's rate</p>
+          <p class="card__value font-serif tabular-nums">
+            @if (ratesLoaded && rate22k !== null) {
+              &#8377;{{ rate22k | number:'1.0-0' }}<span class="unit">/g</span>
+            } @else if (ratesLoaded) {
+              --
+            } @else {
+              &nbsp;
+            }
+          </p>
+          <p class="card__sub">22K &middot; 916 fineness</p>
         </div>
-        <span class="pill pill-muted">{{ liveRatesSession }}</span>
       </header>
+      <footer class="card__foot">
+        <button type="button" class="hlm-btn hlm-btn-primary" (click)="goToLockRate()">
+          <ng-icon name="lucideLock" size="14" aria-hidden="true"></ng-icon>
+          <span>Lock rate</span>
+        </button>
+        @if (ratesLoaded && rate22k === null) {
+          <p class="empty-inline">
+            <ng-icon name="lucideInbox" size="14" aria-hidden="true"></ng-icon>
+            <span>No rate on file for today</span>
+          </p>
+        }
+      </footer>
+    </article>
+  </section>
 
-      <ul class="rate-list">
-        @for (r of liveRates; track trackByPurity(0, r)) {
-          <li class="rate-row">
-            <div class="rate-purity">
-              <span class="purity-badge">{{ r.purity }}</span>
+  <!-- Row 3: recent invoices (col-span-6) + fast movers (col-span-6) -->
+  <section class="dash__row dash__row--halves">
+    <article class="card card--list">
+      <header class="card__head card__head--split">
+        <div>
+          <p class="card__eyebrow">Recent invoices</p>
+        </div>
+        <a class="link-muted" routerLink="/orders">
+          <span>View all</span>
+          <ng-icon name="lucideArrowRight" size="12" aria-hidden="true"></ng-icon>
+        </a>
+      </header>
+      <ul class="list">
+        @for (o of recentOrders; track trackByOrder(0, o)) {
+          <li class="list__row list__row--clickable"
+              [routerLink]="['/orders/view-order-details', o.invoiceGuid]">
+            <div class="list__main">
+              <span class="list__title tabular-nums">{{ o.invoiceNumber ?? '#' + o.id }}</span>
+              <span class="list__sub">{{ customerName(o) }}</span>
             </div>
-            <div class="rate-value">
-              <span class="font-serif tabular-nums">{{ formatCurrency(r.ratePerGram) }}</span>
-            </div>
+            <span class="list__amount tabular-nums">{{ formatINR(o.grandTotal ?? o.totalAmountWithGst) }}</span>
           </li>
         }
-        @if (liveRatesLoaded && !liveRates.length) {
-          <li class="rate-row rate-empty">
-            <span>No rates on file yet.</span>
+        @if (recentOrdersLoaded && !recentOrders.length) {
+          <li class="empty-state empty-state--card">
+            <ng-icon name="lucideInbox" size="24" aria-hidden="true"></ng-icon>
+            <span>No invoices yet</span>
           </li>
         }
-        @if (!liveRatesLoaded) {
-          @for (i of [0,1,2]; track i) {
-            <li class="rate-row product-skeleton">
+        @if (!recentOrdersLoaded) {
+          @for (i of [0,1,2,3,4]; track i) {
+            <li class="list__row list__row--skeleton" aria-hidden="true">
               <span class="sk sk-line"></span>
             </li>
           }
         }
       </ul>
-
-      <footer class="rate-foot">
-        <span>Source: shopfront · manual entry until IBJA feed lands</span>
-      </footer>
     </article>
-  </section>
 
-  <section class="dash-grid dash-grid-secondary">
-    <article class="panel products-panel">
-      <header class="panel-head">
+    <article class="card card--list">
+      <header class="card__head card__head--split">
         <div>
-          <h2 class="panel-title">Top product categories</h2>
-          <p class="panel-sub">By total metal weight sold.</p>
+          <p class="card__eyebrow">Fast movers</p>
+          <p class="card__sub">Top product categories</p>
         </div>
       </header>
-
-      <ol class="product-list">
-        @for (p of topSellingProducts; track trackByProduct(0, p); let idx = $index) {
-          <li class="product-row">
-            <span class="product-rank tabular-nums">{{ idx + 1 }}</span>
-            <div class="product-thumb" aria-hidden="true">
-              <ng-icon name="lucideGem"></ng-icon>
+      <ul class="list">
+        @for (m of fastMovers; track trackByMover(0, m); let idx = $index) {
+          <li class="list__row">
+            <span class="rank tabular-nums">{{ idx + 1 }}</span>
+            <div class="thumb" aria-hidden="true">
+              <ng-icon name="lucideGem" size="14"></ng-icon>
             </div>
-            <div class="product-info">
-              <span class="product-name">{{ p.productCategoryName | titlecase }}</span>
-              <div class="product-meter" role="presentation">
-                <div class="meter-fill" [style.width.%]="p.percentage"></div>
-              </div>
+            <div class="list__main">
+              <span class="list__title">{{ m.productCategoryName | titlecase }}</span>
+              <span class="list__sub tabular-nums">{{ m.total_weight }}g moved</span>
             </div>
-            <div class="product-value tabular-nums">
-              <span class="product-weight">{{ p.total_weight }}<small>g</small></span>
-              <span class="product-percent">{{ p.percentage }}%</span>
-            </div>
+            <span class="list__amount tabular-nums">{{ m.percentage | number:'1.0-1' }}%</span>
           </li>
         }
-        @if (!topSellingProducts.length) {
+        @if (fastMoversLoaded && !fastMovers.length) {
+          <li class="empty-state empty-state--card">
+            <ng-icon name="lucideInbox" size="24" aria-hidden="true"></ng-icon>
+            <span>Analytics coming soon</span>
+          </li>
+        }
+        @if (!fastMoversLoaded) {
           @for (i of [0,1,2,3,4]; track i) {
-            <li class="product-row product-skeleton">
-              <span class="sk sk-square"></span>
+            <li class="list__row list__row--skeleton" aria-hidden="true">
               <span class="sk sk-line"></span>
             </li>
           }
         }
-      </ol>
+      </ul>
+    </article>
+  </section>
+
+  <!-- Row 4: three KPI tiles (col-span-4 each) -->
+  <section class="dash__row dash__row--thirds">
+    <article class="kpi-card">
+      <div class="kpi-row">
+        <p class="kpi-label">Total customers</p>
+        <span class="kpi-icon" aria-hidden="true">
+          <ng-icon name="lucideUsers" size="16"></ng-icon>
+        </span>
+      </div>
+      <p class="kpi-value">{{ totalCustomers !== null ? formatNumber(totalCustomers) : '--' }}</p>
+      @if (customersDelta !== null) {
+        <p class="kpi-delta" [class.kpi-delta-up]="customersDelta >= 0" [class.kpi-delta-down]="customersDelta < 0">
+          <ng-icon [name]="customersDelta >= 0 ? 'lucideTrendingUp' : 'lucideTrendingDown'" size="12" aria-hidden="true"></ng-icon>
+          <span>{{ customersDelta | number:'1.0-1' }}% vs previous period</span>
+        </p>
+      }
     </article>
 
-    <article class="panel orders-panel">
-      <header class="panel-head">
-        <div>
-          <h2 class="panel-title">Recent orders</h2>
-          <p class="panel-sub">Latest counter activity.</p>
-        </div>
-        <a class="link-muted" routerLink="/orders">All orders <ng-icon name="lucideArrowRight" aria-hidden="true"></ng-icon></a>
-      </header>
-
-      <div class="table-wrap">
-        <table class="orders-table">
-          <thead>
-            <tr>
-              <th scope="col">Order</th>
-              <th scope="col">Customer</th>
-              <th scope="col" class="ta-right">Amount</th>
-              <th scope="col">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (o of recentOrders; track trackByOrder(0, o)) {
-              <tr [routerLink]="['/orders/view-order-details', o.invoiceGuid]" class="clickable">
-                <td>
-                  <span class="cell-strong tabular-nums">{{ o.invoiceNumber ?? '#' + o.id }}</span>
-                  <span class="cell-sub">{{ o.createdAt | date:'mediumDate' }}</span>
-                </td>
-                <td>
-                  <span class="cell-strong">{{ customerFullName(o) | titlecase }}</span>
-                  <span class="cell-sub tabular-nums">{{ orderItemCount(o) }} item(s)</span>
-                </td>
-                <td class="ta-right">
-                  <span class="cell-strong tabular-nums">{{ formatCurrency(orderTotal(o)) }}</span>
-                </td>
-                <td>
-                  @if (o.isPaymentDone) {
-                    <span class="badge badge-success">Paid</span>
-                  } @else {
-                    <span class="badge badge-warning">Pending</span>
-                  }
-                </td>
-              </tr>
-            }
-            @if (!recentOrders.length) {
-              @for (i of [0,1,2,3,4]; track i) {
-                <tr class="order-skeleton" aria-hidden="true">
-                  <td colspan="4"><span class="sk sk-line"></span></td>
-                </tr>
-              }
-            }
-          </tbody>
-        </table>
+    <article class="kpi-card">
+      <div class="kpi-row">
+        <p class="kpi-label">Stock (grams)</p>
+        <span class="kpi-icon" aria-hidden="true">
+          <ng-icon name="lucidePackage" size="16"></ng-icon>
+        </span>
       </div>
+      <p class="kpi-value">{{ totalStockGrams !== null ? formatNumber(totalStockGrams) : '--' }}<span class="unit-small">g</span></p>
+      @if (stockDelta !== null) {
+        <p class="kpi-delta" [class.kpi-delta-up]="stockDelta >= 0" [class.kpi-delta-down]="stockDelta < 0">
+          <ng-icon [name]="stockDelta >= 0 ? 'lucideTrendingUp' : 'lucideTrendingDown'" size="12" aria-hidden="true"></ng-icon>
+          <span>{{ stockDelta | number:'1.0-1' }}% vs previous period</span>
+        </p>
+      }
+    </article>
+
+    <article class="kpi-card">
+      <div class="kpi-row">
+        <p class="kpi-label">Pending payments</p>
+        <span class="kpi-icon" aria-hidden="true">
+          <ng-icon name="lucideWallet" size="16"></ng-icon>
+        </span>
+      </div>
+      <p class="kpi-value">
+        @if (pendingLoaded) {
+          {{ formatINR(pendingAmount ?? 0) }}
+        } @else {
+          --
+        }
+      </p>
+      @if (pendingLoaded) {
+        <p class="kpi-delta">
+          <span>{{ pendingCount ?? 0 }} open invoice{{ (pendingCount ?? 0) === 1 ? '' : 's' }}</span>
+        </p>
+      }
     </article>
   </section>
 </div>
