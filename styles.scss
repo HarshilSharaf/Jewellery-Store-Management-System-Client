@@ -15,20 +15,13 @@
 // persists to localStorage, and honors prefers-color-scheme on first visit.
 // -------------------------------------------------------------------------
 
-// Sass `@use` must precede rule declarations, so the vendor
-// lightning-admin bundle is loaded before the Tailwind directives below.
-// The migrated partial itself uses `@use "variables" as *;` so global
-// selectors (.wrapper.default-theme, .btn.btn-primary, etc.) are still
-// emitted for the rest of styles.scss to override.
-@use './assets/lightning-admin';
-@use 'animate.css/animate.min';
+// Bootstrap-compat is retained as a small utility layer: rows/cols, flex,
+// spacing, buttons, and .card chrome that legacy feature templates
+// (customers/inventory/orders/categories/profile/settings) still lean on.
+// The Lightning Admin shell/theme partials were ripped in Workstream G;
+// H/I/J will migrate feature screens off Bootstrap grid as they redesign.
+@use './assets/partials/bootstrap-compat';
 
-// Angular Material was removed in Workstream F once every remaining
-// mat-* consumer (data-table, customers, categories paginators, orders
-// stepper + select-customer paginator, add-to-cart badge, global error
-// snackbar) was migrated to Tailwind + Spartan/brain + Lucide equivalents.
-// The `@angular/material` and `@fortawesome/fontawesome-free` packages
-// remain in the parent `package.json` pending a parent-repo edit.
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -509,130 +502,14 @@ small, .text-sm { font-size: var(--fs-sm); }
 }
 
 // -------------------------------------------------------------------------
-// App-chrome token bridge
+// Bootstrap-compat token bridge
 //
-// The pastel Lightning Admin theme in assets/partials/_themes.scss uses
-// hard-coded purples. We override those rules here so the navbar,
-// sidebar, buttons, and tables read from semantic tokens and respect
-// the dark theme without editing every partial.
+// The retained bootstrap-compat partial ships its own pastel palette
+// ($primary / $secondary / etc from _variables.scss). We override the
+// button + form-control + card + table surfaces here so screens that
+// still lean on Bootstrap classes read from the semantic token palette
+// (and respect the dark theme) without touching every partial.
 // -------------------------------------------------------------------------
-.wrapper.default-theme {
-  background: var(--color-bg) !important;
-
-  nav.navbar {
-    background: var(--color-panel) !important;
-    border-bottom: 1px solid var(--color-border-subtle);
-    box-shadow: var(--shadow-sm);
-
-    .navbar-brand {
-      color: var(--color-fg) !important;
-      font-weight: 600;
-      letter-spacing: -0.005em;
-    }
-
-    .left-nav input.navbar-search {
-      background: var(--color-bg-subtle) !important;
-      color: var(--color-fg) !important;
-      border: 1px solid var(--color-border) !important;
-
-      &::placeholder { color: var(--color-fg-subtle) !important; }
-
-      &:focus {
-        border-color: var(--color-accent) !important;
-        box-shadow: 0 0 0 3px var(--color-focus-ring) !important;
-        outline: none;
-      }
-    }
-
-    .nav-link {
-      color: var(--color-fg-muted) !important;
-
-      i {
-        background: transparent !important;
-        border-color: transparent !important;
-        color: var(--color-fg-muted) !important;
-      }
-
-      &:hover {
-        color: var(--color-fg) !important;
-        i {
-          color: var(--color-accent-fg) !important;
-          background: var(--color-accent-subtle) !important;
-        }
-      }
-    }
-  }
-
-  main {
-    .overlay {
-      background: rgba(0, 0, 0, 0.4);
-    }
-
-    .pages {
-      background: var(--color-bg) !important;
-      color: var(--color-fg);
-    }
-
-    .sidebar {
-      background: var(--color-panel) !important;
-      color: var(--color-fg);
-      border-right: 1px solid var(--color-border-subtle);
-      box-shadow: none;
-
-      > div { border-color: var(--color-border-subtle) !important; }
-
-      .sidebar-profile {
-        .name { color: var(--color-fg) !important; }
-        .role { color: var(--color-fg-muted) !important; }
-      }
-
-      .sidebar-menu {
-        .menu-items a {
-          color: var(--color-fg-muted) !important;
-          border-radius: var(--radius-md);
-
-          i {
-            color: var(--color-fg-muted) !important;
-            transition: color 0.15s ease;
-          }
-
-          &:hover {
-            background: var(--color-bg-subtle) !important;
-            color: var(--color-fg) !important;
-            i { color: var(--color-fg) !important; }
-          }
-
-          &.active {
-            background: var(--color-accent-subtle) !important;
-            color: var(--color-accent-fg) !important;
-            i { color: var(--color-accent-fg) !important; }
-          }
-        }
-
-        .list-item::before { background-color: var(--color-accent) !important; }
-      }
-    }
-  }
-
-  .card {
-    background: var(--color-panel) !important;
-    border: 1px solid var(--color-border-subtle) !important;
-    box-shadow: var(--shadow-sm);
-  }
-
-  .table {
-    th, td { color: var(--color-fg) !important; border-top-color: var(--color-border-subtle) !important; }
-    thead th { color: var(--color-fg-muted) !important; border-bottom-color: var(--color-border) !important; }
-    &.table-striped tbody tr:nth-of-type(odd) { background-color: var(--color-bg-subtle) !important; }
-    &.table-hover tbody tr:hover { background-color: var(--color-bg-subtle) !important; }
-  }
-}
-
-html[data-theme="dark"] .wrapper.default-theme .sidebar .sidebar-menu .menu-items a.active {
-  color: var(--color-accent) !important;
-  i { color: var(--color-accent) !important; }
-}
-
 .btn.btn-primary,
 .btn.btn-lightning {
   background-color: var(--color-accent) !important;
@@ -676,24 +553,15 @@ html[data-theme="dark"] .btn.btn-outline-lightning {
   &::placeholder { color: var(--color-fg-subtle); }
 }
 
-// Legacy sidebar hard-coded gradient fallback avatar - retint to accent.
-.user-picture-fallback {
-  background: linear-gradient(135deg, var(--color-accent), color-mix(in oklab, var(--color-accent) 60%, var(--color-fg-muted))) !important;
-  color: var(--color-accent-fg) !important;
+.card {
+  background: var(--color-panel) !important;
+  border: 1px solid var(--color-border-subtle) !important;
+  box-shadow: var(--shadow-sm);
 }
 
-// Logout btn in sidebar footer - retheme to token danger scale.
-.sidebar-footer .logout-btn {
-  color: var(--color-fg-muted) !important;
-
-  &:hover,
-  &:focus-visible {
-    background: var(--color-danger-subtle) !important;
-    color: var(--color-danger-fg) !important;
-    border-color: color-mix(in oklab, var(--color-danger) 30%, transparent) !important;
-  }
-}
-
-.sidebar-footer {
-  border-top-color: var(--color-border-subtle) !important;
+.table {
+  th, td { color: var(--color-fg) !important; border-top-color: var(--color-border-subtle) !important; }
+  thead th { color: var(--color-fg-muted) !important; border-bottom-color: var(--color-border) !important; }
+  &.table-striped tbody tr:nth-of-type(odd) { background-color: var(--color-bg-subtle) !important; }
+  &.table-hover tbody tr:hover { background-color: var(--color-bg-subtle) !important; }
 }
