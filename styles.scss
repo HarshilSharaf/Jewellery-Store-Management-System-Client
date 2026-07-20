@@ -15,6 +15,14 @@
 // persists to localStorage, and honors prefers-color-scheme on first visit.
 // -------------------------------------------------------------------------
 
+// Sass `@use` must precede rule declarations, so the vendor
+// lightning-admin bundle is loaded before the Tailwind directives below.
+// The migrated partial itself uses `@use "variables" as *;` so global
+// selectors (.wrapper.default-theme, .btn.btn-primary, etc.) are still
+// emitted for the rest of styles.scss to override.
+@use './assets/lightning-admin';
+@use 'animate.css/animate.min';
+
 // Angular Material was removed in Workstream F once every remaining
 // mat-* consumer (data-table, customers, categories paginators, orders
 // stepper + select-customer paginator, add-to-cart badge, global error
@@ -71,13 +79,8 @@
   }
 }
 
-// animate.css is a pure CSS drop; keep as legacy @import until angular.json
-// (parent-repo) picks it up in its styles array. Lightning Admin vendor
-// partial is Sass but internally @import-heavy; migrating the whole graph
-// to @use is a dedicated later pass (Dart Sass 3.0 will force it). See
-// Workstream F notes in REDESIGN_PLAN section 7.6.
-@import 'animate.css/animate.min';
-@import './assets/lightning-admin';
+// animate.css and lightning-admin are loaded via `@use` at the top of
+// this file so no `@import` remains in the Sass entry point.
 
 // -------------------------------------------------------------------------
 // Self-hosted fonts (client/assets/fonts/*.woff2)

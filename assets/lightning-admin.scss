@@ -1,10 +1,13 @@
-@import "./partials/variables";
-@import "./partials/bootstrap-compat";
-@import "./partials/navbar";
-@import "./partials/sidebar";
-@import "./partials/themes";
-
-@import "./partials/dashboard";
+// Legacy Lightning Admin partial. `@use "..." as *` keeps the Sass 2.x
+// variable-visibility semantics that the existing $sidebar-icon-color /
+// $bg-color / $text-primary references rely on, while dropping the
+// Dart-Sass-3.0-deprecated `@import` rules.
+@use "./partials/variables" as *;
+@use "./partials/bootstrap-compat";
+@use "./partials/navbar";
+@use "./partials/sidebar";
+@use "./partials/themes";
+@use "./partials/dashboard";
 
 
 // Neutral icon slot for sidebar/nav items. Previously carried a solid
