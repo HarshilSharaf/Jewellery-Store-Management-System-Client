@@ -35,11 +35,10 @@
   </table>
 </div>
 
-<mat-paginator
+<app-simple-paginator
   [length]="lengthOfData"
   [pageSize]="pageSize"
   [pageIndex]="pageIndex"
   [pageSizeOptions]="[2, 4, 6]"
-  (page)="onPageChange($event)"
-  showFirstLastButtons>
-</mat-paginator>
+  (page)="onPageChange($event)">
+</app-simple-paginator>

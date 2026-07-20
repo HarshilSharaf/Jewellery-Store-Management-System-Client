@@ -1,16 +1,16 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { SubCategoriesModel } from '../../../../models/categories-model';
 import { SkeletonLoaderComponent } from '../../../../../../shared/components/skeleton-loader/skeleton-loader.component';
+import { SimplePaginatorComponent, SimplePageEvent } from '../../../../../../shared/components/simple-paginator/simple-paginator.component';
 
 @Component({
   selector: 'app-available-sub-categories',
   templateUrl: './available-sub-categories.component.html',
   styleUrls: ['./available-sub-categories.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, MatPaginatorModule, SkeletonLoaderComponent]
+  imports: [CommonModule, FormsModule, SimplePaginatorComponent, SkeletonLoaderComponent]
 })
 export class AvailableSubCategoriesComponent implements OnInit {
 
@@ -36,7 +36,7 @@ export class AvailableSubCategoriesComponent implements OnInit {
 
   ngOnInit(): void {}
 
-  onPageChange(event: PageEvent): void {
+  onPageChange(event: SimplePageEvent): void {
     this.pageIndex = event.pageIndex;
     this.pageSize = event.pageSize;
     this.changeCategoryDataToBeShown();

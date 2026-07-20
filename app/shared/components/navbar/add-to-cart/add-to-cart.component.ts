@@ -1,6 +1,7 @@
 import { Component, OnDestroy, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatBadgeModule } from '@angular/material/badge';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideShoppingBag } from '@ng-icons/lucide';
 import { CartSideBarService } from '../../../services/cart-side-bar.service';
 import { CartService } from '../../../services/cart.service';
 
@@ -9,7 +10,8 @@ import { CartService } from '../../../services/cart.service';
   templateUrl: './add-to-cart.component.html',
   styleUrls: ['./add-to-cart.component.scss'],
   standalone: true,
-  imports: [CommonModule, MatBadgeModule]
+  imports: [CommonModule, NgIcon],
+  viewProviders: [provideIcons({ lucideShoppingBag })],
 })
 export class AddToCartComponent implements OnDestroy {
 
@@ -18,10 +20,6 @@ export class AddToCartComponent implements OnDestroy {
   private animationResetTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor(private cartService: CartService, private cartSideBarService: CartSideBarService) {
-    // Briefly toggle animateCartIcon so the CSS animation replays whenever
-    // the cart contents change. Previously this scheduled a stray 10s
-    // timeout on every update, leaking timers on rapid additions and
-    // never firing the animation in the intended window.
     effect(() => {
       const items = this.cartService.getProducts()();
       this.totalItems = items.length;

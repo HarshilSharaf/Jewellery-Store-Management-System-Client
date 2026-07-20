@@ -1,22 +1,24 @@
 import { ErrorHandler, Injectable } from '@angular/core';
+import Swal from 'sweetalert2';
 import { LoggerService } from '../../../../Backend/Shared/logger.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Injectable()
 export class GlobalErrorHandlerService implements ErrorHandler {
-  constructor(
-    private loggerService: LoggerService,
-    private snackBar: MatSnackBar
-  ) {}
+  private readonly toast = Swal.mixin({
+    toast: true,
+    position: 'bottom-end',
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+  });
+
+  constructor(private loggerService: LoggerService) {}
 
   handleError(error: any): void {
-    this.snackBar.open(
-      'An unexpected error occurred. Please check logs for more detais.',
-      'Dismiss',
-      {
-        duration: 1000
-      }
-    );
+    this.toast.fire({
+      icon: 'error',
+      title: 'An unexpected error occurred. Please check logs for more details.',
+    });
     this.loggerService.LogError(
       `An unexpected error occured: { ${error} }`,
       'GlobalErrorHandler'

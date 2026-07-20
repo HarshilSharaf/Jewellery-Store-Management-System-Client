@@ -48,11 +48,10 @@
   </form>
 </div>
 
-<mat-paginator
+<app-simple-paginator
   [length]="customersData.length"
   [pageSize]="pageSize"
   [pageIndex]="pageIndex"
   [pageSizeOptions]="[2, 5, 7]"
-  (page)="onPageChange($event)"
-  showFirstLastButtons>
-</mat-paginator>
+  (page)="onPageChange($event)">
+</app-simple-paginator>

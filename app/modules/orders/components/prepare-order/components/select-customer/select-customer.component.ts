@@ -3,7 +3,7 @@ import { Component, EventEmitter, OnInit, OnDestroy, Output } from '@angular/cor
 import { FormBuilder, FormControl, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { SimplePaginatorComponent, SimplePageEvent } from '../../../../../../shared/components/simple-paginator/simple-paginator.component';
 import { CustomerDataService } from '../../../../../customers/services/customer-data.service';
 import { FileSystemService } from '../../../../../../../../Backend/Shared/file-system.service';
 import { UtilityService } from 'Backend/Shared/utitlity.service';
@@ -15,7 +15,7 @@ import { CustomerDetails } from '../../../../../customers/models/customerDetails
   templateUrl: './select-customer.component.html',
   styleUrls: ['./select-customer.component.scss'],
   standalone: true,
-  imports: [ReactiveFormsModule, FormsModule, MatPaginatorModule],
+  imports: [ReactiveFormsModule, FormsModule, SimplePaginatorComponent],
   providers: [DecimalPipe]
 })
 export class SelectCustomerComponent implements OnInit, OnDestroy {
@@ -94,7 +94,7 @@ export class SelectCustomerComponent implements OnInit, OnDestroy {
     });
   }
 
-  onPageChange(event: PageEvent): void {
+  onPageChange(event: SimplePageEvent): void {
     this.pageIndex = event.pageIndex;
     this.pageSize = event.pageSize;
     this.changeCategoryDataToBeShown();

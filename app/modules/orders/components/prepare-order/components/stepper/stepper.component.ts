@@ -1,11 +1,11 @@
-import { BreakpointObserver } from '@angular/cdk/layout';
-import { StepperOrientation, STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
-import { ChangeDetectionStrategy, Component, computed, effect } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Validators, FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { MatStepperModule } from '@angular/material/stepper';
-import { MatButtonModule } from '@angular/material/button';
-import { Observable, map } from 'rxjs';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import {
+  lucideCheck,
+  lucideChevronRight,
+  lucideChevronLeft,
+} from '@ng-icons/lucide';
 import { CustomerDetails } from '../../../../../customers/models/customerDetails';
 import { ProductDataModel } from '../../../../models/product-data-model';
 import { CartService } from '../../../../../../shared/services/cart.service';
@@ -13,50 +13,78 @@ import { CreateInvoiceComponent } from '../create-invoice/create-invoice.compone
 import { CartItemsComponent } from '../../../../../../shared/components/cart-items/cart-items.component';
 import { SelectCustomerComponent } from '../select-customer/select-customer.component';
 
+interface StepConfig {
+  key: 'products' | 'customer' | 'invoice' | 'done';
+  label: string;
+}
+
 @Component({
   selector: 'app-stepper',
   templateUrl: './stepper.component.html',
   styleUrls: ['./stepper.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MatStepperModule, MatButtonModule, CreateInvoiceComponent, CartItemsComponent, SelectCustomerComponent],
-  providers: [
-    {
-      provide: STEPPER_GLOBAL_OPTIONS,
-      useValue: { showError: true }
-    }
+  imports: [
+    CommonModule,
+    NgIcon,
+    CreateInvoiceComponent,
+    CartItemsComponent,
+    SelectCustomerComponent,
   ],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  viewProviders: [provideIcons({ lucideCheck, lucideChevronLeft, lucideChevronRight })],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StepperComponent {
+  readonly steps: StepConfig[] = [
+    { key: 'products', label: 'Review Products' },
+    { key: 'customer', label: 'Select Customer' },
+    { key: 'invoice', label: 'Prepare Invoice' },
+    { key: 'done', label: 'Done' },
+  ];
 
-  // Reactive view of cart items sourced directly from the CartService signal.
-  // Using a computed keeps the stepper in sync automatically without the
-  // previous ngOnInit-based `effect()` call (which was created outside of a
-  // valid injection context and never registered).
   readonly cartItems = computed<ProductDataModel[]>(() => {
     const products = this.cartService.getProducts()();
     return Array.isArray(products) ? [...products] : [];
   });
 
+  activeStep = 0;
   selectedCustomerData!: CustomerDetails;
 
-  products = this._formBuilder.group({
-    firstCtrl: ['', Validators.required],
-  });
-
-  thirdFormGroup = this._formBuilder.group({
-    thirdCtrl: ['', Validators.required],
-  });
-  stepperOrientation: Observable<StepperOrientation>;
-
-  constructor(private _formBuilder: FormBuilder, breakpointObserver: BreakpointObserver, private cartService: CartService) {
-    this.stepperOrientation = breakpointObserver
-      .observe('(min-width: 800px)')
-      .pipe(map(({ matches }) => (matches ? 'horizontal' : 'vertical')));
-  }
+  constructor(private cartService: CartService) {}
 
   setCustomerData(customerData: CustomerDetails) {
     this.selectedCustomerData = customerData;
   }
 
+  canAdvance(fromIndex: number): boolean {
+    if (fromIndex === 0) return this.cartItems().length > 0;
+    if (fromIndex === 1) return !!this.selectedCustomerData && this.selectedCustomerData.id !== null;
+    return true;
+  }
+
+  next() {
+    if (this.canAdvance(this.activeStep) && this.activeStep < this.steps.length - 1) {
+      this.activeStep += 1;
+    }
+  }
+
+  prev() {
+    if (this.activeStep > 0) {
+      this.activeStep -= 1;
+    }
+  }
+
+  goTo(index: number) {
+    if (index <= this.activeStep) {
+      this.activeStep = index;
+      return;
+    }
+    for (let i = this.activeStep; i < index; i += 1) {
+      if (!this.canAdvance(i)) return;
+    }
+    this.activeStep = index;
+  }
+
+  isCompleted(index: number): boolean {
+    return this.activeStep > index;
+  }
 }
