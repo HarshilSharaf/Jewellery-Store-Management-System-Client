@@ -24,7 +24,8 @@ import {
   lucideFileText,
   lucideFileSpreadsheet,
 } from '@ng-icons/lucide';
-import Swal from 'sweetalert2';
+import { AppDialogService } from '../../../../shared/services/AppDialog/app-dialog.service';
+import { AppToastService } from '../../../../shared/services/AppToast/app-toast.service';
 
 import { StoreService } from '../../../../../../Backend/Shared/store.service';
 import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
@@ -291,6 +292,8 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
   private readonly whatsappService = inject(WhatsAppService);
   private readonly typographyService = inject(TypographyService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly dialog = inject(AppDialogService);
+  private readonly toast = inject(AppToastService);
 
   // Typography preset tab state.
   readonly typographyPresets: readonly PresetDefinition[] = this.typographyService.presets;
@@ -351,10 +354,10 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
       this.typographyService.savePreset(preset);
       this.typographyOriginalPreset.set(preset);
       this.typographyDirty.set(false);
-      Swal.fire({ icon: 'success', title: 'Typography preset saved', timer: 1400, showConfirmButton: false });
+      this.toast.success('Typography preset saved', undefined, { timer: 1400 });
     } catch (err) {
       this.loggerService.LogError(err, 'saveTypographyPreset');
-      Swal.fire('Error', 'Failed to save typography preset.', 'error');
+      this.toast.error('Failed to save typography preset.', 'Error');
     } finally {
       this.typographySaving.set(false);
     }
@@ -505,7 +508,7 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
       this.shopForm.markAsDirty();
     } catch (err) {
       this.loggerService.LogError(err, 'onShopLogoSelected');
-      Swal.fire('Error', 'Failed to save logo', 'error');
+      this.toast.error('Failed to save logo', 'Error');
     }
   }
 
@@ -539,10 +542,10 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
     try {
       await this.shopSettingsService.save(payload);
       this.shopForm.markAsPristine();
-      Swal.fire({ icon: 'success', title: 'Shop identity saved', timer: 1600, showConfirmButton: false });
+      this.toast.success('Shop identity saved', undefined, { timer: 1600 });
     } catch (err) {
       this.loggerService.LogError(err, 'saveShopSettings');
-      Swal.fire('Error', 'Failed to save shop identity', 'error');
+      this.toast.error('Failed to save shop identity', 'Error');
     } finally {
       this.shopSaving.set(false);
     }
@@ -567,23 +570,23 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
 
   async resetInvoiceCounter() {
     const proposed = Number(this.invoiceForm.value.invoiceStartFrom ?? 1);
-    const result = await Swal.fire({
+    const result = await this.dialog.fire({
       icon: 'warning',
       title: 'Reset invoice counter?',
       html: `Next invoice will start from <b>${proposed}</b>. This cannot be undone.`,
+      variant: 'danger',
       showCancelButton: true,
       confirmButtonText: 'Reset',
-      confirmButtonColor: '#ce2c31',
     });
     if (!result.isConfirmed) { return; }
     this.invoiceCounterSaving.set(true);
     try {
       await this.shopSettingsService.resetInvoiceCounter(proposed);
       await this.loadShopSettings();
-      Swal.fire({ icon: 'success', title: 'Counter reset', timer: 1400, showConfirmButton: false });
+      this.toast.success('Counter reset', undefined, { timer: 1400 });
     } catch (err) {
       this.loggerService.LogError(err, 'resetInvoiceCounter');
-      Swal.fire('Error', 'Failed to reset counter', 'error');
+      this.toast.error('Failed to reset counter', 'Error');
     } finally {
       this.invoiceCounterSaving.set(false);
     }
@@ -658,10 +661,10 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
         await this.metalRatesService.save({ effectiveDate: date, session: 'PM', source: 'manual', rates: pmRates });
       }
       await this.loadRateHistory();
-      Swal.fire({ icon: 'success', title: 'Rates saved', timer: 1400, showConfirmButton: false });
+      this.toast.success('Rates saved', undefined, { timer: 1400 });
     } catch (err) {
       this.loggerService.LogError(err, 'saveRates');
-      Swal.fire('Error', 'Failed to save rates', 'error');
+      this.toast.error('Failed to save rates', 'Error');
     } finally {
       this.ratesSaving.set(false);
     }
@@ -694,7 +697,7 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
 
   savePrintSettings() {
     localStorage.setItem('jsms.print.settings', JSON.stringify(this.printForm.value));
-    Swal.fire({ icon: 'success', title: 'Print preferences saved', timer: 1400, showConfirmButton: false });
+    this.toast.success('Print preferences saved', undefined, { timer: 1400 });
   }
 
   testPrint() {
@@ -741,11 +744,9 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
   async connectScale(): Promise<void> {
     const ok = await this.scaleService.connect();
     if (!ok) {
-      Swal.fire('Failed to connect', this.scaleService.lastError() ?? 'Unable to open the selected serial port.', 'error');
+      this.toast.error(this.scaleService.lastError() ?? 'Unable to open the selected serial port.', 'Failed to connect');
     } else {
-      Swal.fire({
-        icon: 'success', title: 'Scale connected', timer: 1400, showConfirmButton: false,
-      });
+      this.toast.success('Scale connected', undefined, { timer: 1400 });
     }
   }
 
@@ -823,7 +824,7 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
         passphrase: raw.passphrase,
         targetDir:  raw.targetDir || '',
       });
-      Swal.fire({
+      this.dialog.fire({
         icon: 'success',
         title: 'Backup created',
         html: `<div class="text-left"><b>${result.filename}</b><br/>${this.formatBytes(result.sizeBytes)}</div>`,
@@ -837,13 +838,13 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
       this.loggerService.LogError(err, 'createBackupArchive');
       if (/ENOENT|not found on PATH/i.test(msg)) {
         this.backupPrereqWarning.set('MySQL client tools not detected on PATH. Install MySQL 8 client (Windows: C:\\Program Files\\MySQL\\MySQL Server 8.0\\bin) and add it to your system PATH.');
-        Swal.fire({
+        this.dialog.fire({
           icon: 'error',
           title: 'Install MySQL client tools',
           text: 'mysqldump was not found on PATH. Install MySQL client tools and try again.',
         });
       } else {
-        Swal.fire({ icon: 'error', title: 'Backup failed', text: msg });
+        this.dialog.fire({ icon: 'error', title: 'Backup failed', text: msg });
       }
     } finally {
       this.backupBusy.set(false);
@@ -858,14 +859,14 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
   async restoreBackupArchive() {
     const entry = this.selectedBackup();
     if (!entry) {
-      Swal.fire({ icon: 'warning', title: 'Select a backup', text: 'Choose an archive from the list first.' });
+      this.dialog.fire({ icon: 'warning', title: 'Select a backup', text: 'Choose an archive from the list first.' });
       return;
     }
     if (!this.restoreForm.valid) {
       this.restoreForm.markAllAsTouched();
       return;
     }
-    const confirm1 = await Swal.fire({
+    const confirm1 = await this.dialog.fire({
       icon: 'warning',
       title: 'Restore this archive?',
       html: `<div class="text-left">This will overwrite the current database with <b>${entry.filename}</b>.</div>`,
@@ -873,13 +874,13 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
       confirmButtonText: 'Continue',
     });
     if (!confirm1.isConfirmed) { return; }
-    const confirm2 = await Swal.fire({
+    const confirm2 = await this.dialog.fire({
       icon: 'warning',
       title: 'Are you sure?',
       text: 'This action cannot be undone. The app will restart after restoring.',
+      variant: 'danger',
       showCancelButton: true,
       confirmButtonText: 'Restore now',
-      confirmButtonColor: '#ce2c31',
     });
     if (!confirm2.isConfirmed) { return; }
 
@@ -896,7 +897,7 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
         passphrase: this.restoreForm.value.passphrase,
         archivePath: entry.path,
       });
-      Swal.fire({
+      this.dialog.fire({
         icon: 'success',
         title: 'Restore complete',
         html: 'Relaunching the app in a moment...',
@@ -909,7 +910,7 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
     } catch (err: any) {
       const msg = String(err?.message || err);
       this.loggerService.LogError(err, 'restoreBackupArchive');
-      Swal.fire({ icon: 'error', title: 'Restore failed', text: msg });
+      this.dialog.fire({ icon: 'error', title: 'Restore failed', text: msg });
     } finally {
       this.backupBusy.set(false);
       this.backupProgress.set('');
@@ -918,22 +919,22 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
 
   async deleteBackupArchive(entry: ListBackupsEntry) {
     if (!this.permissions.permissions().canBackup) { return; }
-    const confirm1 = await Swal.fire({
+    const confirm1 = await this.dialog.fire({
       icon: 'warning',
       title: 'Delete this archive?',
       html: `<div class="text-left"><b>${entry.filename}</b></div>`,
+      variant: 'danger',
       showCancelButton: true,
       confirmButtonText: 'Delete',
-      confirmButtonColor: '#ce2c31',
     });
     if (!confirm1.isConfirmed) { return; }
-    const confirm2 = await Swal.fire({
+    const confirm2 = await this.dialog.fire({
       icon: 'warning',
       title: 'Confirm delete',
       text: 'This cannot be undone.',
+      variant: 'danger',
       showCancelButton: true,
       confirmButtonText: 'Yes, delete',
-      confirmButtonColor: '#ce2c31',
     });
     if (!confirm2.isConfirmed) { return; }
     try {
@@ -941,10 +942,10 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
       await this.backupService.delete(entry.path, authData?.type);
       if (this.selectedBackup()?.path === entry.path) { this.selectBackup(null); }
       await this.loadBackups();
-      Swal.fire({ icon: 'success', title: 'Deleted', timer: 1200, showConfirmButton: false });
+      this.toast.success('Deleted', undefined, { timer: 1200 });
     } catch (err: any) {
       this.loggerService.LogError(err, 'deleteBackupArchive');
-      Swal.fire({ icon: 'error', title: 'Delete failed', text: String(err?.message || err) });
+      this.dialog.fire({ icon: 'error', title: 'Delete failed', text: String(err?.message || err) });
     }
   }
 
@@ -997,10 +998,10 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
         whatsappApiToken:          raw.whatsappApiToken?.trim() || null,
         whatsappEnabled:           raw.whatsappEnabled ? 1 : 0,
       });
-      Swal.fire({ icon: 'success', title: 'WhatsApp settings saved', timer: 1400, showConfirmButton: false });
+      this.toast.success('WhatsApp settings saved', undefined, { timer: 1400 });
     } catch (err) {
       this.loggerService.LogError(err, 'saveWhatsappSettings');
-      Swal.fire('Error', String((err as any)?.message ?? err), 'error');
+      this.toast.error(String((err as any)?.message ?? err), 'Error');
     } finally {
       this.whatsappSaving.set(false);
     }
@@ -1120,7 +1121,7 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
 
   addUserStub() {
     if (!this.newUserForm.valid) { this.newUserForm.markAllAsTouched(); return; }
-    Swal.fire({
+    this.dialog.fire({
       icon: 'info',
       title: 'Not yet implemented',
       text: 'Full user management + RBAC lands in Phase 2.',
@@ -1157,13 +1158,11 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
   }
 
   saveDbSettings() {
-    Swal.fire({
+    this.dialog.fire({
       title: 'Are you sure?',
       text: 'This will change your database settings',
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
       confirmButtonText: 'Yes, proceed!',
     }).then((result) => {
       if (!result.isConfirmed) { return; }
@@ -1179,24 +1178,22 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
         .then(async () => {
           await this.storeService.delete('authData');
           this.loadDbSettings();
-          Swal.fire({
+          this.dialog.fire({
             title: 'Settings Saved Successfully!',
             html: `<span class="text-success ">Relaunching App. Please Wait!</span>`,
             timer: 4000,
-            timerProgressBar: true,
-            allowEscapeKey: false,
-            allowOutsideClick: false,
-            didOpen: () => { Swal.showLoading(); },
-          }).then(async (r) => {
-            if (r.dismiss === Swal.DismissReason.timer) {
-              try { await this.utilityService.relaunch(); }
-              catch (err) { this.loggerService.LogError(err as string, 'relaunch()'); throw err; }
-            }
+            showConfirmButton: false,
+            disableEscape: true,
+            disableBackdropClose: true,
           });
+          setTimeout(async () => {
+            try { await this.utilityService.relaunch(); }
+            catch (err) { this.loggerService.LogError(err as string, 'relaunch()'); throw err; }
+          }, 4000);
         })
         .catch((error: any) => {
           this.loggerService.LogError(error, 'saveDbSettings');
-          Swal.fire('Error!', `Error saving DB settings: ${error}`, 'error');
+          this.toast.error(`Error saving DB settings: ${error}`, 'Error!');
         });
     });
   }
@@ -1380,7 +1377,7 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
       await this.migrationService.triggerExportCustomers();
     } catch (err) {
       this.loggerService.LogError(err, 'exportCustomersNow');
-      Swal.fire('Export failed', 'Unable to export customers.', 'error');
+      this.toast.error('Unable to export customers.', 'Export failed');
     }
   }
 
@@ -1389,7 +1386,7 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
       await this.migrationService.triggerExportProducts(this.permissions.costsVisible());
     } catch (err) {
       this.loggerService.LogError(err, 'exportProductsNow');
-      Swal.fire('Export failed', 'Unable to export products.', 'error');
+      this.toast.error('Unable to export products.', 'Export failed');
     }
   }
 
@@ -1398,7 +1395,7 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
       await this.migrationService.triggerExportRates();
     } catch (err) {
       this.loggerService.LogError(err, 'exportRatesNow');
-      Swal.fire('Export failed', 'Unable to export rates.', 'error');
+      this.toast.error('Unable to export rates.', 'Export failed');
     }
   }
 
