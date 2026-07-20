@@ -1,6 +1,6 @@
 <div class="page-title">
   <div class="page-title__group">
-    <h1 class="page-title__heading">Stock</h1>
+    <h1 class="page-title__heading" i18n="@@inventory.title">Stock</h1>
     @if (totalRecords > 0) {
       <span class="page-title__count">({{ totalRecords }} product{{ totalRecords === 1 ? '' : 's' }})</span>
     }
@@ -8,15 +8,19 @@
   <div class="page-title__actions">
     <button type="button" class="hlm-btn hlm-btn-ghost" (click)="openMigrationImport()">
       <ng-icon name="lucideUpload" size="14" aria-hidden="true"></ng-icon>
-      <span>Import CSV</span>
+      <span i18n="@@buttons.import-csv">Import CSV</span>
     </button>
     <button type="button" class="hlm-btn hlm-btn-ghost" (click)="exportProductsCsv()" [disabled]="exportingCsv">
       <ng-icon name="lucideDownload" size="14" aria-hidden="true"></ng-icon>
-      <span>{{ exportingCsv ? 'Exporting...' : 'Export CSV' }}</span>
+      @if (exportingCsv) {
+        <span i18n="@@buttons.exporting">Exporting...</span>
+      } @else {
+        <span i18n="@@buttons.export-csv">Export CSV</span>
+      }
     </button>
     <button type="button" class="hlm-btn hlm-btn-primary" (click)="openAddProductForm()">
       <ng-icon name="lucidePlus" size="16" aria-hidden="true"></ng-icon>
-      <span>Add product</span>
+      <span i18n="@@inventory.add-product">Add product</span>
     </button>
   </div>
 </div>
@@ -50,9 +54,11 @@
     <input
       type="search"
       class="hlm-input"
+      i18n-placeholder="@@inventory.search.placeholder"
       placeholder="Search SKU, HUID, description..."
       [value]="searchQuery"
       (input)="onSearchInput($any($event.target).value)"
+      i18n-aria-label="@@inventory.search.aria"
       aria-label="Search products" />
   </div>
 
@@ -190,12 +196,12 @@
   <section class="stock-table">
     <div class="stock-table__head">
       <span class="col-thumb" aria-hidden="true"></span>
-      <span class="col-sku">SKU</span>
-      <span class="col-huid">HUID</span>
-      <span class="col-purity">Purity</span>
-      <span class="col-name">Product</span>
-      <span class="col-weight">Net wt</span>
-      <span class="col-price">Tag price</span>
+      <span class="col-sku" i18n="@@product.sku">SKU</span>
+      <span class="col-huid" i18n="@@product.huid">HUID</span>
+      <span class="col-purity" i18n="@@product.purity">Purity</span>
+      <span class="col-name" i18n="@@product.product-category">Product</span>
+      <span class="col-weight" i18n="@@product.net-weight.short-noparen">Net wt</span>
+      <span class="col-price" i18n="@@product.tag-price.short">Tag price</span>
       <span class="col-actions" aria-hidden="true"></span>
     </div>
     @for (product of allProductsData; track product.productGuid) {
@@ -268,11 +274,11 @@
 @if (showEmptyState()) {
   <div class="empty-state">
     <ng-icon name="lucidePackage" size="32" aria-hidden="true"></ng-icon>
-    <p class="empty-state__title">No products yet</p>
-    <p class="empty-state__sub">Add your first product to start tracking stock.</p>
+    <p class="empty-state__title" i18n="@@inventory.empty.title">No products yet</p>
+    <p class="empty-state__sub" i18n="@@inventory.empty.sub">Add your first product to start tracking stock.</p>
     <button type="button" class="hlm-btn hlm-btn-primary" (click)="openAddProductForm()">
       <ng-icon name="lucidePlus" size="14" aria-hidden="true"></ng-icon>
-      <span>Add your first product</span>
+      <span i18n="@@inventory.add-first">Add your first product</span>
     </button>
   </div>
 }

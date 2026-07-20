@@ -12,12 +12,13 @@
             class="top-bar__search top-bar__search--btn"
             (click)="openPalette()"
             (focus)="openPalette()"
-            aria-label="Open command palette">
+            i18n-aria-label="@@topbar.palette.aria" aria-label="Open command palette">
       <ng-icon name="lucideSearch" size="14" class="top-bar__search-icon" aria-hidden="true"></ng-icon>
       <input #searchInput
              type="text"
              class="top-bar__search-input"
-             [attr.placeholder]="'Search or run command'"
+             i18n-placeholder="@@topbar.search.placeholder"
+             placeholder="Search or run command"
              readonly
              tabindex="-1"
              aria-hidden="true">

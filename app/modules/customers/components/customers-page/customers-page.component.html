@@ -1,6 +1,6 @@
 <div class="page-title">
   <div class="page-title__group">
-    <h1 class="page-title__heading">People</h1>
+    <h1 class="page-title__heading" i18n="@@customers.title">People</h1>
     @if (totalRecords > 0) {
       <span class="page-title__count">({{ totalRecords }} customer{{ totalRecords === 1 ? '' : 's' }})</span>
     }
@@ -8,15 +8,19 @@
   <div class="page-title__actions">
     <button type="button" class="hlm-btn hlm-btn-ghost" (click)="openMigrationImport()">
       <ng-icon name="lucideUpload" size="14" aria-hidden="true"></ng-icon>
-      <span>Import CSV</span>
+      <span i18n="@@buttons.import-csv">Import CSV</span>
     </button>
     <button type="button" class="hlm-btn hlm-btn-ghost" (click)="exportCustomersCsv()" [disabled]="exportingCsv">
       <ng-icon name="lucideDownload" size="14" aria-hidden="true"></ng-icon>
-      <span>{{ exportingCsv ? 'Exporting...' : 'Export CSV' }}</span>
+      @if (exportingCsv) {
+        <span i18n="@@buttons.exporting">Exporting...</span>
+      } @else {
+        <span i18n="@@buttons.export-csv">Export CSV</span>
+      }
     </button>
     <button type="button" class="hlm-btn hlm-btn-primary" (click)="openAddCustomerDialog()">
       <ng-icon name="lucideUserPlus" size="16" aria-hidden="true"></ng-icon>
-      <span>Add customer</span>
+      <span i18n="@@customer.add">Add customer</span>
     </button>
   </div>
 </div>
@@ -27,25 +31,27 @@
     <input
       type="search"
       class="hlm-input"
+      i18n-placeholder="@@customers.search.placeholder"
       placeholder="Search name, phone, city..."
       [value]="searchQuery"
       (input)="onSearchInput($any($event.target).value)"
+      i18n-aria-label="@@customers.search.aria"
       aria-label="Search customers" />
   </div>
 </div>
 
 <section class="people-table">
   <div class="people-table__head">
-    <span class="col-name">Customer</span>
-    <span class="col-city">City</span>
-    <span class="col-remarks">Notes</span>
+    <span class="col-name" i18n="@@customer.label">Customer</span>
+    <span class="col-city" i18n="@@customer.city">City</span>
+    <span class="col-remarks" i18n="@@customers.col.notes">Notes</span>
     <span class="col-actions" aria-hidden="true"></span>
   </div>
 
   @if (isLoading && !hasCustomers()) {
     <div class="people-table__loading">
       <ng-icon name="lucideLoader" class="animate-spin" size="20" aria-hidden="true"></ng-icon>
-      <span>Loading customers...</span>
+      <span i18n="@@customers.loading">Loading customers...</span>
     </div>
   }
 
@@ -114,11 +120,11 @@
   @if (showEmptyState()) {
     <div class="empty-state">
       <ng-icon name="lucideUsers" size="32" aria-hidden="true"></ng-icon>
-      <p class="empty-state__title">No customers yet</p>
-      <p class="empty-state__sub">Add your first customer to start tracking orders.</p>
+      <p class="empty-state__title" i18n="@@customers.empty.title">No customers yet</p>
+      <p class="empty-state__sub" i18n="@@customers.empty.sub">Add your first customer to start tracking orders.</p>
       <button type="button" class="hlm-btn hlm-btn-primary" (click)="openAddCustomerDialog()">
         <ng-icon name="lucideUserPlus" size="14" aria-hidden="true"></ng-icon>
-        <span>Add your first customer</span>
+        <span i18n="@@customers.add-first">Add your first customer</span>
       </button>
     </div>
   }

@@ -24,14 +24,15 @@
       <input #searchInput
              type="text"
              class="cp-search-input"
-             [placeholder]="currentSub() ? 'Fill in details...' : ('Search or run command...  ' + commandHint)"
+             [placeholder]="currentSub() ? subPlaceholder : (rootPlaceholder + '  ' + commandHint)"
              [value]="query()"
              (input)="onSearchChange($any($event.target).value)"
              (keydown)="onSearchKeydown($event)"
              autocomplete="off"
              spellcheck="false"
-             aria-label="Command palette input">
-      <button type="button" class="cp-close-btn" (click)="onCloseClick()" aria-label="Close">
+             i18n-aria-label="@@palette.input.aria" aria-label="Command palette input">
+      <button type="button" class="cp-close-btn" (click)="onCloseClick()"
+              i18n-aria-label="@@buttons.close" aria-label="Close">
         <ng-icon name="lucideX" size="14" aria-hidden="true"></ng-icon>
       </button>
     </div>
@@ -69,21 +70,21 @@
     <!-- Sub: Add customer -->
     <div *ngIf="currentSub() === 'add-customer'" class="cp-body cp-body--form">
       <div class="cp-form-row">
-        <label class="cp-form-label">First name</label>
+        <label class="cp-form-label" i18n="@@customer.first-name">First name</label>
         <input type="text"
                class="cp-form-input"
                [value]="customerForm().firstName"
                (input)="onCustomerFieldChange('firstName', $any($event.target).value)">
       </div>
       <div class="cp-form-row">
-        <label class="cp-form-label">Last name</label>
+        <label class="cp-form-label" i18n="@@customer.last-name">Last name</label>
         <input type="text"
                class="cp-form-input"
                [value]="customerForm().lastName"
                (input)="onCustomerFieldChange('lastName', $any($event.target).value)">
       </div>
       <div class="cp-form-row">
-        <label class="cp-form-label">Phone</label>
+        <label class="cp-form-label" i18n="@@customer.phone">Phone</label>
         <input type="tel"
                class="cp-form-input"
                [value]="customerForm().phoneNumber"
@@ -95,7 +96,8 @@
                 class="cp-btn cp-btn--primary"
                 [disabled]="submitting()"
                 (click)="onSubmitCustomer()">
-          {{ submitting() ? 'Saving...' : 'Add customer' }}
+          <ng-container *ngIf="submitting(); else addCustLabel" i18n="@@buttons.saving">Saving...</ng-container>
+          <ng-template #addCustLabel><span i18n="@@customer.add">Add customer</span></ng-template>
         </button>
       </div>
     </div>
@@ -103,9 +105,10 @@
     <!-- Sub: Enroll scheme -->
     <div *ngIf="currentSub() === 'enroll-scheme'" class="cp-body cp-body--form">
       <div class="cp-form-row">
-        <label class="cp-form-label">Customer</label>
+        <label class="cp-form-label" i18n="@@customer.label">Customer</label>
         <input type="text"
                class="cp-form-input"
+               i18n-placeholder="@@palette.customer-picker.placeholder"
                placeholder="Type name or phone..."
                [value]="customerPicker()"
                (input)="onCustomerPickerInput($any($event.target).value)"
@@ -124,14 +127,14 @@
         Selected: {{ pickedCustomer()?.firstName }} {{ pickedCustomer()?.lastName }}
       </div>
       <div class="cp-form-row">
-        <label class="cp-form-label">Plan name</label>
+        <label class="cp-form-label" i18n="@@scheme.plan-name">Plan name</label>
         <input type="text"
                class="cp-form-input"
                [value]="schemeForm().planName"
                (input)="onSchemeFieldChange('planName', $any($event.target).value)">
       </div>
       <div class="cp-form-row">
-        <label class="cp-form-label">Monthly amount</label>
+        <label class="cp-form-label" i18n="@@scheme.monthly-amount">Monthly amount</label>
         <input type="number"
                min="1"
                class="cp-form-input"
@@ -139,7 +142,7 @@
                (input)="onSchemeFieldChange('monthlyAmount', $any($event.target).value)">
       </div>
       <div class="cp-form-row">
-        <label class="cp-form-label">Tenure (months)</label>
+        <label class="cp-form-label" i18n="@@scheme.tenure">Tenure (months)</label>
         <input type="number"
                min="1"
                class="cp-form-input"
@@ -152,7 +155,8 @@
                 class="cp-btn cp-btn--primary"
                 [disabled]="submitting() || !pickedCustomer()"
                 (click)="onSubmitScheme()">
-          {{ submitting() ? 'Saving...' : 'Enroll scheme' }}
+          <ng-container *ngIf="submitting(); else enrollLabel" i18n="@@buttons.saving">Saving...</ng-container>
+          <ng-template #enrollLabel><span i18n="@@scheme.enroll">Enroll scheme</span></ng-template>
         </button>
       </div>
     </div>
@@ -160,7 +164,7 @@
     <!-- Sub: Lock rate -->
     <div *ngIf="currentSub() === 'lock-rate'" class="cp-body cp-body--form">
       <div class="cp-form-row">
-        <label class="cp-form-label">Purity</label>
+        <label class="cp-form-label" i18n="@@product.purity">Purity</label>
         <select class="cp-form-input"
                 [value]="rateForm().purityCode"
                 (change)="onRateFormChange('purityCode', $any($event.target).value)">
@@ -170,7 +174,7 @@
         </select>
       </div>
       <div class="cp-form-row">
-        <label class="cp-form-label">Rate per gram</label>
+        <label class="cp-form-label" i18n="@@rate.per-gram">Rate per gram</label>
         <input type="number"
                step="0.01"
                min="0"
@@ -184,17 +188,18 @@
                 class="cp-btn cp-btn--primary"
                 [disabled]="submitting()"
                 (click)="onSubmitRate()">
-          {{ submitting() ? 'Saving...' : "Lock today's rate" }}
+          <ng-container *ngIf="submitting(); else lockRateLabel" i18n="@@buttons.saving">Saving...</ng-container>
+          <ng-template #lockRateLabel><span i18n="@@rate.lock-today">Lock today's rate</span></ng-template>
         </button>
       </div>
     </div>
 
     <div class="cp-footer">
-      <span *ngIf="!currentSub()">
+      <span *ngIf="!currentSub()" i18n="@@palette.footer.root">
         <ng-icon name="lucideCornerDownLeft" size="12" aria-hidden="true"></ng-icon>
         &nbsp;to select &middot; &uarr;&darr; to navigate &middot; Esc to close
       </span>
-      <span *ngIf="currentSub()">
+      <span *ngIf="currentSub()" i18n="@@palette.footer.sub">
         Esc to go back &middot; Enter to submit
       </span>
       <span class="cp-footer-brand">

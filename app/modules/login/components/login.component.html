@@ -17,11 +17,11 @@
       </div>
 
       <div class="brand-hero">
-        <p class="hero-eyebrow">Modern POS for jewellers</p>
-        <h1 class="hero-title">
+        <p class="hero-eyebrow" i18n="@@login.hero.eyebrow">Modern POS for jewellers</p>
+        <h1 class="hero-title" i18n="@@login.hero.title">
           Bills that clear the counter <em>faster</em>.
         </h1>
-        <p class="hero-body">
+        <p class="hero-body" i18n="@@login.hero.body">
           Warm, keyboard-first, offline-ready.
           Built for shops that price by purity, not by department.
         </p>
@@ -29,15 +29,15 @@
 
       <div class="brand-foot">
         <span class="dot" aria-hidden="true"></span>
-        <span>Local-first &middot; No cloud lock-in</span>
+        <span i18n="@@login.local-first">Local-first &middot; No cloud lock-in</span>
       </div>
     </aside>
 
     <section class="form-side" aria-labelledby="loginTitle">
       <div class="form-shell">
         <header class="form-head">
-          <h2 id="loginTitle" class="form-title">Sign in</h2>
-          <p class="form-sub">Use your shop account to continue.</p>
+          <h2 id="loginTitle" class="form-title" i18n="@@login.sign-in">Sign in</h2>
+          <p class="form-sub" i18n="@@login.sub">Use your shop account to continue.</p>
         </header>
 
         @if (showError) {
@@ -49,11 +49,12 @@
 
         <form [formGroup]="form" (ngSubmit)="login($event)" novalidate>
           <div class="field">
-            <label for="username">Username</label>
+            <label for="username" i18n="@@login.username">Username</label>
             <div class="control">
               <input id="username"
                      type="text"
                      autocomplete="username"
+                     i18n-placeholder="@@login.username.placeholder"
                      placeholder="e.g. shop.admin"
                      formControlName="username"
                      class="hlm-input"
@@ -63,13 +64,14 @@
 
           <div class="field">
             <div class="field-head">
-              <label for="password">Password</label>
-              <a href="#" class="link-muted" (click)="$event.preventDefault()">Forgot?</a>
+              <label for="password" i18n="@@login.password">Password</label>
+              <a href="#" class="link-muted" (click)="$event.preventDefault()" i18n="@@login.forgot">Forgot?</a>
             </div>
             <div class="control">
               <input id="password"
                      type="password"
                      autocomplete="current-password"
+                     i18n-placeholder="@@login.password.placeholder"
                      placeholder="Enter your password"
                      formControlName="password"
                      class="hlm-input"
@@ -81,16 +83,16 @@
                   class="hlm-btn hlm-btn-primary w-full mt-2"
                   [disabled]="submitting">
             @if (submitting) {
-              <span>Signing in...</span>
+              <span i18n="@@login.signing-in">Signing in...</span>
             } @else {
-              <span>Sign in</span>
+              <span i18n="@@login.sign-in">Sign in</span>
               <ng-icon name="lucideArrowRight" size="16" aria-hidden="true" class="btn-arrow"></ng-icon>
             }
           </button>
         </form>
 
         <p class="form-legal">
-          <span>You are signed in only on this device.</span>
+          <span i18n="@@login.device-only">You are signed in only on this device.</span>
         </p>
       </div>
     </section>

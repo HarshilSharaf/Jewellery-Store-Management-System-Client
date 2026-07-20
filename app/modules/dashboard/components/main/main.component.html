@@ -1,7 +1,7 @@
 <div class="dash">
   <!-- Row 1: title + date -->
   <header class="dash__head">
-    <h1 class="dash__title font-serif">Today</h1>
+    <h1 class="dash__title font-serif" i18n="@@dashboard.title">Today</h1>
     <span class="dash__date tabular-nums">{{ today }}</span>
   </header>
 
@@ -10,7 +10,7 @@
     <article class="card card--revenue">
       <header class="card__head">
         <div>
-          <p class="card__eyebrow">Revenue</p>
+          <p class="card__eyebrow" i18n="@@dashboard.revenue">Revenue</p>
           <p class="card__value font-serif tabular-nums">{{ formatINR(revenueTotal) }}</p>
         </div>
         <div class="card__delta">
@@ -19,7 +19,7 @@
               <ng-icon [name]="revenueDelta >= 0 ? 'lucideTrendingUp' : 'lucideTrendingDown'" size="14" aria-hidden="true"></ng-icon>
               {{ revenueDelta | number:'1.0-1' }}%
             </span>
-            <span class="delta__label">vs previous period</span>
+            <span class="delta__label" i18n="@@dashboard.vs-prev">vs previous period</span>
           }
         </div>
       </header>
@@ -30,7 +30,7 @@
         } @else {
           <div class="empty-state">
             <ng-icon name="lucideChartLine" size="24" aria-hidden="true"></ng-icon>
-            <span>No revenue on file yet</span>
+            <span i18n="@@dashboard.no-revenue">No revenue on file yet</span>
           </div>
         }
       </div>
@@ -39,7 +39,7 @@
     <article class="card card--rate">
       <header class="card__head">
         <div>
-          <p class="card__eyebrow">Lock today's rate</p>
+          <p class="card__eyebrow" i18n="@@rate.lock-today">Lock today's rate</p>
           <p class="card__value font-serif tabular-nums">
             @if (ratesLoaded && rate22k !== null) {
               &#8377;{{ rate22k | number:'1.0-0' }}<span class="unit">/g</span>
@@ -55,12 +55,12 @@
       <footer class="card__foot">
         <button type="button" class="hlm-btn hlm-btn-primary" (click)="goToLockRate()">
           <ng-icon name="lucideLock" size="14" aria-hidden="true"></ng-icon>
-          <span>Lock rate</span>
+          <span i18n="@@rate.lock">Lock rate</span>
         </button>
         @if (ratesLoaded && rate22k === null) {
           <p class="empty-inline">
             <ng-icon name="lucideInbox" size="14" aria-hidden="true"></ng-icon>
-            <span>No rate on file for today</span>
+            <span i18n="@@rate.no-rate-today">No rate on file for today</span>
           </p>
         }
       </footer>
@@ -72,10 +72,10 @@
     <article class="card card--list">
       <header class="card__head card__head--split">
         <div>
-          <p class="card__eyebrow">Recent invoices</p>
+          <p class="card__eyebrow" i18n="@@dashboard.recent-invoices">Recent invoices</p>
         </div>
         <a class="link-muted" routerLink="/orders">
-          <span>View all</span>
+          <span i18n="@@common.view-all">View all</span>
           <ng-icon name="lucideArrowRight" size="12" aria-hidden="true"></ng-icon>
         </a>
       </header>
@@ -93,7 +93,7 @@
         @if (recentOrdersLoaded && !recentOrders.length) {
           <li class="empty-state empty-state--card">
             <ng-icon name="lucideInbox" size="24" aria-hidden="true"></ng-icon>
-            <span>No invoices yet</span>
+            <span i18n="@@orders.empty">No invoices yet</span>
           </li>
         }
         @if (!recentOrdersLoaded) {
@@ -109,8 +109,8 @@
     <article class="card card--list">
       <header class="card__head card__head--split">
         <div>
-          <p class="card__eyebrow">Fast movers</p>
-          <p class="card__sub">Top product categories</p>
+          <p class="card__eyebrow" i18n="@@dashboard.fast-movers">Fast movers</p>
+          <p class="card__sub" i18n="@@dashboard.fast-movers.sub">Top product categories</p>
         </div>
       </header>
       <ul class="list">
@@ -122,7 +122,7 @@
             </div>
             <div class="list__main">
               <span class="list__title">{{ m.productCategoryName | titlecase }}</span>
-              <span class="list__sub tabular-nums">{{ m.total_weight }}g moved</span>
+              <span class="list__sub tabular-nums">{{ m.total_weight }}<span i18n="@@units.grams-moved">g moved</span></span>
             </div>
             <span class="list__amount tabular-nums">{{ m.percentage | number:'1.0-1' }}%</span>
           </li>
@@ -130,7 +130,7 @@
         @if (fastMoversLoaded && !fastMovers.length) {
           <li class="empty-state empty-state--card">
             <ng-icon name="lucideInbox" size="24" aria-hidden="true"></ng-icon>
-            <span>Analytics coming soon</span>
+            <span i18n="@@dashboard.analytics-soon">Analytics coming soon</span>
           </li>
         }
         @if (!fastMoversLoaded) {
@@ -148,7 +148,7 @@
   <section class="dash__row dash__row--thirds">
     <article class="kpi-card">
       <div class="kpi-row">
-        <p class="kpi-label">Total customers</p>
+        <p class="kpi-label" i18n="@@dashboard.total-customers">Total customers</p>
         <span class="kpi-icon" aria-hidden="true">
           <ng-icon name="lucideUsers" size="16"></ng-icon>
         </span>
@@ -164,7 +164,7 @@
 
     <article class="kpi-card">
       <div class="kpi-row">
-        <p class="kpi-label">Stock (grams)</p>
+        <p class="kpi-label" i18n="@@dashboard.stock-grams">Stock (grams)</p>
         <span class="kpi-icon" aria-hidden="true">
           <ng-icon name="lucidePackage" size="16"></ng-icon>
         </span>
@@ -180,7 +180,7 @@
 
     <article class="kpi-card">
       <div class="kpi-row">
-        <p class="kpi-label">Pending payments</p>
+        <p class="kpi-label" i18n="@@dashboard.pending-payments">Pending payments</p>
         <span class="kpi-icon" aria-hidden="true">
           <ng-icon name="lucideWallet" size="16"></ng-icon>
         </span>

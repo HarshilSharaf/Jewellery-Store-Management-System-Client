@@ -3,10 +3,11 @@
     <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="add-customer-title">
       <header class="modal-header">
         <div>
-          <h2 class="modal-title" id="add-customer-title">Add customer</h2>
-          <p class="modal-subtitle">New profile in People</p>
+          <h2 class="modal-title" id="add-customer-title" i18n="@@customer.add">Add customer</h2>
+          <p class="modal-subtitle" i18n="@@customer.add.sub">New profile in People</p>
         </div>
-        <button type="button" class="icon-btn" (click)="requestClose()" aria-label="Close" [disabled]="isLoading">
+        <button type="button" class="icon-btn" (click)="requestClose()"
+                i18n-aria-label="@@buttons.close" aria-label="Close" [disabled]="isLoading">
           <ng-icon name="lucideX" size="18" aria-hidden="true"></ng-icon>
         </button>
       </header>
@@ -17,51 +18,54 @@
             novalidate>
 
         <section class="form-section">
-          <p class="form-section__title">Identity</p>
+          <p class="form-section__title" i18n="@@customer.section.identity">Identity</p>
           <div class="form-grid">
             <div>
-              <label class="field-label" for="firstName">First name <span class="req">*</span></label>
+              <label class="field-label" for="firstName"><span i18n="@@customer.first-name">First name</span> <span class="req">*</span></label>
               <input class="hlm-input" id="firstName" formControlName="firstName"
                      [class.is-invalid]="customerDetailsForm.get('firstName')?.touched && customerDetailsForm.get('firstName')?.errors?.['required']"
+                     i18n-placeholder="@@customer.first-name.placeholder"
                      placeholder="Enter first name" />
               @if (customerDetailsForm.get('firstName')?.touched && customerDetailsForm.get('firstName')?.errors?.['required']) {
-                <div class="field-error">First name is required</div>
+                <div class="field-error" i18n="@@customer.first-name.required">First name is required</div>
               }
             </div>
             <div>
-              <label class="field-label" for="lastName">Last name <span class="req">*</span></label>
+              <label class="field-label" for="lastName"><span i18n="@@customer.last-name">Last name</span> <span class="req">*</span></label>
               <input class="hlm-input" id="lastName" formControlName="lastName"
                      [class.is-invalid]="customerDetailsForm.get('lastName')?.touched && customerDetailsForm.get('lastName')?.errors?.['required']"
+                     i18n-placeholder="@@customer.last-name.placeholder"
                      placeholder="Enter last name" />
               @if (customerDetailsForm.get('lastName')?.touched && customerDetailsForm.get('lastName')?.errors?.['required']) {
-                <div class="field-error">Last name is required</div>
+                <div class="field-error" i18n="@@customer.last-name.required">Last name is required</div>
               }
             </div>
             <div>
-              <label class="field-label" for="phoneNumber">Phone <span class="req">*</span></label>
+              <label class="field-label" for="phoneNumber"><span i18n="@@customer.phone">Phone</span> <span class="req">*</span></label>
               <input type="tel" class="hlm-input tabular-nums" id="phoneNumber" formControlName="phoneNumber"
                      [class.is-invalid]="customerDetailsForm.get('phoneNumber')?.touched && customerDetailsForm.get('phoneNumber')?.errors?.['required']"
+                     i18n-placeholder="@@customer.phone.placeholder"
                      placeholder="10-digit mobile" />
               @if (customerDetailsForm.get('phoneNumber')?.touched && customerDetailsForm.get('phoneNumber')?.errors?.['required']) {
-                <div class="field-error">Phone number is required</div>
+                <div class="field-error" i18n="@@customer.phone.required">Phone number is required</div>
               }
             </div>
             <div>
-              <label class="field-label" for="email">Email</label>
+              <label class="field-label" for="email" i18n="@@customer.email">Email</label>
               <input type="email" class="hlm-input" id="email" formControlName="email" placeholder="name@example.com" />
             </div>
             <div>
-              <label class="field-label" for="dateOfBirth">Date of birth</label>
+              <label class="field-label" for="dateOfBirth" i18n="@@customer.dob">Date of birth</label>
               <input type="date" class="hlm-input" id="dateOfBirth" formControlName="dateOfBirth" />
             </div>
             <div>
-              <label class="field-label">Gender</label>
+              <label class="field-label" i18n="@@customer.gender">Gender</label>
               <div class="radio-pills">
                 <label class="radio-pill" [class.is-active]="customerDetailsForm.value.gender === 'male'">
-                  <input type="radio" formControlName="gender" value="male"> Male
+                  <input type="radio" formControlName="gender" value="male"> <span i18n="@@customer.gender.male">Male</span>
                 </label>
                 <label class="radio-pill" [class.is-active]="customerDetailsForm.value.gender === 'female'">
-                  <input type="radio" formControlName="gender" value="female"> Female
+                  <input type="radio" formControlName="gender" value="female"> <span i18n="@@customer.gender.female">Female</span>
                 </label>
               </div>
             </div>
@@ -69,58 +73,66 @@
         </section>
 
         <section class="form-section">
-          <p class="form-section__title">Location</p>
+          <p class="form-section__title" i18n="@@customer.section.location">Location</p>
           <div class="form-grid">
             <div class="form-grid__full">
-              <label class="field-label" for="address">Address</label>
-              <textarea class="hlm-input" id="address" formControlName="address" rows="2" placeholder="Building, street, area"></textarea>
+              <label class="field-label" for="address" i18n="@@customer.address">Address</label>
+              <textarea class="hlm-input" id="address" formControlName="address" rows="2"
+                        i18n-placeholder="@@customer.address.placeholder"
+                        placeholder="Building, street, area"></textarea>
             </div>
             <div>
-              <label class="field-label" for="city">City <span class="req">*</span></label>
+              <label class="field-label" for="city"><span i18n="@@customer.city">City</span> <span class="req">*</span></label>
               <input class="hlm-input" id="city" formControlName="city"
                      [class.is-invalid]="customerDetailsForm.get('city')?.touched && customerDetailsForm.get('city')?.errors?.['required']"
+                     i18n-placeholder="@@customer.city.placeholder"
                      placeholder="e.g. Mumbai" />
               @if (customerDetailsForm.get('city')?.touched && customerDetailsForm.get('city')?.errors?.['required']) {
-                <div class="field-error">City is required</div>
+                <div class="field-error" i18n="@@customer.city.required">City is required</div>
               }
             </div>
             <div>
-              <label class="field-label" for="state">State</label>
+              <label class="field-label" for="state" i18n="@@customer.state">State</label>
               <select class="hlm-input" id="state" formControlName="state"
                       (change)="onStateChange($any($event.target).value)">
-                <option value="">Select state</option>
+                <option value="" i18n="@@customer.state.select">Select state</option>
                 @for (state of states; track state.code) {
                   <option [value]="state.name">{{ state.name }}</option>
                 }
               </select>
             </div>
             <div>
-              <label class="field-label" for="stateCode">State code</label>
+              <label class="field-label" for="stateCode" i18n="@@customer.state-code">State code</label>
               <input class="hlm-input tabular-nums" id="stateCode" formControlName="stateCode" maxlength="2" readonly />
-              <div class="field-help">Auto-filled from state</div>
+              <div class="field-help" i18n="@@customer.state-code.help">Auto-filled from state</div>
             </div>
           </div>
         </section>
 
         <section class="form-section">
-          <p class="form-section__title">Tax details</p>
+          <p class="form-section__title" i18n="@@customer.section.tax">Tax details</p>
           <div class="form-grid">
             <div>
-              <label class="field-label" for="gstin">GSTIN</label>
+              <label class="field-label" for="gstin" i18n="@@customer.gstin">GSTIN</label>
               <input class="hlm-input" id="gstin" formControlName="gstin" maxlength="15"
                      [class.is-invalid]="customerDetailsForm.get('gstin')?.touched && customerDetailsForm.get('gstin')?.errors?.['pattern']"
+                     i18n-placeholder="@@customer.gstin.placeholder"
                      placeholder="15-char GSTIN" />
               @if (customerDetailsForm.get('gstin')?.touched && customerDetailsForm.get('gstin')?.errors?.['pattern']) {
-                <div class="field-error">GSTIN format is invalid</div>
+                <div class="field-error" i18n="@@customer.gstin.invalid">GSTIN format is invalid</div>
               }
             </div>
             <div>
-              <label class="field-label" for="pan">PAN</label>
-              <input class="hlm-input" id="pan" formControlName="pan" maxlength="10" placeholder="10-char PAN" />
+              <label class="field-label" for="pan" i18n="@@customer.pan">PAN</label>
+              <input class="hlm-input" id="pan" formControlName="pan" maxlength="10"
+                     i18n-placeholder="@@customer.pan.placeholder"
+                     placeholder="10-char PAN" />
             </div>
             <div class="form-grid__full">
-              <label class="field-label" for="remarks">Remarks</label>
-              <textarea class="hlm-input" id="remarks" formControlName="remarks" rows="2" placeholder="Internal notes about the customer"></textarea>
+              <label class="field-label" for="remarks" i18n="@@customer.remarks">Remarks</label>
+              <textarea class="hlm-input" id="remarks" formControlName="remarks" rows="2"
+                        i18n-placeholder="@@customer.remarks.placeholder"
+                        placeholder="Internal notes about the customer"></textarea>
             </div>
           </div>
         </section>
@@ -138,7 +150,8 @@
         <button type="button"
                 class="hlm-btn hlm-btn-ghost"
                 (click)="clearForm()"
-                [disabled]="isLoading">
+                [disabled]="isLoading"
+                i18n="@@buttons.clear">
           Clear
         </button>
         <button type="button"
@@ -147,9 +160,9 @@
                 [disabled]="!customerDetailsForm.valid || isLoading">
           @if (isLoading) {
             <ng-icon name="lucideLoader" class="animate-spin" size="14" aria-hidden="true"></ng-icon>
-            <span>Saving...</span>
+            <span i18n="@@buttons.saving">Saving...</span>
           } @else {
-            <span>Save customer</span>
+            <span i18n="@@customer.save">Save customer</span>
           }
         </button>
       </footer>

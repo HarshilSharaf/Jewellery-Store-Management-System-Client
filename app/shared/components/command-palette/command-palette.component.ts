@@ -134,6 +134,8 @@ export class CommandPaletteComponent implements OnInit, AfterViewInit {
 
   readonly isMac = /Mac|iPhone|iPad|iPod/.test(typeof navigator !== 'undefined' ? navigator.platform : '');
   readonly commandHint = this.isMac ? '⌘K' : 'Ctrl+K';
+  readonly rootPlaceholder = $localize`:@@palette.placeholder.root:Search or run command...`;
+  readonly subPlaceholder = $localize`:@@palette.placeholder.sub:Fill in details...`;
 
   @ViewChild('searchInput') searchRef?: ElementRef<HTMLInputElement>;
 

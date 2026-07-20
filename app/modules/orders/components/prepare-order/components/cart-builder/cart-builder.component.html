@@ -7,6 +7,7 @@
       <div class="picker__field">
         <ng-icon name="lucideSearch" class="picker__icon" aria-hidden="true"></ng-icon>
         <input #searchInput type="search" class="hlm-input picker__input"
+               i18n-placeholder="@@cart.search.placeholder"
                placeholder="Search SKU, HUID or product name  (press / or scan)"
                [formControl]="search"
                (keydown)="onSearchKeydown($event)"
@@ -43,7 +44,7 @@
               </span>
               <button type="button" class="hlm-btn hlm-btn-ghost picker__add" (click)="$event.stopPropagation(); addProduct(p)">
                 <ng-icon name="lucidePlus" aria-hidden="true"></ng-icon>
-                Add
+                <span i18n="@@buttons.add">Add</span>
               </button>
             </li>
           }
@@ -54,8 +55,8 @@
     <div class="lines">
       @if (cartLines().length === 0) {
         <div class="lines__empty">
-          <p class="lines__empty-title">Cart is empty.</p>
-          <p class="lines__empty-sub">Start typing an SKU or product name in the search box to add items, or scan a barcode.</p>
+          <p class="lines__empty-title" i18n="@@cart.empty.title">Cart is empty.</p>
+          <p class="lines__empty-sub" i18n="@@cart.empty.sub">Start typing an SKU or product name in the search box to add items, or scan a barcode.</p>
         </div>
       } @else {
         <div class="lines__list">
@@ -83,7 +84,7 @@
 
               <div class="line__grid">
                 <label class="line__field">
-                  <span class="line__field-label">Net weight (g)</span>
+                  <span class="line__field-label" i18n="@@product.net-weight">Net weight (g)</span>
                   <div class="line__field-with-action">
                     <input class="hlm-input tabular-nums" type="number" step="0.001" min="0"
                            [value]="line.netWeight"
@@ -99,34 +100,34 @@
                   </div>
                 </label>
                 <label class="line__field">
-                  <span class="line__field-label">Rate / g (&#8377;)</span>
+                  <span class="line__field-label" i18n="@@product.rate-per-gram">Rate / g (&#8377;)</span>
                   <input class="hlm-input tabular-nums" type="number" step="0.01" min="0"
                          [value]="line.ratePerGram" readonly>
                 </label>
                 <label class="line__field">
-                  <span class="line__field-label">Making mode</span>
+                  <span class="line__field-label" i18n="@@product.making-mode">Making mode</span>
                   <select class="hlm-input"
                           [value]="line.makingMode"
                           (change)="onLineFieldChange(line, 'makingMode', $any($event.target).value)">
-                    <option value="flat">Flat</option>
-                    <option value="perGram">Per gram</option>
-                    <option value="percent">Percent</option>
+                    <option value="flat" i18n="@@product.making-mode.flat">Flat</option>
+                    <option value="perGram" i18n="@@product.making-mode.per-gram">Per gram</option>
+                    <option value="percent" i18n="@@product.making-mode.percent">Percent</option>
                   </select>
                 </label>
                 <label class="line__field">
-                  <span class="line__field-label">Making value</span>
+                  <span class="line__field-label" i18n="@@product.making-value">Making value</span>
                   <input class="hlm-input tabular-nums" type="number" step="0.01" min="0"
                          [value]="line.makingValue"
                          (input)="onLineFieldChange(line, 'makingValue', $any($event.target).value)">
                 </label>
                 <label class="line__field">
-                  <span class="line__field-label">Wastage %</span>
+                  <span class="line__field-label" i18n="@@product.wastage-percent">Wastage %</span>
                   <input class="hlm-input tabular-nums" type="number" step="0.1" min="0"
                          [value]="line.wastagePercent"
                          (input)="onLineFieldChange(line, 'wastagePercent', $any($event.target).value)">
                 </label>
                 <label class="line__field">
-                  <span class="line__field-label">Discount (&#8377;)</span>
+                  <span class="line__field-label" i18n="@@cart.discount">Discount (&#8377;)</span>
                   <input class="hlm-input tabular-nums" type="number" step="0.01" min="0"
                          [value]="line.discountAmount"
                          [attr.data-discount-key]="line.productGuid"
@@ -136,15 +137,15 @@
 
               <footer class="line__foot">
                 <div class="line__foot-bits">
-                  <span>Metal <span class="tabular-nums">&#8377;{{ money(line.metalValue) }}</span></span>
-                  <span>Making <span class="tabular-nums">&#8377;{{ money(line.makingCharge) }}</span></span>
-                  <span>Wastage <span class="tabular-nums">&#8377;{{ money(line.wastageCharge) }}</span></span>
+                  <span><span i18n="@@totals.metal">Metal</span> <span class="tabular-nums">&#8377;{{ money(line.metalValue) }}</span></span>
+                  <span><span i18n="@@totals.making">Making</span> <span class="tabular-nums">&#8377;{{ money(line.makingCharge) }}</span></span>
+                  <span><span i18n="@@totals.wastage">Wastage</span> <span class="tabular-nums">&#8377;{{ money(line.wastageCharge) }}</span></span>
                   @if ((line.stoneCharge ?? 0) > 0) {
-                    <span>Stone <span class="tabular-nums">&#8377;{{ money(line.stoneCharge) }}</span></span>
+                    <span><span i18n="@@totals.stone">Stone</span> <span class="tabular-nums">&#8377;{{ money(line.stoneCharge) }}</span></span>
                   }
                 </div>
                 <div class="line__foot-total">
-                  Line total
+                  <span i18n="@@cart.line-total">Line total</span>
                   <span class="line__foot-value tabular-nums">&#8377;{{ money(line.lineTotal) }}</span>
                 </div>
               </footer>
@@ -159,7 +160,7 @@
       <button type="button" class="old-gold-panel__head" (click)="toggleOldGoldPanel()"
               [attr.aria-expanded]="oldGoldOpen()">
         <span class="old-gold-panel__head-title">
-          Old-gold exchange
+          <span i18n="@@cart.old-gold-exchange">Old-gold exchange</span>
           @if (oldGoldReceiptGuid() && oldGoldCreditAmount() > 0) {
             <span class="old-gold-panel__badge tabular-nums">− &#8377;{{ money(oldGoldCreditAmount()) }}</span>
           }
@@ -170,7 +171,7 @@
         <div class="old-gold-panel__body">
           <div class="old-gold-panel__row">
             <label class="line__field">
-              <span class="line__field-label">Gross weight (g)</span>
+              <span class="line__field-label" i18n="@@product.gross-weight">Gross weight (g)</span>
               <div class="line__field-with-action">
                 <input class="hlm-input tabular-nums" type="number" step="0.001" min="0"
                        [value]="oldGoldGrossWeight()"
@@ -185,7 +186,7 @@
               </div>
             </label>
             <label class="line__field">
-              <span class="line__field-label">Tested purity</span>
+              <span class="line__field-label" i18n="@@old-gold.tested-purity">Tested purity</span>
               <select class="hlm-input"
                       [value]="oldGoldPurityCode()"
                       (change)="onOldGoldPurityChange($any($event.target).value)">
@@ -195,41 +196,47 @@
               </select>
             </label>
             <label class="line__field">
-              <span class="line__field-label">Fineness (0-1000)</span>
+              <span class="line__field-label" i18n="@@product.fineness">Fineness (0-1000)</span>
               <input class="hlm-input tabular-nums" type="number" step="1" min="0" max="1000"
                      [value]="oldGoldFineness() ?? ''"
                      (input)="onOldGoldField('fineness', $any($event.target).value)">
             </label>
             <label class="line__field">
-              <span class="line__field-label">Rate / g (&#8377;)</span>
+              <span class="line__field-label" i18n="@@product.rate-per-gram">Rate / g (&#8377;)</span>
               <input class="hlm-input tabular-nums" type="number" step="0.01" min="0"
                      [value]="oldGoldRatePerGram()"
                      (input)="onOldGoldField('ratePerGram', $any($event.target).value)">
             </label>
             <label class="line__field">
-              <span class="line__field-label">Deduction %</span>
+              <span class="line__field-label" i18n="@@old-gold.deduction-percent">Deduction %</span>
               <input class="hlm-input tabular-nums" type="number" step="0.1" min="0" max="100"
                      [value]="oldGoldDeductionPercent()"
                      (input)="onOldGoldField('deductionPercent', $any($event.target).value)">
             </label>
             <label class="line__field old-gold-panel__credit">
-              <span class="line__field-label">Credit</span>
+              <span class="line__field-label" i18n="@@old-gold.credit">Credit</span>
               <span class="money-lg tabular-nums">&#8377;{{ money(oldGoldCreditAmount()) }}</span>
             </label>
           </div>
           <label class="line__field">
-            <span class="line__field-label">Remarks</span>
+            <span class="line__field-label" i18n="@@customer.remarks">Remarks</span>
             <input class="hlm-input" type="text" maxlength="240"
                    [value]="oldGoldRemarks()"
                    (input)="onOldGoldField('remarks', $any($event.target).value)"
                    placeholder="e.g. 22K bangle, weighed after cleaning">
           </label>
           <div class="old-gold-panel__actions">
-            <button type="button" class="hlm-btn hlm-btn-ghost" (click)="cancelOldGoldEdit()">Cancel</button>
+            <button type="button" class="hlm-btn hlm-btn-ghost" (click)="cancelOldGoldEdit()" i18n="@@buttons.cancel">Cancel</button>
             <button type="button" class="hlm-btn hlm-btn-primary"
                     (click)="saveOldGoldReceipt()"
                     [disabled]="oldGoldSaving() || oldGoldCreditAmount() <= 0 || !selectedCustomer">
-              {{ oldGoldSaving() ? 'Saving…' : (oldGoldReceiptGuid() ? 'Update receipt' : 'Add to invoice') }}
+              @if (oldGoldSaving()) {
+                <span i18n="@@buttons.saving">Saving...</span>
+              } @else if (oldGoldReceiptGuid()) {
+                <span i18n="@@old-gold.update-receipt">Update receipt</span>
+              } @else {
+                <span i18n="@@old-gold.add-to-invoice">Add to invoice</span>
+              }
             </button>
           </div>
           @if (!selectedCustomer) {
@@ -249,17 +256,18 @@
 
     <div class="rate-card">
       <div class="rate-card__head">
-        <span class="rate-card__title">Rate lock</span>
+        <span class="rate-card__title" i18n="@@cart.rate-lock">Rate lock</span>
         <button type="button" class="icon-btn" (click)="relockRate()"
-                [disabled]="loadingRates()" title="Fetch latest rate"
-                aria-label="Refresh rate">
+                [disabled]="loadingRates()"
+                i18n-title="@@cart.rate-refresh.title" title="Fetch latest rate"
+                i18n-aria-label="@@cart.rate-refresh" aria-label="Refresh rate">
           <ng-icon name="lucideRotateCcw" aria-hidden="true"></ng-icon>
         </button>
       </div>
       @if (metalRates().length === 0 && !loadingRates()) {
         <p class="rate-card__warn">
           <ng-icon name="lucideCircleAlert" aria-hidden="true"></ng-icon>
-          No metal rates on file — add today's rates in Settings.
+          <span i18n="@@cart.no-rates">No metal rates on file — add today's rates in Settings.</span>
         </p>
       } @else {
         <ul class="rate-card__list">
@@ -278,40 +286,40 @@
     </div>
 
     <div class="totals-panel">
-      <span class="totals-panel__title">Totals</span>
+      <span class="totals-panel__title" i18n="@@cart.totals">Totals</span>
       <div class="totals-panel__row">
-        <span>Metal value</span>
+        <span i18n="@@totals.metal-value">Metal value</span>
         <span class="tabular-nums">&#8377;{{ money(totals().subTotalTaxable - totals().totalMakingCharge - totals().totalWastageCharge - totals().totalStoneCharge + totals().totalDiscount) }}</span>
       </div>
       <div class="totals-panel__row">
-        <span>Making</span>
+        <span i18n="@@totals.making">Making</span>
         <span class="tabular-nums">&#8377;{{ money(totals().totalMakingCharge) }}</span>
       </div>
       <div class="totals-panel__row">
-        <span>Wastage</span>
+        <span i18n="@@totals.wastage">Wastage</span>
         <span class="tabular-nums">&#8377;{{ money(totals().totalWastageCharge) }}</span>
       </div>
       @if (totals().totalStoneCharge > 0) {
         <div class="totals-panel__row">
-          <span>Stone</span>
+          <span i18n="@@totals.stone">Stone</span>
           <span class="tabular-nums">&#8377;{{ money(totals().totalStoneCharge) }}</span>
         </div>
       }
       <div class="totals-panel__row totals-panel__row--sub">
-        <span>Subtotal (taxable)</span>
+        <span i18n="@@totals.subtotal-taxable">Subtotal (taxable)</span>
         <span class="tabular-nums">&#8377;{{ money(totals().subTotalTaxable) }}</span>
       </div>
       @if (totals().totalDiscount > 0) {
         <div class="totals-panel__row totals-panel__row--muted">
-          <span>Discount</span>
+          <span i18n="@@totals.discount">Discount</span>
           <span class="tabular-nums">− &#8377;{{ money(totals().totalDiscount) }}</span>
         </div>
       }
       @if (oldGoldCreditAmount() > 0) {
         <div class="totals-panel__row totals-panel__row--oldgold">
           <button type="button" class="totals-panel__oldgold-btn" (click)="openOldGoldPanel()"
-                  title="Edit old-gold receipt">
-            <em>Old-gold credit</em>
+                  i18n-title="@@old-gold.edit.title" title="Edit old-gold receipt">
+            <em i18n="@@totals.old-gold-credit">Old-gold credit</em>
           </button>
           <span class="tabular-nums totals-panel__oldgold-value">− &#8377;{{ money(oldGoldCreditAmount()) }}</span>
           <button type="button" class="icon-btn totals-panel__oldgold-remove"
@@ -338,41 +346,41 @@
         </div>
       } @else {
         <div class="totals-panel__row totals-panel__row--stub">
-          <span>Redeem saving scheme</span>
-          <button type="button" class="totals-panel__link" (click)="openSchemePicker()">
+          <span i18n="@@cart.redeem-scheme">Redeem saving scheme</span>
+          <button type="button" class="totals-panel__link" (click)="openSchemePicker()" i18n="@@cart.apply-scheme">
             Apply scheme →
           </button>
         </div>
       }
       @if (isInterState()) {
         <div class="totals-panel__row">
-          <span>IGST</span>
+          <span i18n="@@totals.igst">IGST</span>
           <span class="tabular-nums">&#8377;{{ money(totals().totalIgst) }}</span>
         </div>
       } @else {
         <div class="totals-panel__row">
-          <span>CGST</span>
+          <span i18n="@@totals.cgst">CGST</span>
           <span class="tabular-nums">&#8377;{{ money(totals().totalCgst) }}</span>
         </div>
         <div class="totals-panel__row">
-          <span>SGST</span>
+          <span i18n="@@totals.sgst">SGST</span>
           <span class="tabular-nums">&#8377;{{ money(totals().totalSgst) }}</span>
         </div>
       }
       @if (totals().roundOffAmount !== 0) {
         <div class="totals-panel__row totals-panel__row--muted">
-          <span>Round-off</span>
+          <span i18n="@@totals.round-off">Round-off</span>
           <span class="tabular-nums">{{ totals().roundOffAmount > 0 ? '+' : '' }} &#8377;{{ money(totals().roundOffAmount) }}</span>
         </div>
       }
       <hr class="totals-panel__divider">
       <div class="totals-panel__grand">
-        <span>Grand total</span>
+        <span i18n="@@totals.grand-total">Grand total</span>
         <span class="money-lg tabular-nums">&#8377;{{ money(totals().grandTotal) }}</span>
       </div>
       @if (appliedScheme(); as scheme) {
         <div class="totals-panel__row totals-panel__row--muted">
-          <span>Payable after scheme</span>
+          <span i18n="@@totals.payable-after-scheme">Payable after scheme</span>
           <span class="tabular-nums">&#8377;{{ money(grandTotalWithScheme()) }}</span>
         </div>
       }
