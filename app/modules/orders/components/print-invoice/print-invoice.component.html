@@ -319,7 +319,7 @@
               @if (line.huid) { · HUID {{ line.huid }} }
             </div>
             <div class="th-line-row">
-              <span>Net {{ qty(line.netWeight) }}g @ &#8377;{{ money(line.ratePerGram) }}</span>
+              <span>Net {{ qty(line.netWeight) }}g &#64; &#8377;{{ money(line.ratePerGram) }}</span>
               <span>{{ money(line.metalValue) }}</span>
             </div>
             @if (line.makingCharge && line.makingCharge > 0) {
