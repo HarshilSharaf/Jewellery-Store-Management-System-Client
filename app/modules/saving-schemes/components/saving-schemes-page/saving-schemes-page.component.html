@@ -1,0 +1,130 @@
+<div class="page-title">
+  <div class="page-title__group">
+    <h1 class="page-title__heading">Schemes</h1>
+    @if (totalRecords() > 0) {
+      <span class="page-title__count">({{ totalRecords() }} scheme{{ totalRecords() === 1 ? '' : 's' }})</span>
+    }
+  </div>
+  <button type="button" class="hlm-btn hlm-btn-primary" (click)="openEnroll()">
+    <ng-icon name="lucidePlus" size="16" aria-hidden="true"></ng-icon>
+    <span>New scheme</span>
+  </button>
+</div>
+
+<div class="list-toolbar schemes-toolbar">
+  <div class="search-input">
+    <ng-icon name="lucideSearch" size="14" aria-hidden="true" class="search-input__icon"></ng-icon>
+    <input type="search" class="hlm-input"
+           placeholder="Search customer name or plan…"
+           [value]="searchQuery()"
+           (input)="onSearchInput($any($event.target).value)"
+           aria-label="Search schemes" />
+  </div>
+
+  <div class="filter-chips" role="group" aria-label="Status filter">
+    @for (opt of statusOptions; track opt.value) {
+      <button type="button"
+              class="chip chip-toggle"
+              [class.chip-active]="isStatusActive(opt.value)"
+              (click)="toggleStatus(opt.value)">
+        {{ opt.label }}
+      </button>
+    }
+    @if (statusFilters().length > 0 || searchQuery()) {
+      <button type="button" class="chip chip-toggle" (click)="clearFilters()">Clear</button>
+    }
+  </div>
+</div>
+
+<section class="schemes-table">
+  <div class="schemes-table__head">
+    <span class="col-customer">Customer</span>
+    <span class="col-plan">Plan</span>
+    <span class="col-monthly">Monthly</span>
+    <span class="col-paid">Paid so far</span>
+    <span class="col-progress">Progress</span>
+    <span class="col-status">Status</span>
+  </div>
+
+  @if (isLoading() && !hasRows()) {
+    <div class="schemes-table__loading">
+      <ng-icon name="lucideLoader" class="animate-spin" size="20" aria-hidden="true"></ng-icon>
+      <span>Loading schemes…</span>
+    </div>
+  }
+
+  @for (row of rows(); track row.schemeGuid) {
+    <div class="data-row schemes-row"
+         role="button"
+         tabindex="0"
+         (click)="goToDetail(row)"
+         (keyup.enter)="goToDetail(row)">
+      <div class="col-customer">
+        <span class="avatar avatar--sm">{{ initialsFor(row) }}</span>
+        <div class="name-block">
+          <span class="name-block__name">{{ row.customerName || '(no name)' }}</span>
+          @if (row.phoneNumber) {
+            <span class="name-block__sub tabular-nums">{{ row.phoneNumber }}</span>
+          }
+        </div>
+      </div>
+      <div class="col-plan">
+        <span class="cell-text">{{ row.planName }}</span>
+        <span class="cell-text-muted tabular-nums">{{ row.tenureMonths }} mo</span>
+      </div>
+      <div class="col-monthly money tabular-nums">&#8377;{{ money(row.monthlyAmount) }}</div>
+      <div class="col-paid money tabular-nums">&#8377;{{ money(row.totalPaid) }}</div>
+      <div class="col-progress">
+        <div class="progress-bar" role="progressbar"
+             [attr.aria-valuemin]="0" [attr.aria-valuemax]="100"
+             [attr.aria-valuenow]="progressPercent(row)">
+          <span class="progress-bar__fill" [style.width.%]="progressPercent(row)"></span>
+        </div>
+        <span class="progress-bar__label tabular-nums">{{ progressPercent(row) | number: '1.0-0' }}%</span>
+      </div>
+      <div class="col-status">
+        <span [class]="statusClass(row.status)">
+          @if (row.status === 'active') { <ng-icon name="lucideCircleCheck" size="12" aria-hidden="true"></ng-icon> Active }
+          @else if (row.status === 'matured') { Matured }
+          @else if (row.status === 'redeemed') { Redeemed }
+          @else if (row.status === 'forfeited') { <ng-icon name="lucideCircleX" size="12" aria-hidden="true"></ng-icon> Forfeited }
+        </span>
+      </div>
+    </div>
+  }
+
+  @if (showEmpty()) {
+    <div class="empty-state">
+      <ng-icon name="lucidePiggyBank" size="32" aria-hidden="true"></ng-icon>
+      <p class="empty-state__title">No saving schemes yet</p>
+      <p class="empty-state__sub">Enrol a customer in a Golden Harvest style monthly plan to get started.</p>
+      <button type="button" class="hlm-btn hlm-btn-primary" (click)="openEnroll()">
+        <ng-icon name="lucidePlus" size="14" aria-hidden="true"></ng-icon>
+        <span>New scheme</span>
+      </button>
+    </div>
+  }
+
+  @if (showNoResults()) {
+    <div class="empty-state">
+      <ng-icon name="lucideSearch" size="32" aria-hidden="true"></ng-icon>
+      <p class="empty-state__title">No schemes match the current filters</p>
+      <button type="button" class="hlm-btn hlm-btn-ghost" (click)="clearFilters()">Clear filters</button>
+    </div>
+  }
+</section>
+
+@if (totalRecords() > pageSize()) {
+  <app-simple-paginator
+    [length]="totalRecords()"
+    [pageSize]="pageSize()"
+    [pageIndex]="pageIndex()"
+    (page)="onPageChange($event)">
+  </app-simple-paginator>
+}
+
+<app-enroll-scheme-form
+  [open]="showEnroll()"
+  (closed)="onEnrollClosed()"
+  (enrolled)="onEnrolled($event)">
+</app-enroll-scheme-form>

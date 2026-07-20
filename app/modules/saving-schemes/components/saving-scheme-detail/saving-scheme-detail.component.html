@@ -1,0 +1,239 @@
+@if (scheme(); as s) {
+  <header class="view-header">
+    <div class="view-header__left">
+      <button type="button" class="icon-btn" (click)="goBack()" title="Back to schemes" aria-label="Back">
+        <ng-icon name="lucideArrowLeft" size="18" aria-hidden="true"></ng-icon>
+      </button>
+      <div class="view-header__meta">
+        <h1 class="view-header__name font-serif">{{ s.planName }}</h1>
+        <div class="view-header__sub">
+          <span [class]="statusClass(s.status)">
+            @if (s.status === 'active') { Active }
+            @else if (s.status === 'matured') { Matured }
+            @else if (s.status === 'redeemed') { Redeemed }
+            @else if (s.status === 'forfeited') { Forfeited }
+          </span>
+          <span class="sub-chip tabular-nums">
+            &#8377;{{ money(s.monthlyAmount) }} / mo · {{ s.tenureMonths }} months
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="view-header__actions">
+      @if (canRecordInstallment()) {
+        <button type="button" class="hlm-btn hlm-btn-primary" (click)="openRecord()">
+          <ng-icon name="lucideIndianRupee" size="14" aria-hidden="true"></ng-icon>
+          <span>Record installment</span>
+        </button>
+      }
+      @if (canRedeem()) {
+        <button type="button" class="hlm-btn hlm-btn-ghost" (click)="redeemViaCart()">
+          <span>Redeem in cart</span>
+        </button>
+      }
+      @if (canForfeit()) {
+        <button type="button" class="hlm-btn hlm-btn-ghost" (click)="forfeit()">
+          <ng-icon name="lucideCircleX" size="14" aria-hidden="true"></ng-icon>
+          <span>Forfeit</span>
+        </button>
+      }
+    </div>
+  </header>
+
+  <div class="detail-shell">
+    <main class="detail-main">
+      <section class="form-section">
+        <p class="form-section__title">Customer</p>
+        <div class="detail-grid">
+          <div>
+            <span class="detail-field__label">Name</span>
+            <span class="detail-field__value">
+              <button type="button" class="link-btn" (click)="goToCustomer()">{{ s.customerName }}</button>
+            </span>
+          </div>
+          <div>
+            <span class="detail-field__label">Phone</span>
+            <span class="detail-field__value tabular-nums">{{ s.phoneNumber || '—' }}</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <p class="form-section__title">Schedule</p>
+        <div class="detail-grid">
+          <div>
+            <span class="detail-field__label">Enrolment date</span>
+            <span class="detail-field__value">{{ s.startDate | date: 'd MMM yyyy' }}</span>
+          </div>
+          <div>
+            <span class="detail-field__label">Expected maturity</span>
+            <span class="detail-field__value">{{ s.expectedMaturityDate | date: 'd MMM yyyy' }}</span>
+          </div>
+          <div>
+            <span class="detail-field__label">Tenure</span>
+            <span class="detail-field__value tabular-nums">{{ s.tenureMonths }} months</span>
+          </div>
+          <div>
+            <span class="detail-field__label">Bonus installments</span>
+            <span class="detail-field__value tabular-nums">{{ s.bonusInstallments }}</span>
+          </div>
+          @if (s.redeemedAt) {
+            <div>
+              <span class="detail-field__label">Redeemed</span>
+              <span class="detail-field__value">{{ s.redeemedAt | date: 'd MMM yyyy' }} · &#8377;{{ money(s.redeemedAmount) }}</span>
+            </div>
+          }
+          @if (s.forfeitedAt) {
+            <div>
+              <span class="detail-field__label">Forfeited</span>
+              <span class="detail-field__value">{{ s.forfeitedAt | date: 'd MMM yyyy' }}</span>
+            </div>
+            <div class="detail-grid__full">
+              <span class="detail-field__label">Reason</span>
+              <span class="detail-field__value">{{ s.forfeitReason || '—' }}</span>
+            </div>
+          }
+        </div>
+      </section>
+
+      <section class="form-section">
+        <div class="section-head">
+          <p class="form-section__title" style="margin-bottom: 0;">Installments</p>
+          <span class="section-head__count tabular-nums">
+            {{ installments().length }} / {{ s.tenureMonths }}
+          </span>
+        </div>
+
+        @if (installments().length === 0) {
+          <p class="empty-inline">No installments recorded yet.</p>
+        } @else {
+          <div class="installments">
+            <div class="installments__head">
+              <span class="col-num">#</span>
+              <span class="col-date">Received</span>
+              <span class="col-amount">Amount</span>
+              <span class="col-mode">Mode</span>
+              <span class="col-ref">Ref</span>
+              <span class="col-actions"></span>
+            </div>
+            @for (inst of installments(); track inst.installmentGuid) {
+              <div class="installments__row">
+                <span class="col-num tabular-nums">{{ inst.installmentNumber }}</span>
+                <span class="col-date tabular-nums">{{ inst.receiptDate | date: 'd MMM yyyy' }}</span>
+                <span class="col-amount tabular-nums money">&#8377;{{ money2(inst.amount) }}</span>
+                <span class="col-mode">{{ inst.paymentMode }}</span>
+                <span class="col-ref">{{ inst.refNumber || '—' }}</span>
+                <span class="col-actions">
+                  <button type="button" class="icon-btn" title="Copy receipt" (click)="copyReceipt(inst)">
+                    <ng-icon name="lucideCopy" size="14" aria-hidden="true"></ng-icon>
+                  </button>
+                </span>
+              </div>
+            }
+          </div>
+        }
+      </section>
+    </main>
+
+    <aside class="detail-side">
+      <div class="kpi-card">
+        <p class="kpi-label">Paid so far</p>
+        <p class="kpi-value money-lg tabular-nums">&#8377;{{ money(s.totalPaid) }}</p>
+        <div class="progress-bar">
+          <span class="progress-bar__fill" [style.width.%]="progressPercent()"></span>
+        </div>
+        <p class="kpi-delta tabular-nums">{{ progressPercent() | number: '1.0-0' }}% of expected</p>
+      </div>
+
+      <div class="side-row">
+        <div class="kpi-card kpi-card--compact">
+          <p class="kpi-label">Expected corpus</p>
+          <p class="kpi-value kpi-value--sm tabular-nums">&#8377;{{ money(expectedCorpus()) }}</p>
+        </div>
+        <div class="kpi-card kpi-card--compact">
+          <p class="kpi-label">Balance to pay</p>
+          <p class="kpi-value kpi-value--sm tabular-nums">&#8377;{{ money(balanceToPay()) }}</p>
+        </div>
+      </div>
+
+      <div class="side-row">
+        <div class="kpi-card kpi-card--compact">
+          <p class="kpi-label">Installments</p>
+          <p class="kpi-value kpi-value--sm tabular-nums">{{ s.installmentsPaid ?? installments().length }} / {{ s.tenureMonths }}</p>
+        </div>
+        <div class="kpi-card kpi-card--compact">
+          <p class="kpi-label">Bonus</p>
+          <p class="kpi-value kpi-value--sm tabular-nums">&#8377;{{ money(s.bonusAmount) }}</p>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  @if (showRecord()) {
+    <div class="payments-panel-backdrop" (click)="closeRecord()" role="presentation"></div>
+    <aside class="payments-panel" role="dialog" aria-modal="true" aria-labelledby="record-inst-title">
+      <header class="payments-panel__head">
+        <div>
+          <h3 id="record-inst-title" class="payments-panel__title">Record installment</h3>
+          <div class="payments-panel__sub tabular-nums">Installment #{{ (s.installmentsPaid ?? installments().length) + 1 }} of {{ s.tenureMonths }}</div>
+        </div>
+        <button type="button" class="icon-btn" (click)="closeRecord()" aria-label="Close panel">
+          <ng-icon name="lucideX" aria-hidden="true"></ng-icon>
+        </button>
+      </header>
+
+      <div class="payments-panel__body">
+        <form class="payments-form" [formGroup]="installmentForm" (ngSubmit)="recordInstallment()">
+          <label class="field-label">Amount</label>
+          <div class="amount-input">
+            <span class="amount-input__prefix">&#8377;</span>
+            <input class="hlm-input amount-input__field tabular-nums" type="number" min="1" step="0.01"
+                   formControlName="amount" placeholder="0.00" />
+          </div>
+
+          <label class="field-label">Mode</label>
+          <div class="radio-pill-row" role="radiogroup" aria-label="Payment mode">
+            @for (m of modes; track m) {
+              <button type="button" class="radio-pill"
+                      [class.is-active]="currentMode() === m"
+                      (click)="setMode(m)"
+                      role="radio" [attr.aria-checked]="currentMode() === m">
+                {{ m }}
+              </button>
+            }
+          </div>
+
+          <label class="field-label">Reference #</label>
+          <input class="hlm-input" type="text" formControlName="refNumber"
+                 [placeholder]="currentMode() === 'cash' ? 'Not required for cash' : 'UPI txn / cheque no'" />
+
+          <label class="field-label">Receipt date</label>
+          <input class="hlm-input tabular-nums" type="date" formControlName="receiptDate" />
+
+          <label class="check-row">
+            <input type="checkbox" formControlName="allowMultipleThisMonth" />
+            <span>Allow multiple installments this month</span>
+          </label>
+
+          @if (errorMessage()) {
+            <p class="payments-form__error">{{ errorMessage() }}</p>
+          }
+        </form>
+      </div>
+
+      <footer class="payments-panel__foot">
+        <button type="button" class="hlm-btn hlm-btn-ghost" (click)="closeRecord()">Cancel</button>
+        <button type="button" class="hlm-btn hlm-btn-primary" (click)="recordInstallment()"
+                [disabled]="installmentForm.invalid || saving()">
+          <ng-icon name="lucideCheck" aria-hidden="true"></ng-icon>
+          {{ saving() ? 'Saving…' : 'Save installment' }}
+        </button>
+      </footer>
+    </aside>
+  }
+} @else {
+  <div class="loading-state">
+    <ng-icon name="lucideLoader" class="animate-spin" size="24" aria-hidden="true"></ng-icon>
+    <span>Loading scheme…</span>
+  </div>
+}
