@@ -44,9 +44,11 @@
       <button type="button" class="icon-btn" (click)="toggleEditMode()" title="{{ editMode ? 'Cancel' : 'Edit' }}" aria-label="Edit">
         <ng-icon [name]="editMode ? 'lucideX' : 'lucidePencil'" size="16" aria-hidden="true"></ng-icon>
       </button>
-      <button type="button" class="icon-btn icon-btn--danger" (click)="deleteCustomer()" title="Delete customer" aria-label="Delete">
-        <ng-icon name="lucideTrash2" size="16" aria-hidden="true"></ng-icon>
-      </button>
+      @if (permissions.canDeleteCustomer()) {
+        <button type="button" class="icon-btn icon-btn--danger" (click)="deleteCustomer()" title="Delete customer" aria-label="Delete">
+          <ng-icon name="lucideTrash2" size="16" aria-hidden="true"></ng-icon>
+        </button>
+      }
     </div>
   </header>
 
@@ -231,6 +233,95 @@
                 </div>
                 <span class="order-list__amount tabular-nums">{{ formatINR(order.grandTotal ?? order.totalAmountWithGst) }}</span>
                 <ng-icon name="lucideExternalLink" size="14" aria-hidden="true" class="order-list__arrow"></ng-icon>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+
+      <section class="detail-section">
+        <div class="section-head">
+          <p class="detail-section__title" style="margin-bottom: 0;">Saving schemes</p>
+          @if (customerSchemes.length > 0) {
+            <span class="section-head__count tabular-nums">{{ customerSchemes.length }} on file</span>
+          }
+        </div>
+        @if (customerSchemes.length === 0) {
+          <p class="orders-empty__sub" style="text-align:center; margin: 12px 0 0;">
+            No saving schemes for this customer.
+          </p>
+        } @else {
+          <ul class="order-list">
+            @for (scheme of customerSchemes; track scheme.schemeGuid) {
+              <li class="order-list__row"
+                  role="button"
+                  tabindex="0"
+                  (click)="goToScheme(scheme)"
+                  (keyup.enter)="goToScheme(scheme)">
+                <div class="order-list__main">
+                  <span class="order-list__id">
+                    <ng-icon name="lucidePiggyBank" size="12" aria-hidden="true"></ng-icon>
+                    {{ scheme.planName }}
+                  </span>
+                  <span class="order-list__date tabular-nums">&#8377;{{ formatINR(scheme.monthlyAmount) }} / mo</span>
+                </div>
+                <div class="order-list__status">
+                  <span [class]="schemeStatusClass(scheme.status)">{{ scheme.status }}</span>
+                </div>
+                <span class="order-list__amount tabular-nums">{{ formatINR(scheme.totalPaid) }}</span>
+                <ng-icon name="lucideExternalLink" size="14" aria-hidden="true" class="order-list__arrow"></ng-icon>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+
+      <section class="detail-section">
+        <div class="section-head">
+          <p class="detail-section__title" style="margin-bottom: 0;">Old-gold history</p>
+          @if (oldGoldReceipts.length > 0) {
+            <span class="section-head__count tabular-nums">{{ oldGoldReceipts.length }} receipt{{ oldGoldReceipts.length === 1 ? '' : 's' }}</span>
+          }
+        </div>
+        @if (isLoadingOldGold && oldGoldReceipts.length === 0) {
+          <div class="orders-empty">
+            <ng-icon name="lucideLoader" class="animate-spin" size="20" aria-hidden="true"></ng-icon>
+            <span>Loading old-gold receipts...</span>
+          </div>
+        } @else if (oldGoldReceipts.length === 0) {
+          <div class="orders-empty">
+            <ng-icon name="lucideCoins" size="32" aria-hidden="true"></ng-icon>
+            <span class="orders-empty__title">No old-gold receipts</span>
+            <span class="orders-empty__sub">Exchanges recorded on cart will appear here.</span>
+          </div>
+        } @else {
+          <ul class="order-list">
+            @for (r of oldGoldReceipts; track r.receiptGuid) {
+              <li class="order-list__row"
+                  [class.is-clickable]="!!r.invoiceGuid"
+                  [attr.role]="r.invoiceGuid ? 'button' : null"
+                  [attr.tabindex]="r.invoiceGuid ? 0 : null"
+                  (click)="goToOldGoldInvoice(r)"
+                  (keyup.enter)="goToOldGoldInvoice(r)">
+                <div class="order-list__main">
+                  <span class="order-list__id">
+                    <ng-icon name="lucideCoins" size="12" aria-hidden="true"></ng-icon>
+                    <span class="tabular-nums">{{ r.grossWeight }}g</span>
+                    <span class="purity-chip">{{ r.testedPurityCode ?? '—' }}</span>
+                  </span>
+                  <span class="order-list__date">{{ formatDateShort(r.createdAt) }}</span>
+                </div>
+                <div class="order-list__status">
+                  @if (r.invoiceNumber) {
+                    <span class="status-chip status-chip--success tabular-nums">{{ r.invoiceNumber }}</span>
+                  } @else {
+                    <span class="status-chip">Standalone</span>
+                  }
+                </div>
+                <span class="order-list__amount tabular-nums">− {{ formatINR(r.creditAmount) }}</span>
+                @if (r.invoiceGuid) {
+                  <ng-icon name="lucideExternalLink" size="14" aria-hidden="true" class="order-list__arrow"></ng-icon>
+                }
               </li>
             }
           </ul>

@@ -18,6 +18,11 @@ import { CustomerOrders } from '../../models/customer-orders';
 import { DeleteCustomerImageModel, UpdateCustomerImageModel } from '../../models/customer-image-model';
 import { OrderService } from '../../../orders/services/order.service';
 import { INDIAN_STATES, GSTIN_REGEX } from '../../../../shared/utils/indian-states';
+import { SavingSchemesService } from '../../../../shared/services/SavingSchemes/saving-schemes.service';
+import { SavingScheme } from '../../../../interfaces/SavingSchemes/saving-scheme';
+import { OldGoldService } from '../../../../shared/services/OldGold/old-gold.service';
+import { OldGoldReceipt } from '../../../../interfaces/OldGold/old-gold';
+import { PermissionsService } from '../../../../shared/services/Auth/permissions.service';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideArrowLeft,
@@ -34,6 +39,8 @@ import {
   lucideCircleCheck,
   lucideCircleX,
   lucideExternalLink,
+  lucidePiggyBank,
+  lucideCoins,
 } from '@ng-icons/lucide';
 
 @Component({
@@ -58,6 +65,8 @@ import {
       lucideCircleCheck,
       lucideCircleX,
       lucideExternalLink,
+      lucidePiggyBank,
+      lucideCoins,
     }),
   ],
   providers: [DecimalPipe],
@@ -84,7 +93,11 @@ export class ViewDetailsComponent implements OnInit, OnDestroy {
 
   editMode = false;
   showImageEditor = false;
+  readonly permissions = inject(PermissionsService);
   creditBalance = 0;
+  customerSchemes: SavingScheme[] = [];
+  oldGoldReceipts: OldGoldReceipt[] = [];
+  isLoadingOldGold = false;
 
   protected readonly states = INDIAN_STATES;
   protected readonly gstinPattern = GSTIN_REGEX;
@@ -101,16 +114,56 @@ export class ViewDetailsComponent implements OnInit, OnDestroy {
     private router: Router,
     private decimalPipe: DecimalPipe,
     private utilityService: UtilityService,
+    private savingSchemesService: SavingSchemesService,
+    private oldGoldService: OldGoldService,
   ) {}
 
   ngOnInit(): void {
+    this.permissions.getUserPermissions();
     this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       this.customerGuid = params['customerGuid'];
       this.getCustomerDetails();
       this.getCustomerOrders();
       this.getCustomerImage();
       this.getTotalAmountOfProductsBoughtForCustomer();
+      this.getCustomerSchemes();
+      this.getCustomerOldGoldReceipts();
     });
+  }
+
+  async getCustomerOldGoldReceipts(): Promise<void> {
+    if (!this.customerGuid) { return; }
+    this.isLoadingOldGold = true;
+    try {
+      this.oldGoldReceipts = await this.oldGoldService.getReceiptsByCustomer(this.customerGuid);
+    } catch (error) {
+      this.loggerService.LogError(error, 'getCustomerOldGoldReceipts()');
+    } finally {
+      this.isLoadingOldGold = false;
+    }
+  }
+
+  goToOldGoldInvoice(receipt: OldGoldReceipt): void {
+    if (!receipt?.invoiceGuid) { return; }
+    this.router.navigate([`orders/view-order-details/${receipt.invoiceGuid}`]);
+  }
+
+  async getCustomerSchemes(): Promise<void> {
+    try {
+      const list = await this.savingSchemesService.getByCustomer(this.customerGuid);
+      this.customerSchemes = Array.isArray(list) ? list : [];
+    } catch (error) {
+      this.loggerService.LogError(error, 'getCustomerSchemes()');
+    }
+  }
+
+  goToScheme(scheme: SavingScheme): void {
+    if (!scheme?.schemeGuid) return;
+    this.router.navigate(['/saving-schemes', scheme.schemeGuid]);
+  }
+
+  schemeStatusClass(status: string | undefined): string {
+    return status ? `status-chip status-chip--${status}` : 'status-chip';
   }
 
   goBack(): void {
