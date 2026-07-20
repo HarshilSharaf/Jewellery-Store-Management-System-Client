@@ -1422,3 +1422,142 @@ html[data-theme="dark"] .btn.btn-outline-lightning {
 
   .purity-chip__dot { margin: 0 2px; opacity: 0.6; }
 }
+
+// -------------------------------------------------------------------------
+// Workstream Q shared recipes (Command palette)
+// -------------------------------------------------------------------------
+@layer components {
+  .cp-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgb(0 0 0 / 0.40);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    z-index: 60;
+  }
+
+  .cp-panel {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90vw;
+    max-width: 560px;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 20px 50px -12px rgb(0 0 0 / 0.35), 0 10px 20px -6px rgb(0 0 0 / 0.2);
+    z-index: 61;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .cp-search-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 12px 0 16px;
+    height: 56px;
+    border-bottom: 1px solid var(--color-border-subtle);
+    flex-shrink: 0;
+  }
+
+  .cp-search-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+    font-size: 14px;
+
+    &::placeholder {
+      color: var(--color-fg-muted);
+    }
+  }
+
+  .cp-section {
+    padding: 4px 6px 6px;
+  }
+
+  .cp-section-header {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-fg-muted);
+    padding: 8px 12px 6px;
+  }
+
+  .cp-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 12px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--color-fg);
+    position: relative;
+
+    &:hover,
+    &.is-active {
+      background: var(--color-accent-subtle);
+    }
+
+    &.is-active::before {
+      content: '';
+      position: absolute;
+      left: 2px;
+      top: 8px;
+      bottom: 8px;
+      width: 2px;
+      border-radius: 2px;
+      background: var(--color-accent);
+    }
+  }
+
+  .cp-row-icon {
+    color: var(--color-fg-muted);
+    flex-shrink: 0;
+  }
+
+  .cp-row-label {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .cp-row-hint {
+    font-size: 11px;
+    color: var(--color-fg-muted);
+    font-family: var(--font-sans);
+    letter-spacing: 0.02em;
+  }
+
+  .cp-footer {
+    font-size: 11px;
+    color: var(--color-fg-muted);
+    padding: 8px 16px;
+    border-top: 1px solid var(--color-border-subtle);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .cp-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px 6px;
+    font-size: 12px;
+    color: var(--color-fg-muted);
+    border-bottom: 1px solid var(--color-border-subtle);
+  }
+}
+
