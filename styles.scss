@@ -15,16 +15,12 @@
 // persists to localStorage, and honors prefers-color-scheme on first visit.
 // -------------------------------------------------------------------------
 
-// Keep Material theme scoped OFF at :root; individual modules re-include it.
-// This is a compromise: full removal is blocked because customers/inventory/
-// orders/settings still lean on mat-* components. Migrating them off is a
-// later Phase 1 task per REDESIGN_PLAN.md section 2.
-//
-// NOTE: Sass @use must appear before any other rules including @tailwind
-// directives, so this stays at the top; the Tailwind directives follow
-// immediately below and still land above the token layer in the emitted CSS.
-@use '@angular/material' as mat;
-
+// Angular Material was removed in Workstream F once every remaining
+// mat-* consumer (data-table, customers, categories paginators, orders
+// stepper + select-customer paginator, add-to-cart badge, global error
+// snackbar) was migrated to Tailwind + Spartan/brain + Lucide equivalents.
+// The `@angular/material` and `@fortawesome/fontawesome-free` packages
+// remain in the parent `package.json` pending a parent-repo edit.
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -75,25 +71,11 @@
   }
 }
 
-$jsms-theme: mat.define-theme((
-  color: (
-    theme-type: light,
-    primary: mat.$azure-palette,
-    tertiary: mat.$orange-palette,
-  ),
-  typography: (
-    brand-family: 'Inter, Hind, system-ui, sans-serif',
-    plain-family: 'Inter, Hind, system-ui, sans-serif',
-  ),
-));
-
-html {
-  @include mat.all-component-themes($jsms-theme);
-}
-
-// FontAwesome + animate.css remain in use for legacy modules (customers /
-// inventory / orders) that still ship FA icons; new work uses Lucide via
-// ng-icons. Neither has been removed from the bundle yet.
+// animate.css is a pure CSS drop; keep as legacy @import until angular.json
+// (parent-repo) picks it up in its styles array. Lightning Admin vendor
+// partial is Sass but internally @import-heavy; migrating the whole graph
+// to @use is a dedicated later pass (Dart Sass 3.0 will force it). See
+// Workstream F notes in REDESIGN_PLAN section 7.6.
 @import 'animate.css/animate.min';
 @import './assets/lightning-admin';
 
