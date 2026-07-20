@@ -6,13 +6,13 @@
       </button>
       @if (thumbnail) {
         <div class="avatar avatar--lg">
-          <img [src]="thumbnail" alt="{{ customer.customerName }}" />
+          <img [src]="thumbnail" alt="{{ customer.customerName }}" loading="lazy" />
         </div>
       } @else {
         <div class="avatar avatar--lg">{{ (customer.firstName?.[0] ?? '') + (customer.lastName?.[0] ?? '') }}</div>
       }
       <div class="view-header__meta">
-        <h1 class="view-header__name font-serif">{{ customer.customerName }}</h1>
+        <h1 class="view-header__name font-serif" [title]="customer.customerName">{{ customer.customerName }}</h1>
         <div class="view-header__sub">
           @if (customer.city) {
             <span class="sub-chip">
@@ -263,7 +263,7 @@
                     <ng-icon name="lucidePiggyBank" size="12" aria-hidden="true"></ng-icon>
                     {{ scheme.planName }}
                   </span>
-                  <span class="order-list__date tabular-nums">&#8377;{{ formatINR(scheme.monthlyAmount) }} / mo</span>
+                  <span class="order-list__date tabular-nums">{{ formatINR(scheme.monthlyAmount) }} / mo</span>
                 </div>
                 <div class="order-list__status">
                   <span [class]="schemeStatusClass(scheme.status)">{{ scheme.status }}</span>

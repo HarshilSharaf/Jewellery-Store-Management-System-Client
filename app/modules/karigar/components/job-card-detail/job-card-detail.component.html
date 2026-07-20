@@ -147,7 +147,7 @@
             </div>
             @for (l of ledger(); track l.ledgerGuid) {
               <div class="ledger-table__row">
-                <span class="tabular-nums">{{ l.txnDate | date: 'd MMM yy' }}</span>
+                <span class="tabular-nums">{{ l.txnDate | date: 'd MMM yyyy' }}</span>
                 <span>{{ l.entryType }}</span>
                 <span [class.is-credit]="l.direction === 'credit'"
                       [class.is-debit]="l.direction === 'debit'">

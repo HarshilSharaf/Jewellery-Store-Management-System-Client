@@ -5,7 +5,7 @@
         <ng-icon name="lucideArrowLeft" size="18" aria-hidden="true"></ng-icon>
       </button>
       <div class="view-header__meta">
-        <h1 class="view-header__name font-serif">{{ k.name }}</h1>
+        <h1 class="view-header__name font-serif" [title]="k.name">{{ k.name }}</h1>
         <div class="view-header__sub">
           @if (k.phone) {
             <span class="sub-chip tabular-nums">
@@ -70,7 +70,7 @@
             </div>
             @for (l of ledger(); track l.ledgerGuid) {
               <div class="ledger-table__row">
-                <span class="col-date tabular-nums">{{ l.txnDate | date: 'd MMM yy' }}</span>
+                <span class="col-date tabular-nums">{{ l.txnDate | date: 'd MMM yyyy' }}</span>
                 <span class="col-type">{{ l.entryType }}</span>
                 <span class="col-dir" [class.is-credit]="l.direction === 'credit'"
                        [class.is-debit]="l.direction === 'debit'">
@@ -112,7 +112,7 @@
               <li class="active-jobs__row" (click)="goToJob(j)" role="button" tabindex="0"
                   (keyup.enter)="goToJob(j)">
                 <span class="tabular-nums">{{ jobShort(j.jobGuid) }}</span>
-                <span>{{ j.issueDate | date: 'd MMM' }}</span>
+                <span class="tabular-nums">{{ j.issueDate | date: 'd MMM yyyy' }}</span>
                 <span class="tabular-nums money">{{ j.issuedGrossWeight }} g</span>
                 <span [class]="statusClass(j.status)">{{ j.status }}</span>
               </li>

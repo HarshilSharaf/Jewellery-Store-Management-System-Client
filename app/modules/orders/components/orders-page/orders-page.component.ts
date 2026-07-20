@@ -70,7 +70,8 @@ export class OrdersPageComponent implements OnInit {
   readonly moneyFormatter = new Intl.NumberFormat('en-IN', {
     style: 'currency',
     currency: 'INR',
-    maximumFractionDigits: 0,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   });
 
   readonly visibleOrders = computed<OrdersDataModel[]>(() => {
