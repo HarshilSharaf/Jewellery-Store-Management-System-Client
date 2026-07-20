@@ -1,17 +1,22 @@
 export interface CustomerDetails {
-    id:number,
+    id: number,
     customerId?: number,
-    customerGuid?:string
+    customerGuid?: string,
     firstName: string,
     lastName: string,
     dateOfBirth?: string,
-    customerName: string,
+    customerName?: string,
     phoneNumber: number,
-    imagePath?: string,
+    imagePath?: string | null,
     image?: string,
     gender: string,
     address: string,
     city: string,
-    state: string,
-    email: string
+    state?: string | null,
+    stateCode?: string | null,
+    email: string,
+    gstin?: string | null,
+    pan?: string | null,
+    remarks?: string | null,
+    creditBalance?: number
 }
