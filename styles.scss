@@ -1,50 +1,247 @@
-// Angular Material M3 Theming (must come first - @use rules before @import)
+// -------------------------------------------------------------------------
+// Design system foundation - Phase 1 (Workstream B)
+//
+// This file replaces the pastel Angular Material theme with a warm-neutral,
+// editorial token system. Material's global theme mixin is scoped OFF here;
+// individual modules that still use mat-* components (login form-field is
+// being reskinned; customers/inventory/orders remain on Material) get a
+// minimal scoped theme in their own module SCSS.
+//
+// Layers:
+//   1. Radix Color scales (Sand, Amber, Green, Yellow, Red) as raw CSS vars
+//   2. Semantic tokens (--color-bg, --color-fg, ...) mapped from scales
+//   3. Typography scale (retained from prior work)
+//   4. Base HTML/body reset
+//
+// Dark theme is switched via `[data-theme="dark"]` on <html>. The
+// ThemeService (shared/services/theme.service.ts) manages the attribute,
+// persists to localStorage, and honors prefers-color-scheme on first visit.
+// -------------------------------------------------------------------------
+
+// Keep Material theme scoped OFF at :root; individual modules re-include it.
+// This is a compromise: full removal is blocked because customers/inventory/
+// orders/settings still lean on mat-* components. Migrating them off is a
+// later Phase 1 task per REDESIGN_PLAN.md section 2.
 @use '@angular/material' as mat;
 
-// Custom pastel theme
-$pastel-theme: mat.define-theme((
+$jsms-theme: mat.define-theme((
   color: (
     theme-type: light,
-    primary: mat.$violet-palette,
-    tertiary: mat.$rose-palette,
+    primary: mat.$azure-palette,
+    tertiary: mat.$orange-palette,
   ),
   typography: (
-    brand-family: 'Inter, system-ui, sans-serif',
-    plain-family: 'Inter, system-ui, sans-serif',
+    brand-family: 'Inter, Hind, system-ui, sans-serif',
+    plain-family: 'Inter, Hind, system-ui, sans-serif',
   ),
 ));
 
 html {
-  @include mat.all-component-themes($pastel-theme);
+  @include mat.all-component-themes($jsms-theme);
 }
 
-// Custom theme
+// FontAwesome + animate.css - retained until Lucide/ng-icons can be
+// installed (blocked on package.json access, see status report).
+@import 'animate.css/animate.min';
 @import './assets/lightning-admin';
 
-// Animate.css
-@import 'animate.css/animate.min';
-
-// Global styles
-html, body { height: 100%; }
-
 // -------------------------------------------------------------------------
-// Typography scale (single source of truth). Every component-level rule
-// should read from these tokens instead of hard-coding a font-size in rem.
-// The scale is intentionally tight and modular so the whole UI reads as
-// one system.
+// 1. Radix-inspired 12-step color scales (light theme)
 //
-//   --fs-xs   0.75rem (12px)  meta, badges, table subtext, "since 6 months"
-//   --fs-sm   0.8125rem (13px) buttons, secondary body, tight tables
-//   --fs-base 0.875rem (14px)  body, form inputs, table cells - the DEFAULT
-//   --fs-md   1rem (16px)     primary card values, page-header subtitle
-//   --fs-lg   1.125rem (18px)  card titles, sub-section headings
-//   --fs-xl   1.375rem (22px)  page-header title, dialog title
-//   --fs-2xl  1.75rem (28px)   dashboard KPI number
-//   --fs-3xl  2rem  (32px)     largest headline, login brand
-//
-// Line heights and weights alongside so each token stands on its own.
+// Sand: warm neutral for surfaces + text
+// Amber: single accent, echoes gold photography
+// Green/Yellow/Red: semantic status
 // -------------------------------------------------------------------------
 :root {
+  // Sand scale (light)
+  --sand-1:  #fdfdfc;
+  --sand-2:  #f9f9f8;
+  --sand-3:  #f1f0ef;
+  --sand-4:  #e9e8e6;
+  --sand-5:  #e2e1de;
+  --sand-6:  #dad9d6;
+  --sand-7:  #cfceca;
+  --sand-8:  #bcbbb5;
+  --sand-9:  #8d8d86;
+  --sand-10: #82827c;
+  --sand-11: #63635e;
+  --sand-12: #21201c;
+
+  // Amber scale (light)
+  --amber-1:  #fefdfb;
+  --amber-2:  #fefbe9;
+  --amber-3:  #fff7c2;
+  --amber-4:  #ffee9c;
+  --amber-5:  #fbe577;
+  --amber-6:  #f3d673;
+  --amber-7:  #e9c162;
+  --amber-8:  #e2a336;
+  --amber-9:  #ffc53d;
+  --amber-10: #ffba18;
+  --amber-11: #ab6400;
+  --amber-12: #4f3422;
+
+  // Green scale (light)
+  --green-9:  #30a46c;
+  --green-10: #2b9a66;
+  --green-11: #218358;
+  --green-3:  #e6f6ec;
+
+  // Yellow scale (light)
+  --yellow-9:  #ffe629;
+  --yellow-10: #ffdc00;
+  --yellow-11: #9e6c00;
+  --yellow-3:  #fffbd1;
+
+  // Red scale (light)
+  --red-9:  #e5484d;
+  --red-10: #dc3e42;
+  --red-11: #ce2c31;
+  --red-3:  #ffefef;
+
+  // -----------------------------------------------------------------
+  // Semantic tokens - reference these in components, never scale vars
+  // -----------------------------------------------------------------
+  --color-bg:            var(--sand-2);
+  --color-bg-subtle:     var(--sand-3);
+  --color-panel:         var(--sand-1);
+  --color-panel-hover:   var(--sand-3);
+  --color-fg:            var(--sand-12);
+  --color-fg-muted:      var(--sand-11);
+  --color-fg-subtle:     var(--sand-10);
+  --color-border:        var(--sand-6);
+  --color-border-subtle: var(--sand-4);
+  --color-border-strong: var(--sand-8);
+
+  --color-accent:        var(--amber-9);
+  --color-accent-hover:  var(--amber-10);
+  --color-accent-active: var(--amber-11);
+  --color-accent-fg:     var(--amber-12);
+  --color-accent-subtle: var(--amber-3);
+
+  --color-success:       var(--green-9);
+  --color-success-hover: var(--green-10);
+  --color-success-fg:    var(--green-11);
+  --color-success-subtle:var(--green-3);
+
+  --color-warning:       var(--amber-9);
+  --color-warning-hover: var(--amber-10);
+  --color-warning-fg:    var(--amber-11);
+  --color-warning-subtle:var(--yellow-3);
+
+  --color-danger:        var(--red-9);
+  --color-danger-hover:  var(--red-10);
+  --color-danger-fg:     var(--red-11);
+  --color-danger-subtle: var(--red-3);
+
+  --color-focus-ring:    color-mix(in oklab, var(--amber-9) 40%, transparent);
+
+  // Elevation - warm-tinted shadows
+  --shadow-sm: 0 1px 2px rgba(33, 32, 28, 0.04);
+  --shadow-md: 0 4px 12px rgba(33, 32, 28, 0.06), 0 1px 3px rgba(33, 32, 28, 0.04);
+  --shadow-lg: 0 12px 32px rgba(33, 32, 28, 0.08), 0 2px 6px rgba(33, 32, 28, 0.04);
+
+  // Radii
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-full: 9999px;
+}
+
+// -------------------------------------------------------------------------
+// Dark theme - swap Sand scale to dark, Amber stays warm.
+// Toggled by ThemeService via `data-theme="dark"` on <html>.
+// -------------------------------------------------------------------------
+html[data-theme="dark"] {
+  --sand-1:  #161615;
+  --sand-2:  #1c1c1a;
+  --sand-3:  #232320;
+  --sand-4:  #282826;
+  --sand-5:  #2e2e2b;
+  --sand-6:  #353431;
+  --sand-7:  #3e3e3a;
+  --sand-8:  #51504b;
+  --sand-9:  #717069;
+  --sand-10: #7f7e77;
+  --sand-11: #b5b3ad;
+  --sand-12: #eeeeec;
+
+  --amber-1:  #16120c;
+  --amber-2:  #1d180f;
+  --amber-3:  #302008;
+  --amber-4:  #3f2700;
+  --amber-5:  #4d3000;
+  --amber-6:  #5c3d05;
+  --amber-7:  #714f19;
+  --amber-8:  #8f6424;
+  --amber-9:  #ffc53d;
+  --amber-10: #ffd60a;
+  --amber-11: #ffca16;
+  --amber-12: #ffe7b3;
+
+  --green-9:  #30a46c;
+  --green-10: #33b074;
+  --green-11: #4cc38a;
+  --green-3:  #113123;
+
+  --yellow-9:  #ffe629;
+  --yellow-10: #ffff57;
+  --yellow-11: #f0c000;
+  --yellow-3:  #362b00;
+
+  --red-9:  #e5484d;
+  --red-10: #ec5d5e;
+  --red-11: #ff9592;
+  --red-3:  #3b1219;
+
+  --color-bg:            var(--sand-1);
+  --color-bg-subtle:     var(--sand-2);
+  --color-panel:         var(--sand-2);
+  --color-panel-hover:   var(--sand-3);
+  --color-fg:            var(--sand-12);
+  --color-fg-muted:      var(--sand-11);
+  --color-fg-subtle:     var(--sand-10);
+  --color-border:        var(--sand-6);
+  --color-border-subtle: var(--sand-4);
+  --color-border-strong: var(--sand-8);
+
+  --color-accent:        var(--amber-9);
+  --color-accent-hover:  var(--amber-10);
+  --color-accent-active: var(--amber-11);
+  --color-accent-fg:     #1a1300;
+  --color-accent-subtle: var(--amber-3);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+// System dark-mode preference before ThemeService boots - avoids flash
+// when the user has OS-level dark preference and no stored setting.
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme]) {
+    --sand-1:  #161615; --sand-2:  #1c1c1a; --sand-3:  #232320;
+    --sand-4:  #282826; --sand-5:  #2e2e2b; --sand-6:  #353431;
+    --sand-7:  #3e3e3a; --sand-8:  #51504b; --sand-9:  #717069;
+    --sand-10: #7f7e77; --sand-11: #b5b3ad; --sand-12: #eeeeec;
+    --amber-9:  #ffc53d;
+    --color-bg: var(--sand-1); --color-bg-subtle: var(--sand-2);
+    --color-panel: var(--sand-2); --color-fg: var(--sand-12);
+    --color-fg-muted: var(--sand-11); --color-border: var(--sand-6);
+    --color-accent-fg: #1a1300;
+  }
+}
+
+// -------------------------------------------------------------------------
+// 2. Typography scale (retained from prior work, expanded)
+// -------------------------------------------------------------------------
+:root {
+  --font-sans: 'Inter', 'Hind', system-ui, -apple-system, sans-serif;
+  --font-serif: 'Instrument Serif', 'Fraunces', ui-serif, Georgia, serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, monospace;
+
   --fs-xs:    0.75rem;
   --fs-sm:    0.8125rem;
   --fs-base:  0.875rem;
@@ -52,10 +249,13 @@ html, body { height: 100%; }
   --fs-lg:    1.125rem;
   --fs-xl:    1.375rem;
   --fs-2xl:   1.75rem;
-  --fs-3xl:   2rem;
+  --fs-3xl:   2.25rem;
+  --fs-4xl:   3rem;
 
   --lh-tight:  1.2;
+  --lh-snug:   1.35;
   --lh-normal: 1.5;
+  --lh-relaxed: 1.6;
 
   --fw-regular: 400;
   --fw-medium:  500;
@@ -63,13 +263,66 @@ html, body { height: 100%; }
   --fw-bold:    700;
 }
 
-body {
-  font-size: var(--fs-base);
-  line-height: var(--lh-normal);
+// -------------------------------------------------------------------------
+// 3. Base reset
+// -------------------------------------------------------------------------
+html, body {
+  height: 100%;
+  min-height: 100%;
 }
 
-// Baseline heading scale (component styles may override with a specific
-// token, but by default h1..h6 use these).
+html {
+  color-scheme: light;
+  -webkit-text-size-adjust: 100%;
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--fs-base);
+  line-height: var(--lh-normal);
+  font-feature-settings: "cv11", "ss03", "tnum" 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--color-bg);
+  color: var(--color-fg);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+// Utility: enable tabular numerals - use on any element with numeric
+// alignment concerns (invoice columns, KPI subvalues, price cells).
+.tnum,
+.tabular-nums {
+  font-feature-settings: "tnum" 1;
+  font-variant-numeric: tabular-nums;
+}
+
+// Utility: opt into serif for display typography (KPI totals, invoice total)
+.font-serif {
+  font-family: var(--font-serif);
+  font-feature-settings: "liga", "dlig";
+}
+
+.font-sans {
+  font-family: var(--font-sans);
+}
+
+// Focus ring - use for keyboard nav across the app
+.focus-ring:focus-visible,
+button:focus-visible,
+[href]:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+// Heading defaults - kept minimal; components override
 h1, .h1 { font-size: var(--fs-3xl); font-weight: var(--fw-bold);     line-height: var(--lh-tight); }
 h2, .h2 { font-size: var(--fs-2xl); font-weight: var(--fw-bold);     line-height: var(--lh-tight); }
 h3, .h3 { font-size: var(--fs-xl);  font-weight: var(--fw-semibold); line-height: var(--lh-tight); }
@@ -82,41 +335,240 @@ small, .text-sm { font-size: var(--fs-sm); }
 .text-md { font-size: var(--fs-md); }
 .text-lg { font-size: var(--fs-lg); }
 
-// SweetAlert2 pastel theme overrides
+// -------------------------------------------------------------------------
+// SweetAlert2 - re-theme to token palette so alerts look native to the app.
+// -------------------------------------------------------------------------
 .swal2-popup {
-  border-radius: 16px !important;
-  font-family: 'Inter', system-ui, sans-serif !important;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1) !important;
+  border-radius: var(--radius-xl) !important;
+  font-family: var(--font-sans) !important;
+  box-shadow: var(--shadow-lg) !important;
+  background: var(--color-panel) !important;
+  color: var(--color-fg) !important;
+  border: 1px solid var(--color-border-subtle);
 }
 
 .swal2-title {
-  color: #2D3142 !important;
+  color: var(--color-fg) !important;
   font-weight: var(--fw-bold) !important;
   font-size: var(--fs-xl) !important;
 }
 
 .swal2-html-container {
-  color: #6B7194 !important;
+  color: var(--color-fg-muted) !important;
   font-size: var(--fs-base) !important;
 }
 
 .swal2-confirm {
-  background-color: #7C8CF8 !important;
-  border-radius: 10px !important;
+  background-color: var(--color-accent) !important;
+  color: var(--color-accent-fg) !important;
+  border-radius: var(--radius-md) !important;
   font-weight: 600 !important;
-  box-shadow: 0 4px 12px rgba(124, 140, 248, 0.3) !important;
   padding: 0.6rem 1.5rem !important;
+  box-shadow: var(--shadow-sm) !important;
 }
 
 .swal2-cancel {
-  border-radius: 10px !important;
+  border-radius: var(--radius-md) !important;
+  font-weight: 600 !important;
+  padding: 0.6rem 1.5rem !important;
+  background-color: var(--color-bg-subtle) !important;
+  color: var(--color-fg) !important;
+}
+
+.swal2-deny {
+  background-color: var(--color-danger) !important;
+  border-radius: var(--radius-md) !important;
+  color: white !important;
   font-weight: 600 !important;
   padding: 0.6rem 1.5rem !important;
 }
 
-.swal2-deny {
-  background-color: #F88C9C !important;
-  border-radius: 10px !important;
-  font-weight: 600 !important;
-  padding: 0.6rem 1.5rem !important;
+// -------------------------------------------------------------------------
+// App-chrome token bridge
+//
+// The pastel Lightning Admin theme in assets/partials/_themes.scss uses
+// hard-coded purples. We override those rules here so the navbar,
+// sidebar, buttons, and tables read from semantic tokens and respect
+// the dark theme without editing every partial.
+// -------------------------------------------------------------------------
+.wrapper.default-theme {
+  background: var(--color-bg) !important;
+
+  nav.navbar {
+    background: var(--color-panel) !important;
+    border-bottom: 1px solid var(--color-border-subtle);
+    box-shadow: var(--shadow-sm);
+
+    .navbar-brand {
+      color: var(--color-fg) !important;
+      font-weight: 600;
+      letter-spacing: -0.005em;
+    }
+
+    .left-nav input.navbar-search {
+      background: var(--color-bg-subtle) !important;
+      color: var(--color-fg) !important;
+      border: 1px solid var(--color-border) !important;
+
+      &::placeholder { color: var(--color-fg-subtle) !important; }
+
+      &:focus {
+        border-color: var(--color-accent) !important;
+        box-shadow: 0 0 0 3px var(--color-focus-ring) !important;
+        outline: none;
+      }
+    }
+
+    .nav-link {
+      color: var(--color-fg-muted) !important;
+
+      i {
+        background: transparent !important;
+        border-color: transparent !important;
+        color: var(--color-fg-muted) !important;
+      }
+
+      &:hover {
+        color: var(--color-fg) !important;
+        i {
+          color: var(--color-accent-fg) !important;
+          background: var(--color-accent-subtle) !important;
+        }
+      }
+    }
+  }
+
+  main {
+    .overlay {
+      background: rgba(0, 0, 0, 0.4);
+    }
+
+    .pages {
+      background: var(--color-bg) !important;
+      color: var(--color-fg);
+    }
+
+    .sidebar {
+      background: var(--color-panel) !important;
+      color: var(--color-fg);
+      border-right: 1px solid var(--color-border-subtle);
+      box-shadow: none;
+
+      > div { border-color: var(--color-border-subtle) !important; }
+
+      .sidebar-profile {
+        .name { color: var(--color-fg) !important; }
+        .role { color: var(--color-fg-muted) !important; }
+      }
+
+      .sidebar-menu {
+        .menu-items a {
+          color: var(--color-fg-muted) !important;
+          border-radius: var(--radius-md);
+
+          i {
+            color: var(--color-fg-muted) !important;
+            transition: color 0.15s ease;
+          }
+
+          &:hover {
+            background: var(--color-bg-subtle) !important;
+            color: var(--color-fg) !important;
+            i { color: var(--color-fg) !important; }
+          }
+
+          &.active {
+            background: var(--color-accent-subtle) !important;
+            color: var(--color-accent-fg) !important;
+            i { color: var(--color-accent-fg) !important; }
+          }
+        }
+
+        .list-item::before { background-color: var(--color-accent) !important; }
+      }
+    }
+  }
+
+  .card {
+    background: var(--color-panel) !important;
+    border: 1px solid var(--color-border-subtle) !important;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .table {
+    th, td { color: var(--color-fg) !important; border-top-color: var(--color-border-subtle) !important; }
+    thead th { color: var(--color-fg-muted) !important; border-bottom-color: var(--color-border) !important; }
+    &.table-striped tbody tr:nth-of-type(odd) { background-color: var(--color-bg-subtle) !important; }
+    &.table-hover tbody tr:hover { background-color: var(--color-bg-subtle) !important; }
+  }
+}
+
+html[data-theme="dark"] .wrapper.default-theme .sidebar .sidebar-menu .menu-items a.active {
+  color: var(--color-accent) !important;
+  i { color: var(--color-accent) !important; }
+}
+
+.btn.btn-primary,
+.btn.btn-lightning {
+  background-color: var(--color-accent) !important;
+  border-color: var(--color-accent) !important;
+  color: var(--color-accent-fg) !important;
+  box-shadow: none !important;
+
+  &:hover {
+    background-color: var(--color-accent-hover) !important;
+    border-color: var(--color-accent-hover) !important;
+  }
+}
+
+.btn.btn-outline-primary,
+.btn.btn-outline-lightning {
+  color: var(--color-accent-fg) !important;
+  border-color: var(--color-accent) !important;
+  background: transparent !important;
+
+  &:hover {
+    background: var(--color-accent) !important;
+    color: var(--color-accent-fg) !important;
+  }
+}
+
+html[data-theme="dark"] .btn.btn-outline-primary,
+html[data-theme="dark"] .btn.btn-outline-lightning {
+  color: var(--color-accent) !important;
+}
+
+.form-control {
+  background: var(--color-bg-subtle);
+  color: var(--color-fg);
+  border-color: var(--color-border);
+
+  &:focus {
+    border-color: var(--color-accent) !important;
+    box-shadow: 0 0 0 3px var(--color-focus-ring) !important;
+  }
+
+  &::placeholder { color: var(--color-fg-subtle); }
+}
+
+// Legacy sidebar hard-coded gradient fallback avatar - retint to accent.
+.user-picture-fallback {
+  background: linear-gradient(135deg, var(--color-accent), color-mix(in oklab, var(--color-accent) 60%, var(--color-fg-muted))) !important;
+  color: var(--color-accent-fg) !important;
+}
+
+// Logout btn in sidebar footer - retheme to token danger scale.
+.sidebar-footer .logout-btn {
+  color: var(--color-fg-muted) !important;
+
+  &:hover,
+  &:focus-visible {
+    background: var(--color-danger-subtle) !important;
+    color: var(--color-danger-fg) !important;
+    border-color: color-mix(in oklab, var(--color-danger) 30%, transparent) !important;
+  }
+}
+
+.sidebar-footer {
+  border-top-color: var(--color-border-subtle) !important;
 }
