@@ -1,27 +1,186 @@
-<div class="main-container">
-  <app-page-header [pageName]="'Dashboard'"></app-page-header>
+<div class="dash">
+  <header class="dash-head">
+    <div>
+      <p class="eyebrow">Overview</p>
+      <h1 class="dash-title">Dashboard</h1>
+    </div>
+    <div class="dash-head-meta">
+      <span class="pill">{{ liveRates[0].session }} · Today</span>
+    </div>
+  </header>
 
-  <div class="row g-3">
-    @for (cardData of cards; track cardData.cardTitle) {
-      <div class="col-12 col-sm-6 col-lg-4">
-        <app-info-card [cardData]="cardData" ></app-info-card>
-      </div>
+  <section class="kpi-row" aria-label="Key metrics">
+    @for (kpi of kpis; track kpi.slot) {
+      <article class="kpi">
+        <div class="kpi-top">
+          <span class="kpi-label">{{ kpi.label }}</span>
+          <i class="fa-solid" [ngClass]="kpi.icon" aria-hidden="true"></i>
+        </div>
+        <p class="kpi-value font-serif tabular-nums">{{ kpi.value }}</p>
+        <div class="kpi-bottom">
+          <span class="delta tabular-nums" [class.delta-up]="kpi.delta >= 0" [class.delta-down]="kpi.delta < 0">
+            <i class="fa-solid" [ngClass]="kpi.delta >= 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down'" aria-hidden="true"></i>
+            {{ kpi.delta || 0 }}%
+          </span>
+          <span class="kpi-sublabel">{{ kpi.sublabel }}</span>
+        </div>
+      </article>
     }
-  </div>
+    @if (!kpis.length) {
+      @for (i of [0,1,2]; track i) {
+        <article class="kpi kpi-skeleton" aria-hidden="true">
+          <span class="sk sk-line"></span>
+          <span class="sk sk-value"></span>
+          <span class="sk sk-line"></span>
+        </article>
+      }
+    }
+  </section>
 
-  <div class="row">
-    <div class="col-12 col-xl-6 mb-4">
-      <app-bar-chart [monthlySalesAndLabour]="monthlySalesAndLabour"></app-bar-chart>
-    </div>
-    <div class="col-12 col-xl-6 mb-4 align-items-stretch">
-      <app-pie-chart [topSellingProducts]="topSellingProducts"></app-pie-chart>
-    </div>
-  </div>
+  <section class="dash-grid">
+    <article class="panel chart-panel">
+      <header class="panel-head">
+        <div>
+          <h2 class="panel-title">Monthly sales</h2>
+          <p class="panel-sub">Trailing six months of revenue.</p>
+        </div>
+        <span class="pill pill-muted">INR</span>
+      </header>
+      <div class="chart-wrap">
+        <canvas #salesLineChart></canvas>
+        @if (!monthlySalesAndLabour.length) {
+          <div class="chart-empty">
+            <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
+            <span>No sales yet</span>
+          </div>
+        }
+      </div>
+    </article>
 
-  <div class="row">
-    <div class="col">
-      <app-recent-orders [recentOrders]="recentOrders"></app-recent-orders>
-    </div>
-  </div>
+    <article class="panel rate-panel">
+      <header class="panel-head">
+        <div>
+          <h2 class="panel-title">Live metal rates</h2>
+          <p class="panel-sub">Per gram · placeholder feed</p>
+        </div>
+        <span class="pill pill-muted">{{ liveRates[0].session }}</span>
+      </header>
 
+      <ul class="rate-list">
+        @for (r of liveRates; track trackByPurity(0, r)) {
+          <li class="rate-row">
+            <div class="rate-purity">
+              <span class="purity-badge">{{ r.purity }}</span>
+            </div>
+            <div class="rate-value">
+              <span class="font-serif tabular-nums">{{ formatCurrency(r.ratePerGram) }}</span>
+              <span class="rate-change tabular-nums"
+                    [class.up]="r.changePct >= 0"
+                    [class.down]="r.changePct < 0">
+                {{ r.changePct >= 0 ? '+' : '' }}{{ r.changePct }}%
+              </span>
+            </div>
+          </li>
+        }
+      </ul>
+
+      <footer class="rate-foot">
+        <span>Source: manual · to be replaced by IBJA feed</span>
+      </footer>
+    </article>
+  </section>
+
+  <section class="dash-grid dash-grid-secondary">
+    <article class="panel products-panel">
+      <header class="panel-head">
+        <div>
+          <h2 class="panel-title">Top product categories</h2>
+          <p class="panel-sub">By total metal weight sold.</p>
+        </div>
+      </header>
+
+      <ol class="product-list">
+        @for (p of topSellingProducts; track trackByProduct(0, p); let idx = $index) {
+          <li class="product-row">
+            <span class="product-rank tabular-nums">{{ idx + 1 }}</span>
+            <div class="product-thumb" aria-hidden="true">
+              <i class="fa-solid fa-gem"></i>
+            </div>
+            <div class="product-info">
+              <span class="product-name">{{ p.productCategoryName | titlecase }}</span>
+              <div class="product-meter" role="presentation">
+                <div class="meter-fill" [style.width.%]="p.percentage"></div>
+              </div>
+            </div>
+            <div class="product-value tabular-nums">
+              <span class="product-weight">{{ p.total_weight }}<small>g</small></span>
+              <span class="product-percent">{{ p.percentage }}%</span>
+            </div>
+          </li>
+        }
+        @if (!topSellingProducts.length) {
+          @for (i of [0,1,2,3,4]; track i) {
+            <li class="product-row product-skeleton">
+              <span class="sk sk-square"></span>
+              <span class="sk sk-line"></span>
+            </li>
+          }
+        }
+      </ol>
+    </article>
+
+    <article class="panel orders-panel">
+      <header class="panel-head">
+        <div>
+          <h2 class="panel-title">Recent orders</h2>
+          <p class="panel-sub">Latest counter activity.</p>
+        </div>
+        <a class="link-muted" routerLink="/orders">All orders <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+      </header>
+
+      <div class="table-wrap">
+        <table class="orders-table">
+          <thead>
+            <tr>
+              <th scope="col">Order</th>
+              <th scope="col">Customer</th>
+              <th scope="col" class="ta-right">Amount</th>
+              <th scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (o of recentOrders; track trackByOrder(0, o)) {
+              <tr [routerLink]="['/orders/view-order-details', o.invoiceGuid]" class="clickable">
+                <td>
+                  <span class="cell-strong tabular-nums">#{{ o.id }}</span>
+                  <span class="cell-sub">{{ o.createdAt | date:'mediumDate' }}</span>
+                </td>
+                <td>
+                  <span class="cell-strong">{{ customerFullName(o) | titlecase }}</span>
+                  <span class="cell-sub tabular-nums">{{ o.total_products }} item(s)</span>
+                </td>
+                <td class="ta-right">
+                  <span class="cell-strong tabular-nums">{{ formatCurrency(o.totalAmountWithGst) }}</span>
+                </td>
+                <td>
+                  @if (o.isPaymentDone) {
+                    <span class="badge badge-success">Paid</span>
+                  } @else {
+                    <span class="badge badge-warning">Pending</span>
+                  }
+                </td>
+              </tr>
+            }
+            @if (!recentOrders.length) {
+              @for (i of [0,1,2,3,4]; track i) {
+                <tr class="order-skeleton" aria-hidden="true">
+                  <td colspan="4"><span class="sk sk-line"></span></td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+    </article>
+  </section>
 </div>
