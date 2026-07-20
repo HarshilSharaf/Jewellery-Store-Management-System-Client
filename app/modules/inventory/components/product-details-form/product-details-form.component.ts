@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
@@ -8,8 +8,10 @@ import { AllCategoriesModel } from '../../../categories/models/categories-model'
 import { ProductDataModel } from '../../../orders/models/product-data-model';
 import { PuritiesService } from '../../../../shared/services/Purities/purities.service';
 import { Purity } from '../../../../interfaces/Shared/purity';
+import { MetalRatesService } from '../../../../shared/services/MetalRates/metal-rates.service';
+import { StoreService } from '../../../../../../Backend/Shared/store.service';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideLoader, lucideSave, lucideRotateCcw } from '@ng-icons/lucide';
+import { lucideLoader, lucideSave, lucideRotateCcw, lucideRefreshCw } from '@ng-icons/lucide';
 
 @Component({
   selector: 'app-product-details-form',
@@ -17,28 +19,35 @@ import { lucideLoader, lucideSave, lucideRotateCcw } from '@ng-icons/lucide';
   styleUrls: ['./product-details-form.component.scss'],
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, NgIcon],
-  viewProviders: [provideIcons({ lucideLoader, lucideSave, lucideRotateCcw })],
+  viewProviders: [provideIcons({ lucideLoader, lucideSave, lucideRotateCcw, lucideRefreshCw })],
 })
 export class ProductDetailsFormComponent implements OnInit, OnChanges {
-
   productDetailsForm!: FormGroup;
   productDetailsFormInitialValues: any;
   purities: Purity[] = [];
+  isAdmin = false;
+
+  computedPreview: {
+    metal: number;
+    making: number;
+    wastage: number;
+    stones: number;
+    total: number;
+  } | null = null;
 
   @Input() productGuid!: string;
   @Input() allCategoriesData!: AllCategoriesModel;
   @Input() productData!: ProductDataModel;
-  @Input() set _productData(data: ProductDataModel) {
-    this.productData = data;
-  }
-  @Input() isLoading: boolean = false;
+  @Input() isLoading = false;
   @Output() refreshProductDetails = new EventEmitter<boolean>();
 
   constructor(
     private ProductService: AvailableProductsService,
     private formBuilder: FormBuilder,
     private loggerService: LoggerService,
-    private puritiesService: PuritiesService
+    private puritiesService: PuritiesService,
+    private metalRatesService: MetalRatesService,
+    private storeService: StoreService,
   ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -48,12 +57,24 @@ export class ProductDetailsFormComponent implements OnInit, OnChanges {
   }
 
   async ngOnInit(): Promise<void> {
-    try { this.purities = await this.puritiesService.getPurities(); }
-    catch (error) { this.loggerService.LogError(error, 'getPurities()'); }
-    if (this.productData) { this.populateproductDetailsForm(this.productData); }
+    try {
+      this.purities = await this.puritiesService.getPurities();
+      await this.metalRatesService.getCurrent();
+    } catch (error) {
+      this.loggerService.LogError(error, 'getPurities()');
+    }
+    try {
+      const auth: any = await this.storeService.get('authData');
+      this.isAdmin = auth?.type === 'admin';
+    } catch {
+      this.isAdmin = false;
+    }
+    if (this.productData) {
+      this.populateproductDetailsForm(this.productData);
+    }
   }
 
-  populateproductDetailsForm(productDetails: any) {
+  populateproductDetailsForm(productDetails: any): void {
     this.productDetailsForm = this.formBuilder.group({
       sku: [productDetails.sku ?? '', Validators.required],
       huid: [productDetails.huid ?? ''],
@@ -74,28 +95,69 @@ export class ProductDetailsFormComponent implements OnInit, OnChanges {
       tagPrice: [Number(productDetails.tagPrice) || 0, [Validators.min(0)]],
     });
     this.productDetailsFormInitialValues = this.productDetailsForm.value;
+    this.productDetailsForm.valueChanges.subscribe(() => this.recomputePreview());
+    this.recomputePreview();
   }
 
-  resetForm() {
+  private recomputePreview(): void {
+    if (!this.productDetailsForm) return;
+    const v = this.productDetailsForm.value;
+    const rateMap = this.metalRatesService.buildSnapshot();
+    const rate = v.purityCode ? Number(rateMap[v.purityCode] ?? 0) : 0;
+    const net = Number(v.netWeight ?? 0);
+    const metal = net * rate;
+    let making = 0;
+    const makingValue = Number(v.makingValue ?? 0);
+    if (v.makingMode === 'flat') making = makingValue;
+    else if (v.makingMode === 'perGram') making = makingValue * net;
+    else if (v.makingMode === 'percent') making = (metal * makingValue) / 100;
+    const wastage = (metal * Number(v.wastagePercent ?? 0)) / 100;
+    const stones = Number(v.stoneCharges ?? 0);
+    const total = metal + making + wastage + stones;
+    this.computedPreview = rate > 0 ? { metal, making, wastage, stones, total } : null;
+  }
+
+  onGrossOrNetChange(): void {
+    const gross = Number(this.productDetailsForm.value.grossWeight ?? 0);
+    const net = Number(this.productDetailsForm.value.netWeight ?? 0);
+    const currentStone = Number(this.productDetailsForm.value.stoneWeight ?? 0);
+    if (currentStone === 0 && gross > net) {
+      this.productDetailsForm.patchValue({ stoneWeight: Number((gross - net).toFixed(3)) }, { emitEvent: false });
+    }
+    this.recomputePreview();
+  }
+
+  setMakingMode(mode: 'flat' | 'perGram' | 'percent'): void {
+    this.productDetailsForm.patchValue({ makingMode: mode });
+  }
+
+  formatINR(value: number | null | undefined): string {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0,
+    }).format(Number(value ?? 0));
+  }
+
+  resetForm(): void {
     this.productDetailsForm.reset(this.productDetailsFormInitialValues);
   }
 
-  updateProductDetails() {
-    this.loggerService.LogInfo("updateProductDetails() Request Started.");
-    const updateProductDetailsFormData = { ...this.productDetailsForm.value };
-    updateProductDetailsFormData.productGuid = this.productData.productGuid;
+  updateProductDetails(): void {
+    this.loggerService.LogInfo('updateProductDetails() Request Started.');
+    const updateData = { ...this.productDetailsForm.value };
+    updateData.productGuid = this.productData.productGuid;
     this.isLoading = true;
-    this.ProductService.updateProductDetails(updateProductDetailsFormData)
+    this.ProductService.updateProductDetails(updateData)
       .then(() => {
         this.isLoading = false;
         this.refreshProductDetails.emit(true);
-        Swal.fire('Operation Complete', 'Product Details Updated Successfully!', 'success');
-        this.loggerService.LogInfo("updateProductDetails() Request Completed.");
+        Swal.fire('Saved', 'Product details updated.', 'success');
       })
       .catch((error: any) => {
-        this.loggerService.LogError(error, "updateProductDetails()");
+        this.loggerService.LogError(error, 'updateProductDetails()');
         this.isLoading = false;
-        Swal.fire({ icon: 'error', title: 'Oops...', text: 'Failed to update product details.' });
+        Swal.fire({ icon: 'error', title: 'Update failed', text: 'Failed to update product details.' });
       });
   }
 }

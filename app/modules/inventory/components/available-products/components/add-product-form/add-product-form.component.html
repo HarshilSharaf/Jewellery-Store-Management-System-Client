@@ -1,161 +1,210 @@
-<div class="row text-end ">
-
-  <div class="col">
-
-    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
-      <ng-icon name="lucidePlus" aria-hidden="true"></ng-icon> Add A Product </button>
-    </div>
-  </div>
-
-
-
-  <div class="modal fade" id="addCategoryModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Add Product</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+@if (open) {
+  <div class="modal-overlay" (click)="onOverlayClick($event)" role="presentation">
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="add-product-title">
+      <header class="modal-header">
+        <div>
+          <h2 class="modal-title" id="add-product-title">Add product</h2>
+          <p class="modal-subtitle">New SKU in Stock</p>
         </div>
-        <div class="modal-body">
-          <form [formGroup]="addProductForm" class="addProductForms" (ngSubmit)="submitForm()" novalidate>
+        <button type="button" class="icon-btn" (click)="requestClose()" aria-label="Close" [disabled]="isLoading">
+          <ng-icon name="lucideX" size="18" aria-hidden="true"></ng-icon>
+        </button>
+      </header>
 
-            <div class="row mb-3 align-items-center">
-              <div class="col-4"><label>Product Photo:</label></div>
-              <div class="col">
-                <div class="input-group justify-content-center">
-                  <app-image-upload [activeColor]="'orangered'" [baseColor]="'lightgray'"></app-image-upload>
-                </div>
+      <form [formGroup]="addProductForm" (ngSubmit)="submitForm()" novalidate class="modal-content">
+
+        <section class="form-section">
+          <p class="form-section__title">Identity</p>
+          <div class="form-grid">
+            <div>
+              <label class="field-label" for="sku">SKU <span class="req">*</span></label>
+              <div class="input-with-action">
+                <input class="hlm-input tabular-nums" id="sku" formControlName="sku" placeholder="e.g. G-NEC-001" />
+                <button type="button" class="hlm-btn hlm-btn-ghost" (click)="generateSku()" title="Generate SKU">
+                  <ng-icon name="lucideRefreshCw" size="14" aria-hidden="true"></ng-icon>
+                </button>
               </div>
             </div>
+            <div>
+              <label class="field-label" for="huid">HUID</label>
+              <input class="hlm-input tabular-nums" id="huid" formControlName="huid" maxlength="6" placeholder="6-char" />
+              <div class="field-help">Optional. Required by BIS for jewellery.</div>
+            </div>
+            <div class="form-grid__full">
+              <label class="field-label" for="productDescription">Description</label>
+              <textarea class="hlm-input" id="productDescription" formControlName="productDescription" rows="2" placeholder="e.g. Ganesh pendant with cz stones"></textarea>
+            </div>
+          </div>
+        </section>
 
-            <div class="row mb-3">
-              <div class="col-6">
-                <label class="small">SKU <span class="mandatory">*</span></label>
-                <input class="form-control" formControlName="sku" placeholder="e.g. G-NEC-001">
-              </div>
-              <div class="col-6">
-                <label class="small">HUID (6-char, optional)</label>
-                <input class="form-control" formControlName="huid" maxlength="6" placeholder="e.g. AB1234">
+        <section class="form-section">
+          <p class="form-section__title">Category</p>
+          <div class="form-grid--3">
+            <div>
+              <label class="field-label" for="masterCategoryId">Master <span class="req">*</span></label>
+              <select class="hlm-input" id="masterCategoryId" formControlName="masterCategoryId">
+                <option value="">Select</option>
+                @for (m of allCategoriesData?.masterCategories; track m.id) {
+                  <option [ngValue]="m.id">{{ m.masterCategoryName }}</option>
+                }
+              </select>
+            </div>
+            <div>
+              <label class="field-label" for="subCategoryId">Sub <span class="req">*</span></label>
+              <select class="hlm-input" id="subCategoryId" formControlName="subCategoryId">
+                <option value="">Select</option>
+                @for (s of allCategoriesData?.subCategories; track s.id) {
+                  <option [ngValue]="s.id">{{ s.subCategoryName }}</option>
+                }
+              </select>
+            </div>
+            <div>
+              <label class="field-label" for="productCategoryId">Product <span class="req">*</span></label>
+              <select class="hlm-input" id="productCategoryId" formControlName="productCategoryId">
+                <option value="">Select</option>
+                @for (pc of allCategoriesData?.productCategories; track pc.id) {
+                  <option [ngValue]="pc.id">{{ pc.productCategoryName }}</option>
+                }
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <p class="form-section__title">Metal & weight</p>
+          <div class="form-grid--3">
+            <div>
+              <label class="field-label" for="purityCode">Purity <span class="req">*</span></label>
+              <select class="hlm-input" id="purityCode" formControlName="purityCode">
+                <option value="">Select</option>
+                @for (p of purities; track p.code) {
+                  <option [ngValue]="p.code">{{ p.label }} {{ p.metalType }} - {{ p.fineness }}</option>
+                }
+              </select>
+            </div>
+            <div>
+              <label class="field-label" for="hsnCode">HSN</label>
+              <input class="hlm-input tabular-nums" id="hsnCode" formControlName="hsnCode" placeholder="7113" />
+            </div>
+            <div></div>
+            <div>
+              <label class="field-label" for="grossWeight">Gross wt (g) <span class="req">*</span></label>
+              <input class="hlm-input tabular-nums" id="grossWeight" type="number" step="0.001" min="0"
+                     formControlName="grossWeight" (change)="onGrossOrNetChange()" />
+            </div>
+            <div>
+              <label class="field-label" for="netWeight">Net wt (g) <span class="req">*</span></label>
+              <input class="hlm-input tabular-nums" id="netWeight" type="number" step="0.001" min="0"
+                     formControlName="netWeight" (change)="onGrossOrNetChange()" />
+            </div>
+            <div>
+              <label class="field-label" for="stoneWeight">Stone wt (g)</label>
+              <input class="hlm-input tabular-nums" id="stoneWeight" type="number" step="0.001" min="0" formControlName="stoneWeight" />
+              <div class="field-help">Auto = gross - net if blank</div>
+            </div>
+            <div class="form-grid__full">
+              <label class="field-label" for="stoneCharges">Stone charges (INR)</label>
+              <input class="hlm-input tabular-nums" id="stoneCharges" type="number" step="0.01" min="0" formControlName="stoneCharges" />
+            </div>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <p class="form-section__title">Making & wastage</p>
+          <div class="form-grid--3">
+            <div class="form-grid__full">
+              <label class="field-label">Making mode <span class="req">*</span></label>
+              <div class="radio-pills">
+                <label class="radio-pill" [class.is-active]="addProductForm.value.makingMode === 'flat'">
+                  <input type="radio" formControlName="makingMode" value="flat"> Flat
+                </label>
+                <label class="radio-pill" [class.is-active]="addProductForm.value.makingMode === 'perGram'">
+                  <input type="radio" formControlName="makingMode" value="perGram"> Per gram
+                </label>
+                <label class="radio-pill" [class.is-active]="addProductForm.value.makingMode === 'percent'">
+                  <input type="radio" formControlName="makingMode" value="percent"> Percent
+                </label>
               </div>
             </div>
-
-            <div class="row mb-3">
-              <div class="col-4">
-                <label class="small">Purity <span class="mandatory">*</span></label>
-                <select class="form-select" formControlName="purityCode">
-                  <option value="">Select purity</option>
-                  @for (p of purities; track p.code) {
-                    <option [ngValue]="p.code">{{p.label}} {{p.metalType | titlecase}} &mdash; {{p.fineness}}</option>
-                  }
-                </select>
-              </div>
-              <div class="col-4">
-                <label class="small">HSN Code</label>
-                <input class="form-control" formControlName="hsnCode" placeholder="7113">
+            <div>
+              <label class="field-label" for="makingValue">Making value <span class="req">*</span></label>
+              <input class="hlm-input tabular-nums" id="makingValue" type="number" step="0.01" min="0" formControlName="makingValue" />
+              <div class="field-help">
+                @if (addProductForm.value.makingMode === 'flat') { Flat INR amount }
+                @else if (addProductForm.value.makingMode === 'perGram') { INR per gram }
+                @else if (addProductForm.value.makingMode === 'percent') { % of metal value }
               </div>
             </div>
-
-            <div class="row mb-3">
-              <div class="col-4">
-                <label class="small">Master Category <span class="mandatory">*</span></label>
-                <select class="form-select" formControlName="masterCategoryId">
-                  <option value="">Select</option>
-                  @for (m of allCategoriesData?.masterCategories; track m) {
-                    <option [ngValue]="m.id">{{m.masterCategoryName}}</option>
-                  }
-                </select>
-              </div>
-              <div class="col-4">
-                <label class="small">Sub Category <span class="mandatory">*</span></label>
-                <select class="form-select" formControlName="subCategoryId">
-                  <option value="">Select</option>
-                  @for (s of allCategoriesData?.subCategories; track s) {
-                    <option [ngValue]="s.id">{{s.subCategoryName}}</option>
-                  }
-                </select>
-              </div>
-              <div class="col-4">
-                <label class="small">Product Category <span class="mandatory">*</span></label>
-                <select class="form-select" formControlName="productCategoryId">
-                  <option value="">Select</option>
-                  @for (pc of allCategoriesData?.productCategories; track pc) {
-                    <option [ngValue]="pc.id">{{pc.productCategoryName}}</option>
-                  }
-                </select>
-              </div>
+            <div>
+              <label class="field-label" for="wastagePercent">Wastage %</label>
+              <input class="hlm-input tabular-nums" id="wastagePercent" type="number" step="0.01" min="0" formControlName="wastagePercent" />
             </div>
+            <div></div>
+          </div>
+        </section>
 
-            <div class="row mb-3">
-              <div class="col-4">
-                <label class="small">Gross Wt (g) <span class="mandatory">*</span></label>
-                <input class="form-control" type="number" step="0.001" min="0" formControlName="grossWeight">
+        <section class="form-section">
+          <p class="form-section__title">Pricing</p>
+          <div class="form-grid">
+            @if (isAdmin) {
+              <div>
+                <label class="field-label" for="costPrice">Cost price (INR)</label>
+                <input class="hlm-input tabular-nums" id="costPrice" type="number" step="0.01" min="0" formControlName="costPrice" />
+                <div class="field-help">Admin only</div>
               </div>
-              <div class="col-4">
-                <label class="small">Net Wt (g) <span class="mandatory">*</span></label>
-                <input class="form-control" type="number" step="0.001" min="0" formControlName="netWeight">
-              </div>
-              <div class="col-4">
-                <label class="small">Stone Wt (g)</label>
-                <input class="form-control" type="number" step="0.001" min="0" formControlName="stoneWeight">
-              </div>
+            }
+            <div>
+              <label class="field-label" for="tagPrice">Tag price (INR)</label>
+              <input class="hlm-input tabular-nums" id="tagPrice" type="number" step="0.01" min="0" formControlName="tagPrice" />
             </div>
-
-            <div class="row mb-3">
-              <div class="col-4">
-                <label class="small">Making Mode <span class="mandatory">*</span></label>
-                <select class="form-select" formControlName="makingMode">
-                  <option value="flat">Flat &#8377;</option>
-                  <option value="perGram">Per gram &#8377;/g</option>
-                  <option value="percent">Percent of metal %</option>
-                </select>
-              </div>
-              <div class="col-4">
-                <label class="small">Making Value <span class="mandatory">*</span></label>
-                <input class="form-control" type="number" step="0.01" min="0" formControlName="makingValue">
-              </div>
-              <div class="col-4">
-                <label class="small">Wastage %</label>
-                <input class="form-control" type="number" step="0.01" min="0" formControlName="wastagePercent">
-              </div>
-            </div>
-
-            <div class="row mb-3">
-              <div class="col-4">
-                <label class="small">Stone Charges &#8377;</label>
-                <input class="form-control" type="number" step="0.01" min="0" formControlName="stoneCharges">
-              </div>
-              <div class="col-4">
-                <label class="small">Cost Price &#8377;</label>
-                <input class="form-control" type="number" step="0.01" min="0" formControlName="costPrice">
-              </div>
-              <div class="col-4">
-                <label class="small">Tag Price &#8377;</label>
-                <input class="form-control" type="number" step="0.01" min="0" formControlName="tagPrice">
-              </div>
-            </div>
-
-            <div class="row mb-3">
-              <div class="col">
-                <label class="small">Description</label>
-                <textarea class="form-control" formControlName="productDescription" rows="2"></textarea>
-              </div>
-            </div>
-
-            @if (addProductResponse.status !== 0 || addProductResponse.message !== '') {
-              <hr>
-              <div class="row">
-                <div class="col text-center">
-                  <span [ngClass]="{'text-danger': addProductResponse.status !== 200, 'text-success': addProductResponse.status === 200 }"
-                        style="font-weight: bold;">{{addProductResponse.message}}</span>
+            @if (computedPreview) {
+              <div class="form-grid__full preview-callout">
+                <span class="preview-callout__title">Computed at today's rate</span>
+                <div class="preview-callout__grid">
+                  <div><span class="preview-callout__label">Metal</span><span class="tabular-nums">{{ formatINR(computedPreview.metal) }}</span></div>
+                  <div><span class="preview-callout__label">Making</span><span class="tabular-nums">{{ formatINR(computedPreview.making) }}</span></div>
+                  <div><span class="preview-callout__label">Wastage</span><span class="tabular-nums">{{ formatINR(computedPreview.wastage) }}</span></div>
+                  <div><span class="preview-callout__label">Stones</span><span class="tabular-nums">{{ formatINR(computedPreview.stones) }}</span></div>
+                  <div class="preview-callout__total"><span class="preview-callout__label">Approx. floor</span><span class="tabular-nums">{{ formatINR(computedPreview.total) }}</span></div>
                 </div>
               </div>
             }
-            <div class="modal-footer">
-              <button type="button" class="btn btn-danger" (click)="clearForm()" data-bs-dismiss="modal">Close</button>
-              <button type="submit" [disabled]="!addProductForm.valid" class="btn btn-success">Submit</button>
-            </div>
-          </form>
-        </div>
-      </div>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <p class="form-section__title">Media</p>
+          <div class="upload-wrap">
+            <app-image-upload [activeColor]="'var(--color-accent)'" [baseColor]="'var(--color-border)'"></app-image-upload>
+          </div>
+        </section>
+
+        @if (addProductResponse.status !== 0 || addProductResponse.message !== '') {
+          <div class="form-response"
+               [class.form-response--success]="addProductResponse.status === 200"
+               [class.form-response--error]="addProductResponse.status !== 200 && addProductResponse.status !== 0">
+            {{ addProductResponse.message }}
+          </div>
+        }
+      </form>
+
+      <footer class="modal-actions">
+        <button type="button" class="hlm-btn hlm-btn-ghost" (click)="clearForm()" [disabled]="isLoading">
+          Clear
+        </button>
+        <button type="button"
+                class="hlm-btn hlm-btn-primary"
+                (click)="submitForm()"
+                [disabled]="!addProductForm.valid || isLoading">
+          @if (isLoading) {
+            <ng-icon name="lucideLoader" class="animate-spin" size="14" aria-hidden="true"></ng-icon>
+            <span>Saving...</span>
+          } @else {
+            <ng-icon name="lucideSave" size="14" aria-hidden="true"></ng-icon>
+            <span>Save product</span>
+          }
+        </button>
+      </footer>
     </div>
   </div>
+}
