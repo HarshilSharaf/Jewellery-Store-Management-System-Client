@@ -1,17 +1,14 @@
 // -------------------------------------------------------------------------
-// Design system foundation - Phase 1 (Workstream B)
+// Design system foundation - Phase 1 (Workstream B + C)
 //
-// This file replaces the pastel Angular Material theme with a warm-neutral,
-// editorial token system. Material's global theme mixin is scoped OFF here;
-// individual modules that still use mat-* components (login form-field is
-// being reskinned; customers/inventory/orders remain on Material) get a
-// minimal scoped theme in their own module SCSS.
-//
-// Layers:
-//   1. Radix Color scales (Sand, Amber, Green, Yellow, Red) as raw CSS vars
-//   2. Semantic tokens (--color-bg, --color-fg, ...) mapped from scales
-//   3. Typography scale (retained from prior work)
-//   4. Base HTML/body reset
+// Layer order matters:
+//   0. Tailwind base/components/utilities (must appear at the top so
+//      component-scoped SCSS and the token layer below can still override)
+//   1. Self-hosted @font-face declarations (files in client/assets/fonts/)
+//   2. Radix Color scales (Sand, Amber, Green, Yellow, Red) as raw CSS vars
+//   3. Semantic tokens (--color-bg, --color-fg, ...) mapped from scales
+//   4. Typography scale
+//   5. Base HTML/body reset + shared utilities
 //
 // Dark theme is switched via `[data-theme="dark"]` on <html>. The
 // ThemeService (shared/services/theme.service.ts) manages the attribute,
@@ -22,7 +19,61 @@
 // This is a compromise: full removal is blocked because customers/inventory/
 // orders/settings still lean on mat-* components. Migrating them off is a
 // later Phase 1 task per REDESIGN_PLAN.md section 2.
+//
+// NOTE: Sass @use must appear before any other rules including @tailwind
+// directives, so this stays at the top; the Tailwind directives follow
+// immediately below and still land above the token layer in the emitted CSS.
 @use '@angular/material' as mat;
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+// -------------------------------------------------------------------------
+// Helm-style component recipes.
+//
+// Spartan/ng publishes @spartan-ng/brain (behavior/headless primitives) but
+// the pre-1.0 helm styling packages that used to ship the button/input
+// class recipes were deprecated in favor of the CLI generator, which drops
+// classes directly into consumer code. To keep the shadcn-for-Angular
+// contract without pulling the CLI, we hand-roll the same recipes here as
+// @layer components so they compose with Tailwind utilities on templates.
+// -------------------------------------------------------------------------
+@layer components {
+  .hlm-input {
+    @apply w-full box-border font-sans text-fg bg-bg border border-border rounded-md px-3.5 py-2.5 transition-colors;
+    @apply placeholder:text-fg-subtle;
+    @apply hover:border-border-strong;
+    @apply focus:outline-none focus:border-accent focus:bg-panel;
+  }
+  .hlm-input:focus {
+    box-shadow: 0 0 0 3px var(--color-focus-ring);
+  }
+  .hlm-input.is-invalid {
+    @apply border-danger;
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-danger) 20%, transparent);
+  }
+
+  .hlm-btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-md font-semibold px-4 py-2.5 transition-colors;
+    @apply disabled:opacity-60 disabled:cursor-not-allowed;
+    font-family: var(--font-sans);
+  }
+  .hlm-btn-primary {
+    @apply bg-accent text-accent-fg;
+    @apply hover:bg-accent-hover active:translate-y-px;
+  }
+  .hlm-btn-ghost {
+    @apply bg-transparent text-fg;
+    @apply hover:bg-bg-subtle;
+  }
+  .hlm-btn-icon {
+    @apply inline-grid place-items-center rounded-full border border-border bg-panel text-fg;
+    @apply hover:bg-panel-hover active:scale-95 transition-colors;
+    width: 36px;
+    height: 36px;
+  }
+}
 
 $jsms-theme: mat.define-theme((
   color: (
@@ -40,10 +91,99 @@ html {
   @include mat.all-component-themes($jsms-theme);
 }
 
-// FontAwesome + animate.css - retained until Lucide/ng-icons can be
-// installed (blocked on package.json access, see status report).
+// FontAwesome + animate.css remain in use for legacy modules (customers /
+// inventory / orders) that still ship FA icons; new work uses Lucide via
+// ng-icons. Neither has been removed from the bundle yet.
 @import 'animate.css/animate.min';
 @import './assets/lightning-admin';
+
+// -------------------------------------------------------------------------
+// Self-hosted fonts (client/assets/fonts/*.woff2)
+//
+// Inter (variable, latin + latin-ext), Hind (weights 400/500/600 for both
+// Latin + Devanagari), Instrument Serif (400 upright + 400 italic).
+// All served locally, no network calls to Google Fonts.
+// -------------------------------------------------------------------------
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('./assets/fonts/Inter-Variable-Latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('./assets/fonts/Inter-Variable-LatinExt.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'Hind';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./assets/fonts/Hind-400-Latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Hind';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('./assets/fonts/Hind-500-Latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Hind';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('./assets/fonts/Hind-600-Latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Hind';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./assets/fonts/Hind-400-Devanagari.woff2') format('woff2');
+  unicode-range: U+0900-097F, U+1CD0-1CF9, U+200C-200D, U+20A8, U+20B9, U+25CC, U+A830-A839, U+A8E0-A8FF, U+11B00-11B09;
+}
+@font-face {
+  font-family: 'Hind';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('./assets/fonts/Hind-500-Devanagari.woff2') format('woff2');
+  unicode-range: U+0900-097F, U+1CD0-1CF9, U+200C-200D, U+20A8, U+20B9, U+25CC, U+A830-A839, U+A8E0-A8FF, U+11B00-11B09;
+}
+@font-face {
+  font-family: 'Hind';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('./assets/fonts/Hind-600-Devanagari.woff2') format('woff2');
+  unicode-range: U+0900-097F, U+1CD0-1CF9, U+200C-200D, U+20A8, U+20B9, U+25CC, U+A830-A839, U+A8E0-A8FF, U+11B00-11B09;
+}
+
+@font-face {
+  font-family: 'Instrument Serif';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./assets/fonts/InstrumentSerif-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Instrument Serif';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./assets/fonts/InstrumentSerif-400-Italic.woff2') format('woff2');
+}
 
 // -------------------------------------------------------------------------
 // 1. Radix-inspired 12-step color scales (light theme)

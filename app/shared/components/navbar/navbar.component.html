@@ -11,7 +11,7 @@
   <!-- sidebar toggler (mobile) -->
   <div class="sidebar-toggler ml-auto mr-3">
     <button type="button" class="btn nav-link" (click)="toggleSidebar()" aria-label="Toggle sidebar">
-      <i class="fa fa-bars fa-lg" aria-hidden="true"></i>
+      <ng-icon name="lucideMenu" size="20" aria-hidden="true"></ng-icon>
     </button>
   </div>
 
@@ -19,7 +19,7 @@
   <ul class="navbar-nav flex-fill mt-1 align-items-center left-nav">
     <li class="nav-item navicon">
       <button type="button" class="btn nav-link" (click)="toggleSidebarPin()" aria-label="Pin sidebar">
-        <i class="fa fa-bars fa-xl" aria-hidden="true"></i>
+        <ng-icon name="lucideMenu" size="24" aria-hidden="true"></ng-icon>
       </button>
     </li>
     <li class="nav-item nav-item--search">
@@ -31,15 +31,11 @@
   <!-- theme toggle -->
   <div class="nav-item nav-item--theme">
     <button type="button"
-            class="theme-toggle-btn"
+            class="theme-toggle-btn hlm-btn-icon"
             (click)="toggleTheme()"
             [attr.aria-label]="themeService.isDark() ? 'Switch to light theme' : 'Switch to dark theme'"
             [attr.title]="themeService.isDark() ? 'Switch to light theme' : 'Switch to dark theme'">
-      @if (themeService.isDark()) {
-        <i class="fa-solid fa-sun" aria-hidden="true"></i>
-      } @else {
-        <i class="fa-solid fa-moon" aria-hidden="true"></i>
-      }
+      <ng-icon [name]="themeService.isDark() ? 'lucideSun' : 'lucideMoon'" size="18" aria-hidden="true"></ng-icon>
     </button>
   </div>
 

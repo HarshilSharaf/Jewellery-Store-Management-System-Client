@@ -27,37 +27,17 @@
   margin-right: 0.5rem;
 }
 
+// The circular button visual comes from the .hlm-btn-icon Tailwind recipe
+// on the template. Only accent hover for the inner icon lives here since
+// ::ng-deep is needed to reach through <ng-icon>'s shadow-DOM-ish host.
 .theme-toggle-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-full);
-  border: 1px solid var(--color-border);
-  background: var(--color-panel);
-  color: var(--color-fg);
   cursor: pointer;
-  display: inline-grid;
-  place-items: center;
-  transition: background-color 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
 
-  &:hover {
-    background: var(--color-panel-hover);
-    border-color: var(--color-border-strong);
-  }
-
-  &:active {
-    transform: scale(0.96);
-  }
-
-  i {
-    font-size: 0.9rem;
-    color: var(--color-fg-muted);
-  }
-
-  &:hover i {
+  &:hover ::ng-deep ng-icon {
     color: var(--color-accent-fg);
   }
 }
 
-html[data-theme="dark"] .theme-toggle-btn:hover i {
+html[data-theme="dark"] .theme-toggle-btn:hover ::ng-deep ng-icon {
   color: var(--color-accent);
 }

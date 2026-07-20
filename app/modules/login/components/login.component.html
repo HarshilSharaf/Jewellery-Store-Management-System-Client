@@ -1,13 +1,9 @@
 <div class="login-page">
   <button type="button"
-          class="theme-toggle"
+          class="theme-toggle inline-grid place-items-center rounded-full border border-border bg-panel text-fg hover:bg-panel-hover transition-colors active:scale-95"
           (click)="toggleTheme()"
           [attr.aria-label]="themeService.isDark() ? 'Switch to light theme' : 'Switch to dark theme'">
-    @if (themeService.isDark()) {
-      <i class="fa-solid fa-sun" aria-hidden="true"></i>
-    } @else {
-      <i class="fa-solid fa-moon" aria-hidden="true"></i>
-    }
+    <ng-icon [name]="themeService.isDark() ? 'lucideSun' : 'lucideMoon'" size="18" aria-hidden="true"></ng-icon>
   </button>
 
   <div class="login-shell">
@@ -33,7 +29,7 @@
 
       <div class="brand-foot">
         <span class="dot" aria-hidden="true"></span>
-        <span>Local-first · No cloud lock-in</span>
+        <span>Local-first &middot; No cloud lock-in</span>
       </div>
     </aside>
 
@@ -46,7 +42,7 @@
 
         @if (showError) {
           <div class="notice notice-danger" role="alert">
-            <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+            <ng-icon name="lucideCircleAlert" size="18" aria-hidden="true"></ng-icon>
             <span>{{ errorMessage }}</span>
           </div>
         }
@@ -60,6 +56,7 @@
                      autocomplete="username"
                      placeholder="e.g. shop.admin"
                      formControlName="username"
+                     class="hlm-input"
                      [class.is-invalid]="form.controls.username.invalid && form.controls.username.touched">
             </div>
           </div>
@@ -75,16 +72,19 @@
                      autocomplete="current-password"
                      placeholder="Enter your password"
                      formControlName="password"
+                     class="hlm-input"
                      [class.is-invalid]="form.controls.password.invalid && form.controls.password.touched">
             </div>
           </div>
 
-          <button type="submit" class="btn-accent" [disabled]="submitting">
+          <button type="submit"
+                  class="hlm-btn hlm-btn-primary w-full mt-2"
+                  [disabled]="submitting">
             @if (submitting) {
               <span>Signing in...</span>
             } @else {
               <span>Sign in</span>
-              <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+              <ng-icon name="lucideArrowRight" size="16" aria-hidden="true" class="btn-arrow"></ng-icon>
             }
           </button>
         </form>

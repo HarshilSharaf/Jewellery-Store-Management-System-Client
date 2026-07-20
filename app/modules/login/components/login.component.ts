@@ -2,6 +2,13 @@ import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import {
+  lucideSun,
+  lucideMoon,
+  lucideArrowRight,
+  lucideCircleAlert,
+} from '@ng-icons/lucide';
 import { AuthService } from '../../../shared/services/Auth/auth.service';
 import { ThemeService } from '../../../shared/services/theme.service';
 import { LoggerService } from '../../../../../Backend/Shared/logger.service';
@@ -11,7 +18,10 @@ import { LoggerService } from '../../../../../Backend/Shared/logger.service';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
   standalone: true,
-  imports: [FormsModule, ReactiveFormsModule]
+  imports: [FormsModule, ReactiveFormsModule, NgIcon],
+  viewProviders: [
+    provideIcons({ lucideSun, lucideMoon, lucideArrowRight, lucideCircleAlert }),
+  ],
 })
 export class LoginComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);

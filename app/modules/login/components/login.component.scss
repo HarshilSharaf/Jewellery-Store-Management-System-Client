@@ -14,28 +14,13 @@
     var(--color-bg);
 }
 
+// Only positioning left here; the visual styling now comes from the
+// .hlm-btn-icon Tailwind recipe applied on the template.
 .theme-toggle {
   position: absolute;
   top: 1.25rem;
   right: 1.5rem;
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-full);
-  border: 1px solid var(--color-border);
-  background: var(--color-panel);
-  color: var(--color-fg);
   cursor: pointer;
-  display: inline-grid;
-  place-items: center;
-  transition: background-color 0.15s ease, transform 0.15s ease;
-
-  &:hover {
-    background: var(--color-panel-hover);
-  }
-
-  &:active {
-    transform: scale(0.96);
-  }
 }
 
 .login-shell {
@@ -239,79 +224,15 @@ html[data-theme="dark"] .hero-eyebrow {
 
 .control {
   position: relative;
-
-  input {
-    width: 100%;
-    padding: 0.7rem 0.85rem;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    font-family: var(--font-sans);
-    font-size: var(--fs-base);
-    color: var(--color-fg);
-    background: var(--color-bg);
-    transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
-    box-sizing: border-box;
-
-    &::placeholder {
-      color: var(--color-fg-subtle);
-    }
-
-    &:hover:not(:focus) {
-      border-color: var(--color-border-strong);
-    }
-
-    &:focus {
-      outline: none;
-      border-color: var(--color-accent);
-      box-shadow: 0 0 0 3px var(--color-focus-ring);
-      background: var(--color-panel);
-    }
-
-    &.is-invalid {
-      border-color: var(--color-danger);
-      box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-danger) 20%, transparent);
-    }
-  }
 }
 
-.btn-accent {
-  margin-top: 0.5rem;
-  width: 100%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.8rem 1rem;
-  border: 1px solid transparent;
-  border-radius: var(--radius-md);
-  background: var(--color-accent);
-  color: var(--color-accent-fg);
-  font-family: var(--font-sans);
-  font-size: var(--fs-md);
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.15s ease, transform 0.1s ease;
-
-  &:hover:not(:disabled) {
-    background: var(--color-accent-hover);
-  }
-
-  &:active:not(:disabled) {
-    transform: translateY(1px);
-  }
-
-  &:disabled {
-    cursor: not-allowed;
-    opacity: 0.65;
-  }
-
-  i {
-    transition: transform 0.15s ease;
-  }
-
-  &:hover:not(:disabled) i {
-    transform: translateX(3px);
-  }
+// The submit button uses .hlm-btn .hlm-btn-primary Tailwind recipes.
+// Only the arrow-slide micro-interaction lives in component SCSS.
+.hlm-btn .btn-arrow {
+  transition: transform 0.15s ease;
+}
+.hlm-btn:hover:not(:disabled) .btn-arrow {
+  transform: translateX(3px);
 }
 
 .form-legal {
