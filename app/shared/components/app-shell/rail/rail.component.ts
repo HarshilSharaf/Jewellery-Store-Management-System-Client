@@ -13,6 +13,7 @@ import {
   lucidePiggyBank,
   lucideHammer,
   lucideChartLine,
+  lucideWrench,
 } from '@ng-icons/lucide';
 
 import { AuthService } from '../../../services/Auth/auth.service';
@@ -42,6 +43,7 @@ interface RailItem {
       lucidePiggyBank,
       lucideHammer,
       lucideChartLine,
+      lucideWrench,
     }),
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -52,17 +54,18 @@ export class RailComponent implements OnInit {
   readonly permissions = inject(PermissionsService);
 
   readonly primary: RailItem[] = [
-    { label: 'Today',   icon: 'lucideLayoutDashboard', route: '/dashboard' },
-    { label: 'Sell',    icon: 'lucideShoppingCart',    route: '/orders' },
-    { label: 'Stock',   icon: 'lucidePackage',         route: '/inventory' },
-    { label: 'People',  icon: 'lucideUsers',           route: '/customers' },
-    { label: 'Schemes', icon: 'lucidePiggyBank',       route: '/saving-schemes' },
-    { label: 'Karigar', icon: 'lucideHammer',          route: '/karigar' },
-    { label: 'Catalog', icon: 'lucideTags',            route: '/categories' },
-    { label: 'Reports', icon: 'lucideChartLine',       route: '/reports' },
+    { label: $localize`:@@rail.today:Today`,     icon: 'lucideLayoutDashboard', route: '/dashboard' },
+    { label: $localize`:@@rail.sell:Sell`,       icon: 'lucideShoppingCart',    route: '/orders' },
+    { label: $localize`:@@rail.stock:Stock`,     icon: 'lucidePackage',         route: '/inventory' },
+    { label: $localize`:@@rail.people:People`,   icon: 'lucideUsers',           route: '/customers' },
+    { label: $localize`:@@rail.schemes:Schemes`, icon: 'lucidePiggyBank',       route: '/saving-schemes' },
+    { label: $localize`:@@rail.karigar:Karigar`, icon: 'lucideHammer',          route: '/karigar' },
+    { label: $localize`:@@rail.repair:Repair`,   icon: 'lucideWrench',          route: '/repair' },
+    { label: $localize`:@@rail.catalog:Catalog`, icon: 'lucideTags',            route: '/categories' },
+    { label: $localize`:@@rail.reports:Reports`, icon: 'lucideChartLine',       route: '/reports' },
   ];
 
-  readonly settings: RailItem = { label: 'Settings', icon: 'lucideSettings', route: '/settings' };
+  readonly settings: RailItem = { label: $localize`:@@rail.settings:Settings`, icon: 'lucideSettings', route: '/settings' };
 
   ngOnInit(): void {
     this.permissions.getUserPermissions();
