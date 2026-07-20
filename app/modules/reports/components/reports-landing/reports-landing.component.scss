@@ -1,0 +1,26 @@
+.reports-landing {
+  padding: 24px 32px;
+
+  &__lede {
+    color: var(--color-fg-muted);
+    font-size: 13px;
+    margin: 0 0 24px;
+    max-width: 60ch;
+  }
+}
+
+.reports-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+
+  > .report-tile {
+    grid-column: span 6;
+  }
+}
+
+@media (min-width: 900px) {
+  .reports-grid > .report-tile {
+    grid-column: span 4;
+  }
+}

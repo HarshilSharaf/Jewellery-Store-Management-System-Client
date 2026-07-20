@@ -1,0 +1,30 @@
+<section class="reports-landing">
+
+  <header class="page-title">
+    <div class="page-title__group">
+      <h1 class="page-title__heading">Reports</h1>
+      <span class="page-title__count">{{ tiles.length }} reports</span>
+    </div>
+  </header>
+
+  <p class="reports-landing__lede">Read-only rollups. Server-side stored procedures do the heavy lifting; cost columns are hidden for non-admins.</p>
+
+  <div class="reports-grid">
+    @for (tile of tiles; track tile.route) {
+      <a class="report-tile" [routerLink]="[tile.route]">
+        <span class="report-tile__icon" aria-hidden="true">
+          <ng-icon [name]="tile.icon" size="22"></ng-icon>
+        </span>
+        <div class="report-tile__body">
+          <h3 class="report-tile__title">{{ tile.title }}</h3>
+          <p class="report-tile__desc">{{ tile.description }}</p>
+        </div>
+        <span class="report-tile__cta" aria-hidden="true">
+          Open
+          <ng-icon name="lucideArrowRight" size="14"></ng-icon>
+        </span>
+      </a>
+    }
+  </div>
+
+</section>

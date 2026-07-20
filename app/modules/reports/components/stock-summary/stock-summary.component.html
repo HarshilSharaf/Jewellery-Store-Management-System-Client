@@ -1,0 +1,83 @@
+<section class="report-page">
+
+  <header class="page-title">
+    <div class="page-title__group">
+      <a class="icon-btn" routerLink="/reports" title="Back to Reports" aria-label="Back">
+        <ng-icon name="lucideArrowLeft" size="16" aria-hidden="true"></ng-icon>
+      </a>
+      <h1 class="page-title__heading">Stock summary by purity</h1>
+      <span class="page-title__count">{{ rows().length }} groups</span>
+    </div>
+  </header>
+
+  <div class="date-range-toolbar">
+    <div class="date-range-toolbar__group">
+      <label class="field-label">As of</label>
+      <input type="date" class="hlm-input tabular-nums" [value]="asOfDate()" (input)="onAsOfChange($any($event.target).value)">
+    </div>
+    <button type="button" class="hlm-btn hlm-btn-ghost" (click)="refresh()" [disabled]="loading()">
+      <ng-icon name="lucideRefreshCw" size="14" aria-hidden="true"></ng-icon>
+      {{ loading() ? 'Loading...' : 'Refresh' }}
+    </button>
+    <button type="button" class="hlm-btn hlm-btn-ghost export-btn" (click)="exportCSV()" [disabled]="!rows().length">
+      <ng-icon name="lucideDownload" size="14" aria-hidden="true"></ng-icon>
+      Export CSV
+    </button>
+  </div>
+
+  @if (!loading() && rows().length === 0) {
+    <div class="report-empty">
+      <ng-icon name="lucidePackage" size="32" aria-hidden="true"></ng-icon>
+      <p>No stock on hand as of this date.</p>
+    </div>
+  } @else {
+    <table class="ds-table tabular-nums">
+      <thead>
+        <tr>
+          <th>Purity</th>
+          <th class="right">Units</th>
+          <th class="right">Gross wt (g)</th>
+          <th class="right">Net wt (g)</th>
+          <th class="right">Tag valuation</th>
+          @if (permissions.costsVisible()) {
+            <th class="right">Cost valuation</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (r of rows(); track r.purityCode) {
+          <tr>
+            <td>
+              <span class="purity-chip" [ngClass]="purityChipClass(r.metalType, r.purityLabel, r.purityCode)">
+                {{ r.purityLabel }}
+              </span>
+              <small class="purity-chip__code">{{ r.purityCode }}</small>
+            </td>
+            <td class="right">{{ r.unitCount }}</td>
+            <td class="right money">{{ formatGrams(r.grossWeightGrams) }}</td>
+            <td class="right money">{{ formatGrams(r.netWeightGrams) }}</td>
+            <td class="right money-lg">{{ formatINR(r.totalTagPrice) }}</td>
+            @if (permissions.costsVisible()) {
+              <td class="right money">{{ formatINR(r.totalCostPrice) }}</td>
+            }
+          </tr>
+        }
+      </tbody>
+      @if (rows().length) {
+        <tfoot>
+          <tr class="data-total-row">
+            <td>Totals</td>
+            <td class="right">{{ totals().unitCount }}</td>
+            <td class="right money">{{ formatGrams(totals().grossWeightGrams) }}</td>
+            <td class="right money">{{ formatGrams(totals().netWeightGrams) }}</td>
+            <td class="right money-lg">{{ formatINR(totals().totalTagPrice) }}</td>
+            @if (permissions.costsVisible()) {
+              <td class="right money">{{ formatINR(totals().totalCostPrice) }}</td>
+            }
+          </tr>
+        </tfoot>
+      }
+    </table>
+  }
+
+</section>
