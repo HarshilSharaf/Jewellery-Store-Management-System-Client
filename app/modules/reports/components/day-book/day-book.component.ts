@@ -13,6 +13,7 @@ import {
 import { ReportsService } from '../../../../shared/services/Reports/reports.service';
 import { DayBookRow } from '../../../../interfaces/Reports/report-day-book';
 import { exportToCSV } from '../../../../shared/utils/csv-export';
+import { buildDayBookXml, downloadXml } from '../../../../shared/utils/tally-xml';
 
 interface DayBookTotals {
   cash: number;
@@ -97,6 +98,13 @@ export class DayBookComponent implements OnInit {
       TaxableValue: Number(r.totalTaxableValue) || 0,
     }));
     exportToCSV(flat, `day-book-${this.dateFrom()}-${this.dateTo()}.csv`);
+  }
+
+  exportTallyXml(): void {
+    const rows = this.rows();
+    if (!rows.length) { return; }
+    const xml = buildDayBookXml(rows);
+    downloadXml(xml, `tally-daybook-${this.dateFrom()}-${this.dateTo()}.xml`);
   }
 
   formatINR(value: number | null | undefined): string {

@@ -17,6 +17,7 @@ import {
 } from '../../../../interfaces/Reports/report-sales-register';
 import { CustomerDataService } from '../../../customers/services/customer-data.service';
 import { exportToCSV } from '../../../../shared/utils/csv-export';
+import { buildSalesRegisterXml, downloadXml } from '../../../../shared/utils/tally-xml';
 
 interface CustomerOption {
   customerGuid: string;
@@ -178,6 +179,13 @@ export class SalesRegisterComponent implements OnInit {
       Type: r.invoiceType,
     }));
     exportToCSV(flat, `sales-register-${this.dateFrom()}-${this.dateTo()}.csv`);
+  }
+
+  exportTallyXml(): void {
+    const rows = this.rows();
+    if (!rows.length) { return; }
+    const xml = buildSalesRegisterXml(rows);
+    downloadXml(xml, `tally-sales-${this.dateFrom()}-${this.dateTo()}.xml`);
   }
 
   formatINR(value: number | null | undefined): string {
