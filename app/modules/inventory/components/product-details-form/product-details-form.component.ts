@@ -1,7 +1,8 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import Swal from 'sweetalert2';
+import { AppDialogService } from '../../../../shared/services/AppDialog/app-dialog.service';
+import { AppToastService } from '../../../../shared/services/AppToast/app-toast.service';
 import { AvailableProductsService } from '../available-products/services/available-products.service';
 import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
 import { AllCategoriesModel } from '../../../categories/models/categories-model';
@@ -28,6 +29,8 @@ export class ProductDetailsFormComponent implements OnInit, OnChanges {
   purities: Purity[] = [];
   isAdmin = false;
   readonly permissions = inject(PermissionsService);
+  private readonly dialog = inject(AppDialogService);
+  private readonly toast = inject(AppToastService);
 
   computedPreview: {
     metal: number;
@@ -155,12 +158,12 @@ export class ProductDetailsFormComponent implements OnInit, OnChanges {
       .then(() => {
         this.isLoading = false;
         this.refreshProductDetails.emit(true);
-        Swal.fire('Saved', 'Product details updated.', 'success');
+        this.toast.success('Product details updated.', 'Saved');
       })
       .catch((error: any) => {
         this.loggerService.LogError(error, 'updateProductDetails()');
         this.isLoading = false;
-        Swal.fire({ icon: 'error', title: 'Update failed', text: 'Failed to update product details.' });
+        this.dialog.fire({ icon: 'error', title: 'Update failed', text: 'Failed to update product details.' });
       });
   }
 }

@@ -8,7 +8,8 @@ import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
 import { AllCategoriesModel } from '../../../../modules/categories/models/categories-model';
 import { ProductDataModel } from '../../../../modules/orders/models/product-data-model';
 import { ActivatedRoute, Router } from '@angular/router';
-import Swal from 'sweetalert2';
+import { AppDialogService } from '../../../../shared/services/AppDialog/app-dialog.service';
+import { AppToastService } from '../../../../shared/services/AppToast/app-toast.service';
 import { AddProductFormComponent } from './components/add-product-form/add-product-form.component';
 import { PuritiesService } from '../../../../shared/services/Purities/purities.service';
 import { Purity } from '../../../../interfaces/Shared/purity';
@@ -99,6 +100,8 @@ export class AvailableProductsComponent implements OnInit, OnDestroy {
   protected exportingCsv = false;
   readonly permissions = inject(PermissionsService);
   private readonly migrationService = inject(MigrationService);
+  private readonly dialog = inject(AppDialogService);
+  private readonly toast = inject(AppToastService);
 
   protected selectedPurities = new Set<string>();
   protected selectedMasterCategories = new Set<number>();
@@ -304,23 +307,17 @@ export class AvailableProductsComponent implements OnInit, OnDestroy {
 
   async openDeletePopUpForItem(event: MouseEvent, product: ProductDataModel): Promise<void> {
     event.stopPropagation();
-    const result = await Swal.fire({
-      title: 'Delete this product?',
-      text: "You won't be able to revert this.",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, delete',
-    });
-    if (!result.isConfirmed) return;
+    const confirmed = await this.dialog.danger('Delete this product?', "You won't be able to revert this.", { confirmButtonText: 'Yes, delete' });
+    if (!confirmed) return;
     try {
       this.loggerService.LogInfo('deleteProduct() Request Started.');
       await this.availableProductService.deleteProduct(product.productGuid);
       this.getAllProductsData();
-      await Swal.fire('Deleted', 'Product removed.', 'success');
+      this.toast.success('Product removed.', 'Deleted');
       this.loggerService.LogInfo('deleteProduct() Request Completed.');
     } catch (error: any) {
       this.loggerService.LogError(error, 'deleteProduct()');
-      Swal.fire('Error', error?.error?.message ?? 'Failed to delete product.', 'error');
+      this.toast.error(error?.error?.message ?? 'Failed to delete product.', 'Error');
     }
   }
 
@@ -376,7 +373,7 @@ export class AvailableProductsComponent implements OnInit, OnDestroy {
       await this.migrationService.triggerExportProducts(this.permissions.costsVisible());
     } catch (error) {
       this.loggerService.LogError(error, 'exportProductsCsv()');
-      Swal.fire('Export failed', 'Unable to export products.', 'error');
+      this.toast.error('Unable to export products.', 'Export failed');
     } finally {
       this.exportingCsv = false;
       this.cdref.detectChanges();

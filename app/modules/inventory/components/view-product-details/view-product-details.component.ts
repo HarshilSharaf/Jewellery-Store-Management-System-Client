@@ -4,7 +4,8 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { FileSystemService } from '../../../../../../Backend/Shared/file-system.service';
-import Swal from 'sweetalert2';
+import { AppDialogService } from '../../../../shared/services/AppDialog/app-dialog.service';
+import { AppToastService } from '../../../../shared/services/AppToast/app-toast.service';
 import dayjs from 'dayjs';
 import { AvailableProductsService } from '../available-products/services/available-products.service';
 import { ProductImageUploadComponent } from '../product-image-upload/product-image-upload.component';
@@ -73,6 +74,8 @@ export class ViewProductDetailsComponent implements OnInit {
   protected computedFloor: number | null = null;
 
   private readonly destroyRef = inject(DestroyRef);
+  private readonly dialog = inject(AppDialogService);
+  private readonly toast = inject(AppToastService);
 
   constructor(
     private ProductService: AvailableProductsService,
@@ -151,22 +154,16 @@ export class ViewProductDetailsComponent implements OnInit {
   }
 
   async deleteProductImage(): Promise<void> {
-    const result = await Swal.fire({
-      title: 'Delete this image?',
-      text: "You won't be able to revert this.",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, delete',
-    });
-    if (!result.isConfirmed) return;
+    const confirmed = await this.dialog.danger('Delete this image?', "You won't be able to revert this.", { confirmButtonText: 'Yes, delete' });
+    if (!confirmed) return;
     try {
       const data: any = await this.ProductService.deleteProductImage(this.productGuid);
       await this.fileSystemService.deleteProductImage(data[0].oldFileName);
       this.getProductImage();
-      await Swal.fire('Deleted', 'Product image removed.', 'success');
+      this.toast.success('Product image removed.', 'Deleted');
     } catch (error) {
       this.loggerService.LogError(error, 'deleteProductImage()');
-      Swal.fire('Error', 'Failed to delete image.', 'error');
+      this.toast.error('Failed to delete image.', 'Error');
     }
   }
 
@@ -189,7 +186,7 @@ export class ViewProductDetailsComponent implements OnInit {
       }
     } catch (error: any) {
       this.loggerService.LogError(error, 'updateProductImage()');
-      Swal.fire({ icon: 'error', title: 'Failed to update image', text: error?.error?.message ?? 'Please try again.' });
+      this.dialog.fire({ icon: 'error', title: 'Failed to update image', text: error?.error?.message ?? 'Please try again.' });
     } finally {
       this.loaderService.stop();
     }
@@ -244,45 +241,23 @@ export class ViewProductDetailsComponent implements OnInit {
   }
 
   async markAsSold(): Promise<void> {
-    Swal.fire({
-      title: 'Mark as sold',
-      text: 'To sell a product, add it to an invoice via the Sell workflow. This action will be wired up in Phase 2.',
-      icon: 'info',
-      toast: true,
-      position: 'top-end',
-      timer: 3200,
-      showConfirmButton: false,
-    });
+    this.toast.info('To sell a product, add it to an invoice via the Sell workflow. This action will be wired up in Phase 2.', 'Mark as sold', { timer: 3200 });
   }
 
   async printTag(): Promise<void> {
-    Swal.fire({
-      title: 'Barcode tag print',
-      text: 'Barcode + HUID label printing is a Phase 2 feature.',
-      icon: 'info',
-      toast: true,
-      position: 'top-end',
-      timer: 3200,
-      showConfirmButton: false,
-    });
+    this.toast.info('Barcode + HUID label printing is a Phase 2 feature.', 'Barcode tag print', { timer: 3200 });
   }
 
   async deleteProduct(): Promise<void> {
-    const result = await Swal.fire({
-      title: 'Delete this product?',
-      text: "You won't be able to revert this.",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, delete',
-    });
-    if (!result.isConfirmed) return;
+    const confirmed = await this.dialog.danger('Delete this product?', "You won't be able to revert this.", { confirmButtonText: 'Yes, delete' });
+    if (!confirmed) return;
     try {
       await this.ProductService.deleteProduct(this.productGuid);
-      await Swal.fire('Deleted', 'Product removed.', 'success');
+      this.toast.success('Product removed.', 'Deleted');
       this.router.navigate(['../../'], { relativeTo: this.route });
     } catch (error: any) {
       this.loggerService.LogError(error, 'deleteProduct()');
-      Swal.fire('Error', error?.error?.message ?? 'Failed to delete product.', 'error');
+      this.toast.error(error?.error?.message ?? 'Failed to delete product.', 'Error');
     }
   }
 
