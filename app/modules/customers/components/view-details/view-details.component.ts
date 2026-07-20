@@ -4,7 +4,8 @@ import { CommonModule, DecimalPipe } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
-import Swal from 'sweetalert2';
+import { AppDialogService } from '../../../../shared/services/AppDialog/app-dialog.service';
+import { AppToastService } from '../../../../shared/services/AppToast/app-toast.service';
 import dayjs from 'dayjs';
 import { CustomerDetails } from '../../models/customerDetails';
 import { CustomerDataService } from '../../services/customer-data.service';
@@ -102,6 +103,8 @@ export class ViewDetailsComponent implements OnInit, OnDestroy {
   editMode = false;
   showImageEditor = false;
   readonly permissions = inject(PermissionsService);
+  private readonly dialog = inject(AppDialogService);
+  private readonly toast = inject(AppToastService);
   creditBalance = 0;
   customerSchemes: SavingScheme[] = [];
   oldGoldReceipts: OldGoldReceipt[] = [];
@@ -349,7 +352,7 @@ export class ViewDetailsComponent implements OnInit, OnDestroy {
       }
     } catch (error) {
       this.loggerService.LogError(error, 'updateCustomerImage()');
-      Swal.fire({
+      this.dialog.fire({
         icon: 'error',
         title: 'Failed to update image',
         text: (error as any).error?.message ?? 'Please try again.',
@@ -360,24 +363,18 @@ export class ViewDetailsComponent implements OnInit, OnDestroy {
   }
 
   async deleteCustomerImage(): Promise<void> {
-    const result = await Swal.fire({
-      title: 'Delete this photo?',
-      text: "You won't be able to revert this.",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, delete',
-    });
+    const confirmed = await this.dialog.danger('Delete this photo?', "You won't be able to revert this.", { confirmButtonText: 'Yes, delete' });
 
-    if (!result.isConfirmed) return;
+    if (!confirmed) return;
 
     try {
       const data: DeleteCustomerImageModel[] = await this.customerDataService.deleteCustomerPhoto(this.customerGuid);
       await this.fileSystemService.deleteCustomerImage(data[0].oldFileName);
       this.getCustomerImage();
-      await Swal.fire({ title: 'Deleted', icon: 'success' });
+      this.toast.success('Deleted');
     } catch (error) {
       this.loggerService.LogError(error, 'deleteCustomerImage()');
-      Swal.fire('Error', (error as any).error?.message ?? 'Failed to delete photo.', 'error');
+      this.toast.error((error as any).error?.message ?? 'Failed to delete photo.', 'Error');
     }
   }
 
@@ -394,37 +391,27 @@ export class ViewDetailsComponent implements OnInit, OnDestroy {
       this.isLoading = false;
       this.editMode = false;
       this.getCustomerDetails();
-      await Swal.fire('Saved', 'Customer details updated.', 'success');
+      this.toast.success('Customer details updated.', 'Saved');
     } catch (error) {
       this.loggerService.LogError(error, 'updateCustomerDetails()');
       this.isLoading = false;
-      Swal.fire({
-        icon: 'error',
-        title: 'Update failed',
-        text: error as string,
-      });
+      this.dialog.fire({ icon: 'error', title: 'Update failed', text: error as string });
     }
   }
 
   async deleteCustomer(): Promise<void> {
     if (!this.customer) return;
-    const result = await Swal.fire({
-      title: `Delete ${this.customer.customerName}?`,
-      text: "You won't be able to revert this.",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, delete',
-    });
+    const confirmed = await this.dialog.danger(`Delete ${this.customer.customerName}?`, "You won't be able to revert this.", { confirmButtonText: 'Yes, delete' });
 
-    if (!result.isConfirmed) return;
+    if (!confirmed) return;
 
     try {
       await this.customerDataService.deleteCustomer(this.customerGuid);
-      await Swal.fire('Deleted', 'Customer removed.', 'success');
+      this.toast.success('Customer removed.', 'Deleted');
       this.router.navigate(['../'], { relativeTo: this.route });
     } catch (error) {
       this.loggerService.LogError(error, 'deleteCustomer()');
-      Swal.fire('Error', error as string, 'error');
+      this.toast.error(error as string, 'Error');
     }
   }
 

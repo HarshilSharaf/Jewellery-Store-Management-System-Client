@@ -1,7 +1,7 @@
-import { Component, Input } from '@angular/core';
-import Swal from 'sweetalert2';
+import { Component, Input, inject } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideCloudUpload } from '@ng-icons/lucide';
+import { AppToastService } from '../../../../shared/services/AppToast/app-toast.service';
 
 
 @Component({
@@ -13,6 +13,7 @@ import { lucideCloudUpload } from '@ng-icons/lucide';
   viewProviders: [provideIcons({ lucideCloudUpload })],
 })
 export class ImageUploadComponent {
+  private readonly toast = inject(AppToastService);
 
   @Input() activeColor: string = 'green';
   @Input()  baseColor: string = '#ccc';
@@ -51,15 +52,7 @@ export class ImageUploadComponent {
 
       const imagePattern = /^image\//;
       if (!imagePattern.test(nextPhoto.type)) {
-          Swal.fire({
-              icon: 'error',
-              title: 'Unsupported file type',
-              text: 'Please choose an image file (jpg, png, gif, webp, etc.).',
-              toast: true,
-              position: 'top-end',
-              showConfirmButton: false,
-              timer: 3000,
-          });
+          this.toast.error('Please choose an image file (jpg, png, gif, webp, etc.).', 'Unsupported file type');
           return;
       }
 

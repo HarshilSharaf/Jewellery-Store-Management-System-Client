@@ -22,7 +22,8 @@ import { MigrationService } from '../../../../shared/services/Migration/migratio
 import { CustomerDetails } from '../../models/customerDetails';
 import { CustomerDataService } from '../../services/customer-data.service';
 import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
-import Swal from 'sweetalert2';
+import { AppDialogService } from '../../../../shared/services/AppDialog/app-dialog.service';
+import { AppToastService } from '../../../../shared/services/AppToast/app-toast.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AddCustomerFormComponent } from '../add-customer-form/add-customer-form.component';
 import { PermissionsService } from '../../../../shared/services/Auth/permissions.service';
@@ -68,6 +69,8 @@ export class CustomersPageComponent implements OnInit, OnDestroy {
   protected exportingCsv = false;
   readonly permissions = inject(PermissionsService);
   private readonly migrationService = inject(MigrationService);
+  private readonly dialog = inject(AppDialogService);
+  private readonly toast = inject(AppToastService);
 
   private debounceTimer: any;
 
@@ -152,26 +155,19 @@ export class CustomersPageComponent implements OnInit, OnDestroy {
 
   async openDeletePopUpForItem(event: MouseEvent, customer: CustomerDetails): Promise<void> {
     event.stopPropagation();
-    const result = await Swal.fire({
-      title: `Delete ${customer.customerName}?`,
-      text: "You won't be able to revert this.",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, delete',
-      cancelButtonText: 'Cancel',
-    });
+    const confirmed = await this.dialog.danger(`Delete ${customer.customerName}?`, "You won't be able to revert this.", { confirmButtonText: 'Yes, delete' });
 
-    if (!result.isConfirmed) return;
+    if (!confirmed) return;
 
     try {
       this.loggerService.LogInfo('deleteCustomer() Request Started.');
       await this.customerService.deleteCustomer(customer.customerGuid as string);
       this.getAllCustomersData();
-      await Swal.fire('Deleted', 'Customer removed.', 'success');
+      this.toast.success('Customer removed.', 'Deleted');
       this.loggerService.LogInfo('deleteCustomer() Request Completed.');
     } catch (error) {
       this.loggerService.LogError(error, 'deleteCustomer()');
-      await Swal.fire('Error', error as string, 'error');
+      this.toast.error(error as string, 'Error');
     }
   }
 
@@ -206,7 +202,7 @@ export class CustomersPageComponent implements OnInit, OnDestroy {
       await this.migrationService.triggerExportCustomers();
     } catch (error) {
       this.loggerService.LogError(error, 'exportCustomersCsv()');
-      await Swal.fire('Export failed', 'Unable to export customers.', 'error');
+      this.toast.error('Unable to export customers.', 'Export failed');
     } finally {
       this.exportingCsv = false;
       this.cdref.detectChanges();
