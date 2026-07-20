@@ -1,0 +1,34 @@
+<header class="top-bar">
+  <div class="top-bar__brand">
+    <span class="top-bar__wordmark">{{ shopName() }}</span>
+  </div>
+
+  <div class="top-bar__center">
+    <app-rate-ticker></app-rate-ticker>
+  </div>
+
+  <div class="top-bar__right">
+    <label class="top-bar__search">
+      <ng-icon name="lucideSearch" size="14" class="top-bar__search-icon" aria-hidden="true"></ng-icon>
+      <input #searchInput
+             type="text"
+             class="top-bar__search-input"
+             [attr.placeholder]="'Search or command   ' + commandHint()"
+             [value]="searchValue()"
+             (input)="onSearchInput($any($event.target).value)"
+             aria-label="Global search">
+    </label>
+
+    <button type="button"
+            class="top-bar__icon-btn"
+            (click)="toggleTheme()"
+            [attr.aria-label]="themeService.isDark() ? 'Switch to light theme' : 'Switch to dark theme'"
+            [attr.title]="themeService.isDark() ? 'Switch to light theme' : 'Switch to dark theme'">
+      <ng-icon [name]="themeService.isDark() ? 'lucideSun' : 'lucideMoon'" size="16" aria-hidden="true"></ng-icon>
+    </button>
+
+    <app-add-to-cart></app-add-to-cart>
+
+    <app-user-menu></app-user-menu>
+  </div>
+</header>

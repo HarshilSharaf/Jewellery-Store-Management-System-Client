@@ -10,9 +10,5 @@ export const routes: Routes = [
   {
     path: 'login',
     loadChildren: () => import('./modules/login/login-routing.config').then(m => m.loginRoutes),
-  },
-  {
-    path: 'settings',
-    loadChildren: () => import('./modules/settings/settings-routing.config').then(m => m.settingsRoutes)
   }
 ];

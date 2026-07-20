@@ -1,0 +1,16 @@
+<div class="ticker" role="group" aria-label="Today's metal rates">
+  @for (pill of pills(); track pill.purityCode) {
+    <button type="button"
+            class="ticker__pill"
+            [class.is-locked]="pill.locked"
+            (click)="onPillClick()"
+            [attr.aria-label]="pill.purityLabel + ' rate ' + format(pill.ratePerGram) + ' per gram'"
+            title="Edit today's rates">
+      <span class="ticker__pill-label">{{ pill.purityLabel }}</span>
+      <span class="ticker__pill-value tabular-nums">
+        <span class="ticker__pill-inr">&#8377;</span>{{ format(pill.ratePerGram) }}<span class="ticker__pill-unit">/g</span>
+      </span>
+      <ng-icon [name]="pill.locked ? 'lucideLock' : 'lucideLockOpen'" size="12" aria-hidden="true"></ng-icon>
+    </button>
+  }
+</div>

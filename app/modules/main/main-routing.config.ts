@@ -43,5 +43,11 @@ export const mainRoutes: Routes = [
     component: MainComponent,
     loadChildren: ()=> import('../profile/profile-routing.config').then(m => m.profileRoutes),
     canActivate: [AuthGuard]
+  },
+  {
+    path:'settings',
+    component: MainComponent,
+    loadChildren: ()=> import('../settings/settings-routing.config').then(m => m.settingsRoutes),
+    canActivate: [AuthGuard]
   }
 ];

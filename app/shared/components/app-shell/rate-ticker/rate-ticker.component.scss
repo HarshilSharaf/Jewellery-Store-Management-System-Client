@@ -1,0 +1,76 @@
+:host {
+  display: inline-flex;
+}
+
+.ticker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-subtle);
+  border: 1px solid var(--color-border-subtle);
+}
+
+.ticker__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px 5px 12px;
+  border-radius: var(--radius-full);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--color-fg-muted);
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+
+  &:hover {
+    background: var(--color-panel);
+    color: var(--color-fg);
+    border-color: var(--color-border-subtle);
+  }
+
+  &.is-locked {
+    color: var(--color-fg);
+
+    ng-icon {
+      color: var(--color-accent-fg);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+}
+
+html[data-theme="dark"] .ticker__pill.is-locked ng-icon {
+  color: var(--color-accent);
+}
+
+.ticker__pill-label {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--color-fg-muted);
+  font-size: 10.5px;
+  text-transform: uppercase;
+}
+
+.ticker__pill-value {
+  color: inherit;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.ticker__pill-inr {
+  margin-right: 1px;
+  color: var(--color-fg-muted);
+}
+
+.ticker__pill-unit {
+  color: var(--color-fg-subtle);
+  font-size: 11px;
+  margin-left: 2px;
+}

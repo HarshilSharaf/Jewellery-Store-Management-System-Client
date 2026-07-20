@@ -1,0 +1,32 @@
+<div #root class="user-menu" [class.is-open]="open()">
+  <button type="button"
+          class="user-menu__trigger"
+          (click)="toggle($event)"
+          [attr.aria-expanded]="open()"
+          aria-haspopup="menu"
+          [attr.aria-label]="'User menu for ' + (displayName() || 'current user')">
+    @if (image()) {
+      <img [src]="image()" alt="" class="user-menu__avatar">
+    } @else {
+      <span class="user-menu__avatar user-menu__avatar--fallback">{{ initial }}</span>
+    }
+  </button>
+
+  @if (open()) {
+    <div class="user-menu__dropdown" role="menu">
+      <div class="user-menu__header">
+        <p class="user-menu__name">{{ displayName() || 'Signed in' }}</p>
+        <p class="user-menu__hint">Manage your account</p>
+      </div>
+      <button type="button" class="user-menu__item" (click)="goToProfile()" role="menuitem">
+        <ng-icon name="lucideUser" size="16" aria-hidden="true"></ng-icon>
+        <span>Profile</span>
+      </button>
+      <div class="user-menu__divider" aria-hidden="true"></div>
+      <button type="button" class="user-menu__item user-menu__item--danger" (click)="logout()" role="menuitem">
+        <ng-icon name="lucideLogOut" size="16" aria-hidden="true"></ng-icon>
+        <span>Sign out</span>
+      </button>
+    </div>
+  }
+</div>
