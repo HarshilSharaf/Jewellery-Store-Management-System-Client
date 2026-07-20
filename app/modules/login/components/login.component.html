@@ -1,67 +1,98 @@
-<div class="login-wrapper">
-  <div class="login-card animate__animated animate__fadeIn">
+<div class="login-page">
+  <button type="button"
+          class="theme-toggle"
+          (click)="toggleTheme()"
+          [attr.aria-label]="themeService.isDark() ? 'Switch to light theme' : 'Switch to dark theme'">
+    @if (themeService.isDark()) {
+      <i class="fa-solid fa-sun" aria-hidden="true"></i>
+    } @else {
+      <i class="fa-solid fa-moon" aria-hidden="true"></i>
+    }
+  </button>
 
-    <!-- Left: Brand Panel -->
-    <div class="brand-panel">
-      <div class="brand-content">
-        <img src="./assets/img/logo.png" alt="Logo" class="brand-logo">
-        <h1 class="brand-title">Jewellery Store</h1>
-        <p class="brand-subtitle">Management System</p>
+  <div class="login-shell">
+    <aside class="brand-side">
+      <div class="brand-mark">
+        <img src="./assets/img/logo.png" alt="" class="brand-logo">
+        <div class="brand-wordmark">
+          <span class="brand-primary">Jewellery Store</span>
+          <span class="brand-secondary">Management</span>
+        </div>
       </div>
-      <div class="brand-decoration">
-        <div class="decoration-circle circle-1"></div>
-        <div class="decoration-circle circle-2"></div>
-        <div class="decoration-circle circle-3"></div>
-      </div>
-    </div>
 
-    <!-- Right: Login Form -->
-    <div class="form-panel">
-      <div class="form-content">
-        <h2 class="form-title">Welcome Back</h2>
-        <p class="form-subtitle">Sign in to continue to your dashboard</p>
+      <div class="brand-hero">
+        <p class="hero-eyebrow">Modern POS for jewellers</p>
+        <h1 class="hero-title">
+          Bills that clear the counter <em>faster</em>.
+        </h1>
+        <p class="hero-body">
+          Warm, keyboard-first, offline-ready.
+          Built for shops that price by purity, not by department.
+        </p>
+      </div>
+
+      <div class="brand-foot">
+        <span class="dot" aria-hidden="true"></span>
+        <span>Local-first · No cloud lock-in</span>
+      </div>
+    </aside>
+
+    <section class="form-side" aria-labelledby="loginTitle">
+      <div class="form-shell">
+        <header class="form-head">
+          <h2 id="loginTitle" class="form-title">Sign in</h2>
+          <p class="form-sub">Use your shop account to continue.</p>
+        </header>
 
         @if (showError) {
-          <div class="error-banner animate__animated animate__shakeX">
-            <i class="fa-solid fa-circle-exclamation"></i>
-            <span>{{errorMessage}}</span>
+          <div class="notice notice-danger" role="alert">
+            <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+            <span>{{ errorMessage }}</span>
           </div>
         }
 
-        <form (ngSubmit)="login($event)">
-          <div class="form-field">
+        <form [formGroup]="form" (ngSubmit)="login($event)" novalidate>
+          <div class="field">
             <label for="username">Username</label>
-            <div class="input-wrapper">
-              <i class="fa-solid fa-user input-icon"></i>
-              <input type="text" id="username" name="username"
-                placeholder="Enter your username"
-                [(ngModel)]="credentials.username"
-                autocomplete="username">
+            <div class="control">
+              <input id="username"
+                     type="text"
+                     autocomplete="username"
+                     placeholder="e.g. shop.admin"
+                     formControlName="username"
+                     [class.is-invalid]="form.controls.username.invalid && form.controls.username.touched">
             </div>
           </div>
 
-          <div class="form-field">
-            <label for="password">Password</label>
-            <div class="input-wrapper">
-              <i class="fa-solid fa-lock input-icon"></i>
-              <input type="password" id="password" name="password"
-                placeholder="Enter your password"
-                [(ngModel)]="credentials.password"
-                autocomplete="current-password">
+          <div class="field">
+            <div class="field-head">
+              <label for="password">Password</label>
+              <a href="#" class="link-muted" (click)="$event.preventDefault()">Forgot?</a>
+            </div>
+            <div class="control">
+              <input id="password"
+                     type="password"
+                     autocomplete="current-password"
+                     placeholder="Enter your password"
+                     formControlName="password"
+                     [class.is-invalid]="form.controls.password.invalid && form.controls.password.touched">
             </div>
           </div>
 
-          <div class="form-actions">
-            <a href="" class="forgot-link">Forgot Password?</a>
-          </div>
-
-          <button type="submit" class="login-btn">
-            <span>Sign In</span>
-            <i class="fa-solid fa-arrow-right"></i>
+          <button type="submit" class="btn-accent" [disabled]="submitting">
+            @if (submitting) {
+              <span>Signing in...</span>
+            } @else {
+              <span>Sign in</span>
+              <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+            }
           </button>
         </form>
-      </div>
-    </div>
 
+        <p class="form-legal">
+          <span>You are signed in only on this device.</span>
+        </p>
+      </div>
+    </section>
   </div>
 </div>
