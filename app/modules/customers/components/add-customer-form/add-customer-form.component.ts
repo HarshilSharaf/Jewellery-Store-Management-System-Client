@@ -1,7 +1,8 @@
-import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, Output, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { MatDialogModule } from '@angular/material/dialog';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideX, lucideLoader } from '@ng-icons/lucide';
 import { HttpResponse } from '../../../../models/http-response';
 import { FileSystemService } from '../../../../../../Backend/Shared/file-system.service';
 import { CustomerDetails } from '../../models/customerDetails';
@@ -14,13 +15,17 @@ import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
   templateUrl: './add-customer-form.component.html',
   styleUrls: ['./add-customer-form.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MatDialogModule, ImageUploadComponent]
+  imports: [CommonModule, ReactiveFormsModule, ImageUploadComponent, NgIcon],
+  viewProviders: [provideIcons({ lucideX, lucideLoader })],
 })
 export class AddCustomerFormComponent {
 
   public isLoading: boolean = false;
   public addCustomerResponse: HttpResponse = { status: 0, message: '' }
 
+  @Input() open = false;
+
+  @Output() closed = new EventEmitter<void>();
   @Output() refreshDataSource = new EventEmitter<boolean>();
   @ViewChild(ImageUploadComponent, { static: false }) customerPhotoComponent!: ImageUploadComponent;
 
@@ -52,18 +57,35 @@ export class AddCustomerFormComponent {
   showAdditional = false;
   toggleAdditional() { this.showAdditional = !this.showAdditional; }
 
+  @HostListener('document:keydown.escape')
+  onEscape() {
+    if (this.open && !this.isLoading) {
+      this.requestClose();
+    }
+  }
+
+  requestClose() {
+    this.closed.emit();
+  }
+
+  onOverlayClick(event: MouseEvent) {
+    if ((event.target as HTMLElement)?.classList.contains('modal-overlay')) {
+      this.requestClose();
+    }
+  }
+
   async submitForm() {
     this.loggerService.LogInfo("addCustomer() Request Started.")
 
     const addCustomerFormData:CustomerDetails =  {...this.customerDetailsForm.value}
 
-    addCustomerFormData.imagePath = this.customerPhotoComponent.customerPhoto?.name ?? null
+    addCustomerFormData.imagePath = this.customerPhotoComponent?.customerPhoto?.name ?? null
 
     this.isLoading = true;
 
     try {
       const data: CustomerDetails[] = await this.customerService.addCustomer(addCustomerFormData);
-      if (data[0].imagePath != null && this.customerPhotoComponent.customerPhoto != null) {
+      if (data[0].imagePath != null && this.customerPhotoComponent?.customerPhoto != null) {
         try {
           await this.fileSystemService.saveCustomerImage(this.customerPhotoComponent.customerPhoto, data[0].imagePath)
         } catch (error) {
@@ -84,11 +106,17 @@ export class AddCustomerFormComponent {
   }
 
   clearForm() {
-    this.customerPhotoComponent.customerPhoto = null
-    this.customerPhotoComponent.imageSrc = ''
-    this.customerPhotoComponent.imageLoaded = false
+    if (this.customerPhotoComponent) {
+      this.customerPhotoComponent.customerPhoto = null
+      this.customerPhotoComponent.imageSrc = ''
+      this.customerPhotoComponent.imageLoaded = false
+    }
     this.isLoading = false
     this.addCustomerResponse = { status: 0, message: '' }
+    this.customerDetailsForm.reset({
+      dateOfBirth: this.formatDate(new Date()),
+      gender: 'female',
+    });
   }
 
   private formatDate(date: Date) {

@@ -1,8 +1,8 @@
 import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
-import { take } from 'rxjs';
 
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucidePlus } from '@ng-icons/lucide';
 import { ColumnSchema } from '../../../../shared/models/columnsSchema';
 import { CustomerDetails } from '../../models/customerDetails';
 import { CustomerDataService } from '../../services/customer-data.service';
@@ -18,7 +18,8 @@ import { PageHeaderComponent } from '../../../../shared/components/page-header/p
   templateUrl: './customers-page.component.html',
   styleUrls: ['./customers-page.component.scss'],
   standalone: true,
-  imports: [MatDialogModule, DataTableComponent, AddCustomerFormComponent, PageHeaderComponent]
+  imports: [DataTableComponent, AddCustomerFormComponent, PageHeaderComponent, NgIcon],
+  viewProviders: [provideIcons({ lucidePlus })],
 })
 export class CustomersPageComponent implements OnInit, AfterViewInit, OnDestroy {
 
@@ -75,7 +76,6 @@ export class CustomersPageComponent implements OnInit, AfterViewInit, OnDestroy 
 
   constructor(
     private customerService: CustomerDataService,
-    private dialog: MatDialog,
     private cdref: ChangeDetectorRef,
     private router: Router,
     private route: ActivatedRoute,
@@ -91,18 +91,12 @@ export class CustomersPageComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   openAddCustomerDialog(): void {
-    const dialogRef = this.dialog.open(AddCustomerFormComponent, {
-      width: '560px',
-      maxWidth: '95vw',
-      panelClass: 'add-customer-dialog',
-      autoFocus: 'first-tabbable',
-    });
+    this.showAddCustomerForm = true;
+  }
 
-    // afterClosed() completes when the dialog closes; take(1) makes intent
-    // explicit and guards against future stream extensions leaking a sub.
-    dialogRef.afterClosed().pipe(take(1)).subscribe(() => {
-      this.getAllCustomersData();
-    });
+  onAddCustomerClosed(): void {
+    this.showAddCustomerForm = false;
+    this.getAllCustomersData();
   }
 
   async getAllCustomersData(itemsPerPage = this.itemsPerPage, pageNumber = 1,  searchQuery:string = '') {
@@ -110,9 +104,9 @@ export class CustomersPageComponent implements OnInit, AfterViewInit, OnDestroy 
       this.loggerService.LogInfo("getAllCustomersData() Request Started From customers-page component.")
       this.loaderService.start()
       this.isLoading = true;
-      
+
       const response:any = await this.customerService.getAllCustomers(false, itemsPerPage, pageNumber, searchQuery);
-      
+
       this.totalRecords = response[0].totalRecords
       const responseData:CustomerDetails[] = response.slice(1)
       responseData.forEach((element) => {
@@ -137,19 +131,19 @@ export class CustomersPageComponent implements OnInit, AfterViewInit, OnDestroy 
 
   handleSearchQuery(searchQuery: string) {
     this.currentSearchQuery = searchQuery
-    
+
     // Debounce search requests
     if (this.debounceTimer) {
       clearTimeout(this.debounceTimer);
     }
-    
+
     this.debounceTimer = setTimeout(() => {
       this.getAllCustomersData(this.itemsPerPage, 1, this.currentSearchQuery)
     }, 300);
   }
 
   goToViewDetails(customerData: CustomerDetails) {
-    this.router.navigate([`view-customer-details/${customerData.customerGuid}`] ,{relativeTo:this.route}); 
+    this.router.navigate([`view-customer-details/${customerData.customerGuid}`] ,{relativeTo:this.route});
   }
 
   async openDeletePopUpForItem(customerData: CustomerDetails) {

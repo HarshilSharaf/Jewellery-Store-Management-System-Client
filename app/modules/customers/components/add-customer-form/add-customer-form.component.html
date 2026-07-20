@@ -1,197 +1,207 @@
-<h2 mat-dialog-title class="dialog-title">
-  Add Customer
-  <button type="button" class="dialog-close" mat-dialog-close aria-label="Close">
-    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-  </button>
-</h2>
+@if (open) {
+  <div class="modal-overlay" (click)="onOverlayClick($event)" role="presentation">
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="add-customer-title">
+      <header class="modal-header">
+        <h2 class="modal-title" id="add-customer-title">Add Customer</h2>
+        <button type="button" class="modal-close" (click)="requestClose()" aria-label="Close" [disabled]="isLoading">
+          <ng-icon name="lucideX" aria-hidden="true"></ng-icon>
+        </button>
+      </header>
 
-<mat-dialog-content class="dialog-content">
-  <form [formGroup]="customerDetailsForm"
-        class="customer-form"
-        (ngSubmit)="submitForm()"
-        novalidate>
+      <div class="modal-content">
+        <form [formGroup]="customerDetailsForm"
+              class="customer-form"
+              (ngSubmit)="submitForm()"
+              novalidate>
 
-    <div class="form-row form-row--photo">
-      <label class="form-row__label">Customer Photo</label>
-      <div class="form-row__control">
-        <app-image-upload [activeColor]="'#7C8CF8'" [baseColor]="'#E8EAF0'"></app-image-upload>
+          <div class="form-row form-row--photo">
+            <label class="form-row__label">Customer Photo</label>
+            <div class="form-row__control">
+              <app-image-upload [activeColor]="'var(--color-accent)'" [baseColor]="'var(--color-border)'"></app-image-upload>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label class="form-row__label mandatory" for="firstName">First Name</label>
+            <div class="form-row__control">
+              <input type="text"
+                     class="hlm-input"
+                     [class.is-invalid]="customerDetailsForm.get('firstName')?.touched && customerDetailsForm.get('firstName')?.errors?.['required']"
+                     name="firstName"
+                     id="firstName"
+                     formControlName="firstName"
+                     placeholder="Enter first name">
+              @if (customerDetailsForm.get('firstName')?.touched && customerDetailsForm.get('firstName')?.errors?.['required']) {
+                <small class="field-error">First name is required</small>
+              }
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label class="form-row__label mandatory" for="lastName">Last Name</label>
+            <div class="form-row__control">
+              <input type="text"
+                     class="hlm-input"
+                     [class.is-invalid]="customerDetailsForm.get('lastName')?.touched && customerDetailsForm.get('lastName')?.errors?.['required']"
+                     name="lastName"
+                     id="lastName"
+                     formControlName="lastName"
+                     placeholder="Enter last name">
+              @if (customerDetailsForm.get('lastName')?.touched && customerDetailsForm.get('lastName')?.errors?.['required']) {
+                <small class="field-error">Last name is required</small>
+              }
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label class="form-row__label" for="dob">Date Of Birth</label>
+            <div class="form-row__control">
+              <input type="date"
+                     class="hlm-input"
+                     name="dateOfBirth"
+                     id="dob"
+                     formControlName="dateOfBirth">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label class="form-row__label mandatory">Gender</label>
+            <div class="form-row__control form-row__control--inline">
+              <label class="radio-option">
+                <input type="radio" name="gender" formControlName="gender" value="male" id="male-radio">
+                <span>Male</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="gender" formControlName="gender" value="female" id="female-radio">
+                <span>Female</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-row form-row--stacked">
+            <label class="form-row__label" for="address">Address</label>
+            <div class="form-row__control">
+              <textarea class="hlm-input"
+                        name="address"
+                        id="address"
+                        formControlName="address"
+                        placeholder="Enter address"
+                        rows="3"></textarea>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label class="form-row__label mandatory" for="city">City</label>
+            <div class="form-row__control">
+              <input type="text"
+                     name="city"
+                     class="hlm-input"
+                     [class.is-invalid]="customerDetailsForm.get('city')?.touched && customerDetailsForm.get('city')?.errors?.['required']"
+                     id="city"
+                     formControlName="city"
+                     placeholder="Enter city">
+              @if (customerDetailsForm.get('city')?.touched && customerDetailsForm.get('city')?.errors?.['required']) {
+                <small class="field-error">City cannot be empty</small>
+              }
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label class="form-row__label" for="email">Email</label>
+            <div class="form-row__control">
+              <input type="email"
+                     name="email"
+                     class="hlm-input"
+                     id="email"
+                     formControlName="email"
+                     placeholder="Enter email">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label class="form-row__label mandatory" for="phoneNumber">Phone</label>
+            <div class="form-row__control">
+              <input type="tel"
+                     name="phoneNumber"
+                     class="hlm-input"
+                     [class.is-invalid]="customerDetailsForm.get('phoneNumber')?.touched && customerDetailsForm.get('phoneNumber')?.errors?.['required']"
+                     id="phoneNumber"
+                     formControlName="phoneNumber"
+                     placeholder="Enter phone number">
+              @if (customerDetailsForm.get('phoneNumber')?.touched && customerDetailsForm.get('phoneNumber')?.errors?.['required']) {
+                <small class="field-error">Phone number is required</small>
+              }
+            </div>
+          </div>
+
+          <div class="form-row form-row--stacked">
+            <button type="button" class="hlm-btn hlm-btn-ghost extras-toggle" (click)="toggleAdditional()">
+              {{ showAdditional ? 'Hide' : 'Add' }} additional details (GSTIN, PAN, remarks)
+            </button>
+          </div>
+
+          @if (showAdditional) {
+            <div class="form-row">
+              <label class="form-row__label" for="state">State</label>
+              <div class="form-row__control">
+                <input type="text" class="hlm-input" id="state" formControlName="state" placeholder="e.g. Maharashtra">
+              </div>
+            </div>
+            <div class="form-row">
+              <label class="form-row__label" for="stateCode">State Code</label>
+              <div class="form-row__control">
+                <input type="text" class="hlm-input" id="stateCode" formControlName="stateCode" maxlength="2" placeholder="e.g. 27">
+              </div>
+            </div>
+            <div class="form-row">
+              <label class="form-row__label" for="gstin">GSTIN</label>
+              <div class="form-row__control">
+                <input type="text" class="hlm-input" id="gstin" formControlName="gstin" maxlength="15" placeholder="15-char GSTIN">
+              </div>
+            </div>
+            <div class="form-row">
+              <label class="form-row__label" for="pan">PAN</label>
+              <div class="form-row__control">
+                <input type="text" class="hlm-input" id="pan" formControlName="pan" maxlength="10" placeholder="10-char PAN">
+              </div>
+            </div>
+            <div class="form-row form-row--stacked">
+              <label class="form-row__label" for="remarks">Remarks</label>
+              <div class="form-row__control">
+                <textarea class="hlm-input" id="remarks" formControlName="remarks" rows="2" placeholder="Internal notes"></textarea>
+              </div>
+            </div>
+          }
+
+          @if (addCustomerResponse.status !== 0 || addCustomerResponse.message !== '') {
+            <div class="form-response"
+                 [class.form-response--success]="addCustomerResponse.status === 200"
+                 [class.form-response--error]="addCustomerResponse.status !== 200 && addCustomerResponse.status !== 0">
+              {{ addCustomerResponse.message }}
+            </div>
+          }
+        </form>
       </div>
+
+      <footer class="modal-actions">
+        <button type="button"
+                class="hlm-btn hlm-btn-ghost"
+                (click)="clearForm()"
+                [disabled]="isLoading">
+          Clear
+        </button>
+        <button type="button"
+                class="hlm-btn hlm-btn-primary"
+                (click)="submitForm()"
+                [disabled]="!customerDetailsForm.valid || isLoading">
+          @if (isLoading) {
+            <ng-icon name="lucideLoader" class="animate-spin" aria-hidden="true"></ng-icon>
+            Saving...
+          } @else {
+            Save Customer
+          }
+        </button>
+      </footer>
     </div>
-
-    <div class="form-row">
-      <label class="form-row__label mandatory" for="firstName">First Name</label>
-      <div class="form-row__control">
-        <input type="text"
-               class="form-control"
-               name="firstName"
-               id="firstName"
-               formControlName="firstName"
-               placeholder="Enter first name">
-        @if (customerDetailsForm.get('firstName')?.touched && customerDetailsForm.get('firstName')?.errors?.['required']) {
-          <small class="field-error">First name is required</small>
-        }
-      </div>
-    </div>
-
-    <div class="form-row">
-      <label class="form-row__label mandatory" for="lastName">Last Name</label>
-      <div class="form-row__control">
-        <input type="text"
-               class="form-control"
-               name="lastName"
-               id="lastName"
-               formControlName="lastName"
-               placeholder="Enter last name">
-        @if (customerDetailsForm.get('lastName')?.touched && customerDetailsForm.get('lastName')?.errors?.['required']) {
-          <small class="field-error">Last name is required</small>
-        }
-      </div>
-    </div>
-
-    <div class="form-row">
-      <label class="form-row__label" for="dob">Date Of Birth</label>
-      <div class="form-row__control">
-        <input type="date"
-               class="form-control"
-               name="dateOfBirth"
-               id="dob"
-               formControlName="dateOfBirth">
-      </div>
-    </div>
-
-    <div class="form-row">
-      <label class="form-row__label mandatory">Gender</label>
-      <div class="form-row__control form-row__control--inline">
-        <label class="radio-option">
-          <input type="radio" name="gender" formControlName="gender" value="male" id="male-radio">
-          <span>Male</span>
-        </label>
-        <label class="radio-option">
-          <input type="radio" name="gender" formControlName="gender" value="female" id="female-radio">
-          <span>Female</span>
-        </label>
-      </div>
-    </div>
-
-    <div class="form-row form-row--stacked">
-      <label class="form-row__label" for="address">Address</label>
-      <div class="form-row__control">
-        <textarea class="form-control"
-                  name="address"
-                  id="address"
-                  formControlName="address"
-                  placeholder="Enter address"
-                  rows="3"></textarea>
-      </div>
-    </div>
-
-    <div class="form-row">
-      <label class="form-row__label mandatory" for="city">City</label>
-      <div class="form-row__control">
-        <input type="text"
-               name="city"
-               class="form-control"
-               id="city"
-               formControlName="city"
-               placeholder="Enter city">
-        @if (customerDetailsForm.get('city')?.touched && customerDetailsForm.get('city')?.errors?.['required']) {
-          <small class="field-error">City cannot be empty</small>
-        }
-      </div>
-    </div>
-
-    <div class="form-row">
-      <label class="form-row__label" for="email">Email</label>
-      <div class="form-row__control">
-        <input type="email"
-               name="email"
-               class="form-control"
-               id="email"
-               formControlName="email"
-               placeholder="Enter email">
-      </div>
-    </div>
-
-    <div class="form-row">
-      <label class="form-row__label mandatory" for="phoneNumber">Phone</label>
-      <div class="form-row__control">
-        <input type="tel"
-               name="phoneNumber"
-               class="form-control"
-               id="phoneNumber"
-               formControlName="phoneNumber"
-               placeholder="Enter phone number">
-        @if (customerDetailsForm.get('phoneNumber')?.touched && customerDetailsForm.get('phoneNumber')?.errors?.['required']) {
-          <small class="field-error">Phone number is required</small>
-        }
-      </div>
-    </div>
-
-    <div class="form-row form-row--stacked">
-      <button type="button" class="btn btn-outline-secondary btn-sm" (click)="toggleAdditional()">
-        {{ showAdditional ? 'Hide' : 'Add' }} additional details (GSTIN, PAN, remarks)
-      </button>
-    </div>
-
-    @if (showAdditional) {
-      <div class="form-row">
-        <label class="form-row__label" for="state">State</label>
-        <div class="form-row__control">
-          <input type="text" class="form-control" id="state" formControlName="state" placeholder="e.g. Maharashtra">
-        </div>
-      </div>
-      <div class="form-row">
-        <label class="form-row__label" for="stateCode">State Code</label>
-        <div class="form-row__control">
-          <input type="text" class="form-control" id="stateCode" formControlName="stateCode" maxlength="2" placeholder="e.g. 27">
-        </div>
-      </div>
-      <div class="form-row">
-        <label class="form-row__label" for="gstin">GSTIN</label>
-        <div class="form-row__control">
-          <input type="text" class="form-control" id="gstin" formControlName="gstin" maxlength="15" placeholder="15-char GSTIN">
-        </div>
-      </div>
-      <div class="form-row">
-        <label class="form-row__label" for="pan">PAN</label>
-        <div class="form-row__control">
-          <input type="text" class="form-control" id="pan" formControlName="pan" maxlength="10" placeholder="10-char PAN">
-        </div>
-      </div>
-      <div class="form-row form-row--stacked">
-        <label class="form-row__label" for="remarks">Remarks</label>
-        <div class="form-row__control">
-          <textarea class="form-control" id="remarks" formControlName="remarks" rows="2" placeholder="Internal notes"></textarea>
-        </div>
-      </div>
-    }
-
-    @if (addCustomerResponse.status !== 0 || addCustomerResponse.message !== '') {
-      <div class="form-response"
-           [class.form-response--success]="addCustomerResponse.status === 200"
-           [class.form-response--error]="addCustomerResponse.status !== 200 && addCustomerResponse.status !== 0">
-        {{ addCustomerResponse.message }}
-      </div>
-    }
-  </form>
-</mat-dialog-content>
-
-<mat-dialog-actions class="dialog-actions" align="end">
-  <button type="button"
-          class="btn btn-outline-secondary"
-          (click)="clearForm()"
-          [disabled]="isLoading">
-    Clear
-  </button>
-  <button type="button"
-          class="btn btn-primary"
-          (click)="submitForm()"
-          [disabled]="!customerDetailsForm.valid || isLoading">
-    @if (isLoading) {
-      <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>
-      Saving...
-    } @else {
-      Save Customer
-    }
-  </button>
-</mat-dialog-actions>
+  </div>
+}

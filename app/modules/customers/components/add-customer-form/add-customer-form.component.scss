@@ -1,32 +1,50 @@
-$primary: #7C8CF8;
-$primary-tint: rgba(124, 140, 248, 0.1);
-$text-primary: #2D3142;
-$text-secondary: #6B7194;
-$border-color: #E8EAF0;
-$danger: #E44D65;
-$success: #4CAF50;
-
 // -------------------------------------------------------------------------
-// Dialog chrome
+// Hand-rolled modal shell (Workstream F). Replaces MatDialog.
 // -------------------------------------------------------------------------
-:host ::ng-deep .mat-mdc-dialog-surface {
-  border-radius: 16px !important;
-  overflow: hidden;
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 3rem 1rem 2rem;
+  overflow-y: auto;
+  animation: fade-in 120ms ease-out;
 }
 
-.dialog-title {
+.modal-panel {
+  background: var(--color-panel);
+  color: var(--color-fg);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  width: 100%;
+  max-width: 560px;
+  max-height: calc(100vh - 4rem);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: rise-in 140ms ease-out;
+}
+
+.modal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 1rem 1.25rem;
-  margin: 0;
-  border-bottom: 1px solid $border-color;
-  font-size: var(--fs-lg);
-  font-weight: var(--fw-semibold);
-  color: $text-primary;
+  border-bottom: 1px solid var(--color-border-subtle);
 }
 
-.dialog-close {
+.modal-title {
+  margin: 0;
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-semibold);
+  color: var(--color-fg);
+}
+
+.modal-close {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -36,34 +54,36 @@ $success: #4CAF50;
   border: 0;
   border-radius: 50%;
   background: transparent;
-  color: $text-secondary;
+  color: var(--color-fg-muted);
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease;
+  font-size: 18px;
 
   &:hover,
   &:focus-visible {
-    background: $primary-tint;
-    color: $primary;
+    background: var(--color-bg-subtle);
+    color: var(--color-fg);
     outline: none;
   }
 }
 
-.dialog-content {
-  max-height: 65vh;
-  padding: 1.25rem !important;
-  overflow-x: hidden;
+.modal-content {
+  padding: 1.25rem;
   overflow-y: auto;
+  flex: 1 1 auto;
 }
 
-.dialog-actions {
-  padding: 0.85rem 1.25rem !important;
-  border-top: 1px solid $border-color;
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0.85rem 1.25rem;
+  border-top: 1px solid var(--color-border-subtle);
   gap: 0.5rem;
+  background: var(--color-panel);
 }
 
 // -------------------------------------------------------------------------
-// Form rows: 2-column label/control grid on wider viewports, stacked
-// under 480px. Consistent vertical rhythm.
+// Form rows
 // -------------------------------------------------------------------------
 .customer-form {
   display: flex;
@@ -80,7 +100,7 @@ $success: #4CAF50;
   &__label {
     font-size: var(--fs-base);
     font-weight: var(--fw-semibold);
-    color: $text-primary;
+    color: var(--color-fg);
     margin: 0;
   }
 
@@ -114,54 +134,81 @@ $success: #4CAF50;
   }
 }
 
-.mandatory {
-  color: $danger;
-  margin-left: 2px;
+.mandatory::after {
+  content: '*';
+  color: var(--color-danger);
+  margin-left: 3px;
 }
 
 .field-error {
-  color: $danger;
+  color: var(--color-danger-fg);
   font-size: var(--fs-xs);
   font-weight: var(--fw-medium);
 }
 
-// -------------------------------------------------------------------------
-// Inline radio group
-// -------------------------------------------------------------------------
 .radio-option {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
   font-size: var(--fs-base);
-  color: $text-primary;
+  color: var(--color-fg);
   cursor: pointer;
   user-select: none;
   margin: 0;
 
   input[type="radio"] {
-    accent-color: $primary;
+    accent-color: var(--color-accent);
   }
 }
 
-// -------------------------------------------------------------------------
-// Response strip (success/error after submit)
-// -------------------------------------------------------------------------
 .form-response {
   padding: 0.6rem 0.85rem;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   font-size: var(--fs-sm);
   font-weight: var(--fw-medium);
   text-align: center;
 
   &--success {
-    color: darken($success, 15%);
-    background: rgba($success, 0.1);
-    border: 1px solid rgba($success, 0.25);
+    color: var(--color-success-fg);
+    background: var(--color-success-subtle);
+    border: 1px solid color-mix(in oklab, var(--color-success) 25%, transparent);
   }
 
   &--error {
-    color: darken($danger, 10%);
-    background: rgba($danger, 0.1);
-    border: 1px solid rgba($danger, 0.25);
+    color: var(--color-danger-fg);
+    background: var(--color-danger-subtle);
+    border: 1px solid color-mix(in oklab, var(--color-danger) 25%, transparent);
   }
+}
+
+.extras-toggle {
+  align-self: flex-start;
+  padding: 0.4rem 0.75rem;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+
+  &:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent-fg);
+  }
+}
+
+.animate-spin {
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.985); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }

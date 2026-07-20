@@ -1,10 +1,15 @@
-.btn-success {
-  i {
-    font-weight: bold;
-  }
+.customers-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0 0.5rem 1rem;
 
-  span {
-    margin-left: 2px;
-    font-weight: 500;
+  .hlm-btn ng-icon {
+    display: inline-flex;
+    align-items: center;
+    font-size: 16px;
   }
+}
+
+.customers-table-wrap {
+  display: block;
 }
