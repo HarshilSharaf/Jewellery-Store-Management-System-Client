@@ -160,7 +160,7 @@
            (keyup.enter)="goToJob(j)">
         <span class="col-job tabular-nums">{{ jobShort(j.jobGuid) }}</span>
         <span class="col-karigar">{{ j.karigarName }}</span>
-        <span class="col-date">{{ j.issueDate | date: 'd MMM yyyy' }}</span>
+        <span class="col-date tabular-nums">{{ j.issueDate | date: 'd MMM yyyy' }}</span>
         <span class="col-weight tabular-nums money">{{ j.issuedGrossWeight }}</span>
         <span class="col-status">
           <span [class]="statusClass(j.status)">{{ j.status }}</span>
@@ -170,7 +170,7 @@
             {{ daysSince(j.issueDate) }}
           } @else { — }
         </span>
-        <span class="col-return">{{ j.expectedReturnDate ? (j.expectedReturnDate | date: 'd MMM yyyy') : '—' }}</span>
+        <span class="col-return tabular-nums">{{ j.expectedReturnDate ? (j.expectedReturnDate | date: 'd MMM yyyy') : '—' }}</span>
       </div>
     }
 

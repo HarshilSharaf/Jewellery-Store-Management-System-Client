@@ -315,6 +315,7 @@ html[data-theme="dark"] .thumb {
   align-items: center;
   gap: 4px;
   color: var(--color-fg-muted);
+  font-variant-numeric: tabular-nums;
 }
 
 // ---------------- Empty state ----------------

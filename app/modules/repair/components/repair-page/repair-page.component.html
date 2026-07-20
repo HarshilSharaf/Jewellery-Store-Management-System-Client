@@ -71,12 +71,12 @@
         <span class="avatar avatar--sm">{{ initialsFor(t.customerName) }}</span>
         <span class="repair-row__cust-name">{{ t.customerName || '—' }}</span>
       </span>
-      <span class="col-date">{{ t.receivedAt | date: 'd MMM yyyy' }}</span>
+      <span class="col-date tabular-nums">{{ t.receivedAt | date: 'd MMM yyyy' }}</span>
       <span class="col-days tabular-nums">{{ daysOpen(t) }}</span>
       <span class="col-status">
         <span [class]="statusClass(t.status)">{{ statusLabel(t.status) }}</span>
       </span>
-      <span class="col-return">{{ t.estimatedReturnDate ? (t.estimatedReturnDate | date: 'd MMM yyyy') : '—' }}</span>
+      <span class="col-return tabular-nums">{{ t.estimatedReturnDate ? (t.estimatedReturnDate | date: 'd MMM yyyy') : '—' }}</span>
       <span class="col-actions">
         <button type="button" class="icon-btn" (click)="goToTicket(t); $event.stopPropagation()" title="View" aria-label="View ticket">
           <ng-icon name="lucideEye" size="14" aria-hidden="true"></ng-icon>
