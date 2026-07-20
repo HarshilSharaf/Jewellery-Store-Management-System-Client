@@ -278,6 +278,84 @@
 
       <section class="detail-section">
         <div class="section-head">
+          <p class="detail-section__title" style="margin-bottom: 0;">Repair tickets</p>
+          @if (repairTickets.length > 0) {
+            <span class="section-head__count tabular-nums">{{ repairTickets.length }} on file</span>
+          }
+        </div>
+        @if (isLoadingRepair && repairTickets.length === 0) {
+          <div class="orders-empty">
+            <ng-icon name="lucideLoader" class="animate-spin" size="20" aria-hidden="true"></ng-icon>
+            <span>Loading repair tickets…</span>
+          </div>
+        } @else if (repairTickets.length === 0) {
+          <p class="orders-empty__sub" style="text-align:center; margin: 12px 0 0;">
+            No repair tickets for this customer.
+          </p>
+        } @else {
+          <div class="repair-history">
+            @for (t of repairTickets; track t.ticketGuid) {
+              <div class="repair-history__row" role="button" tabindex="0"
+                   (click)="goToRepair(t)"
+                   (keyup.enter)="goToRepair(t)">
+                <div class="repair-history__label">
+                  <span class="repair-history__ticket tabular-nums">
+                    <ng-icon name="lucideWrench" size="12" aria-hidden="true"></ng-icon>
+                    {{ t.ticketNumber }}
+                  </span>
+                  <span class="repair-history__sub">{{ truncateDesc(t.itemDescription) }}</span>
+                </div>
+                <span [class]="repairStatusClass(t.status)">{{ t.status }}</span>
+                <span class="repair-history__sub tabular-nums">{{ formatDateShort(t.receivedAt) }}</span>
+                <ng-icon name="lucideExternalLink" size="14" aria-hidden="true" class="order-list__arrow"></ng-icon>
+              </div>
+            }
+          </div>
+        }
+      </section>
+
+      <section class="detail-section">
+        <div class="section-head">
+          <p class="detail-section__title" style="margin-bottom: 0;">WhatsApp history</p>
+          @if (whatsappHistory.length > 0) {
+            <span class="section-head__count tabular-nums">{{ whatsappHistory.length }} send{{ whatsappHistory.length === 1 ? '' : 's' }}</span>
+          }
+        </div>
+        @if (whatsappHistory.length === 0) {
+          <p class="orders-empty__sub" style="text-align:center; margin: 12px 0 0;">
+            No WhatsApp messages sent to this customer yet.
+          </p>
+        } @else {
+          <div class="whatsapp-history">
+            @for (row of whatsappHistory; track row.sendGuid) {
+              <div class="whatsapp-history__row"
+                   [class.is-clickable]="!!row.invoiceGuid"
+                   [attr.role]="row.invoiceGuid ? 'button' : null"
+                   [attr.tabindex]="row.invoiceGuid ? 0 : null"
+                   (click)="goToWhatsappInvoice(row)"
+                   (keyup.enter)="goToWhatsappInvoice(row)">
+                <div class="whatsapp-history__label">
+                  <span class="whatsapp-history__template">
+                    <ng-icon name="lucideMessageCircle" size="12" aria-hidden="true"></ng-icon>
+                    {{ row.templateName }}
+                  </span>
+                  <span class="whatsapp-history__sub tabular-nums">{{ row.phoneNumber }}</span>
+                </div>
+                <span [class]="whatsappStatusClass(row.status)">{{ row.status }}</span>
+                <span class="whatsapp-history__sub tabular-nums">{{ formatDateShort(row.sentAt ?? row.queuedAt) }}</span>
+                @if (row.invoiceGuid) {
+                  <ng-icon name="lucideExternalLink" size="14" aria-hidden="true" class="order-list__arrow"></ng-icon>
+                } @else {
+                  <span></span>
+                }
+              </div>
+            }
+          </div>
+        }
+      </section>
+
+      <section class="detail-section">
+        <div class="section-head">
           <p class="detail-section__title" style="margin-bottom: 0;">Old-gold history</p>
           @if (oldGoldReceipts.length > 0) {
             <span class="section-head__count tabular-nums">{{ oldGoldReceipts.length }} receipt{{ oldGoldReceipts.length === 1 ? '' : 's' }}</span>

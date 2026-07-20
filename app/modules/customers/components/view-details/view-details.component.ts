@@ -23,6 +23,10 @@ import { SavingScheme } from '../../../../interfaces/SavingSchemes/saving-scheme
 import { OldGoldService } from '../../../../shared/services/OldGold/old-gold.service';
 import { OldGoldReceipt } from '../../../../interfaces/OldGold/old-gold';
 import { PermissionsService } from '../../../../shared/services/Auth/permissions.service';
+import { RepairService } from '../../../../shared/services/Repair/repair.service';
+import { RepairTicket } from '../../../../interfaces/Repair/repair';
+import { WhatsAppService } from '../../../../shared/services/WhatsApp/whatsapp.service';
+import { WhatsappSendLogRow } from '../../../../interfaces/WhatsApp/whatsapp';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideArrowLeft,
@@ -41,6 +45,8 @@ import {
   lucideExternalLink,
   lucidePiggyBank,
   lucideCoins,
+  lucideWrench,
+  lucideMessageCircle,
 } from '@ng-icons/lucide';
 
 @Component({
@@ -67,6 +73,8 @@ import {
       lucideExternalLink,
       lucidePiggyBank,
       lucideCoins,
+      lucideWrench,
+      lucideMessageCircle,
     }),
   ],
   providers: [DecimalPipe],
@@ -98,6 +106,9 @@ export class ViewDetailsComponent implements OnInit, OnDestroy {
   customerSchemes: SavingScheme[] = [];
   oldGoldReceipts: OldGoldReceipt[] = [];
   isLoadingOldGold = false;
+  repairTickets: RepairTicket[] = [];
+  isLoadingRepair = false;
+  whatsappHistory: WhatsappSendLogRow[] = [];
 
   protected readonly states = INDIAN_STATES;
   protected readonly gstinPattern = GSTIN_REGEX;
@@ -116,6 +127,8 @@ export class ViewDetailsComponent implements OnInit, OnDestroy {
     private utilityService: UtilityService,
     private savingSchemesService: SavingSchemesService,
     private oldGoldService: OldGoldService,
+    private repairService: RepairService,
+    private whatsappService: WhatsAppService,
   ) {}
 
   ngOnInit(): void {
@@ -128,7 +141,55 @@ export class ViewDetailsComponent implements OnInit, OnDestroy {
       this.getTotalAmountOfProductsBoughtForCustomer();
       this.getCustomerSchemes();
       this.getCustomerOldGoldReceipts();
+      this.getCustomerRepairTickets();
+      this.getCustomerWhatsappHistory();
     });
+  }
+
+  async getCustomerRepairTickets(): Promise<void> {
+    if (!this.customerGuid) return;
+    this.isLoadingRepair = true;
+    try {
+      const list = await this.repairService.getByCustomer(this.customerGuid);
+      this.repairTickets = Array.isArray(list) ? list.filter((r: any) => r?.ticketGuid) : [];
+    } catch (error) {
+      this.loggerService.LogError(error, 'getCustomerRepairTickets()');
+    } finally {
+      this.isLoadingRepair = false;
+    }
+  }
+
+  async getCustomerWhatsappHistory(): Promise<void> {
+    if (!this.customerGuid) return;
+    try {
+      const list = await this.whatsappService.getByCustomer(this.customerGuid);
+      this.whatsappHistory = Array.isArray(list) ? list.filter((r: any) => r?.sendGuid) : [];
+    } catch (error) {
+      this.loggerService.LogError(error, 'getCustomerWhatsappHistory()');
+    }
+  }
+
+  goToRepair(t: RepairTicket): void {
+    if (!t?.ticketGuid) return;
+    this.router.navigate(['/repair', t.ticketGuid]);
+  }
+
+  goToWhatsappInvoice(row: WhatsappSendLogRow): void {
+    if (!row?.invoiceGuid) return;
+    this.router.navigate(['orders/view-order-details', row.invoiceGuid]);
+  }
+
+  repairStatusClass(status: string | undefined): string {
+    return status ? `status-chip status-chip--${status}` : 'status-chip';
+  }
+
+  whatsappStatusClass(status: string | undefined): string {
+    return status ? `status-chip status-chip--${status}` : 'status-chip';
+  }
+
+  truncateDesc(desc: string | undefined, len = 40): string {
+    if (!desc) return '—';
+    return desc.length > len ? desc.slice(0, len) + '…' : desc;
   }
 
   async getCustomerOldGoldReceipts(): Promise<void> {
