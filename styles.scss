@@ -990,3 +990,435 @@ html[data-theme="dark"] .btn.btn-outline-lightning {
     .field-grid { grid-template-columns: minmax(0, 1fr); }
   }
 }
+
+// -------------------------------------------------------------------------
+// Workstream M shared recipes (Saving schemes + Karigar)
+//
+// - .progress-bar / .progress-bar__fill: horizontal progress track used
+//   by scheme list rows and the scheme detail's KPI card.
+// - .radio-pill-row: horizontal row of radio-pill buttons; wraps
+//   H's `.radio-pill` recipe for form contexts where the row itself
+//   should have padded background.
+// - .status-chip--matured / --redeemed / --forfeited: additional
+//   invoice-style chip variants for scheme statuses.
+// - .status-chip--issued / --received / --settled / --active: karigar
+//   job + scheme active statuses.
+// -------------------------------------------------------------------------
+@layer components {
+  .progress-bar {
+    position: relative;
+    height: 6px;
+    background: var(--color-bg-subtle);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    flex: 1 1 auto;
+    min-width: 60px;
+  }
+  .progress-bar__fill {
+    display: block;
+    height: 100%;
+    background: var(--color-accent);
+    border-radius: inherit;
+    transition: width 0.24s ease-out;
+  }
+  .progress-bar__label {
+    display: inline-block;
+    font-size: 11px;
+    color: var(--color-fg-muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .kpi-card .progress-bar {
+    margin-top: 12px;
+  }
+
+  // Row-of-radio-pill wrapper used inside slide-in panels. H ships
+  // `.radio-pill` and `.radio-pills`; this variant uses horizontal layout
+  // without the container background so it fits inside a form flow.
+  .radio-pill-row {
+    display: inline-flex;
+    padding: 3px;
+    background: var(--color-bg-subtle);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-lg);
+    gap: 2px;
+    text-transform: capitalize;
+
+    > .radio-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 12px;
+      border-radius: calc(var(--radius-lg) - 4px);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--color-fg-muted);
+      cursor: pointer;
+      border: 0;
+      background: transparent;
+      transition: background 0.12s ease, color 0.12s ease;
+
+      &:hover { color: var(--color-fg); }
+
+      &.is-active {
+        background: var(--color-panel);
+        color: var(--color-fg);
+        box-shadow: var(--shadow-sm);
+      }
+    }
+  }
+
+  // Saving-scheme status chip variants.
+  .status-chip--active {
+    background: var(--color-success-subtle);
+    color: var(--color-success-fg);
+    border-color: color-mix(in oklab, var(--color-success) 30%, transparent);
+  }
+  .status-chip--matured {
+    background: color-mix(in oklab, var(--color-success) 15%, var(--color-panel));
+    color: var(--color-success-fg);
+    border-color: color-mix(in oklab, var(--color-success) 40%, transparent);
+    font-weight: 600;
+  }
+  .status-chip--redeemed {
+    background: color-mix(in oklab, var(--color-accent) 15%, var(--color-panel));
+    color: var(--color-accent-fg);
+    border-color: color-mix(in oklab, var(--color-accent) 40%, transparent);
+  }
+  html[data-theme="dark"] .status-chip--redeemed {
+    color: var(--color-accent);
+  }
+  .status-chip--forfeited {
+    background: var(--color-danger-subtle);
+    color: var(--color-danger-fg);
+    border-color: color-mix(in oklab, var(--color-danger) 30%, transparent);
+    font-style: italic;
+  }
+
+  // Karigar job-status chip variants.
+  .status-chip--issued {
+    background: var(--color-warning-subtle);
+    color: var(--color-warning-fg);
+    border-color: color-mix(in oklab, var(--color-warning) 30%, transparent);
+  }
+  .status-chip--received {
+    background: color-mix(in oklab, var(--color-accent) 12%, var(--color-panel));
+    color: var(--color-accent-fg);
+    border-color: color-mix(in oklab, var(--color-accent) 35%, transparent);
+  }
+  html[data-theme="dark"] .status-chip--received {
+    color: var(--color-accent);
+  }
+  .status-chip--settled {
+    background: var(--color-success-subtle);
+    color: var(--color-success-fg);
+    border-color: color-mix(in oklab, var(--color-success) 30%, transparent);
+  }
+}
+
+// -------------------------------------------------------------------------
+// Workstream L shared recipes (Hardware inputs + Old-gold exchange)
+//
+// - .scan-badge: small pill echoing the captured scan buffer.
+// - .old-gold-panel: expandable panel that houses the old-gold entry form.
+// - .scale-btn: 28px square icon button that hangs next to weight inputs.
+// - .stable-indicator: green dot + "Stable" text under a live reading;
+//                       amber variant for unstable readings.
+// -------------------------------------------------------------------------
+@layer components {
+  .scan-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    background: var(--color-bg-subtle);
+    border: 1px solid var(--color-border-subtle);
+    color: var(--color-fg-muted);
+    font-size: 11px;
+    font-family: var(--font-mono);
+    align-self: flex-start;
+
+    &--warn {
+      background: var(--color-warning-subtle);
+      color: var(--color-warning-fg);
+      border-color: color-mix(in oklab, var(--color-warning) 30%, transparent);
+    }
+  }
+
+  .old-gold-panel {
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-lg);
+    background: var(--color-panel);
+    overflow: hidden;
+
+    &.is-open {
+      border-color: color-mix(in oklab, var(--color-accent) 35%, var(--color-border-subtle));
+    }
+
+    &__head {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 16px;
+      background: transparent;
+      border: 0;
+      cursor: pointer;
+      color: var(--color-fg);
+      font: inherit;
+      text-align: left;
+
+      &:hover { background: var(--color-bg-subtle); }
+    }
+
+    &__head-title {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 500;
+    }
+
+    &__badge {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      background: var(--color-danger-subtle);
+      color: var(--color-danger-fg);
+      font-family: var(--font-mono);
+      font-style: italic;
+    }
+
+    &__body {
+      padding: 12px 16px 16px;
+      border-top: 1px solid var(--color-border-subtle);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    &__row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+
+      @media (max-width: 900px) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      @media (max-width: 600px) {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    &__credit {
+      background: var(--color-bg-subtle);
+      border-radius: var(--radius-md);
+      padding: 8px 12px;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    &__actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    &__hint {
+      margin: 0;
+      color: var(--color-fg-muted);
+      font-size: 12px;
+    }
+  }
+
+  .scale-btn {
+    display: inline-grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-md);
+    background: var(--color-bg-subtle);
+    border: 1px solid var(--color-border-subtle);
+    color: var(--color-fg-muted);
+    cursor: pointer;
+    transition: background 0.12s ease, color 0.12s ease;
+
+    &:hover:not(:disabled) {
+      background: var(--color-accent-subtle);
+      color: var(--color-accent-fg);
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  }
+
+  .stable-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--color-success-fg);
+    font-size: 11px;
+    font-weight: 500;
+
+    &--unstable { color: var(--color-warning-fg); }
+  }
+}
+
+// -------------------------------------------------------------------------
+// Workstream N shared recipes (Reports + backup + RBAC)
+//
+// - .report-tile: landing-page tile with icon + description + CTA arrow.
+// - .date-range-toolbar: toolbar row above every report table.
+// - .data-total-row: bottom-of-table totals row highlight.
+// - .status-chip--paid / --pending / --cancelled: report-side variants.
+// - .export-btn: small ghost button with lucideDownload glyph.
+// - .report-empty / .report-caption: empty state + hint copy.
+// - .input-with-toggle: passphrase visibility + folder picker composite.
+// -------------------------------------------------------------------------
+@layer components {
+
+  .report-tile {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 20px;
+    background: var(--color-panel);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-lg);
+    color: var(--color-fg);
+    text-decoration: none;
+    transition: border-color 0.12s ease, background 0.12s ease, transform 0.12s ease;
+    cursor: pointer;
+
+    &:hover {
+      border-color: color-mix(in oklab, var(--color-accent) 40%, transparent);
+      background: color-mix(in oklab, var(--color-accent) 4%, var(--color-panel));
+    }
+
+    &__icon {
+      display: inline-grid;
+      place-items: center;
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-md);
+      background: color-mix(in oklab, var(--color-accent) 12%, var(--color-bg-subtle));
+      color: var(--color-accent-fg);
+      flex-shrink: 0;
+    }
+
+    &__body {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+    }
+
+    &__title {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--color-fg);
+    }
+
+    &__desc {
+      margin: 0;
+      font-size: 12px;
+      color: var(--color-fg-muted);
+    }
+
+    &__cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      color: var(--color-accent-fg);
+      font-weight: 500;
+      align-self: flex-end;
+    }
+  }
+  html[data-theme="dark"] .report-tile__cta { color: var(--color-accent); }
+
+  .date-range-toolbar {
+    display: flex;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 12px 0 4px;
+
+    &__group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .status-pills {
+      align-self: center;
+    }
+  }
+
+  .data-total-row {
+    font-weight: 600;
+    background: var(--color-bg-subtle);
+
+    td {
+      border-top: 2px solid var(--color-border);
+      border-bottom: 0 !important;
+    }
+  }
+
+  .status-chip--pending {
+    background: var(--color-warning-subtle);
+    color: var(--color-warning-fg);
+    border-color: color-mix(in oklab, var(--color-warning) 30%, transparent);
+  }
+
+  .export-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .report-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 48px 16px;
+    color: var(--color-fg-muted);
+    background: var(--color-bg-subtle);
+    border: 1px dashed var(--color-border-subtle);
+    border-radius: var(--radius-lg);
+    margin-top: 16px;
+
+    p { margin: 0; font-size: 13px; }
+  }
+
+  .report-caption {
+    color: var(--color-fg-muted);
+    font-size: 12px;
+    max-width: 68ch;
+    margin: 0 0 12px;
+  }
+
+  .forbidden-banner {
+    padding: 12px 16px;
+    border-radius: var(--radius-md);
+    background: var(--color-warning-subtle);
+    color: var(--color-warning-fg);
+    font-size: 13px;
+    margin-bottom: 12px;
+  }
+
+  .input-with-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    .hlm-input { flex: 1; }
+  }
+
+  .purity-chip__dot { margin: 0 2px; opacity: 0.6; }
+}

@@ -19,16 +19,18 @@
   </ul>
 
   <ul class="rail__list rail__list--bottom">
-    <li>
-      <a class="rail__item"
-         [routerLink]="[settings.route]"
-         routerLinkActive="is-active"
-         [title]="settings.label"
-         [attr.aria-label]="settings.label">
-        <span class="rail__stripe" aria-hidden="true"></span>
-        <ng-icon [name]="settings.icon" size="20" aria-hidden="true"></ng-icon>
-      </a>
-    </li>
+    @if (permissions.canEditShopSettings()) {
+      <li>
+        <a class="rail__item"
+           [routerLink]="[settings.route]"
+           routerLinkActive="is-active"
+           [title]="settings.label"
+           [attr.aria-label]="settings.label">
+          <span class="rail__stripe" aria-hidden="true"></span>
+          <ng-icon [name]="settings.icon" size="20" aria-hidden="true"></ng-icon>
+        </a>
+      </li>
+    }
     <li>
       <button type="button" class="rail__item" (click)="logout()" title="Sign out" aria-label="Sign out">
         <ng-icon name="lucideLogOut" size="20" aria-hidden="true"></ng-icon>

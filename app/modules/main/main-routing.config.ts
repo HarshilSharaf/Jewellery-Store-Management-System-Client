@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from '../../guards/AuthGuard/auth.guard';
 import { MainComponent } from './components/main/main.component';
+import { permissionGuard } from '../../shared/guards/permission.guard';
 
 export const mainRoutes: Routes = [
   {
@@ -48,6 +49,24 @@ export const mainRoutes: Routes = [
     path:'settings',
     component: MainComponent,
     loadChildren: ()=> import('../settings/settings-routing.config').then(m => m.settingsRoutes),
+    canActivate: [AuthGuard, permissionGuard('canEditShopSettings')]
+  },
+  {
+    path:'reports',
+    component: MainComponent,
+    loadChildren: ()=> import('../reports/reports-routing.config').then(m => m.reportsRoutes),
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'saving-schemes',
+    component: MainComponent,
+    loadChildren: () => import('../saving-schemes/saving-schemes-routing.config').then(m => m.savingSchemesRoutes),
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'karigar',
+    component: MainComponent,
+    loadChildren: () => import('../karigar/karigar-routing.config').then(m => m.karigarRoutes),
     canActivate: [AuthGuard]
   }
 ];
