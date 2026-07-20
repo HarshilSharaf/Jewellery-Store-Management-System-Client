@@ -2,186 +2,137 @@
   <div class="modal-overlay" (click)="onOverlayClick($event)" role="presentation">
     <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="add-customer-title">
       <header class="modal-header">
-        <h2 class="modal-title" id="add-customer-title">Add Customer</h2>
-        <button type="button" class="modal-close" (click)="requestClose()" aria-label="Close" [disabled]="isLoading">
-          <ng-icon name="lucideX" aria-hidden="true"></ng-icon>
+        <div>
+          <h2 class="modal-title" id="add-customer-title">Add customer</h2>
+          <p class="modal-subtitle">New profile in People</p>
+        </div>
+        <button type="button" class="icon-btn" (click)="requestClose()" aria-label="Close" [disabled]="isLoading">
+          <ng-icon name="lucideX" size="18" aria-hidden="true"></ng-icon>
         </button>
       </header>
 
-      <div class="modal-content">
-        <form [formGroup]="customerDetailsForm"
-              class="customer-form"
-              (ngSubmit)="submitForm()"
-              novalidate>
+      <form [formGroup]="customerDetailsForm"
+            class="modal-content"
+            (ngSubmit)="submitForm()"
+            novalidate>
 
-          <div class="form-row form-row--photo">
-            <label class="form-row__label">Customer Photo</label>
-            <div class="form-row__control">
-              <app-image-upload [activeColor]="'var(--color-accent)'" [baseColor]="'var(--color-border)'"></app-image-upload>
-            </div>
-          </div>
-
-          <div class="form-row">
-            <label class="form-row__label mandatory" for="firstName">First Name</label>
-            <div class="form-row__control">
-              <input type="text"
-                     class="hlm-input"
+        <section class="form-section">
+          <p class="form-section__title">Identity</p>
+          <div class="form-grid">
+            <div>
+              <label class="field-label" for="firstName">First name <span class="req">*</span></label>
+              <input class="hlm-input" id="firstName" formControlName="firstName"
                      [class.is-invalid]="customerDetailsForm.get('firstName')?.touched && customerDetailsForm.get('firstName')?.errors?.['required']"
-                     name="firstName"
-                     id="firstName"
-                     formControlName="firstName"
-                     placeholder="Enter first name">
+                     placeholder="Enter first name" />
               @if (customerDetailsForm.get('firstName')?.touched && customerDetailsForm.get('firstName')?.errors?.['required']) {
-                <small class="field-error">First name is required</small>
+                <div class="field-error">First name is required</div>
               }
             </div>
-          </div>
-
-          <div class="form-row">
-            <label class="form-row__label mandatory" for="lastName">Last Name</label>
-            <div class="form-row__control">
-              <input type="text"
-                     class="hlm-input"
+            <div>
+              <label class="field-label" for="lastName">Last name <span class="req">*</span></label>
+              <input class="hlm-input" id="lastName" formControlName="lastName"
                      [class.is-invalid]="customerDetailsForm.get('lastName')?.touched && customerDetailsForm.get('lastName')?.errors?.['required']"
-                     name="lastName"
-                     id="lastName"
-                     formControlName="lastName"
-                     placeholder="Enter last name">
+                     placeholder="Enter last name" />
               @if (customerDetailsForm.get('lastName')?.touched && customerDetailsForm.get('lastName')?.errors?.['required']) {
-                <small class="field-error">Last name is required</small>
+                <div class="field-error">Last name is required</div>
               }
             </div>
-          </div>
-
-          <div class="form-row">
-            <label class="form-row__label" for="dob">Date Of Birth</label>
-            <div class="form-row__control">
-              <input type="date"
-                     class="hlm-input"
-                     name="dateOfBirth"
-                     id="dob"
-                     formControlName="dateOfBirth">
-            </div>
-          </div>
-
-          <div class="form-row">
-            <label class="form-row__label mandatory">Gender</label>
-            <div class="form-row__control form-row__control--inline">
-              <label class="radio-option">
-                <input type="radio" name="gender" formControlName="gender" value="male" id="male-radio">
-                <span>Male</span>
-              </label>
-              <label class="radio-option">
-                <input type="radio" name="gender" formControlName="gender" value="female" id="female-radio">
-                <span>Female</span>
-              </label>
-            </div>
-          </div>
-
-          <div class="form-row form-row--stacked">
-            <label class="form-row__label" for="address">Address</label>
-            <div class="form-row__control">
-              <textarea class="hlm-input"
-                        name="address"
-                        id="address"
-                        formControlName="address"
-                        placeholder="Enter address"
-                        rows="3"></textarea>
-            </div>
-          </div>
-
-          <div class="form-row">
-            <label class="form-row__label mandatory" for="city">City</label>
-            <div class="form-row__control">
-              <input type="text"
-                     name="city"
-                     class="hlm-input"
-                     [class.is-invalid]="customerDetailsForm.get('city')?.touched && customerDetailsForm.get('city')?.errors?.['required']"
-                     id="city"
-                     formControlName="city"
-                     placeholder="Enter city">
-              @if (customerDetailsForm.get('city')?.touched && customerDetailsForm.get('city')?.errors?.['required']) {
-                <small class="field-error">City cannot be empty</small>
-              }
-            </div>
-          </div>
-
-          <div class="form-row">
-            <label class="form-row__label" for="email">Email</label>
-            <div class="form-row__control">
-              <input type="email"
-                     name="email"
-                     class="hlm-input"
-                     id="email"
-                     formControlName="email"
-                     placeholder="Enter email">
-            </div>
-          </div>
-
-          <div class="form-row">
-            <label class="form-row__label mandatory" for="phoneNumber">Phone</label>
-            <div class="form-row__control">
-              <input type="tel"
-                     name="phoneNumber"
-                     class="hlm-input"
+            <div>
+              <label class="field-label" for="phoneNumber">Phone <span class="req">*</span></label>
+              <input type="tel" class="hlm-input tabular-nums" id="phoneNumber" formControlName="phoneNumber"
                      [class.is-invalid]="customerDetailsForm.get('phoneNumber')?.touched && customerDetailsForm.get('phoneNumber')?.errors?.['required']"
-                     id="phoneNumber"
-                     formControlName="phoneNumber"
-                     placeholder="Enter phone number">
+                     placeholder="10-digit mobile" />
               @if (customerDetailsForm.get('phoneNumber')?.touched && customerDetailsForm.get('phoneNumber')?.errors?.['required']) {
-                <small class="field-error">Phone number is required</small>
+                <div class="field-error">Phone number is required</div>
               }
             </div>
+            <div>
+              <label class="field-label" for="email">Email</label>
+              <input type="email" class="hlm-input" id="email" formControlName="email" placeholder="name@example.com" />
+            </div>
+            <div>
+              <label class="field-label" for="dateOfBirth">Date of birth</label>
+              <input type="date" class="hlm-input" id="dateOfBirth" formControlName="dateOfBirth" />
+            </div>
+            <div>
+              <label class="field-label">Gender</label>
+              <div class="radio-pills">
+                <label class="radio-pill" [class.is-active]="customerDetailsForm.value.gender === 'male'">
+                  <input type="radio" formControlName="gender" value="male"> Male
+                </label>
+                <label class="radio-pill" [class.is-active]="customerDetailsForm.value.gender === 'female'">
+                  <input type="radio" formControlName="gender" value="female"> Female
+                </label>
+              </div>
+            </div>
           </div>
+        </section>
 
-          <div class="form-row form-row--stacked">
-            <button type="button" class="hlm-btn hlm-btn-ghost extras-toggle" (click)="toggleAdditional()">
-              {{ showAdditional ? 'Hide' : 'Add' }} additional details (GSTIN, PAN, remarks)
-            </button>
+        <section class="form-section">
+          <p class="form-section__title">Location</p>
+          <div class="form-grid">
+            <div class="form-grid__full">
+              <label class="field-label" for="address">Address</label>
+              <textarea class="hlm-input" id="address" formControlName="address" rows="2" placeholder="Building, street, area"></textarea>
+            </div>
+            <div>
+              <label class="field-label" for="city">City <span class="req">*</span></label>
+              <input class="hlm-input" id="city" formControlName="city"
+                     [class.is-invalid]="customerDetailsForm.get('city')?.touched && customerDetailsForm.get('city')?.errors?.['required']"
+                     placeholder="e.g. Mumbai" />
+              @if (customerDetailsForm.get('city')?.touched && customerDetailsForm.get('city')?.errors?.['required']) {
+                <div class="field-error">City is required</div>
+              }
+            </div>
+            <div>
+              <label class="field-label" for="state">State</label>
+              <select class="hlm-input" id="state" formControlName="state"
+                      (change)="onStateChange($any($event.target).value)">
+                <option value="">Select state</option>
+                @for (state of states; track state.code) {
+                  <option [value]="state.name">{{ state.name }}</option>
+                }
+              </select>
+            </div>
+            <div>
+              <label class="field-label" for="stateCode">State code</label>
+              <input class="hlm-input tabular-nums" id="stateCode" formControlName="stateCode" maxlength="2" readonly />
+              <div class="field-help">Auto-filled from state</div>
+            </div>
           </div>
+        </section>
 
-          @if (showAdditional) {
-            <div class="form-row">
-              <label class="form-row__label" for="state">State</label>
-              <div class="form-row__control">
-                <input type="text" class="hlm-input" id="state" formControlName="state" placeholder="e.g. Maharashtra">
-              </div>
+        <section class="form-section">
+          <p class="form-section__title">Tax details</p>
+          <div class="form-grid">
+            <div>
+              <label class="field-label" for="gstin">GSTIN</label>
+              <input class="hlm-input" id="gstin" formControlName="gstin" maxlength="15"
+                     [class.is-invalid]="customerDetailsForm.get('gstin')?.touched && customerDetailsForm.get('gstin')?.errors?.['pattern']"
+                     placeholder="15-char GSTIN" />
+              @if (customerDetailsForm.get('gstin')?.touched && customerDetailsForm.get('gstin')?.errors?.['pattern']) {
+                <div class="field-error">GSTIN format is invalid</div>
+              }
             </div>
-            <div class="form-row">
-              <label class="form-row__label" for="stateCode">State Code</label>
-              <div class="form-row__control">
-                <input type="text" class="hlm-input" id="stateCode" formControlName="stateCode" maxlength="2" placeholder="e.g. 27">
-              </div>
+            <div>
+              <label class="field-label" for="pan">PAN</label>
+              <input class="hlm-input" id="pan" formControlName="pan" maxlength="10" placeholder="10-char PAN" />
             </div>
-            <div class="form-row">
-              <label class="form-row__label" for="gstin">GSTIN</label>
-              <div class="form-row__control">
-                <input type="text" class="hlm-input" id="gstin" formControlName="gstin" maxlength="15" placeholder="15-char GSTIN">
-              </div>
+            <div class="form-grid__full">
+              <label class="field-label" for="remarks">Remarks</label>
+              <textarea class="hlm-input" id="remarks" formControlName="remarks" rows="2" placeholder="Internal notes about the customer"></textarea>
             </div>
-            <div class="form-row">
-              <label class="form-row__label" for="pan">PAN</label>
-              <div class="form-row__control">
-                <input type="text" class="hlm-input" id="pan" formControlName="pan" maxlength="10" placeholder="10-char PAN">
-              </div>
-            </div>
-            <div class="form-row form-row--stacked">
-              <label class="form-row__label" for="remarks">Remarks</label>
-              <div class="form-row__control">
-                <textarea class="hlm-input" id="remarks" formControlName="remarks" rows="2" placeholder="Internal notes"></textarea>
-              </div>
-            </div>
-          }
+          </div>
+        </section>
 
-          @if (addCustomerResponse.status !== 0 || addCustomerResponse.message !== '') {
-            <div class="form-response"
-                 [class.form-response--success]="addCustomerResponse.status === 200"
-                 [class.form-response--error]="addCustomerResponse.status !== 200 && addCustomerResponse.status !== 0">
-              {{ addCustomerResponse.message }}
-            </div>
-          }
-        </form>
-      </div>
+        @if (addCustomerResponse.status !== 0 || addCustomerResponse.message !== '') {
+          <div class="form-response"
+               [class.form-response--success]="addCustomerResponse.status === 200"
+               [class.form-response--error]="addCustomerResponse.status !== 200 && addCustomerResponse.status !== 0">
+            {{ addCustomerResponse.message }}
+          </div>
+        }
+      </form>
 
       <footer class="modal-actions">
         <button type="button"
@@ -195,10 +146,10 @@
                 (click)="submitForm()"
                 [disabled]="!customerDetailsForm.valid || isLoading">
           @if (isLoading) {
-            <ng-icon name="lucideLoader" class="animate-spin" aria-hidden="true"></ng-icon>
-            Saving...
+            <ng-icon name="lucideLoader" class="animate-spin" size="14" aria-hidden="true"></ng-icon>
+            <span>Saving...</span>
           } @else {
-            Save Customer
+            <span>Save customer</span>
           }
         </button>
       </footer>

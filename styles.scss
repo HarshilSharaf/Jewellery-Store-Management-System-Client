@@ -588,3 +588,405 @@ html[data-theme="dark"] .btn.btn-outline-lightning {
   &.table-striped tbody tr:nth-of-type(odd) { background-color: var(--color-bg-subtle) !important; }
   &.table-hover tbody tr:hover { background-color: var(--color-bg-subtle) !important; }
 }
+
+// -------------------------------------------------------------------------
+// Workstream H shared recipes (People + Stock)
+//
+// Reusable primitives dropped in at the bottom of the token layer. Chip
+// recipes power the filter chip row in Stock; data-row + side-panel-*
+// power the shared list/detail layouts.
+// -------------------------------------------------------------------------
+@layer components {
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-border-subtle bg-panel px-3 py-1 text-xs font-medium text-fg-muted transition-colors;
+    @apply hover:border-border-strong hover:text-fg;
+    cursor: pointer;
+    user-select: none;
+    line-height: 1.2;
+  }
+  .chip-toggle {
+    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1;
+  }
+  .chip-active {
+    background: var(--color-accent-subtle);
+    color: var(--color-accent-fg);
+    border-color: color-mix(in oklab, var(--color-accent) 40%, transparent);
+  }
+  html[data-theme="dark"] .chip-active {
+    color: var(--color-accent);
+    background: color-mix(in oklab, var(--color-accent) 15%, var(--color-panel));
+  }
+  .chip-icon {
+    display: inline-grid;
+    place-items: center;
+  }
+
+  // Purity chip - the small "22K • 916" style tags used across Stock.
+  .purity-chip {
+    @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold tabular-nums;
+    background: color-mix(in oklab, var(--color-accent) 12%, var(--color-bg-subtle));
+    color: var(--color-accent-fg);
+    letter-spacing: 0.02em;
+  }
+  html[data-theme="dark"] .purity-chip {
+    color: var(--color-accent);
+  }
+
+  // Two-column detail layout used by view pages (customer + product).
+  .detail-shell {
+    display: grid;
+    gap: 24px;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  }
+  @media (max-width: 1100px) {
+    .detail-shell {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  .detail-side {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    position: sticky;
+    top: 96px;
+    align-self: start;
+  }
+
+  // Section block used inside detail pages for grouped label/value pairs.
+  .detail-section {
+    @apply rounded-lg border border-border-subtle bg-bg-subtle p-6;
+  }
+  .detail-section__title {
+    @apply text-[11px] font-semibold uppercase tracking-wider text-fg-muted mb-4;
+  }
+  .detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 24px;
+  }
+  @media (max-width: 640px) {
+    .detail-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  .detail-field__label {
+    @apply text-[11px] font-semibold uppercase tracking-wider text-fg-muted;
+    display: block;
+    margin-bottom: 4px;
+  }
+  .detail-field__value {
+    @apply text-sm text-fg;
+    &.tabular-nums { font-variant-numeric: tabular-nums; }
+    &.is-empty { color: var(--color-fg-subtle); font-style: italic; }
+  }
+
+  // Shared data row (customer / product row on list pages).
+  .data-row {
+    display: grid;
+    align-items: center;
+    padding: 0 12px;
+    min-height: 44px;
+    border-bottom: 1px solid var(--color-border-subtle);
+    transition: background-color 0.12s ease;
+    cursor: pointer;
+    color: var(--color-fg);
+    text-decoration: none;
+  }
+  .data-row:hover {
+    background: var(--color-bg-subtle);
+  }
+  @media (pointer: coarse) {
+    .data-row { min-height: 52px; }
+  }
+
+  // Toolbar row used above list tables.
+  .list-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 12px 0;
+  }
+
+  // Page header used at the top of list pages.
+  .page-title {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 20px;
+
+    &__group {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    &__heading {
+      font-family: var(--font-serif);
+      font-weight: 400;
+      font-size: 2.25rem;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      color: var(--color-fg);
+      margin: 0;
+    }
+
+    &__count {
+      color: var(--color-fg-muted);
+      font-size: 13px;
+      font-variant-numeric: tabular-nums;
+    }
+  }
+
+  // Avatar circle used in customer rows + view page.
+  .avatar {
+    display: inline-grid;
+    place-items: center;
+    border-radius: 9999px;
+    background: color-mix(in oklab, var(--color-accent) 12%, var(--color-bg-subtle));
+    color: var(--color-accent-fg);
+    font-weight: 600;
+    overflow: hidden;
+    flex-shrink: 0;
+
+    img { width: 100%; height: 100%; object-fit: cover; }
+    &--sm { width: 32px; height: 32px; font-size: 13px; }
+    &--md { width: 48px; height: 48px; font-size: 16px; }
+    &--lg { width: 64px; height: 64px; font-size: 22px; }
+    &--xl { width: 96px; height: 96px; font-size: 30px; }
+  }
+  html[data-theme="dark"] .avatar {
+    color: var(--color-accent);
+  }
+
+  // Icon button used in row actions + view page headers.
+  .icon-btn {
+    display: inline-grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-md);
+    border: 0;
+    background: transparent;
+    color: var(--color-fg-muted);
+    cursor: pointer;
+    transition: background 0.12s ease, color 0.12s ease;
+
+    &:hover, &:focus-visible {
+      background: var(--color-bg-subtle);
+      color: var(--color-fg);
+      outline: none;
+    }
+
+    &--danger:hover, &--danger:focus-visible {
+      background: var(--color-danger-subtle);
+      color: var(--color-danger-fg);
+    }
+  }
+
+  // Section header used inside product / customer forms.
+  .form-section {
+    padding: 20px 0;
+    border-bottom: 1px solid var(--color-border-subtle);
+
+    &:last-child { border-bottom: 0; }
+  }
+  .form-section__title {
+    @apply text-[11px] font-semibold uppercase tracking-wider text-fg-muted mb-4;
+    display: block;
+  }
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+  .form-grid--3 {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+  @media (max-width: 720px) {
+    .form-grid, .form-grid--3 { grid-template-columns: minmax(0, 1fr); }
+  }
+  .form-grid__full { grid-column: 1 / -1; }
+  .field-label {
+    @apply block text-xs font-medium text-fg mb-1.5;
+  }
+  .field-error {
+    color: var(--color-danger-fg);
+    font-size: 11px;
+    font-weight: 500;
+    margin-top: 4px;
+  }
+  .field-help {
+    color: var(--color-fg-muted);
+    font-size: 11px;
+    margin-top: 4px;
+  }
+
+  // Radio pill row (used for making mode selector).
+  .radio-pills {
+    display: inline-flex;
+    padding: 3px;
+    background: var(--color-bg-subtle);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-lg);
+    gap: 2px;
+  }
+  .radio-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 12px;
+    border-radius: calc(var(--radius-lg) - 4px);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-fg-muted);
+    cursor: pointer;
+    border: 0;
+    background: transparent;
+    transition: background 0.12s ease, color 0.12s ease;
+
+    input { position: absolute; opacity: 0; pointer-events: none; }
+
+    &:hover { color: var(--color-fg); }
+
+    &.is-active {
+      background: var(--color-panel);
+      color: var(--color-fg);
+      box-shadow: var(--shadow-sm);
+    }
+  }
+}
+
+// -------------------------------------------------------------------------
+// Workstream I shared recipes (Sell + Books)
+//
+// Additive to H's recipes. Consumed by orders-page (Books list),
+// order-details, order-payments, prepare-order (cart) and
+// print-invoice-preview chrome.
+// -------------------------------------------------------------------------
+@layer components {
+  // Status chip for invoice / order state (paid / unpaid / cancelled).
+  .status-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.15rem 0.55rem;
+    border-radius: var(--radius-full);
+    font-size: var(--fs-xs);
+    font-weight: var(--fw-semibold);
+    letter-spacing: 0.01em;
+    line-height: 1.4;
+    border: 1px solid transparent;
+    white-space: nowrap;
+  }
+  .status-chip--paid {
+    background: var(--color-success-subtle);
+    color: var(--color-success-fg);
+    border-color: color-mix(in oklab, var(--color-success) 30%, transparent);
+  }
+  .status-chip--unpaid {
+    background: var(--color-warning-subtle);
+    color: var(--color-warning-fg);
+    border-color: color-mix(in oklab, var(--color-warning) 30%, transparent);
+  }
+  .status-chip--cancelled {
+    background: var(--color-bg-subtle);
+    color: var(--color-fg-muted);
+    border-color: var(--color-border-subtle);
+    text-decoration: line-through;
+  }
+
+  // Money classes. `.money-lg` and `.money-xl` are serif display for grand
+  // totals; `.money` is a compact tabular-nums cell for line items.
+  .money {
+    font-variant-numeric: tabular-nums;
+    font-weight: 500;
+  }
+  .money-lg {
+    font-family: var(--font-serif);
+    font-variant-numeric: tabular-nums;
+    font-size: 1.5rem;
+    line-height: 1.1;
+  }
+  .money-xl {
+    font-family: var(--font-serif);
+    font-variant-numeric: tabular-nums;
+    font-size: 2.25rem;
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+  }
+}
+
+// -------------------------------------------------------------------------
+// Workstream J shared recipes (Catalog + admin)
+//
+// - .tabs-strip / .tab-item: horizontal segmented tab bar used by
+//   Categories (Master/Product/Sub) and Settings (7 tabs).
+// - .section-heading: small uppercase muted heading used above form
+//   groupings inside Settings + Profile.
+// - .field-grid: 2-column responsive grid for label+control cells.
+// -------------------------------------------------------------------------
+@layer components {
+  .tabs-strip {
+    display: flex;
+    align-items: stretch;
+    gap: 4px;
+    padding: 0;
+    border-bottom: 1px solid var(--color-border-subtle);
+    overflow-x: auto;
+
+    // Suppress the horizontal scrollbar for the common short-tab case.
+    scrollbar-width: none;
+    &::-webkit-scrollbar { display: none; }
+  }
+  .tab-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 14px;
+    background: transparent;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    color: var(--color-fg-muted);
+    font-size: var(--fs-sm);
+    font-weight: 500;
+    cursor: pointer;
+    transition: color 0.12s ease, background 0.12s ease, border-color 0.12s ease;
+    white-space: nowrap;
+    // Overlap the strip's 1px bottom border so the active 2px underline is flush.
+    margin-bottom: -1px;
+
+    &:hover {
+      color: var(--color-fg);
+      background: var(--color-bg-subtle);
+    }
+
+    &.is-active {
+      color: var(--color-accent-fg);
+      border-bottom-color: var(--color-accent);
+      font-weight: 600;
+    }
+  }
+  html[data-theme="dark"] .tab-item.is-active {
+    color: var(--color-accent);
+  }
+
+  .section-heading {
+    @apply text-[11px] font-semibold uppercase tracking-wider text-fg-muted;
+    display: block;
+    margin: 0 0 16px 0;
+  }
+
+  .field-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 24px;
+  }
+  @media (max-width: 720px) {
+    .field-grid { grid-template-columns: minmax(0, 1fr); }
+  }
+}

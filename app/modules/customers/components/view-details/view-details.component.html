@@ -1,268 +1,308 @@
-<app-page-header [pageName]="'View Details'"></app-page-header>
-
-<div class="container-xl px-4 mt-4">
-
-  <div class="row">
-
-    <div class="col-md-4" style=" display: flex; flex-direction: column !important;">
-      <!-- Profile picture card-->
-
-      <div class="row">
-        <div class="col">
-          <div class="card mb-4 mb-xl-0">
-            <div class="card-header">Customer Profile Picture</div>
-            <div class="card-body text-center">
-              <app-image-upload></app-image-upload>
-              <!-- Profile picture upload button-->
-              <div class="row">
-                <div class="col">
-                                    <button [ngClass]="{'disabled': customerCurrentImage == null || customerCurrentImage == undefined || 
-                                    imageUploadComponent.imageSrc == initialCustomerImageSrc}"
-                    class="btn btn-success mt-3" type="button" (click)="updateCustomerImage()">
-                    <ng-icon name="lucidePencil" aria-hidden="true"></ng-icon> Update
-                  </button>
-                </div>
-                <div class="col">
-                  <button class="btn btn-danger mt-3" type="button" (click)="deleteCustomerImage()"
-                    [ngClass]="{'disabled': initialCustomerImageSrc == '' || initialCustomerImageSrc == null}">
-                    <ng-icon name="lucideTrash" aria-hidden="true"></ng-icon> Delete
-                  </button>
-
-                </div>
-                <div class="col">
-                  <button type="button" class="btn btn-outline-dark mt-3" (click)="clearImage()">
-                    <ng-icon name="lucideRotateCcw" aria-hidden="true"></ng-icon> Reset
-                  </button>
-
-                </div>
-              </div>
-
-
-            </div>
-          </div>
+@if (customer) {
+  <header class="view-header">
+    <div class="view-header__left">
+      <button type="button" class="icon-btn" (click)="goBack()" title="Back to People" aria-label="Back">
+        <ng-icon name="lucideArrowLeft" size="18" aria-hidden="true"></ng-icon>
+      </button>
+      @if (thumbnail) {
+        <div class="avatar avatar--lg">
+          <img [src]="thumbnail" alt="{{ customer.customerName }}" />
+        </div>
+      } @else {
+        <div class="avatar avatar--lg">{{ (customer.firstName?.[0] ?? '') + (customer.lastName?.[0] ?? '') }}</div>
+      }
+      <div class="view-header__meta">
+        <h1 class="view-header__name font-serif">{{ customer.customerName }}</h1>
+        <div class="view-header__sub">
+          @if (customer.city) {
+            <span class="sub-chip">
+              <ng-icon name="lucideMapPin" size="12" aria-hidden="true"></ng-icon>
+              {{ customer.city }}
+            </span>
+          }
+          @if (customer.phoneNumber) {
+            <span class="sub-chip tabular-nums">
+              <ng-icon name="lucidePhoneCall" size="12" aria-hidden="true"></ng-icon>
+              {{ customer.phoneNumber }}
+            </span>
+          }
+          @if (customer.email) {
+            <span class="sub-chip">
+              <ng-icon name="lucideMail" size="12" aria-hidden="true"></ng-icon>
+              {{ customer.email }}
+            </span>
+          }
         </div>
       </div>
-
-      <div class="row my-3" style="flex-grow: 1 !important;">
-        <div class="col">
-          <div class="card" style="min-height: 100% !important; overflow: auto;">
-            <div class="card-body text-center d-flex flex-column align-items-center justify-content-center">
-              <div class="row">
-                <h4><b> Total Amount Of Products Purchased </b></h4>
-              </div>
-              <div class="row">
-                <p class="h2 text-success flex-column"> &#8377; {{totalAmount | number}}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
     </div>
-    <div class="col-md-8" style="height: 100%;">
-      <!-- Account details card-->
-      <div class="card mb-3">
-        <div class="card-header">Customer Details</div>
-        <div class="card-body">
-          @if (customerDetailsForm) {
-            <form [formGroup]="customerDetailsForm"
-              (ngSubmit)="updateCustomerDetails()">
-              <!-- Form Row-->
-              <div class="row gx-3 mb-3">
-                <!-- Form Group (first name)-->
-                <div class="col-md-6">
-                  <label class="small mb-1" for="firstName">First name</label>
-                  <input class="form-control" name="firstName" id="firstName" formControlName="firstName"
-                    placeholder="Enter your first name">
-                    <!-- First Name Validation Message -->
-                    <div class="row">
-                      <div class="col text-center">
-                        @if ((customerDetailsForm.get('firstName')?.touched || customerDetailsForm.valid) && customerDetailsForm.get('firstName')?.errors?.['required']) {
-                          <span class="text-danger text-bold"
-                            >
-                            First Name is required
-                          </span>
-                        }
-                      </div>
-                    </div>
-                  </div>
-                  <!-- Form Group (last name)-->
-                  <div class="col-md-6">
-                    <label class="small mb-1" for="inputLastName">Last name</label>
-                    <input class="form-control" name="lastName" id="lastName" formControlName="lastName"
-                      placeholder="Enter your last name">
-                      <!-- Last Name Validation Message -->
-                      <div class="row">
-                        <div class="col text-center">
-                          @if ((customerDetailsForm.get('lastName')?.touched || customerDetailsForm.valid) && customerDetailsForm.get('lastName')?.errors?.['required']) {
-                            <span class="text-danger"
-                              >
-                              Last Name is required
-                            </span>
-                          }
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <!-- Form Row        -->
-                  <div class="row gx-3 mb-3">
-                    <!-- Form Group (Address)-->
-                    <div class="col-md-6">
-                      <label class="small mb-1" for="address">Address</label>
-                      <textarea class="form-control" name="address" formControlName="address"
-                      placeholder="Enter Address" style="height: 100px"></textarea>
-                    </div>
-                    <!-- Form Group (City)-->
-                    <div class="col-md-6">
-                      <label class="small mb-1" for="City">City</label>
-                      <input type="text" name="city" class="form-control" id="city" formControlName="city"
-                        placeholder="Enter City">
-                        <div class="row">
-                          <div class="col text-center">
-                            @if ((customerDetailsForm.get('city')?.touched || customerDetailsForm.valid) && customerDetailsForm.get('city')?.errors?.['required']) {
-                              <span class="text-danger text-bold"
-                                >
-                                City Cannot be empty
-                              </span>
-                            }
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <!-- Form Group (email address)-->
-                    <div class="row mb-3">
-                      <div class="col-md-6">
-                        <label class="small mb-1" for="email">Email address</label>
-                        <input type="email" name="email" class="form-control" id="email" formControlName="email"
-                          placeholder="Enter Email">
-                        </div>
-                        <div class="col-md-6">
-                          <div class="row mt-2 align-items-center">
-                            <label class="small mb-1" for="gender">Gender</label>
-                            <div class="row">
-                              <div class="col-4 px-0 mx-0">
-                                <input class="form-check-input mx-1" type="radio" name="gender"
-                                  formControlName="gender" value="male" id="male-radio">
-                                  <label class="form-check-label" for="male-radio">
-                                    <ng-icon name="lucideUser" style="color: var(--color-accent-fg); font-size: 22px;" aria-hidden="true"></ng-icon>
-                                    Male
-                                  </label>
-                                </div>
-                                <div class="col px-0 mx-0">
-                                  <input class="form-check-input mx-1" type="radio" name="gender"
-                                    formControlName="gender" value="female" id="gender" checked>
-                                    <label class="form-check-label" for="female-radio">
-                                      <ng-icon name="lucideUser" style="color: var(--color-accent-fg); font-size: 22px;" aria-hidden="true"></ng-icon>
-                                      Female
-                                    </label>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          <!-- Form Row-->
-                          <div class="row gx-3 mb-3">
-                            <!-- Form Group (phone number)-->
-                            <div class="col-md-6">
-                              <label class="small mb-1" for="inputPhone">Phone number</label>
-                              <input type="tel" name="phone" class="form-control" id="number" formControlName="phone"
-                                placeholder="Enter Phone Number">
-                                <!-- Phone Number Validation Message -->
-                                <div class="row">
-                                  <div class="col text-center">
-                                    @if ((customerDetailsForm.get('phone')?.touched || customerDetailsForm.valid) && customerDetailsForm.get('phone')?.errors?.['required']) {
-                                      <span class="text-danger text-bold"
-                                        >
-                                        Phone Number is required
-                                      </span>
-                                    }
-                                  </div>
-                                </div>
-                              </div>
-                              <!-- Form Group (birthday)-->
-                              <div class="col-md-6">
-                                <label class="small mb-1" for="inputBirthday">Birthday</label>
-                                <input type="date" class="form-control" name="dateOfBirth" id="dob"
-                                  formControlName="dob" placeholder="Enter Date Of Birth">
-                                </div>
-                              </div>
+    <div class="view-header__actions">
+      @if (customer.phoneNumber) {
+        <button type="button" class="icon-btn" (click)="callCustomer()" title="Call customer" aria-label="Call">
+          <ng-icon name="lucidePhoneCall" size="16" aria-hidden="true"></ng-icon>
+        </button>
+      }
+      <button type="button" class="icon-btn" (click)="toggleEditMode()" title="{{ editMode ? 'Cancel' : 'Edit' }}" aria-label="Edit">
+        <ng-icon [name]="editMode ? 'lucideX' : 'lucidePencil'" size="16" aria-hidden="true"></ng-icon>
+      </button>
+      <button type="button" class="icon-btn icon-btn--danger" (click)="deleteCustomer()" title="Delete customer" aria-label="Delete">
+        <ng-icon name="lucideTrash2" size="16" aria-hidden="true"></ng-icon>
+      </button>
+    </div>
+  </header>
 
-                              <details class="mb-3">
-                                <summary class="small mb-1" style="cursor:pointer;">Additional details</summary>
-                                <div class="row gx-3 mt-2">
-                                  <div class="col-md-4">
-                                    <label class="small mb-1" for="state">State</label>
-                                    <input class="form-control" id="state" formControlName="state" placeholder="e.g. Maharashtra">
-                                  </div>
-                                  <div class="col-md-2">
-                                    <label class="small mb-1" for="stateCode">State Code</label>
-                                    <input class="form-control" id="stateCode" formControlName="stateCode" maxlength="2">
-                                  </div>
-                                  <div class="col-md-3">
-                                    <label class="small mb-1" for="gstin">GSTIN</label>
-                                    <input class="form-control" id="gstin" formControlName="gstin" maxlength="15">
-                                  </div>
-                                  <div class="col-md-3">
-                                    <label class="small mb-1" for="pan">PAN</label>
-                                    <input class="form-control" id="pan" formControlName="pan" maxlength="10">
-                                  </div>
-                                </div>
-                                <div class="row gx-3 mt-2">
-                                  <div class="col-md-8">
-                                    <label class="small mb-1" for="remarks">Remarks</label>
-                                    <textarea class="form-control" id="remarks" formControlName="remarks" rows="2"></textarea>
-                                  </div>
-                                  <div class="col-md-4">
-                                    <label class="small mb-1">Credit Balance</label>
-                                    <input class="form-control" [value]="creditBalance" readonly>
-                                  </div>
-                                </div>
-                              </details>
+  <div class="detail-shell">
+    <main class="detail-main">
+      @if (editMode && customerDetailsForm) {
+        <form class="edit-card" [formGroup]="customerDetailsForm" (ngSubmit)="updateCustomerDetails()" novalidate>
+          <div class="detail-section">
+            <p class="detail-section__title">Edit customer</p>
 
-                              <!-- Save changes button-->
-                              <div class="row text-center">
-                                <div class="col">
-                                <button class="btn btn-primary mx-4" [ngClass]="{'disabled': !customerDetailsForm.dirty ||
-                                    !customerDetailsForm.valid}" type="submit">
-                                    @if (isLoading) {
-                                      <div>
-                                        <ng-icon name="lucideLoader" class="animate-spin" aria-hidden="true"></ng-icon>
-                                      </div>
-                                    }
-                                    @if (!isLoading) {
-                                      <div>
-                                        <ng-icon name="lucideSave" aria-hidden="true"></ng-icon> Save changes
-                                      </div>
-                                    }
-                                  </button>
-                                  <button class="btn btn-danger mx-4 mt-xs-2 mt-md-0"
-                                    [ngClass]="{'disabled': !customerDetailsForm.dirty}"
-                                    type="button" (click)="resetForm()">
-                                    <ng-icon name="lucideRotateCcw" aria-hidden="true"></ng-icon> Reset
-                                  </button>
-                                </div>
-                              </div>
-                            </form>
-                          }
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="row">
-                    <div class="col">
-                      <app-data-table
-                        [COLUMNS_SCHEMA]="displayNameForColumns" [tableColumns]="tableColumns"
-                        (viewDetails)="goToViewDetails($event)"
-                        (deleteItem)="openDeletePopUpForItem($event)"
-                        [tableData]="customerOrdersData"
-                        [totalRecords]="totalRecords"
-                        (searchQuery)="handleSearchQuery($event)"
-                        (pageChangeEvent)="handlePageChange($event)"
-                        (refreshDataSource)="getCustomerOrders()" [entityText]="'Customer Orders'"
-                        [sortByColumn]="'orderDate'"
-                        [isLoading]="isLoadingCustomerOrders">
-                      </app-data-table>
-                    </div>
-                  </div>
+            <div class="form-grid">
+              <div>
+                <label class="field-label" for="firstName">First name</label>
+                <input class="hlm-input" id="firstName" formControlName="firstName"
+                       [class.is-invalid]="customerDetailsForm.get('firstName')?.touched && customerDetailsForm.get('firstName')?.errors?.['required']" />
+              </div>
+              <div>
+                <label class="field-label" for="lastName">Last name</label>
+                <input class="hlm-input" id="lastName" formControlName="lastName"
+                       [class.is-invalid]="customerDetailsForm.get('lastName')?.touched && customerDetailsForm.get('lastName')?.errors?.['required']" />
+              </div>
+              <div>
+                <label class="field-label" for="phone">Phone</label>
+                <input class="hlm-input tabular-nums" id="phone" formControlName="phone"
+                       [class.is-invalid]="customerDetailsForm.get('phone')?.touched && customerDetailsForm.get('phone')?.errors?.['required']" />
+              </div>
+              <div>
+                <label class="field-label" for="email">Email</label>
+                <input class="hlm-input" id="email" formControlName="email" />
+              </div>
+              <div>
+                <label class="field-label" for="dob">Date of birth</label>
+                <input type="date" class="hlm-input" id="dob" formControlName="dob" />
+              </div>
+              <div>
+                <label class="field-label">Gender</label>
+                <div class="radio-pills">
+                  <label class="radio-pill" [class.is-active]="customerDetailsForm.value.gender === 'male'">
+                    <input type="radio" formControlName="gender" value="male"> Male
+                  </label>
+                  <label class="radio-pill" [class.is-active]="customerDetailsForm.value.gender === 'female'">
+                    <input type="radio" formControlName="gender" value="female"> Female
+                  </label>
                 </div>
+              </div>
+              <div class="form-grid__full">
+                <label class="field-label" for="address">Address</label>
+                <textarea class="hlm-input" id="address" formControlName="address" rows="2"></textarea>
+              </div>
+              <div>
+                <label class="field-label" for="city">City</label>
+                <input class="hlm-input" id="city" formControlName="city"
+                       [class.is-invalid]="customerDetailsForm.get('city')?.touched && customerDetailsForm.get('city')?.errors?.['required']" />
+              </div>
+              <div>
+                <label class="field-label" for="state">State</label>
+                <select class="hlm-input" id="state" formControlName="state" (change)="onStateChange($any($event.target).value)">
+                  <option value="">Select state</option>
+                  @for (state of states; track state.code) {
+                    <option [value]="state.name">{{ state.name }}</option>
+                  }
+                </select>
+              </div>
+              <div>
+                <label class="field-label" for="stateCode">State code</label>
+                <input class="hlm-input tabular-nums" id="stateCode" formControlName="stateCode" maxlength="2" readonly />
+              </div>
+              <div>
+                <label class="field-label" for="gstin">GSTIN</label>
+                <input class="hlm-input" id="gstin" formControlName="gstin" maxlength="15"
+                       [class.is-invalid]="customerDetailsForm.get('gstin')?.touched && customerDetailsForm.get('gstin')?.errors?.['pattern']" />
+                @if (customerDetailsForm.get('gstin')?.touched && customerDetailsForm.get('gstin')?.errors?.['pattern']) {
+                  <div class="field-error">GSTIN format is invalid</div>
+                }
+              </div>
+              <div>
+                <label class="field-label" for="pan">PAN</label>
+                <input class="hlm-input" id="pan" formControlName="pan" maxlength="10" />
+              </div>
+              <div class="form-grid__full">
+                <label class="field-label" for="remarks">Remarks</label>
+                <textarea class="hlm-input" id="remarks" formControlName="remarks" rows="2"></textarea>
+              </div>
+            </div>
+
+            <div class="edit-card__actions">
+              <button type="button" class="hlm-btn hlm-btn-ghost" (click)="resetForm()" [disabled]="!customerDetailsForm.dirty">
+                <ng-icon name="lucideRotateCcw" size="14" aria-hidden="true"></ng-icon>
+                <span>Reset</span>
+              </button>
+              <button type="submit" class="hlm-btn hlm-btn-primary" [disabled]="!customerDetailsForm.dirty || !customerDetailsForm.valid || isLoading">
+                @if (isLoading) {
+                  <ng-icon name="lucideLoader" size="14" aria-hidden="true" class="animate-spin"></ng-icon>
+                  <span>Saving...</span>
+                } @else {
+                  <ng-icon name="lucideSave" size="14" aria-hidden="true"></ng-icon>
+                  <span>Save changes</span>
+                }
+              </button>
+            </div>
+          </div>
+        </form>
+      } @else {
+        <section class="detail-section">
+          <p class="detail-section__title">Additional details</p>
+          <div class="detail-grid">
+            <div>
+              <span class="detail-field__label">GSTIN</span>
+              <span class="detail-field__value" [class.is-empty]="!customer.gstin">{{ customer.gstin || 'Not on file' }}</span>
+            </div>
+            <div>
+              <span class="detail-field__label">PAN</span>
+              <span class="detail-field__value" [class.is-empty]="!customer.pan">{{ customer.pan || 'Not on file' }}</span>
+            </div>
+            <div>
+              <span class="detail-field__label">State</span>
+              <span class="detail-field__value" [class.is-empty]="!customer.state">
+                {{ customer.state || 'Not on file' }}
+                @if (customer.stateCode) {
+                  <span class="detail-field__hint tabular-nums"> ({{ customer.stateCode }})</span>
+                }
+              </span>
+            </div>
+            <div>
+              <span class="detail-field__label">Credit balance</span>
+              <span class="detail-field__value tabular-nums">{{ formatINR(creditBalance) }}</span>
+            </div>
+            <div class="detail-grid__full">
+              <span class="detail-field__label">Address</span>
+              <span class="detail-field__value" [class.is-empty]="!customer.address">
+                {{ customer.address || 'No address on file' }}
+              </span>
+            </div>
+          </div>
+        </section>
+      }
+
+      <section class="detail-section">
+        <div class="section-head">
+          <p class="detail-section__title" style="margin-bottom: 0;">Order history</p>
+          @if (totalOrders > 0) {
+            <span class="section-head__count tabular-nums">{{ totalOrders }} order{{ totalOrders === 1 ? '' : 's' }}</span>
+          }
+        </div>
+
+        @if (isLoadingOrders && customerOrdersData.length === 0) {
+          <div class="orders-empty">
+            <ng-icon name="lucideLoader" class="animate-spin" size="20" aria-hidden="true"></ng-icon>
+            <span>Loading orders...</span>
+          </div>
+        } @else if (customerOrdersData.length === 0) {
+          <div class="orders-empty">
+            <ng-icon name="lucideInbox" size="32" aria-hidden="true"></ng-icon>
+            <span class="orders-empty__title">No orders yet</span>
+            <span class="orders-empty__sub">Invoices raised for this customer will show up here.</span>
+          </div>
+        } @else {
+          <ul class="order-list">
+            @for (order of customerOrdersData; track order.orderGuid) {
+              <li class="order-list__row" (click)="goToViewOrderDetails(order)"
+                  role="button"
+                  tabindex="0"
+                  (keyup.enter)="goToViewOrderDetails(order)">
+                <div class="order-list__main">
+                  <span class="order-list__id tabular-nums">{{ order.invoiceNumber || ('#' + order.orderId) }}</span>
+                  <span class="order-list__date">{{ formatDateShort(order.orderDate) }}</span>
+                </div>
+                <div class="order-list__status">
+                  @if (isCancelled(order)) {
+                    <span class="status-chip status-chip--danger">
+                      <ng-icon name="lucideCircleX" size="12" aria-hidden="true"></ng-icon>
+                      Cancelled
+                    </span>
+                  } @else if (paymentIsDone(order.paymentStatus)) {
+                    <span class="status-chip status-chip--success">
+                      <ng-icon name="lucideCircleCheck" size="12" aria-hidden="true"></ng-icon>
+                      Paid
+                    </span>
+                  } @else {
+                    <span class="status-chip status-chip--warning">Pending</span>
+                  }
+                </div>
+                <span class="order-list__amount tabular-nums">{{ formatINR(order.grandTotal ?? order.totalAmountWithGst) }}</span>
+                <ng-icon name="lucideExternalLink" size="14" aria-hidden="true" class="order-list__arrow"></ng-icon>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+    </main>
+
+    <aside class="detail-side">
+      <div class="kpi-card">
+        <p class="kpi-label">Total spent</p>
+        <p class="kpi-value">{{ formatINR(totalAmount) }}</p>
+      </div>
+      <div class="side-row">
+        <div class="kpi-card kpi-card--compact">
+          <p class="kpi-label">Orders</p>
+          <p class="kpi-value kpi-value--sm tabular-nums">{{ totalOrders }}</p>
+        </div>
+        <div class="kpi-card kpi-card--compact">
+          <p class="kpi-label">Last visit</p>
+          <p class="kpi-value kpi-value--sm">{{ lastVisit || '-' }}</p>
+        </div>
+      </div>
+
+      <div class="notes-card">
+        <div class="notes-card__head">
+          <p class="notes-card__title">Notes</p>
+          @if (!editMode) {
+            <button type="button" class="icon-btn" (click)="toggleEditMode()" title="Edit notes" aria-label="Edit notes">
+              <ng-icon name="lucidePencil" size="14" aria-hidden="true"></ng-icon>
+            </button>
+          }
+        </div>
+        <p class="notes-card__body" [class.is-empty]="!customer.remarks">
+          {{ customer.remarks || 'No notes on file yet.' }}
+        </p>
+      </div>
+
+      <div class="notes-card">
+        <div class="notes-card__head">
+          <p class="notes-card__title">Photo</p>
+          <button type="button" class="icon-btn" (click)="toggleImageEditor()" title="{{ showImageEditor ? 'Close' : 'Edit photo' }}" aria-label="Edit photo">
+            <ng-icon [name]="showImageEditor ? 'lucideX' : 'lucidePencil'" size="14" aria-hidden="true"></ng-icon>
+          </button>
+        </div>
+
+        @if (showImageEditor) {
+          <div class="photo-editor">
+            <app-image-upload [activeColor]="'var(--color-accent)'" [baseColor]="'var(--color-border)'"></app-image-upload>
+            <div class="photo-editor__actions">
+              <button type="button" class="hlm-btn hlm-btn-ghost" (click)="clearImage()">
+                <ng-icon name="lucideRotateCcw" size="14" aria-hidden="true"></ng-icon>
+                <span>Reset</span>
+              </button>
+              @if (initialCustomerImageSrc) {
+                <button type="button" class="hlm-btn hlm-btn-ghost" (click)="deleteCustomerImage()">
+                  <ng-icon name="lucideTrash2" size="14" aria-hidden="true"></ng-icon>
+                  <span>Delete</span>
+                </button>
+              }
+              <button type="button" class="hlm-btn hlm-btn-primary" (click)="updateCustomerImage()">
+                <ng-icon name="lucideSave" size="14" aria-hidden="true"></ng-icon>
+                <span>Save</span>
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </aside>
+  </div>
+} @else {
+  <div class="loading-state">
+    <ng-icon name="lucideLoader" class="animate-spin" size="24" aria-hidden="true"></ng-icon>
+    <span>Loading customer...</span>
+  </div>
+}

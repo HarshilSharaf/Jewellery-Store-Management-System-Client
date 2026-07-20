@@ -1,28 +1,138 @@
-<app-page-header [pageName]="'Customers'"></app-page-header>
-
-<div class="customers-toolbar">
-    <button type="button" class="hlm-btn hlm-btn-primary" (click)="openAddCustomerDialog()">
-        <ng-icon name="lucidePlus" aria-hidden="true"></ng-icon>
-        <span>Add Customer</span>
-    </button>
+<div class="page-title">
+  <div class="page-title__group">
+    <h1 class="page-title__heading">People</h1>
+    @if (totalRecords > 0) {
+      <span class="page-title__count">({{ totalRecords }} customer{{ totalRecords === 1 ? '' : 's' }})</span>
+    }
+  </div>
+  <button type="button" class="hlm-btn hlm-btn-primary" (click)="openAddCustomerDialog()">
+    <ng-icon name="lucideUserPlus" size="16" aria-hidden="true"></ng-icon>
+    <span>Add customer</span>
+  </button>
 </div>
 
-<div class="customers-table-wrap">
-    <app-data-table [COLUMNS_SCHEMA]="displayNameForColumns" [tableColumns]="tableColumns"
-        [tableData]="customerData"
-        [totalRecords]="totalRecords"
-        (viewDetails)="goToViewDetails($event)" (deleteItem)="openDeletePopUpForItem($event)"
-        (refreshDataSource)="getAllCustomersData()" [entityText]="'Customers'"
-        [sortByColumn]="'customerName'"
-        (searchQuery)="handleSearchQuery($event)"
-        (pageChangeEvent)="handlePageChange($event)"
-        [isLoading]="isLoading"
-        >
-    </app-data-table>
+<div class="list-toolbar">
+  <div class="search-input">
+    <ng-icon name="lucideSearch" size="14" aria-hidden="true" class="search-input__icon"></ng-icon>
+    <input
+      type="search"
+      class="hlm-input"
+      placeholder="Search name, phone, city..."
+      [value]="searchQuery"
+      (input)="onSearchInput($any($event.target).value)"
+      aria-label="Search customers" />
+  </div>
 </div>
+
+<section class="people-table">
+  <div class="people-table__head">
+    <span class="col-name">Customer</span>
+    <span class="col-city">City</span>
+    <span class="col-remarks">Notes</span>
+    <span class="col-actions" aria-hidden="true"></span>
+  </div>
+
+  @if (isLoading && !hasCustomers()) {
+    <div class="people-table__loading">
+      <ng-icon name="lucideLoader" class="animate-spin" size="20" aria-hidden="true"></ng-icon>
+      <span>Loading customers...</span>
+    </div>
+  }
+
+  @for (customer of customerData; track customer.customerGuid) {
+    <div
+      class="data-row people-row"
+      role="button"
+      tabindex="0"
+      (click)="onRowClick($event, customer)"
+      (keyup.enter)="goToViewDetails(customer)">
+      <div class="col-name">
+        <span class="avatar avatar--sm">{{ initialsFor(customer) }}</span>
+        <div class="name-block">
+          <span class="name-block__name">{{ customer.customerName || '(no name)' }}</span>
+          @if (customer.phoneNumber) {
+            <span class="name-block__sub tabular-nums">
+              <ng-icon name="lucidePhone" size="11" aria-hidden="true"></ng-icon>
+              {{ customer.phoneNumber }}
+            </span>
+          }
+        </div>
+      </div>
+      <div class="col-city">
+        @if (customer.city) {
+          <span class="cell-text">
+            <ng-icon name="lucideMapPin" size="12" aria-hidden="true" class="cell-icon"></ng-icon>
+            {{ customer.city }}
+          </span>
+        } @else {
+          <span class="cell-empty">-</span>
+        }
+      </div>
+      <div class="col-remarks">
+        @if (customer.remarks) {
+          <span class="cell-text-muted">{{ customer.remarks }}</span>
+        } @else if (customer.email) {
+          <span class="cell-text-muted">
+            <ng-icon name="lucideMail" size="12" aria-hidden="true" class="cell-icon"></ng-icon>
+            {{ customer.email }}
+          </span>
+        } @else {
+          <span class="cell-empty">-</span>
+        }
+      </div>
+      <div class="col-actions data-row-actions">
+        <button type="button"
+                class="icon-btn"
+                (click)="goToViewDetails(customer); $event.stopPropagation()"
+                title="View details"
+                aria-label="View details">
+          <ng-icon name="lucideExternalLink" size="15" aria-hidden="true"></ng-icon>
+        </button>
+        <button type="button"
+                class="icon-btn icon-btn--danger"
+                (click)="openDeletePopUpForItem($event, customer)"
+                title="Delete customer"
+                aria-label="Delete customer">
+          <ng-icon name="lucideTrash2" size="15" aria-hidden="true"></ng-icon>
+        </button>
+      </div>
+    </div>
+  }
+
+  @if (showEmptyState()) {
+    <div class="empty-state">
+      <ng-icon name="lucideUsers" size="32" aria-hidden="true"></ng-icon>
+      <p class="empty-state__title">No customers yet</p>
+      <p class="empty-state__sub">Add your first customer to start tracking orders.</p>
+      <button type="button" class="hlm-btn hlm-btn-primary" (click)="openAddCustomerDialog()">
+        <ng-icon name="lucideUserPlus" size="14" aria-hidden="true"></ng-icon>
+        <span>Add your first customer</span>
+      </button>
+    </div>
+  }
+
+  @if (showNoResults()) {
+    <div class="empty-state">
+      <ng-icon name="lucideSearch" size="32" aria-hidden="true"></ng-icon>
+      <p class="empty-state__title">No customers match "{{ searchQuery }}"</p>
+      <button type="button" class="hlm-btn hlm-btn-ghost" (click)="clearSearch()">
+        Clear search
+      </button>
+    </div>
+  }
+</section>
+
+@if (totalRecords > pageSize) {
+  <app-simple-paginator
+    [length]="totalRecords"
+    [pageSize]="pageSize"
+    [pageIndex]="pageIndex"
+    (page)="onPageChange($event)">
+  </app-simple-paginator>
+}
 
 <app-add-customer-form
-    [open]="showAddCustomerForm"
-    (closed)="onAddCustomerClosed()"
-    (refreshDataSource)="getAllCustomersData()">
+  [open]="showAddCustomerForm"
+  (closed)="onAddCustomerClosed()"
+  (refreshDataSource)="getAllCustomersData()">
 </app-add-customer-form>

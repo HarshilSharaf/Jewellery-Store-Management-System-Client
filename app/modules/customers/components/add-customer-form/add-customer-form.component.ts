@@ -2,13 +2,14 @@ import { Component, EventEmitter, HostListener, Input, Output, ViewChild } from 
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideX, lucideLoader } from '@ng-icons/lucide';
+import { lucideX, lucideLoader, lucideUser } from '@ng-icons/lucide';
 import { HttpResponse } from '../../../../models/http-response';
 import { FileSystemService } from '../../../../../../Backend/Shared/file-system.service';
 import { CustomerDetails } from '../../models/customerDetails';
 import { CustomerDataService } from '../../services/customer-data.service';
 import { ImageUploadComponent } from '../image-upload/image-upload.component';
 import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
+import { INDIAN_STATES, GSTIN_REGEX } from '../../../../shared/utils/indian-states';
 
 @Component({
   selector: 'app-add-customer-form',
@@ -16,12 +17,11 @@ import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
   styleUrls: ['./add-customer-form.component.scss'],
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, ImageUploadComponent, NgIcon],
-  viewProviders: [provideIcons({ lucideX, lucideLoader })],
+  viewProviders: [provideIcons({ lucideX, lucideLoader, lucideUser })],
 })
 export class AddCustomerFormComponent {
-
-  public isLoading: boolean = false;
-  public addCustomerResponse: HttpResponse = { status: 0, message: '' }
+  public isLoading = false;
+  public addCustomerResponse: HttpResponse = { status: 0, message: '' };
 
   @Input() open = false;
 
@@ -29,57 +29,65 @@ export class AddCustomerFormComponent {
   @Output() refreshDataSource = new EventEmitter<boolean>();
   @ViewChild(ImageUploadComponent, { static: false }) customerPhotoComponent!: ImageUploadComponent;
 
-  customerDetailsForm: FormGroup
+  customerDetailsForm: FormGroup;
+
+  protected readonly states = INDIAN_STATES;
+  protected readonly gstinPattern = GSTIN_REGEX;
 
   constructor(
     private formBuilder: FormBuilder,
     private customerService: CustomerDataService,
     private fileSystemService: FileSystemService,
-    private loggerService: LoggerService
+    private loggerService: LoggerService,
   ) {
     this.customerDetailsForm = this.formBuilder.group({
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
       dateOfBirth: [this.formatDate(new Date())],
       gender: ['female'],
-      address: [''],
-      email: [''],
       phoneNumber: ['', Validators.required],
+      email: [''],
+      address: [''],
       city: ['', Validators.required],
       state: [''],
       stateCode: [''],
-      gstin: [''],
+      gstin: ['', [Validators.pattern(this.gstinPattern)]],
       pan: [''],
       remarks: [''],
     });
   }
 
-  showAdditional = false;
-  toggleAdditional() { this.showAdditional = !this.showAdditional; }
-
   @HostListener('document:keydown.escape')
-  onEscape() {
+  onEscape(): void {
     if (this.open && !this.isLoading) {
       this.requestClose();
     }
   }
 
-  requestClose() {
+  requestClose(): void {
     this.closed.emit();
   }
 
-  onOverlayClick(event: MouseEvent) {
+  onOverlayClick(event: MouseEvent): void {
     if ((event.target as HTMLElement)?.classList.contains('modal-overlay')) {
       this.requestClose();
     }
   }
 
-  async submitForm() {
-    this.loggerService.LogInfo("addCustomer() Request Started.")
+  onStateChange(value: string): void {
+    const match = this.states.find((s) => s.name === value);
+    if (match) {
+      this.customerDetailsForm.patchValue({ stateCode: match.code });
+    } else {
+      this.customerDetailsForm.patchValue({ stateCode: '' });
+    }
+  }
 
-    const addCustomerFormData:CustomerDetails =  {...this.customerDetailsForm.value}
+  async submitForm(): Promise<void> {
+    this.loggerService.LogInfo('addCustomer() Request Started.');
 
-    addCustomerFormData.imagePath = this.customerPhotoComponent?.customerPhoto?.name ?? null
+    const addCustomerFormData: CustomerDetails = { ...this.customerDetailsForm.value };
+    addCustomerFormData.imagePath = this.customerPhotoComponent?.customerPhoto?.name ?? null;
 
     this.isLoading = true;
 
@@ -87,39 +95,43 @@ export class AddCustomerFormComponent {
       const data: CustomerDetails[] = await this.customerService.addCustomer(addCustomerFormData);
       if (data[0].imagePath != null && this.customerPhotoComponent?.customerPhoto != null) {
         try {
-          await this.fileSystemService.saveCustomerImage(this.customerPhotoComponent.customerPhoto, data[0].imagePath)
+          await this.fileSystemService.saveCustomerImage(this.customerPhotoComponent.customerPhoto, data[0].imagePath);
         } catch (error) {
-          this.loggerService.LogError(error as string, "saveCustomerImage() From add-customer component.")
+          this.loggerService.LogError(error as string, 'saveCustomerImage() From add-customer component.');
         }
       }
       this.refreshDataSource.emit(true);
-      this.addCustomerResponse.status = 200
-      this.addCustomerResponse.message = "Customer Added Successfully!"
-      this.isLoading = false
-      this.loggerService.LogInfo("addCustomer() Request Completed.")
+      this.addCustomerResponse.status = 200;
+      this.addCustomerResponse.message = 'Customer added successfully.';
+      this.isLoading = false;
+      this.loggerService.LogInfo('addCustomer() Request Completed.');
+      setTimeout(() => {
+        this.clearForm();
+        this.requestClose();
+      }, 600);
     } catch (error) {
-      this.addCustomerResponse.status = 500
-      this.addCustomerResponse.message = error as string
-      this.isLoading = false
-      this.loggerService.LogError(error, "addCustomer()")
+      this.addCustomerResponse.status = 500;
+      this.addCustomerResponse.message = error as string;
+      this.isLoading = false;
+      this.loggerService.LogError(error, 'addCustomer()');
     }
   }
 
-  clearForm() {
+  clearForm(): void {
     if (this.customerPhotoComponent) {
-      this.customerPhotoComponent.customerPhoto = null
-      this.customerPhotoComponent.imageSrc = ''
-      this.customerPhotoComponent.imageLoaded = false
+      this.customerPhotoComponent.customerPhoto = null;
+      this.customerPhotoComponent.imageSrc = '';
+      this.customerPhotoComponent.imageLoaded = false;
     }
-    this.isLoading = false
-    this.addCustomerResponse = { status: 0, message: '' }
+    this.isLoading = false;
+    this.addCustomerResponse = { status: 0, message: '' };
     this.customerDetailsForm.reset({
       dateOfBirth: this.formatDate(new Date()),
       gender: 'female',
     });
   }
 
-  private formatDate(date: Date) {
+  private formatDate(date: Date): string {
     const d = new Date(date);
     let month = '' + (d.getMonth() + 1);
     let day = '' + d.getDate();
