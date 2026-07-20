@@ -1,0 +1,20 @@
+<div class="app-toast-stack" data-position="top-end" aria-live="polite">
+  <div *ngFor="let t of service.items(); trackBy: trackById"
+       class="app-toast-item"
+       [attr.data-variant]="t.variant"
+       (mouseenter)="onPause(t.id)"
+       (mouseleave)="onResume(t.id)"
+       role="status">
+    <span class="app-toast-icon" [attr.data-variant]="t.variant">
+      <ng-icon [name]="iconName(t.variant)" size="16" aria-hidden="true"></ng-icon>
+    </span>
+    <div class="app-toast-body">
+      <div *ngIf="t.title" class="app-toast-title">{{ t.title }}</div>
+      <div *ngIf="t.text" class="app-toast-text">{{ t.text }}</div>
+    </div>
+    <button type="button" class="app-toast-close" (click)="onDismiss(t.id)" aria-label="Dismiss">
+      <ng-icon name="lucideX" size="12" aria-hidden="true"></ng-icon>
+    </button>
+    <span *ngIf="t.timer > 0" class="app-toast-progress" [style.animation-duration.ms]="t.timer"></span>
+  </div>
+</div>

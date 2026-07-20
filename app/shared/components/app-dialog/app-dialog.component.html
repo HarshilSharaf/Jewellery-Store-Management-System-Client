@@ -1,0 +1,81 @@
+<ng-container *ngIf="options() as opts">
+  <div class="app-dialog-backdrop" (click)="onBackdropClick()"></div>
+
+  <div class="app-dialog-panel"
+       #panel
+       role="dialog"
+       aria-modal="true"
+       [attr.aria-label]="opts.title || 'Dialog'"
+       [attr.data-size]="opts.size ?? 'md'"
+       [attr.data-variant]="opts.variant ?? 'default'"
+       (click)="$event.stopPropagation()">
+
+    <button type="button"
+            class="app-dialog-close"
+            (click)="onCloseClick()"
+            [disabled]="busy()"
+            aria-label="Close">
+      <ng-icon name="lucideX" size="14" aria-hidden="true"></ng-icon>
+    </button>
+
+    <div class="app-dialog-head">
+      <ng-container *ngIf="iconName(opts.icon) as iconRef">
+        <span class="app-dialog-icon" [ngClass]="iconVariantClass(opts.icon)">
+          <ng-icon [name]="iconRef" size="20" aria-hidden="true"></ng-icon>
+        </span>
+      </ng-container>
+      <div class="app-dialog-heading">
+        <h2 *ngIf="opts.title" class="app-dialog-title">{{ opts.title }}</h2>
+        <p *ngIf="opts.text" class="app-dialog-text">{{ opts.text }}</p>
+        <div *ngIf="opts.html && !opts.text" class="app-dialog-text" [innerHTML]="opts.html"></div>
+      </div>
+    </div>
+
+    <div *ngIf="opts.input" class="app-dialog-input-wrap">
+      <label *ngIf="opts.inputLabel" class="app-dialog-input-label">{{ opts.inputLabel }}</label>
+      <ng-container [ngSwitch]="opts.input">
+        <textarea *ngSwitchCase="'textarea'"
+                  #firstFocus
+                  class="app-dialog-input app-dialog-textarea"
+                  rows="3"
+                  [placeholder]="opts.inputPlaceholder || ''"
+                  [ngModel]="inputValue()"
+                  (ngModelChange)="onInputChange($event)"
+                  [disabled]="busy()"></textarea>
+        <input *ngSwitchDefault
+               #firstFocus
+               class="app-dialog-input"
+               [type]="opts.input"
+               [placeholder]="opts.inputPlaceholder || ''"
+               [ngModel]="inputValue()"
+               (ngModelChange)="onInputChange($event)"
+               (keydown)="onInputKeydown($event)"
+               [disabled]="busy()">
+      </ng-container>
+      <p *ngIf="inputError()" class="app-dialog-input-error">{{ inputError() }}</p>
+    </div>
+
+    <p *ngIf="!opts.input && inputError()" class="app-dialog-input-error">{{ inputError() }}</p>
+
+    <div class="app-dialog-actions">
+      <button *ngIf="opts.showCancelButton"
+              type="button"
+              class="app-dialog-btn app-dialog-btn--secondary"
+              (click)="onCancelClick()"
+              [disabled]="busy()">
+        {{ opts.cancelButtonText || 'Cancel' }}
+      </button>
+      <button *ngIf="opts.showConfirmButton !== false"
+              #confirmBtn
+              type="button"
+              class="app-dialog-btn"
+              [class.app-dialog-btn--primary]="opts.variant !== 'danger'"
+              [class.app-dialog-btn--danger]="opts.variant === 'danger'"
+              (click)="onConfirmClick()"
+              [disabled]="busy()">
+        <span *ngIf="busy()" class="app-dialog-spinner" aria-hidden="true"></span>
+        {{ opts.confirmButtonText || 'OK' }}
+      </button>
+    </div>
+  </div>
+</ng-container>

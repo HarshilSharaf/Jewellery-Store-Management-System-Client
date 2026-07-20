@@ -6,6 +6,8 @@ import { RailComponent } from './rail/rail.component';
 import { TopBarComponent } from './top-bar.component';
 import { CartSideBarComponent } from '../cart-side-bar/cart-side-bar.component';
 import { CommandPaletteComponent } from '../command-palette/command-palette.component';
+import { AppDialogComponent } from '../app-dialog/app-dialog.component';
+import { AppToastComponent } from '../app-toast/app-toast.component';
 
 @Component({
   selector: 'app-shell',
@@ -19,6 +21,8 @@ import { CommandPaletteComponent } from '../command-palette/command-palette.comp
     TopBarComponent,
     CartSideBarComponent,
     CommandPaletteComponent,
+    AppDialogComponent,
+    AppToastComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

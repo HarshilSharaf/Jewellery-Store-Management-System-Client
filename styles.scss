@@ -476,53 +476,8 @@ small, .text-sm { font-size: var(--fs-sm); }
 .text-md { font-size: var(--fs-md); }
 .text-lg { font-size: var(--fs-lg); }
 
-// -------------------------------------------------------------------------
-// SweetAlert2 - re-theme to token palette so alerts look native to the app.
-// -------------------------------------------------------------------------
-.swal2-popup {
-  border-radius: var(--radius-xl) !important;
-  font-family: var(--font-sans) !important;
-  box-shadow: var(--shadow-lg) !important;
-  background: var(--color-panel) !important;
-  color: var(--color-fg) !important;
-  border: 1px solid var(--color-border-subtle);
-}
-
-.swal2-title {
-  color: var(--color-fg) !important;
-  font-weight: var(--fw-bold) !important;
-  font-size: var(--fs-xl) !important;
-}
-
-.swal2-html-container {
-  color: var(--color-fg-muted) !important;
-  font-size: var(--fs-base) !important;
-}
-
-.swal2-confirm {
-  background-color: var(--color-accent) !important;
-  color: var(--color-accent-fg) !important;
-  border-radius: var(--radius-md) !important;
-  font-weight: 600 !important;
-  padding: 0.6rem 1.5rem !important;
-  box-shadow: var(--shadow-sm) !important;
-}
-
-.swal2-cancel {
-  border-radius: var(--radius-md) !important;
-  font-weight: 600 !important;
-  padding: 0.6rem 1.5rem !important;
-  background-color: var(--color-bg-subtle) !important;
-  color: var(--color-fg) !important;
-}
-
-.swal2-deny {
-  background-color: var(--color-danger) !important;
-  border-radius: var(--radius-md) !important;
-  color: white !important;
-  font-weight: 600 !important;
-  padding: 0.6rem 1.5rem !important;
-}
+// Workstream EE — SweetAlert2 removed in favor of in-house AppDialog/AppToast.
+// Component-scoped recipes live in app-dialog.component.scss + app-toast.component.scss.
 
 // -------------------------------------------------------------------------
 // Bootstrap-compat token bridge
