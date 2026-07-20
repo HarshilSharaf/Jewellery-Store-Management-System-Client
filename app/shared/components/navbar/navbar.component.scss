@@ -27,6 +27,12 @@
   margin-right: 0.5rem;
 }
 
+.nav-item--rate-pill {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 0.75rem;
+}
+
 // The circular button visual comes from the .hlm-btn-icon Tailwind recipe
 // on the template. Only accent hover for the inner icon lives here since
 // ::ng-deep is needed to reach through <ng-icon>'s shadow-DOM-ish host.
