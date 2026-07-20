@@ -1,0 +1,219 @@
+.profile-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-height: 100%;
+}
+
+.profile-shell {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 1fr);
+
+  @media (max-width: 1100px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.profile-main {
+  background: var(--color-panel);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 28px 32px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+}
+
+// -----------------------------------------------------------------------------
+// Hero (avatar + name + role chip + email)
+// -----------------------------------------------------------------------------
+.profile-hero {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--color-border-subtle);
+
+  &__avatar {
+    position: relative;
+  }
+
+  &__meta {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+  }
+
+  &__name {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: 2rem;
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+    color: var(--color-fg);
+    word-break: break-word;
+  }
+
+  &__email {
+    font-size: var(--fs-sm);
+    color: var(--color-fg-muted);
+  }
+
+  &__photo-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+    flex-wrap: wrap;
+  }
+}
+
+.hlm-btn--sm {
+  padding: 0.35rem 0.75rem;
+  font-size: 12px;
+}
+
+.avatar-edit-btn {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid var(--color-panel);
+  background: var(--color-accent);
+  color: var(--color-accent-fg);
+  cursor: pointer;
+  transition: transform 0.12s ease, background 0.12s ease;
+
+  &:hover, &:focus-visible {
+    background: var(--color-accent-hover);
+    transform: scale(1.05);
+    outline: none;
+  }
+}
+
+// The image-upload component + its actions are visually hidden but kept in the
+// DOM so we can pipe the file input through it (its `handleInputChange` reads
+// dropped/selected files, and its FileReader-driven imageSrc flows into
+// our updateUserImage flow).
+.hidden-uploader {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+
+  &__actions { display: none; }
+}
+
+// -----------------------------------------------------------------------------
+// Role chip
+// -----------------------------------------------------------------------------
+.role-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  align-self: flex-start;
+
+  &--admin {
+    background: var(--color-accent-subtle);
+    color: var(--color-accent-fg);
+    border: 1px solid color-mix(in oklab, var(--color-accent) 30%, transparent);
+  }
+  &--manager {
+    background: var(--color-warning-subtle);
+    color: var(--color-warning-fg);
+    border: 1px solid color-mix(in oklab, var(--color-warning) 30%, transparent);
+  }
+  &--employee {
+    background: var(--color-bg-subtle);
+    color: var(--color-fg-muted);
+    border: 1px solid var(--color-border-subtle);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Readonly field (rendered next to editable inputs to keep alignment)
+// -----------------------------------------------------------------------------
+.readonly-field {
+  padding: 0.6rem 0.85rem;
+  border: 1px dashed var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-subtle);
+  color: var(--color-fg-muted);
+  font-size: var(--fs-sm);
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+}
+
+// -----------------------------------------------------------------------------
+// Right column: KPI mini tiles + sign out
+// -----------------------------------------------------------------------------
+.profile-side {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.kpi-mini {
+  padding: 18px 20px;
+  background: var(--color-panel);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  &__label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--color-fg-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+
+    ng-icon { color: var(--color-fg-subtle); }
+  }
+  &__value {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: 1.5rem;
+    line-height: 1.15;
+    color: var(--color-fg);
+    letter-spacing: -0.01em;
+  }
+  &__hint {
+    font-size: 11px;
+    color: var(--color-fg-subtle);
+  }
+}
+
+.signout-btn {
+  align-self: stretch;
+  justify-content: center;
+  border: 1px solid var(--color-border-subtle);
+}
+
+.animate-spin {
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

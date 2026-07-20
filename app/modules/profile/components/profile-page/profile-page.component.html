@@ -1,120 +1,155 @@
-<app-page-header [pageName]="'Edit Profile'"></app-page-header>
+<div class="profile-page">
 
+  <header class="page-title">
+    <div class="page-title__group">
+      <h1 class="page-title__heading">Profile</h1>
+      <span class="page-title__count">Account &amp; security</span>
+    </div>
+  </header>
 
-<div class="container-xl px-4 mt-4">
+  <div class="profile-shell">
 
-  <div class="row">
+    <div class="profile-main">
 
-    <div class="col-md-5">
-      <!-- Profile picture card-->
-
-      <div class="row">
-        <div class="col">
-          <div class="card mb-4 mb-xl-0">
-            <div class="card-header">User Profile Picture</div>
-            <div class="card-body text-center">
-              <app-image-upload></app-image-upload>
-              <!-- Profile picture upload button-->
-              <div class="row">
-                <div class="col">
-                                    <button [ngClass]="{'disabled': userCurrentImage == null || userCurrentImage == undefined || 
-                                    imageUploadComponent.imageSrc == initialUserImageSrc}" class="btn btn-success mt-3"
-                    type="button" (click)="updateUserImage()">
-                    <ng-icon name="lucidePencil" aria-hidden="true"></ng-icon> Update
-                  </button>
-                </div>
-                <div class="col">
-                  <button class="btn btn-danger mt-3" type="button" (click)="deleteUserImage()"
-                    [ngClass]="{'disabled': initialUserImageSrc == '' || initialUserImageSrc == null}">
-                    <ng-icon name="lucideTrash" aria-hidden="true"></ng-icon> Delete
-                  </button>
-
-                </div>
-                <div class="col">
-                  <button type="button" class="btn btn-outline-dark mt-3" (click)="clearImage()">
-                    <ng-icon name="lucideRotateCcw" aria-hidden="true"></ng-icon> Reset
-                  </button>
-
-                </div>
-              </div>
-
-
-            </div>
+      <section class="profile-hero">
+        <div class="profile-hero__avatar">
+          <div class="avatar avatar--xl">
+            @if (imageUploadComponent && imageUploadComponent.imageSrc) {
+              <img [src]="imageUploadComponent.imageSrc" alt="">
+            } @else if (thumbnail()) {
+              <img [src]="thumbnail()" alt="">
+            } @else {
+              <span>{{ avatarInitial() }}</span>
+            }
+          </div>
+          <button type="button" class="avatar-edit-btn" (click)="fileInput.click()" title="Change photo" aria-label="Change profile photo">
+            <ng-icon name="lucidePencil" size="14" aria-hidden="true"></ng-icon>
+          </button>
+          <input #fileInput type="file" accept="image/*" hidden (change)="imageUploadComponent.handleInputChange($event)">
+        </div>
+        <div class="profile-hero__meta">
+          <h2 class="profile-hero__name">{{ userDetails()?.userName || '—' }}</h2>
+          @if (userDetails()?.type) {
+            <span [ngClass]="roleChipClass()">{{ userDetails()?.type }}</span>
+          }
+          @if (userDetails()?.email) {
+            <div class="profile-hero__email">{{ userDetails()?.email }}</div>
+          }
+          <div class="profile-hero__photo-actions">
+            @if (userCurrentImage && imageUploadComponent && imageUploadComponent.imageSrc !== initialUserImageSrc()) {
+              <button type="button" class="hlm-btn hlm-btn-primary hlm-btn--sm" (click)="updateUserImage()">
+                <ng-icon name="lucideSave" size="14" aria-hidden="true"></ng-icon>
+                Save photo
+              </button>
+              <button type="button" class="hlm-btn hlm-btn-ghost hlm-btn--sm" (click)="clearImage()">Cancel</button>
+            } @else if (initialUserImageSrc()) {
+              <button type="button" class="hlm-btn hlm-btn-ghost hlm-btn--sm" (click)="deleteUserImage()">
+                <ng-icon name="lucideTrash" size="14" aria-hidden="true"></ng-icon>
+                Remove photo
+              </button>
+            }
           </div>
         </div>
+      </section>
+
+      <div class="hidden-uploader">
+        <app-image-upload></app-image-upload>
       </div>
 
-    </div>
-    <div class="col-md-7">
-      <!-- Account details card-->
-      <div class="card mb-4">
-        <div class="card-header">User Details</div>
-        <div class="card-body">
-          @if (userDetailsForm) {
-            <form [formGroup]="userDetailsForm" (ngSubmit)="updateUserDetails()">
-              <!-- Form Row-->
-              <div class="row gx-3 mb-3">
-                <!-- Form Group (User name)-->
-                <div class="col">
-                  <label class="small mb-1" for="userName">User name</label>
-                  <input class="form-control" name="userName" id="userName" formControlName="userName"
-                    placeholder="Enter your User Name">
-                    <!-- First Name Validation Message -->
-                    <div class="row">
-                      <div class="col text-center">
-                        @if ((userDetailsForm.get('userName')?.touched || userDetailsForm.valid) && userDetailsForm.get('userName')?.errors?.['required']) {
-                          <span class="text-danger text-bold"
-                            >
-                            User Name is required
-                          </span>
-                        }
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <!-- Form Group (email address)-->
-                <div class="row mb-3">
-                  <div class="col">
-                    <label class="small mb-1" for="email">Email address</label>
-                    <input type="email" name="email" class="form-control" id="email" formControlName="email"
-                      placeholder="Enter Email">
-                    </div>
-                  </div>
-                  <!-- Form Group (password)-->
-                  <div class="row mb-3">
-                    <div class="col">
-                      <label class="small mb-1" for="password">Change Password</label>
-                      <input type="password" name="password" class="form-control" id="password" formControlName="password"
-                        placeholder="Enter password">
-                      </div>
-                    </div>
-                    <!-- Save changes button-->
-                    <div class="row text-center">
-                      <div class="col">
-                                <button class="btn btn-primary mx-4" [ngClass]="{'disabled': !userDetailsForm.dirty ||
-                                    !userDetailsForm.valid}" type="submit">
-                          @if (isLoading) {
-                            <div>
-                              <ng-icon name="lucideLoader" class="animate-spin" aria-hidden="true"></ng-icon>
-                            </div>
-                          }
-                          @if (!isLoading) {
-                            <div>
-                              <ng-icon name="lucideSave" aria-hidden="true"></ng-icon> Save changes
-                            </div>
-                          }
-                        </button>
-                        <button class="btn btn-danger mx-4 mt-xs-2 mt-md-0"
-                          [ngClass]="{'disabled': !userDetailsForm.dirty}" type="button"
-                          (click)="resetForm()">
-                          <ng-icon name="lucideRotateCcw" aria-hidden="true"></ng-icon> Reset
-                        </button>
-                      </div>
-                    </div>
-                  </form>
+      @if (userDetailsForm) {
+        <form [formGroup]="userDetailsForm" (ngSubmit)="updateUserDetails()">
+
+          <div class="form-section">
+            <h3 class="section-heading">Account</h3>
+            <div class="field-grid">
+              <div>
+                <label class="field-label" for="userName">Username</label>
+                <input id="userName" class="hlm-input" formControlName="userName"
+                       [class.is-invalid]="userDetailsForm.get('userName')?.touched && userDetailsForm.get('userName')?.errors?.['required']">
+                @if (userDetailsForm.get('userName')?.touched && userDetailsForm.get('userName')?.errors?.['required']) {
+                  <span class="field-error">Username is required</span>
                 }
               </div>
+              <div>
+                <label class="field-label" for="email">Email</label>
+                <input id="email" type="email" class="hlm-input" formControlName="email">
+              </div>
+              <div>
+                <label class="field-label">Role</label>
+                <div class="readonly-field">{{ userDetails()?.type || '—' }}</div>
+              </div>
+              <div>
+                <label class="field-label">Created</label>
+                <div class="readonly-field tabular-nums">{{ formatDate(userDetails()?.created_on) }}</div>
+              </div>
             </div>
           </div>
+
+          <div class="form-section">
+            <h3 class="section-heading">Change password</h3>
+            <div class="field-grid">
+              <div>
+                <label class="field-label" for="currentPassword">Current password</label>
+                <input id="currentPassword" type="password" class="hlm-input" formControlName="currentPassword" placeholder="Enter current password" autocomplete="current-password">
+              </div>
+              <div><!-- blank cell for grid alignment --></div>
+              <div>
+                <label class="field-label" for="password">New password</label>
+                <input id="password" type="password" class="hlm-input" formControlName="password" placeholder="Enter new password" autocomplete="new-password">
+              </div>
+              <div>
+                <label class="field-label" for="confirmPassword">Confirm new password</label>
+                <input id="confirmPassword" type="password" class="hlm-input" formControlName="confirmPassword" placeholder="Repeat new password" autocomplete="new-password">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="hlm-btn hlm-btn-ghost" (click)="resetForm()" [disabled]="!userDetailsForm.dirty">
+              <ng-icon name="lucideRotateCcw" size="14" aria-hidden="true"></ng-icon>
+              Reset
+            </button>
+            <button type="submit" class="hlm-btn hlm-btn-primary" [disabled]="!userDetailsForm.dirty || !userDetailsForm.valid || isSaving()">
+              @if (isSaving()) {
+                <ng-icon name="lucideLoader" class="animate-spin" size="14" aria-hidden="true"></ng-icon>
+                Saving...
+              } @else {
+                <ng-icon name="lucideSave" size="14" aria-hidden="true"></ng-icon>
+                Save changes
+              }
+            </button>
+          </div>
+        </form>
+      }
+    </div>
+
+    <aside class="profile-side">
+      <div class="detail-side">
+
+        <div class="kpi-mini">
+          <div class="kpi-mini__label">
+            <ng-icon name="lucideFileText" size="14" aria-hidden="true"></ng-icon>
+            <span>Invoices created</span>
+          </div>
+          <div class="kpi-mini__value tabular-nums">—</div>
+          <div class="kpi-mini__hint">Reports land in Phase 2.</div>
         </div>
+
+        <div class="kpi-mini">
+          <div class="kpi-mini__label">
+            <ng-icon name="lucideClock" size="14" aria-hidden="true"></ng-icon>
+            <span>Last login</span>
+          </div>
+          <div class="kpi-mini__value tabular-nums">{{ formatDate(userDetails()?.last_login_date) }}</div>
+        </div>
+
+        <button type="button" class="hlm-btn hlm-btn-ghost signout-btn" (click)="logout()">
+          <ng-icon name="lucideLogOut" size="14" aria-hidden="true"></ng-icon>
+          Sign out
+        </button>
       </div>
+    </aside>
+
+  </div>
+
+</div>

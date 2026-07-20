@@ -1,19 +1,28 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ImageUploadComponent } from '../image-upload/image-upload.component';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
+import Swal from 'sweetalert2';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import {
+  lucidePencil,
+  lucideTrash,
+  lucideRotateCcw,
+  lucideSave,
+  lucideLoader,
+  lucideLogOut,
+  lucideFileText,
+  lucideClock,
+} from '@ng-icons/lucide';
+
+import { ImageUploadComponent } from '../image-upload/image-upload.component';
 import { StoreService } from '../../../../../../Backend/Shared/store.service';
 import { UserService } from '../../services/user.service';
 import { AuthService } from '../../../../shared/services/Auth/auth.service';
-import Swal from 'sweetalert2';
 import { UtilityService } from 'Backend/Shared/utitlity.service';
 import { FileSystemService } from '../../../../../../Backend/Shared/file-system.service';
 import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
 import { UserDetailsModel } from '../../models/user-details-model';
-import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucidePencil, lucideTrash, lucideRotateCcw, lucideSave, lucideLoader } from '@ng-icons/lucide';
 
 
 @Component({
@@ -21,29 +30,55 @@ import { lucidePencil, lucideTrash, lucideRotateCcw, lucideSave, lucideLoader } 
   templateUrl: './profile-page.component.html',
   styleUrls: ['./profile-page.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ImageUploadComponent, PageHeaderComponent, NgIcon],
-  viewProviders: [provideIcons({ lucidePencil, lucideTrash, lucideRotateCcw, lucideSave, lucideLoader })],
+  imports: [CommonModule, ReactiveFormsModule, ImageUploadComponent, NgIcon],
+  viewProviders: [
+    provideIcons({
+      lucidePencil,
+      lucideTrash,
+      lucideRotateCcw,
+      lucideSave,
+      lucideLoader,
+      lucideLogOut,
+      lucideFileText,
+      lucideClock,
+    }),
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProfilePageComponent implements OnInit {
-  thumbnail: any;
-  public isLoading: boolean = false;
   @ViewChild(ImageUploadComponent) imageUploadComponent!: ImageUploadComponent;
+
+  private readonly loaderService = inject(NgxUiLoaderService);
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly storeService = inject(StoreService);
+  private readonly userService = inject(UserService);
+  private readonly authService = inject(AuthService);
+  private readonly fileSystemService = inject(FileSystemService);
+  private readonly loggerService = inject(LoggerService);
+  private readonly utilityService = inject(UtilityService);
+
+  readonly userDetails = signal<UserDetailsModel | null>(null);
+  readonly thumbnail = signal<string>('');
+  readonly initialUserImageSrc = signal<string>('');
+  readonly isSaving = signal<boolean>(false);
+
   protected get userCurrentImage(): any { return this.imageUploadComponent?.userPhoto; }
-  protected initialUserImageSrc: any;
+
   userDetailsForm!: FormGroup;
   userDetailsFormInitialValues: any;
   private userID!: number;
 
-  constructor(
-    private loaderService: NgxUiLoaderService,
-    private formBuilder: FormBuilder,
-    private storeService: StoreService,
-    private userService: UserService,
-    private authService: AuthService,
-    private fileSystemService: FileSystemService,
-    private loggerService: LoggerService,
-    private utilityService:  UtilityService
-  ) {}
+  readonly roleChipClass = computed(() => {
+    const role = (this.userDetails()?.type ?? '').toLowerCase();
+    if (role === 'admin')   { return 'role-chip role-chip--admin'; }
+    if (role === 'manager') { return 'role-chip role-chip--manager'; }
+    return 'role-chip role-chip--employee';
+  });
+
+  readonly avatarInitial = computed(() => {
+    const name = this.userDetails()?.userName ?? '';
+    return name.charAt(0).toUpperCase() || 'U';
+  });
 
   ngOnInit(): void {
     this.storeService.get('authData').then((data: any) => {
@@ -54,18 +89,20 @@ export class ProfilePageComponent implements OnInit {
   }
 
   populateUserDetailsForm(userDetails: UserDetailsModel) {
-    this.userService.userName.set(userDetails.userName)
+    this.userService.userName.set(userDetails.userName);
+    this.userDetails.set(userDetails);
     this.userDetailsForm = this.formBuilder.group({
-      userName: [userDetails.userName, Validators.required],
-      email: [userDetails.email],
-      password: [''],
+      userName:        [userDetails.userName, Validators.required],
+      email:           [userDetails.email],
+      currentPassword: [''],
+      password:        [''],
+      confirmPassword: [''],
     });
     this.userDetailsFormInitialValues = this.userDetailsForm.value;
   }
 
   getUserDetails() {
-    this.loggerService.LogInfo("getUserDetails() Request Started.")
-
+    this.loggerService.LogInfo('getUserDetails() Request Started.');
     this.loaderService.start();
     this.userService
       .getUserDetails(this.userID)
@@ -74,161 +111,146 @@ export class ProfilePageComponent implements OnInit {
           this.populateUserDetailsForm(response[0]);
         }
         this.loaderService.stop();
-        this.loggerService.LogInfo("getUserDetails() Request Completed.")
+        this.loggerService.LogInfo('getUserDetails() Request Completed.');
       })
       .catch((error: any) => {
-        this.loggerService.LogError(error, "getUserDetails()")
+        this.loggerService.LogError(error, 'getUserDetails()');
         this.loaderService.stop();
       });
   }
 
   async updateUserDetails() {
-    this.loggerService.LogInfo("updateUserDetails() Request Started.")
+    this.loggerService.LogInfo('updateUserDetails() Request Started.');
 
+    const raw = { ...this.userDetailsForm.value };
+
+    // Password change validation: new must match confirm; both empty means no-change.
+    if ((raw.password ?? '') !== '' || (raw.confirmPassword ?? '') !== '') {
+      if (raw.password !== raw.confirmPassword) {
+        Swal.fire({ icon: 'error', title: 'Passwords do not match', text: 'New password and confirmation must be identical.' });
+        return;
+      }
+      if ((raw.password ?? '').length < 4) {
+        Swal.fire({ icon: 'error', title: 'Password too short', text: 'Use at least 4 characters.' });
+        return;
+      }
+    }
+
+    this.isSaving.set(true);
     this.loaderService.start();
-    const userDetails = { ...this.userDetailsForm.value };
-    if (userDetails.password !== '') {
-      // Hash password in the Electron main process; renderer never sees bcrypt.
-      userDetails.password = await this.authService.hashPassword(userDetails.password);
+
+    const userDetails: any = {
+      uid: this.userID,
+      userName: raw.userName,
+      email: raw.email,
+    };
+
+    if (raw.password && raw.password !== '') {
+      userDetails.password = await this.authService.hashPassword(raw.password);
     } else {
       userDetails.password = null;
     }
 
-    userDetails.uid = this.userID;
-
     this.userService.updateUserDetails(userDetails)
-      .then((response: any) => {
-        Swal.fire('Updated!', 'Your details updated successfully!', 'success');
+      .then(() => {
+        Swal.fire({ icon: 'success', title: 'Profile updated', timer: 1400, showConfirmButton: false });
 
-        // update the data in the authData object in the store
         this.storeService.get('authData').then((data: any) => {
           data.userName = userDetails.userName;
           data.email = userDetails.email;
           this.storeService.set('authData', { ...data }).then(() => {
-            // emit the new values for the subscribers
             this.userService.userName.set(userDetails.userName);
           });
         });
-        this.loggerService.LogInfo("updateUserDetails() Request Completed.")
+        this.loggerService.LogInfo('updateUserDetails() Request Completed.');
         this.getUserDetails();
       })
       .catch((error: any) => {
-        this.loggerService.LogError(error, "updateUserDetails()")
+        this.loggerService.LogError(error, 'updateUserDetails()');
+        Swal.fire({ icon: 'error', title: 'Failed', text: `Error occured to update details: ${error}` });
+      })
+      .finally(() => {
         this.loaderService.stop();
-        Swal.fire({
-          icon: 'error',
-          title: 'Failed',
-          text: `Error occured to update details: ${error}`,
-        });
+        this.isSaving.set(false);
       });
   }
-  
-  getUserImage() {
-    this.loggerService.LogInfo("getUserImage() Request Started From profile-page component.")
 
+  getUserImage() {
+    this.loggerService.LogInfo('getUserImage() Request Started From profile-page component.');
     this.loaderService.start();
     this.userService
       .getUserImage(this.userID)
       .then((response: any) => {
-        if (response[0].imagePath) {
-          this.thumbnail = this.utilityService.getFilePath(
-            this.fileSystemService.userImagesDir +
-              '\\' +
-              response[0].imagePath
+        let src = '';
+        if (response[0]?.imagePath) {
+          src = this.utilityService.getFilePath(
+            this.fileSystemService.userImagesDir + '\\' + response[0].imagePath,
           );
-          this.initialUserImageSrc = this.thumbnail ?? '';
-          this.imageUploadComponent.imageSrc = this.thumbnail;
-          this.loaderService.stop();
         }
-        else {
-          this.initialUserImageSrc =  '';
-          this.imageUploadComponent.imageSrc = '';
-          this.loaderService.stop()
-        }
-
-        // This line of code is updating the userImage which will be subscribed in sidebar and top-navbar
-        this.userService.userImage.set(this.initialUserImageSrc);
-        this.loggerService.LogInfo("getUserImage() Request Completed From profile-page component.")
-        
+        this.thumbnail.set(src);
+        this.initialUserImageSrc.set(src);
+        if (this.imageUploadComponent) { this.imageUploadComponent.imageSrc = src; }
+        this.userService.userImage.set(src);
+        this.loaderService.stop();
+        this.loggerService.LogInfo('getUserImage() Request Completed From profile-page component.');
       })
       .catch((error: any) => {
         this.loaderService.stop();
-        this.loggerService.LogError(error, "getUserImage() From profile-page component")
+        this.loggerService.LogError(error, 'getUserImage() From profile-page component');
       });
   }
 
   updateUserImage() {
-    this.loggerService.LogInfo("updateUserImage() Request Started.")
-
-    this.loaderService.start()
-    const formData =  {
+    this.loggerService.LogInfo('updateUserImage() Request Started.');
+    this.loaderService.start();
+    const formData = {
       uid: this.userID,
-      image: this.imageUploadComponent.userPhoto?.name ?? null
-    }
+      image: this.imageUploadComponent.userPhoto?.name ?? null,
+    };
     this.userService.updateUserImage(formData)
-      .then(async (response: any) =>  {
-        
-        if(response[0].imagePath) {
-          this.fileSystemService.updateUserImage(
+      .then(async (response: any) => {
+        if (response[0]?.imagePath) {
+          await this.fileSystemService.updateUserImage(
             response[0].oldFileName,
             response[0].imagePath,
-            this.imageUploadComponent.userPhoto
-          ).then(() => {
-            this.getUserImage()
-            this.loaderService.stop()
-          })
+            this.imageUploadComponent.userPhoto,
+          );
+          this.getUserImage();
         }
-        else {
-          this.loaderService.stop()
-        }
-        this.loggerService.LogInfo("updateUserImage() Request Completed.")
+        this.loaderService.stop();
+        this.loggerService.LogInfo('updateUserImage() Request Completed.');
       })
       .catch((error: any) => {
-        this.loggerService.LogError(error, "updateUserImage()")
-        this.loaderService.stop()
-        Swal.fire({
-          icon: 'error',
-          title: 'Failed to update Image!!',
-          text: error,
-        })
-      })
+        this.loggerService.LogError(error, 'updateUserImage()');
+        this.loaderService.stop();
+        Swal.fire({ icon: 'error', title: 'Failed to update image', text: error });
+      });
   }
 
   deleteUserImage() {
     Swal.fire({
-      title: `Are you sure you want to delete this image?`,
-      text: "You won't be able to revert this!",
+      title: 'Delete profile photo?',
+      text: "You won't be able to revert this.",
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, delete it!'
+      confirmButtonText: 'Yes, delete',
     }).then((result) => {
-      if (result.isConfirmed) {
-        this.loggerService.LogInfo("deleteUserImage() Request Started.")
-
-        this.userService.deleteUserImage(this.userID)
-          .then(async (response:any) => {
-            await this.fileSystemService.deleteUserImage(response[0].oldFileName)
-            this.loggerService.LogInfo("deleteUserImage() Request Completed.")
-            this.getUserImage()
-            Swal.fire(
-              'Deleted!',
-              response.message,
-              'success'
-            )
-          })
-          .catch((error: any) => {
-            this.loggerService.LogError(error, "deleteUserImage()")
-            Swal.fire(
-              'Error!',
-              error,
-              'error'
-            )
-          })
-      }
-    }
-    )
+      if (!result.isConfirmed) { return; }
+      this.loggerService.LogInfo('deleteUserImage() Request Started.');
+      this.userService.deleteUserImage(this.userID)
+        .then(async (response: any) => {
+          await this.fileSystemService.deleteUserImage(response[0].oldFileName);
+          this.getUserImage();
+          Swal.fire({ icon: 'success', title: 'Deleted', timer: 1200, showConfirmButton: false });
+          this.loggerService.LogInfo('deleteUserImage() Request Completed.');
+        })
+        .catch((error: any) => {
+          this.loggerService.LogError(error, 'deleteUserImage()');
+          Swal.fire({ icon: 'error', title: 'Failed', text: error });
+        });
+    });
   }
 
   resetForm() {
@@ -236,6 +258,19 @@ export class ProfilePageComponent implements OnInit {
   }
 
   clearImage() {
-    this.imageUploadComponent.imageSrc = this.initialUserImageSrc ?? '';
+    this.imageUploadComponent.imageSrc = this.initialUserImageSrc();
+  }
+
+  async logout() {
+    await this.authService.logout();
+  }
+
+  formatDate(value: any): string {
+    if (!value) { return '—'; }
+    try {
+      const d = new Date(value);
+      if (Number.isNaN(d.getTime())) { return '—'; }
+      return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+    } catch { return '—'; }
   }
 }
