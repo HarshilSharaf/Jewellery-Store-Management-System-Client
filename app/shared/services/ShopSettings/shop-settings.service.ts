@@ -1,5 +1,5 @@
 import { Injectable, signal, inject } from '@angular/core';
-import { ShopSettings } from '../../../interfaces/Shared/shop-settings';
+import { ShopSettings, WhatsappSettingsPatch } from '../../../interfaces/Shared/shop-settings';
 import { DbBridgeService } from '../Db/db-bridge.service';
 
 /**
@@ -70,6 +70,28 @@ export class ShopSettingsService {
           payload.defaultCurrency ?? 'INR',
           payload.timezone ?? 'Asia/Kolkata',
           payload.roundOffEnabled ? 1 : 0,
+        ],
+      );
+      return await this.get();
+    } catch {
+      return this._settings();
+    }
+  }
+
+  /**
+   * The `save_shop_settings` SP predates P's WhatsApp columns, so we patch
+   * those fields via a direct UPDATE instead. Keeps this workstream from
+   * touching K's SP signature.
+   */
+  async saveWhatsappSettings(patch: WhatsappSettingsPatch): Promise<ShopSettings | null> {
+    try {
+      await this.db.execute(
+        'update shopsettings set whatsappPhoneNumberId = ?, whatsappBusinessAccountId = ?, whatsappApiToken = ?, whatsappEnabled = ? where id = 1;',
+        [
+          patch.whatsappPhoneNumberId,
+          patch.whatsappBusinessAccountId,
+          patch.whatsappApiToken,
+          patch.whatsappEnabled ? 1 : 0,
         ],
       );
       return await this.get();

@@ -7,13 +7,13 @@
   }
 
   <header class="settings-topbar">
-    <h1 class="settings-title">Settings</h1>
+    <h1 class="settings-title" i18n="@@settings.title">Settings</h1>
     <span class="page-title__count">{{ tabs.length }} sections</span>
     <div class="settings-topbar__spacer"></div>
     @if (!dbErrorMessageAfterReLaunch) {
       <button type="button" class="hlm-btn hlm-btn-ghost" (click)="goBack()">
         <ng-icon name="lucideArrowLeft" size="16" aria-hidden="true"></ng-icon>
-        Back
+        <span i18n="@@buttons.back">Back</span>
       </button>
     }
   </header>
@@ -37,8 +37,8 @@
 
     @if (activeTab() === 'shop') {
       <div class="panel-head">
-        <h2 class="panel-title">Shop identity</h2>
-        <p class="panel-sub">Appears on every invoice, receipt, and export.</p>
+        <h2 class="panel-title" i18n="@@settings.tab.shop">Shop identity</h2>
+        <p class="panel-sub" i18n="@@settings.shop.sub">Appears on every invoice, receipt, and export.</p>
       </div>
 
       @if (shopForm) {
@@ -220,7 +220,7 @@
 
     @if (activeTab() === 'rates') {
       <div class="panel-head">
-        <h2 class="panel-title">Metal rates</h2>
+        <h2 class="panel-title" i18n="@@settings.tab.rates">Metal rates</h2>
         <p class="panel-sub">Set morning (AM) and evening (PM) rates per gram for each purity. Cart bills lock in the AM rate at open.</p>
       </div>
 
@@ -814,6 +814,207 @@
           }
         </div>
       }
+    }
+
+    @if (activeTab() === 'whatsapp') {
+      <div class="panel-head">
+        <h2 class="panel-title">WhatsApp bill send</h2>
+        <p class="panel-sub">Meta Cloud API config. Approved templates only.</p>
+      </div>
+
+      <div class="whatsapp-verification-banner">
+        WhatsApp bill send requires an approved Meta Business account. Start verification at
+        <a href="https://business.facebook.com" target="_blank" rel="noopener">business.facebook.com</a> —
+        typical lead time 2–6 weeks.
+      </div>
+
+      @if (whatsappForm) {
+        <form [formGroup]="whatsappForm" (ngSubmit)="saveWhatsappSettings()">
+          <div class="form-section whatsapp-config">
+            <h3 class="section-heading">Configuration</h3>
+
+            <label class="whatsapp-config__toggle">
+              <input type="checkbox" formControlName="whatsappEnabled">
+              <span>Enable WhatsApp send flow</span>
+            </label>
+
+            <div class="field-grid">
+              <div class="form-grid__full">
+                <label class="field-label">Phone Number ID</label>
+                <input class="hlm-input tabular-nums" formControlName="whatsappPhoneNumberId"
+                       placeholder="e.g. 1234567890123456">
+              </div>
+              <div class="form-grid__full">
+                <label class="field-label">Business Account ID</label>
+                <input class="hlm-input tabular-nums" formControlName="whatsappBusinessAccountId"
+                       placeholder="e.g. 9876543210987654">
+              </div>
+              <div class="form-grid__full">
+                <label class="field-label">API Token</label>
+                <div style="display:flex; gap:6px; align-items:center;">
+                  <input class="hlm-input tabular-nums"
+                         [type]="showWhatsappToken() ? 'text' : 'password'"
+                         formControlName="whatsappApiToken"
+                         placeholder="Bearer token from Meta Business">
+                  <button type="button" class="icon-btn" (click)="toggleWhatsappTokenVisibility()"
+                          [attr.aria-label]="showWhatsappToken() ? 'Hide token' : 'Show token'">
+                    <ng-icon [name]="showWhatsappToken() ? 'lucideEyeOff' : 'lucideEye'" aria-hidden="true"></ng-icon>
+                  </button>
+                </div>
+                <p class="field-help" style="font-size:11px; color: var(--color-fg-muted); margin-top:4px;">
+                  Keep this secret. Token grants full send rights on your Meta Business Account.
+                </p>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="hlm-btn hlm-btn-primary" [disabled]="whatsappSaving()">
+                {{ whatsappSaving() ? 'Saving…' : 'Save' }}
+              </button>
+              <button type="button" class="hlm-btn hlm-btn-ghost" (click)="sendWhatsappTestMessage()"
+                      [disabled]="whatsappTestBusy()">
+                {{ whatsappTestBusy() ? 'Testing…' : 'Send test message' }}
+              </button>
+              @if (whatsappTestResult()) {
+                <span class="import-caption" style="margin-left:8px;">{{ whatsappTestResult() }}</span>
+              }
+            </div>
+          </div>
+        </form>
+      }
+
+      <div class="form-section">
+        <h3 class="section-heading">Expected templates</h3>
+        <p class="import-caption">
+          Set these up (and get them approved) inside Meta Business Manager before enabling.
+        </p>
+        <table class="whatsapp-templates-table">
+          <thead>
+            <tr><th>Template name</th><th>When it fires</th></tr>
+          </thead>
+          <tbody>
+            @for (tpl of whatsappTemplates; track tpl.name) {
+              <tr>
+                <td class="tabular-nums">{{ tpl.name }}</td>
+                <td>{{ tpl.description }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+        <p class="import-caption">Awaiting Meta approval — set up in Meta Business Manager before enabling.</p>
+      </div>
+    }
+
+    @if (activeTab() === 'whatsapp-activity') {
+      <div class="panel-head">
+        <h2 class="panel-title">WhatsApp activity</h2>
+        <p class="panel-sub">All template sends logged by the app. Queued rows will re-attempt sending on the next request.</p>
+      </div>
+
+      <div class="list-toolbar">
+        <div class="filter-chips">
+          @for (s of whatsappStatusOptions; track s) {
+            <button type="button" class="chip chip-toggle"
+                    [class.chip-active]="isWhatsappStatusActive(s)"
+                    (click)="toggleWhatsappActivityStatus(s)">{{ s }}</button>
+          }
+          <input type="date" class="hlm-input hlm-input--sm"
+                 [value]="whatsappActivityDateFrom()"
+                 (change)="onWhatsappDateFromChange($any($event.target).value)"
+                 aria-label="From date" />
+          <input type="date" class="hlm-input hlm-input--sm"
+                 [value]="whatsappActivityDateTo()"
+                 (change)="onWhatsappDateToChange($any($event.target).value)"
+                 aria-label="To date" />
+          <button type="button" class="chip chip-toggle" (click)="clearWhatsappFilters()">Clear</button>
+          <button type="button" class="hlm-btn hlm-btn-ghost" (click)="loadWhatsappActivity()">
+            <ng-icon name="lucideRefreshCw" size="14" aria-hidden="true"></ng-icon>
+            <span>Refresh</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="whatsapp-activity-table">
+        <div class="whatsapp-activity-table__head">
+          <span>Send</span>
+          <span>Phone</span>
+          <span>Template</span>
+          <span>Status</span>
+          <span>Sent at</span>
+          <span>Error / invoice</span>
+          <span>Invoice</span>
+        </div>
+
+        @if (whatsappActivityLoading() && whatsappActivity().length === 0) {
+          <div class="loading-inline">
+            <ng-icon name="lucideRefreshCw" class="animate-spin" size="20" aria-hidden="true"></ng-icon>
+            <span>Loading…</span>
+          </div>
+        }
+
+        @for (row of whatsappActivity(); track row.sendGuid) {
+          <div class="data-row">
+            <span class="tabular-nums">{{ whatsappShortGuid(row.sendGuid) }}</span>
+            <span class="tabular-nums">{{ row.phoneNumber }}</span>
+            <span>{{ row.templateName }}</span>
+            <span><span [class]="whatsappStatusClass(row.status)">{{ row.status }}</span></span>
+            <span class="tabular-nums">{{ (row.sentAt ?? row.queuedAt) | date:'d MMM yyyy, h:mm a' }}</span>
+            <span class="import-caption">{{ row.errorMessage || row.invoiceNumber || '' }}</span>
+            <span>
+              @if (row.invoiceGuid) {
+                <a [routerLink]="['/orders/view-order-details', row.invoiceGuid]" class="hlm-btn hlm-btn-ghost">Open</a>
+              }
+            </span>
+          </div>
+        }
+
+        @if (!whatsappActivityLoading() && whatsappActivity().length === 0) {
+          <p class="import-caption" style="padding: 20px; text-align:center;">No send-log rows match the current filters.</p>
+        }
+      </div>
+    }
+
+    @if (activeTab() === 'language') {
+      <div class="panel-head">
+        <h2 class="panel-title" i18n="@@settings.language.title">Language</h2>
+        <p class="panel-sub" i18n="@@settings.language.sub">Choose the language for the app interface. Changes take effect after restart.</p>
+      </div>
+
+      <div class="form-section">
+        <h3 class="section-heading" i18n="@@settings.language.current">Current language</h3>
+        <p class="panel-sub tabular-nums">{{ activeLocale() }}</p>
+      </div>
+
+      <div class="form-section">
+        <h3 class="section-heading" i18n="@@settings.language.requested">Requested language</h3>
+        <div class="field-grid">
+          @for (loc of availableLocales; track loc.code) {
+            <label class="radio-inline">
+              <input type="radio" name="app-locale"
+                     [value]="loc.code"
+                     [checked]="requestedLocale() === loc.code"
+                     (change)="onLocaleSelect(loc.code)">
+              {{ loc.label }}
+            </label>
+          }
+        </div>
+        <p class="field-help" i18n="@@settings.language.restart-note">Language packs: English (default), Hindi, Gujarati, Marathi. Close and relaunch the app after saving to activate a different language bundle.</p>
+
+        <div class="form-actions">
+          <button type="button" class="hlm-btn hlm-btn-primary"
+                  [disabled]="!localeDirty()"
+                  (click)="saveLocalePreference()"
+                  i18n="@@settings.language.save">
+            Save preference
+          </button>
+        </div>
+
+        @if (localeSaved()) {
+          <div class="alert-banner alert-banner--warning" style="margin-top: 1rem;" i18n="@@settings.language.saved-toast">
+            Preference saved. Please close and reopen the app to apply the new language.
+          </div>
+        }
+      </div>
     }
 
     @if (activeTab() === 'database') {

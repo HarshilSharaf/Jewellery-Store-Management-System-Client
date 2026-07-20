@@ -1741,3 +1741,330 @@ html[data-theme="dark"] .btn.btn-outline-lightning {
   }
 }
 
+// -------------------------------------------------------------------------
+// Workstream S shared recipes (Repair + WhatsApp)
+//
+// - .status-chip--in_progress / --ready / --delivered / --declined: repair
+//   ticket status chips. --received is already defined under Workstream K
+//   (karigar) and its amber-tinted styling matches the repair "just received"
+//   semantic, so we reuse it as-is.
+// - .status-chip--queued / --sent / --read / --failed: WhatsApp send-log
+//   status chips (delivered variant reuses the K "delivered" or repair
+//   variants — both signal completion).
+// - .repair-status-panel: right-hand slide-in panel for the status-advance
+//   / karigar-link / WhatsApp-send dialogs.
+// - .whatsapp-verification-banner: small warm-tinted card that reminds users
+//   Meta business verification is a 2-6 week external lead time.
+// - .whatsapp-activity table + config layout helpers.
+// - .repair-history / .whatsapp-history: read-only lists used on the customer
+//   view page (H's view-details).
+// -------------------------------------------------------------------------
+@layer components {
+
+  // Repair status variants — --received is defined under Workstream K.
+  .status-chip--in_progress {
+    background: color-mix(in oklab, var(--blue-9, #3b82f6) 12%, var(--color-panel));
+    color: var(--blue-11, #1e40af);
+    border-color: color-mix(in oklab, var(--blue-9, #3b82f6) 35%, transparent);
+  }
+  html[data-theme="dark"] .status-chip--in_progress {
+    color: var(--blue-9, #60a5fa);
+  }
+
+  .status-chip--ready {
+    background: var(--color-success-subtle);
+    color: var(--color-success-fg);
+    border-color: color-mix(in oklab, var(--color-success) 30%, transparent);
+  }
+
+  .status-chip--delivered {
+    background: var(--color-bg-subtle);
+    color: var(--color-fg-muted);
+    border-color: var(--color-border-subtle);
+  }
+
+  .status-chip--declined {
+    background: var(--color-danger-subtle);
+    color: var(--color-danger-fg);
+    border-color: color-mix(in oklab, var(--color-danger) 30%, transparent);
+    font-style: italic;
+  }
+
+  // WhatsApp send status variants.
+  .status-chip--queued {
+    background: var(--color-warning-subtle);
+    color: var(--color-warning-fg);
+    border-color: color-mix(in oklab, var(--color-warning) 30%, transparent);
+  }
+  .status-chip--sent {
+    background: color-mix(in oklab, var(--blue-9, #3b82f6) 12%, var(--color-panel));
+    color: var(--blue-11, #1e40af);
+    border-color: color-mix(in oklab, var(--blue-9, #3b82f6) 35%, transparent);
+  }
+  html[data-theme="dark"] .status-chip--sent {
+    color: var(--blue-9, #60a5fa);
+  }
+  .status-chip--read {
+    background: var(--color-success-subtle);
+    color: var(--color-success-fg);
+    border-color: color-mix(in oklab, var(--color-success) 30%, transparent);
+  }
+  .status-chip--failed {
+    background: var(--color-danger-subtle);
+    color: var(--color-danger-fg);
+    border-color: color-mix(in oklab, var(--color-danger) 30%, transparent);
+    font-style: italic;
+  }
+
+  // Slide-in status-advance panel used across repair detail.
+  .repair-status-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 420px;
+    max-width: 100vw;
+    background: var(--color-panel, var(--color-bg));
+    border-left: 1px solid var(--color-border-subtle);
+    box-shadow: -12px 0 32px rgba(0, 0, 0, 0.08);
+    z-index: 62;
+    display: flex;
+    flex-direction: column;
+    animation: repair-status-slide 180ms ease-out;
+
+    &__backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.35);
+      z-index: 61;
+    }
+
+    &__head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--color-border-subtle);
+    }
+
+    &__title {
+      font-family: var(--font-serif);
+      font-size: 18px;
+      font-weight: 500;
+    }
+
+    &__form {
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      overflow-y: auto;
+    }
+
+    &__actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      padding-top: 8px;
+    }
+  }
+
+  @keyframes repair-status-slide {
+    from { transform: translateX(20px); opacity: 0; }
+    to   { transform: translateX(0);    opacity: 1; }
+  }
+
+  // Yellow-tinted card that reminds users of Meta verification lead time.
+  .whatsapp-verification-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    border-radius: var(--radius-md);
+    background: var(--color-warning-subtle);
+    border: 1px solid color-mix(in oklab, var(--color-warning) 30%, transparent);
+    color: var(--color-warning-fg);
+    font-size: 13px;
+    line-height: 1.5;
+
+    a {
+      color: inherit;
+      text-decoration: underline;
+    }
+  }
+
+  // WhatsApp settings + activity tab layout helpers.
+  .whatsapp-config {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .whatsapp-config__toggle {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-subtle);
+  }
+
+  .whatsapp-templates-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+
+    th, td {
+      padding: 8px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--color-border-subtle);
+    }
+
+    th {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--color-fg-muted);
+      font-weight: 500;
+    }
+  }
+
+  .whatsapp-activity-table {
+    width: 100%;
+    font-size: 13px;
+
+    .data-row {
+      display: grid;
+      grid-template-columns: 100px 140px 140px 100px 140px 1fr 100px;
+      gap: 8px;
+      padding: 10px 12px;
+      align-items: center;
+      border-bottom: 1px solid var(--color-border-subtle);
+    }
+
+    &__head {
+      display: grid;
+      grid-template-columns: 100px 140px 140px 100px 140px 1fr 100px;
+      gap: 8px;
+      padding: 8px 12px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--color-fg-muted);
+    }
+  }
+
+  // Small read-only lists on the customer view page (H's view-details).
+  .repair-history,
+  .whatsapp-history {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .repair-history__row,
+  .whatsapp-history__row {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) auto auto auto;
+    gap: 10px;
+    align-items: center;
+    padding: 8px 10px;
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-md);
+    background: var(--color-bg, transparent);
+    cursor: pointer;
+    transition: background 120ms ease-out;
+
+    &:hover {
+      background: var(--color-accent-subtle);
+    }
+  }
+
+  .repair-history__label,
+  .whatsapp-history__label {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .repair-history__ticket,
+  .whatsapp-history__template {
+    font-weight: 500;
+    font-size: 13px;
+    color: var(--color-fg);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .repair-history__sub,
+  .whatsapp-history__sub {
+    color: var(--color-fg-muted);
+    font-size: 11px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  // Inline "send WhatsApp" dialog on order-details.
+  .whatsapp-send-dialog {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 480px;
+    max-width: 92vw;
+    background: var(--color-panel, var(--color-bg));
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.14);
+    z-index: 62;
+    padding: 20px;
+
+    &__backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.35);
+      z-index: 61;
+    }
+
+    &__head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+
+      h3 {
+        font-family: var(--font-serif);
+        font-size: 18px;
+        font-weight: 500;
+      }
+    }
+
+    &__form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    &__preview {
+      padding: 10px 12px;
+      background: var(--color-bg-subtle);
+      border: 1px dashed var(--color-border-subtle);
+      border-radius: var(--radius-md);
+      font-size: 12px;
+      color: var(--color-fg-muted);
+      line-height: 1.6;
+    }
+
+    &__actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 6px;
+    }
+  }
+}

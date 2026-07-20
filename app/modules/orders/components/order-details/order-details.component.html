@@ -22,6 +22,10 @@
           <button type="button" class="icon-btn" (click)="goToPrint()" title="Print invoice" aria-label="Print invoice">
             <ng-icon name="lucidePrinter" aria-hidden="true"></ng-icon>
           </button>
+          <button type="button" class="icon-btn" (click)="openWhatsappDialog()"
+                  title="Send via WhatsApp" aria-label="Send via WhatsApp">
+            <ng-icon name="lucideMessageCircle" aria-hidden="true"></ng-icon>
+          </button>
           @if (paymentStatus() === 'unpaid' || paymentStatus() === 'partial') {
             <button type="button" class="icon-btn" (click)="openPayments()"
                     title="Record payment" aria-label="Record payment">
@@ -170,6 +174,25 @@
         [(open)]="paymentsPanelOpen">
       </app-order-payments>
 
+      @if (whatsappHistory().length > 0) {
+        <div class="detail-section">
+          <div class="detail-section__title">WhatsApp history</div>
+          <div class="whatsapp-history">
+            @for (row of whatsappHistory(); track row.sendGuid) {
+              <div class="whatsapp-history__row">
+                <div class="whatsapp-history__label">
+                  <span class="whatsapp-history__template">{{ row.templateName }}</span>
+                  <span class="whatsapp-history__sub tabular-nums">{{ row.phoneNumber }}</span>
+                </div>
+                <span [class]="whatsappStatusClass(row.status)">{{ row.status }}</span>
+                <span class="whatsapp-history__sub tabular-nums">{{ (row.sentAt ?? row.queuedAt) | date:'d MMM yyyy, h:mm a' }}</span>
+                <span class="whatsapp-history__sub">{{ row.errorMessage || '' }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
     </div>
 
     <aside class="order-shell__side">
@@ -193,10 +216,9 @@
             <ng-icon name="lucidePrinter" aria-hidden="true"></ng-icon>
             <span>Print invoice</span>
           </button>
-          <button type="button" class="side-action" (click)="stubToast('WhatsApp send')">
+          <button type="button" class="side-action" (click)="openWhatsappDialog()">
             <ng-icon name="lucideMessageCircle" aria-hidden="true"></ng-icon>
             <span>Send via WhatsApp</span>
-            <span class="side-action__badge">P3</span>
           </button>
           <button type="button" class="side-action" (click)="stubToast('Duplicate invoice')">
             <ng-icon name="lucideCopy" aria-hidden="true"></ng-icon>
@@ -213,5 +235,47 @@
     </aside>
 
   </div>
+
+  @if (whatsappDialogOpen()) {
+    <div class="whatsapp-send-dialog__backdrop" (click)="closeWhatsappDialog()"></div>
+    <div class="whatsapp-send-dialog" role="dialog" aria-label="Send invoice via WhatsApp">
+      <header class="whatsapp-send-dialog__head">
+        <h3>Send via WhatsApp</h3>
+        <button type="button" class="icon-btn" (click)="closeWhatsappDialog()" aria-label="Close">
+          <ng-icon name="lucideCircleAlert" aria-hidden="true"></ng-icon>
+        </button>
+      </header>
+
+      @if (!whatsappConfigured()) {
+        <div class="whatsapp-verification-banner">
+          WhatsApp is not configured. Set it up in
+          <a routerLink="/settings" [queryParams]="{ tab: 'whatsapp' }">Settings → WhatsApp</a>.
+        </div>
+      }
+
+      <form [formGroup]="whatsappForm" (ngSubmit)="submitWhatsapp()" class="whatsapp-send-dialog__form">
+        <div>
+          <label class="field-label">Customer phone</label>
+          <input type="tel" class="hlm-input tabular-nums" formControlName="phoneNumber" placeholder="+91xxxxxxxxxx" />
+        </div>
+        <div>
+          <label class="field-label">Template</label>
+          <select class="hlm-input" formControlName="templateName">
+            <option value="invoice_ready">invoice_ready</option>
+            <option value="repair_ready">repair_ready</option>
+          </select>
+        </div>
+        <div class="whatsapp-send-dialog__preview">
+          Variables: <strong>{{ whatsappPreview() }}</strong>
+        </div>
+        <div class="whatsapp-send-dialog__actions">
+          <button type="button" class="hlm-btn hlm-btn-ghost" (click)="closeWhatsappDialog()">Cancel</button>
+          <button type="submit" class="hlm-btn hlm-btn-primary" [disabled]="whatsappSending() || !whatsappConfigured()">
+            {{ whatsappSending() ? 'Sending…' : 'Send' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  }
 
 </section>

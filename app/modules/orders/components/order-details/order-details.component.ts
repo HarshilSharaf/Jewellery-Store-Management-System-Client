@@ -36,13 +36,17 @@ import { OrderPaymentsComponent } from '../order-payments/order-payments.compone
 import { ShopSettingsService } from '../../../../shared/services/ShopSettings/shop-settings.service';
 import { PermissionsService } from '../../../../shared/services/Auth/permissions.service';
 import { numberToIndianRupees } from '../../../../shared/utils/amount-in-words';
+import { WhatsAppService } from '../../../../shared/services/WhatsApp/whatsapp.service';
+import { WhatsappSendLogRow } from '../../../../interfaces/WhatsApp/whatsapp';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { StoreService } from '../../../../../../Backend/Shared/store.service';
 
 @Component({
   selector: 'app-order-details',
   templateUrl: './order-details.component.html',
   styleUrls: ['./order-details.component.scss'],
   standalone: true,
-  imports: [CommonModule, RouterLink, OrderProductsDetailsComponent, OrderPaymentsComponent, NgIcon],
+  imports: [CommonModule, RouterLink, OrderProductsDetailsComponent, OrderPaymentsComponent, NgIcon, ReactiveFormsModule],
   viewProviders: [
     provideIcons({
       lucideArrowLeft,
@@ -86,6 +90,17 @@ export class OrderDetailsComponent implements OnInit {
   paymentsPanelOpen = false;
   readonly permissions = inject(PermissionsService);
 
+  // WhatsApp send dialog state.
+  readonly whatsappDialogOpen = signal(false);
+  readonly whatsappConfigured = signal(false);
+  readonly whatsappSending = signal(false);
+  readonly whatsappHistory = signal<WhatsappSendLogRow[]>([]);
+  whatsappForm!: FormGroup;
+
+  private readonly whatsappService = inject(WhatsAppService);
+  private readonly storeService = inject(StoreService);
+  private readonly fb = inject(FormBuilder);
+
   private readonly moneyFmt = new Intl.NumberFormat('en-IN', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
@@ -106,10 +121,33 @@ export class OrderDetailsComponent implements OnInit {
 
   ngOnInit(): void {
     this.permissions.getUserPermissions();
+    this.whatsappForm = this.fb.group({
+      phoneNumber:  ['', Validators.required],
+      templateName: ['invoice_ready'],
+    });
+    this.checkWhatsappConfig();
     this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       this.orderGuid = params['orderGuid'];
       this.getOrderDetails();
+      this.loadWhatsappHistory();
     });
+  }
+
+  private async checkWhatsappConfig(): Promise<void> {
+    try {
+      const shop = await this.shopSettingsService.get();
+      this.whatsappConfigured.set(!!shop?.whatsappEnabled);
+    } catch { /* leave default */ }
+  }
+
+  private async loadWhatsappHistory(): Promise<void> {
+    if (!this.orderGuid) return;
+    try {
+      const rows = await this.whatsappService.getByInvoice(this.orderGuid);
+      this.whatsappHistory.set(Array.isArray(rows) ? rows : []);
+    } catch (error) {
+      this.loggerService.LogError(error, 'loadWhatsappHistory');
+    }
   }
 
   getOrderDetails(): void {
@@ -277,5 +315,70 @@ export class OrderDetailsComponent implements OnInit {
       timer: 1400,
       showConfirmButton: false,
     });
+  }
+
+  openWhatsappDialog(): void {
+    const cust = this.customerData();
+    const phone = cust?.phoneNumber ? String(cust.phoneNumber).replace(/\s+/g, '') : '';
+    this.whatsappForm.patchValue({
+      phoneNumber: phone,
+      templateName: 'invoice_ready',
+    });
+    this.whatsappDialogOpen.set(true);
+  }
+
+  closeWhatsappDialog(): void {
+    this.whatsappDialogOpen.set(false);
+  }
+
+  whatsappPreview(): string {
+    const cust = this.customerData();
+    const grand = this.grandTotal();
+    return `Customer: ${cust?.firstName ?? '—'}, Invoice: ${this.invoiceNumber() || '—'}, Total: ₹${this.money(grand)}`;
+  }
+
+  async submitWhatsapp(): Promise<void> {
+    if (!this.whatsappForm.valid) { this.whatsappForm.markAllAsTouched(); return; }
+    if (!this.whatsappConfigured()) {
+      Swal.fire({ icon: 'info', title: 'Not configured', text: 'Set up WhatsApp in Settings → WhatsApp.' });
+      return;
+    }
+    this.whatsappSending.set(true);
+    try {
+      const auth: any = await this.storeService.get('authData');
+      const cust = this.customerData();
+      const raw = this.whatsappForm.value;
+      const res = await this.whatsappService.send({
+        invoiceGuid: this.orderGuid,
+        customerGuid: (this.orderData() as any)?.customerGuid ?? '',
+        templateName: raw.templateName,
+        templateLanguage: 'en',
+        templateVariables: [
+          cust?.firstName ?? '',
+          this.invoiceNumber(),
+          String(this.grandTotal() ?? 0),
+        ],
+        phoneNumber: raw.phoneNumber,
+        sentByUserId: auth?.uid ?? null,
+      });
+      if (res.ok) {
+        Swal.fire({ icon: 'success', title: 'Queued to WhatsApp', timer: 1200, showConfirmButton: false });
+        this.whatsappDialogOpen.set(false);
+        this.loadWhatsappHistory();
+      } else if (res.error === 'not_configured') {
+        this.whatsappConfigured.set(false);
+      } else {
+        Swal.fire('Send failed', res.error ?? 'Unknown', 'error');
+      }
+    } catch (error) {
+      this.loggerService.LogError(error, 'submitWhatsapp');
+      Swal.fire('Error', (error as any)?.message ?? String(error), 'error');
+    } finally {
+      this.whatsappSending.set(false);
+    }
+  }
+
+  whatsappStatusClass(status: string | undefined): string {
+    return status ? `status-chip status-chip--${status}` : 'status-chip';
   }
 }

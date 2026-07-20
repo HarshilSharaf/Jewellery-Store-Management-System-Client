@@ -18,4 +18,19 @@ export interface ShopSettings {
   defaultCurrency: string;
   timezone: string;
   roundOffEnabled: 0 | 1 | boolean;
+  // Phase 3 (P) extensions — repair prefix + WhatsApp Meta Cloud API config.
+  repairPrefix?: string | null;
+  currentRepairCounter?: number | null;
+  whatsappPhoneNumberId?: string | null;
+  whatsappBusinessAccountId?: string | null;
+  whatsappApiToken?: string | null;
+  whatsappEnabled?: 0 | 1 | boolean;
+  ibjaAutoFetchEnabled?: 0 | 1 | boolean;
+}
+
+export interface WhatsappSettingsPatch {
+  whatsappPhoneNumberId: string | null;
+  whatsappBusinessAccountId: string | null;
+  whatsappApiToken: string | null;
+  whatsappEnabled: 0 | 1;
 }

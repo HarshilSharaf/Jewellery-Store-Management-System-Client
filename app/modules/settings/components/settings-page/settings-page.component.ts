@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule, Location } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
@@ -54,8 +54,10 @@ import {
   RatesMapping,
 } from '../../../../shared/services/Migration/migration.service';
 import { exportToCSV } from '../../../../shared/utils/csv-export';
+import { WhatsAppService } from '../../../../shared/services/WhatsApp/whatsapp.service';
+import { WhatsappSendLogRow, WhatsappStatus } from '../../../../interfaces/WhatsApp/whatsapp';
 
-type TabId = 'shop' | 'tax' | 'rates' | 'print' | 'backup' | 'users' | 'database' | 'migration';
+type TabId = 'shop' | 'tax' | 'rates' | 'print' | 'backup' | 'users' | 'database' | 'migration' | 'whatsapp' | 'whatsapp-activity' | 'language';
 type MigrationEntity = 'customers' | 'products' | 'rates';
 
 interface MigrationEntityState {
@@ -90,7 +92,7 @@ interface StubUser {
   templateUrl: './settings-page.component.html',
   styleUrls: ['./settings-page.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, NgIcon],
+  imports: [CommonModule, ReactiveFormsModule, NgIcon, RouterLink],
   viewProviders: [provideIcons({
     lucideCopy,
     lucideArrowLeft,
@@ -116,14 +118,17 @@ interface StubUser {
 export class SettingsPageComponent implements OnInit, OnDestroy {
 
   readonly tabs: TabDef[] = [
-    { id: 'shop',      label: 'Shop identity' },
-    { id: 'tax',       label: 'Tax & invoice' },
-    { id: 'rates',     label: 'Metal rates' },
-    { id: 'print',     label: 'Print & hardware' },
-    { id: 'backup',    label: 'Backup' },
-    { id: 'users',     label: 'Users & permissions' },
-    { id: 'migration', label: 'Migration' },
-    { id: 'database',  label: 'Database' },
+    { id: 'shop',      label: $localize`:@@settings.tab.shop:Shop identity` },
+    { id: 'tax',       label: $localize`:@@settings.tab.tax:Tax & invoice` },
+    { id: 'rates',     label: $localize`:@@settings.tab.rates:Metal rates` },
+    { id: 'print',     label: $localize`:@@settings.tab.print:Print & hardware` },
+    { id: 'backup',    label: $localize`:@@settings.tab.backup:Backup` },
+    { id: 'users',     label: $localize`:@@settings.tab.users:Users & permissions` },
+    { id: 'migration', label: $localize`:@@settings.tab.migration:Migration` },
+    { id: 'whatsapp',          label: $localize`:@@settings.tab.whatsapp:WhatsApp` },
+    { id: 'whatsapp-activity', label: $localize`:@@settings.tab.whatsapp-activity:WhatsApp activity` },
+    { id: 'language',  label: $localize`:@@settings.tab.language:Language` },
+    { id: 'database',  label: $localize`:@@settings.tab.database:Database` },
   ];
 
   readonly activeTab = signal<TabId>('shop');
@@ -245,6 +250,28 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
 
   readonly migrationEntities: MigrationEntity[] = ['customers', 'products', 'rates'];
 
+  // WhatsApp settings tab.
+  whatsappForm!: FormGroup;
+  readonly showWhatsappToken = signal<boolean>(false);
+  readonly whatsappSaving   = signal<boolean>(false);
+  readonly whatsappTestBusy = signal<boolean>(false);
+  readonly whatsappTestResult = signal<string>('');
+
+  // WhatsApp activity tab.
+  readonly whatsappActivity = signal<WhatsappSendLogRow[]>([]);
+  readonly whatsappActivityLoading = signal<boolean>(false);
+  readonly whatsappActivityStatusFilter = signal<WhatsappStatus | null>(null);
+  readonly whatsappActivityDateFrom = signal<string>('');
+  readonly whatsappActivityDateTo   = signal<string>('');
+  readonly whatsappStatusOptions: WhatsappStatus[] = ['queued', 'sent', 'delivered', 'read', 'failed'];
+
+  readonly whatsappTemplates: Array<{ name: string; description: string }> = [
+    { name: 'invoice_ready',   description: 'Sent after a bill is finalised (customer name, invoice #, grand total).' },
+    { name: 'scheme_reminder', description: 'Monthly reminder for saving-scheme installment due.' },
+    { name: 'repair_ready',    description: 'Sent when a repair ticket status flips to ready.' },
+    { name: 'birthday_greeting', description: 'Auto-sent on the customer\'s DOB (opt-in).' },
+  ];
+
   getMigration(entity: MigrationEntity): MigrationEntityState {
     return this.migrationState[entity]();
   }
@@ -259,7 +286,39 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
   readonly scannerService = inject(ScannerService);
   private readonly backupService = inject(BackupService);
   readonly permissions = inject(PermissionsService);
+  private readonly whatsappService = inject(WhatsAppService);
   private readonly destroyRef = inject(DestroyRef);
+
+  readonly LOCALE_STORAGE_KEY = 'radiance.locale.preference';
+  readonly availableLocales = [
+    { code: 'en', label: 'English' },
+    { code: 'hi', label: 'हिन्दी (Hindi)' },
+    { code: 'gu', label: 'ગુજરાતી (Gujarati)' },
+    { code: 'mr', label: 'मराठी (Marathi)' },
+  ];
+  readonly activeLocale = signal<string>(
+    (typeof document !== 'undefined' && document.documentElement?.lang) || 'en'
+  );
+  readonly requestedLocale = signal<string>(
+    (typeof localStorage !== 'undefined' && localStorage.getItem(this.LOCALE_STORAGE_KEY)) ||
+      this.activeLocale()
+  );
+  readonly localeDirty = signal<boolean>(false);
+  readonly localeSaved = signal<boolean>(false);
+
+  onLocaleSelect(code: string): void {
+    this.requestedLocale.set(code);
+    this.localeDirty.set(this.requestedLocale() !== this.activeLocale());
+    this.localeSaved.set(false);
+  }
+
+  saveLocalePreference(): void {
+    try {
+      localStorage.setItem(this.LOCALE_STORAGE_KEY, this.requestedLocale());
+      this.localeSaved.set(true);
+      this.localeDirty.set(false);
+    } catch { /* localStorage may be blocked */ }
+  }
 
   ngOnInit(): void {
     document.body.style.paddingTop = '0px';
@@ -271,6 +330,7 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
     this.buildPrintForm();
     this.buildNewUserForm();
     this.buildBackupForms();
+    this.buildWhatsappForm();
 
     this.loadShopSettings();
     this.loadPurities();
@@ -280,6 +340,7 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
     this.loadUsersStub();
     this.loadDbSettings();
     this.loadBackups();
+    this.loadWhatsappSettingsIntoForm();
     this.permissions.getUserPermissions().then(() => {
       if (!this.isTabVisible(this.activeTab())) {
         this.activeTab.set('shop');
@@ -298,7 +359,7 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
     this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(qp => {
       const requested = qp.get('tab') as TabId | null;
       if (requested && this.tabs.some(t => t.id === requested)) {
-        this.activeTab.set(requested);
+        this.setTab(requested);
       }
     });
   }
@@ -316,7 +377,10 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
 
   goBack() { this.location.back(); }
 
-  setTab(id: TabId) { this.activeTab.set(id); }
+  setTab(id: TabId) {
+    this.activeTab.set(id);
+    if (id === 'whatsapp-activity') { this.loadWhatsappActivity(); }
+  }
 
   isTabVisible(id: TabId): boolean {
     if (id === 'backup') { return this.permissions.permissions().canBackup; }
@@ -843,6 +907,146 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
   formatDateTime(iso: string): string {
     if (!iso) { return ''; }
     try { return new Date(iso).toLocaleString(); } catch { return iso; }
+  }
+
+  // -------------------------------------------------------------------------
+  // WhatsApp settings + activity
+  // -------------------------------------------------------------------------
+  private buildWhatsappForm() {
+    this.whatsappForm = this.fb.group({
+      whatsappEnabled:            [false],
+      whatsappPhoneNumberId:      [''],
+      whatsappBusinessAccountId:  [''],
+      whatsappApiToken:           [''],
+    });
+  }
+
+  private async loadWhatsappSettingsIntoForm(): Promise<void> {
+    const row = await this.shopSettingsService.get();
+    if (!row) { return; }
+    this.whatsappForm?.patchValue({
+      whatsappEnabled:           !!row.whatsappEnabled,
+      whatsappPhoneNumberId:     row.whatsappPhoneNumberId ?? '',
+      whatsappBusinessAccountId: row.whatsappBusinessAccountId ?? '',
+      whatsappApiToken:          row.whatsappApiToken ?? '',
+    }, { emitEvent: false });
+  }
+
+  toggleWhatsappTokenVisibility(): void {
+    this.showWhatsappToken.set(!this.showWhatsappToken());
+  }
+
+  async saveWhatsappSettings(): Promise<void> {
+    this.whatsappSaving.set(true);
+    try {
+      const raw = this.whatsappForm.value;
+      await this.shopSettingsService.saveWhatsappSettings({
+        whatsappPhoneNumberId:     raw.whatsappPhoneNumberId?.trim() || null,
+        whatsappBusinessAccountId: raw.whatsappBusinessAccountId?.trim() || null,
+        whatsappApiToken:          raw.whatsappApiToken?.trim() || null,
+        whatsappEnabled:           raw.whatsappEnabled ? 1 : 0,
+      });
+      Swal.fire({ icon: 'success', title: 'WhatsApp settings saved', timer: 1400, showConfirmButton: false });
+    } catch (err) {
+      this.loggerService.LogError(err, 'saveWhatsappSettings');
+      Swal.fire('Error', String((err as any)?.message ?? err), 'error');
+    } finally {
+      this.whatsappSaving.set(false);
+    }
+  }
+
+  async sendWhatsappTestMessage(): Promise<void> {
+    // Uses the *current form values*, not the persisted ones, so users can
+    // verify credentials without saving them. However the main-process
+    // orchestrator today reads from `shopsettings` — so if the user hasn't
+    // saved, we tell them explicitly.
+    const raw = this.whatsappForm.value;
+    if (!raw.whatsappPhoneNumberId || !raw.whatsappApiToken || !raw.whatsappEnabled) {
+      this.whatsappTestResult.set('Enable + fill Phone Number ID + Token, then save. The orchestrator reads config from shopsettings.');
+      return;
+    }
+    this.whatsappTestBusy.set(true);
+    this.whatsappTestResult.set('Sending test message...');
+    try {
+      const shop = await this.shopSettingsService.get();
+      const auth: any = await this.storeService.get('authData');
+      const shopPhone = shop?.phone ? String(shop.phone).replace(/[^0-9+]/g, '') : '';
+      if (!shopPhone) {
+        this.whatsappTestResult.set('Shop phone number missing in Shop identity. Save it first.');
+        return;
+      }
+      // We send a queued row via the main-process orchestrator. Meta will
+      // reject unapproved templates so `hello_world` is the safe smoke test.
+      const res = await this.whatsappService.send({
+        invoiceGuid:      null,
+        customerGuid:     '',   // orchestrator SP allows null via NULL fallback
+        templateName:     'hello_world',
+        templateLanguage: 'en_US',
+        templateVariables: [],
+        phoneNumber:      shopPhone,
+        sentByUserId:     auth?.uid ?? null,
+      });
+      if (res.ok) {
+        this.whatsappTestResult.set(`Sent. Meta id: ${res.messageId ?? '—'} · sendGuid ${res.sendGuid ?? '—'}`);
+      } else if (res.error === 'not_configured') {
+        this.whatsappTestResult.set('Not configured — save the form first so the orchestrator can read from shopsettings.');
+      } else {
+        this.whatsappTestResult.set(`Failed: ${res.error ?? 'unknown'}`);
+      }
+    } catch (err) {
+      this.loggerService.LogError(err, 'sendWhatsappTestMessage');
+      this.whatsappTestResult.set(`Error: ${(err as any)?.message ?? err}`);
+    } finally {
+      this.whatsappTestBusy.set(false);
+    }
+  }
+
+  toggleWhatsappActivityStatus(s: WhatsappStatus): void {
+    this.whatsappActivityStatusFilter.set(this.whatsappActivityStatusFilter() === s ? null : s);
+    this.loadWhatsappActivity();
+  }
+
+  isWhatsappStatusActive(s: WhatsappStatus): boolean {
+    return this.whatsappActivityStatusFilter() === s;
+  }
+
+  onWhatsappDateFromChange(v: string): void { this.whatsappActivityDateFrom.set(v); this.loadWhatsappActivity(); }
+  onWhatsappDateToChange(v: string):   void { this.whatsappActivityDateTo.set(v);   this.loadWhatsappActivity(); }
+
+  clearWhatsappFilters(): void {
+    this.whatsappActivityStatusFilter.set(null);
+    this.whatsappActivityDateFrom.set('');
+    this.whatsappActivityDateTo.set('');
+    this.loadWhatsappActivity();
+  }
+
+  async loadWhatsappActivity(): Promise<void> {
+    this.whatsappActivityLoading.set(true);
+    try {
+      const rows: any[] = await this.whatsappService.getLog({
+        status: this.whatsappActivityStatusFilter(),
+        dateFrom: this.whatsappActivityDateFrom() || null,
+        dateTo:   this.whatsappActivityDateTo() || null,
+        pageSize: 100,
+        page: 1,
+      });
+      const list = rows.filter((r: any) => r?.sendGuid) as WhatsappSendLogRow[];
+      this.whatsappActivity.set(list);
+    } catch (err) {
+      this.loggerService.LogError(err, 'loadWhatsappActivity');
+      this.whatsappActivity.set([]);
+    } finally {
+      this.whatsappActivityLoading.set(false);
+    }
+  }
+
+  whatsappStatusClass(s: string | undefined): string {
+    return s ? `status-chip status-chip--${s}` : 'status-chip';
+  }
+
+  whatsappShortGuid(g: string | undefined): string {
+    if (!g) return '—';
+    return g.slice(0, 8);
   }
 
   // -------------------------------------------------------------------------
