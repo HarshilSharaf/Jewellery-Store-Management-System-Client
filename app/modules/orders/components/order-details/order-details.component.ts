@@ -21,7 +21,8 @@ import {
   lucideMessageCircle,
   lucideBan,
 } from '@ng-icons/lucide';
-import Swal from 'sweetalert2';
+import { AppDialogService } from '../../../../shared/services/AppDialog/app-dialog.service';
+import { AppToastService } from '../../../../shared/services/AppToast/app-toast.service';
 
 import { FileSystemService } from '../../../../../../Backend/Shared/file-system.service';
 import { InvoiceDataModel } from '../../models/invoice-data-model';
@@ -107,6 +108,8 @@ export class OrderDetailsComponent implements OnInit {
   });
 
   private readonly destroyRef = inject(DestroyRef);
+  private readonly dialog = inject(AppDialogService);
+  private readonly toast = inject(AppToastService);
 
   constructor(
     private route: ActivatedRoute,
@@ -277,12 +280,13 @@ export class OrderDetailsComponent implements OnInit {
 
   cancelInvoice(): void {
     if (this.orderData()?.cancelledAt) return;
-    Swal.fire({
+    this.dialog.fire({
       title: 'Cancel this invoice?',
       html: `<span style="color: var(--color-fg-muted)">${this.invoiceNumber()}</span>`,
       input: 'text',
       inputPlaceholder: 'Reason (optional)',
       icon: 'warning',
+      variant: 'danger',
       showCancelButton: true,
       confirmButtonText: 'Yes, cancel it',
       cancelButtonText: 'Keep it',
@@ -294,27 +298,21 @@ export class OrderDetailsComponent implements OnInit {
         .then((data: any) => {
           const message = Array.isArray(data) && data[0]?.message;
           if (message) {
-            Swal.fire('Error', message, 'error');
+            this.toast.error(message, 'Error');
             return;
           }
-          Swal.fire('Cancelled', 'Invoice cancelled.', 'success');
+          this.toast.success('Invoice cancelled.', 'Cancelled');
           this.getOrderDetails();
         })
         .catch((error: any) => {
-          Swal.fire('Error', error?.toString?.() ?? 'Failed to cancel', 'error');
+          this.toast.error(error?.toString?.() ?? 'Failed to cancel', 'Error');
           this.loggerService.LogError(error, 'cancelOrder()');
         });
     });
   }
 
   stubToast(message: string): void {
-    Swal.fire({
-      title: message,
-      text: 'Coming soon.',
-      icon: 'info',
-      timer: 1400,
-      showConfirmButton: false,
-    });
+    this.toast.info('Coming soon.', message, { timer: 1400 });
   }
 
   openWhatsappDialog(): void {
@@ -340,7 +338,7 @@ export class OrderDetailsComponent implements OnInit {
   async submitWhatsapp(): Promise<void> {
     if (!this.whatsappForm.valid) { this.whatsappForm.markAllAsTouched(); return; }
     if (!this.whatsappConfigured()) {
-      Swal.fire({ icon: 'info', title: 'Not configured', text: 'Set up WhatsApp in Settings → WhatsApp.' });
+      this.dialog.fire({ icon: 'info', title: 'Not configured', text: 'Set up WhatsApp in Settings → WhatsApp.' });
       return;
     }
     this.whatsappSending.set(true);
@@ -362,17 +360,17 @@ export class OrderDetailsComponent implements OnInit {
         sentByUserId: auth?.uid ?? null,
       });
       if (res.ok) {
-        Swal.fire({ icon: 'success', title: 'Queued to WhatsApp', timer: 1200, showConfirmButton: false });
+        this.toast.success('Queued to WhatsApp', undefined, { timer: 1200 });
         this.whatsappDialogOpen.set(false);
         this.loadWhatsappHistory();
       } else if (res.error === 'not_configured') {
         this.whatsappConfigured.set(false);
       } else {
-        Swal.fire('Send failed', res.error ?? 'Unknown', 'error');
+        this.toast.error(res.error ?? 'Unknown', 'Send failed');
       }
     } catch (error) {
       this.loggerService.LogError(error, 'submitWhatsapp');
-      Swal.fire('Error', (error as any)?.message ?? String(error), 'error');
+      this.toast.error((error as any)?.message ?? String(error), 'Error');
     } finally {
       this.whatsappSending.set(false);
     }

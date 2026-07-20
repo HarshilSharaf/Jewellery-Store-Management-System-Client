@@ -4,7 +4,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideSave, lucideCheck } from '@ng-icons/lucide';
-import Swal from 'sweetalert2';
+import { AppDialogService } from '../../../../../../shared/services/AppDialog/app-dialog.service';
+import { AppToastService } from '../../../../../../shared/services/AppToast/app-toast.service';
 
 import { CustomerDetails } from '../../../../../customers/models/customerDetails';
 import { InvoiceProductDataModel } from '../../../../models/invoice-product-data-model';
@@ -79,6 +80,8 @@ export class CreateInvoiceComponent implements OnInit {
   });
 
   private readonly storeService = inject(StoreService);
+  private readonly dialog = inject(AppDialogService);
+  private readonly toast = inject(AppToastService);
   private currentUserId: number | null = null;
   readonly oldGoldCreditAmount = computed<number>(() => Number(this.cartService.oldGoldState()?.creditAmount ?? 0));
   readonly oldGoldReceiptGuid  = computed<string | null>(() => this.cartService.oldGoldState()?.receiptGuid ?? null);
@@ -277,29 +280,22 @@ export class CreateInvoiceComponent implements OnInit {
           Array.isArray(flat) && flat.some((r: any) => r && typeof r === 'object' && r.message?.startsWith?.('Error:'));
         if (!hasError) {
           this.cartService.emptyCart();
-          Swal.fire({
-            title: 'Invoice saved',
-            html: 'Redirecting to Books…',
-            timer: 1800,
-            timerProgressBar: true,
-            didOpen: () => Swal.showLoading(),
-          }).then((result) => {
-            if (result.dismiss === Swal.DismissReason.timer) {
-              this.loggerService.LogInfo('saveOrder() Request Completed.');
-              this.router.navigate(['/orders']);
-            }
-          });
+          this.toast.success('Redirecting to Books…', 'Invoice saved', { timer: 1800 });
+          setTimeout(() => {
+            this.loggerService.LogInfo('saveOrder() Request Completed.');
+            this.router.navigate(['/orders']);
+          }, 1800);
         } else {
           const errMsg = flat.find((r: any) => r?.message?.startsWith?.('Error:'))?.message ?? 'Failed to save invoice';
           this.loggerService.LogError(errMsg, 'saveOrder()');
-          Swal.fire('Error', errMsg, 'error');
+          this.toast.error(errMsg, 'Error');
         }
       })
       .catch((error: any) => {
         this.saving.set(false);
         this.loaderService.stop();
         this.loggerService.LogError(error, 'saveOrder()');
-        Swal.fire('Error', typeof error === 'string' ? error : 'Failed to save invoice', 'error');
+        this.toast.error(typeof error === 'string' ? error : 'Failed to save invoice', 'Error');
       });
   }
 

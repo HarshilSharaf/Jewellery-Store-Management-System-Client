@@ -4,7 +4,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
-import Swal from 'sweetalert2';
+import { AppDialogService } from '../../../../shared/services/AppDialog/app-dialog.service';
+import { AppToastService } from '../../../../shared/services/AppToast/app-toast.service';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideReceipt,
@@ -65,6 +66,8 @@ export class OrdersPageComponent implements OnInit {
   readonly permissions = inject(PermissionsService);
 
   private readonly destroyRef = inject(DestroyRef);
+  private readonly dialog = inject(AppDialogService);
+  private readonly toast = inject(AppToastService);
   private searchDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 
   readonly moneyFormatter = new Intl.NumberFormat('en-IN', {
@@ -213,10 +216,11 @@ export class OrdersPageComponent implements OnInit {
   cancelOrder(event: Event, row: OrdersDataModel) {
     event.stopPropagation();
     if (row.cancelledAt) return;
-    Swal.fire({
+    this.dialog.fire({
       title: 'Cancel this invoice?',
       html: `<span style="color: var(--color-fg-muted)">${row.invoiceNumber}</span><br>You will not be able to revert this.`,
       icon: 'warning',
+      variant: 'danger',
       showCancelButton: true,
       confirmButtonText: 'Yes, cancel it',
       cancelButtonText: 'Keep it',
@@ -229,14 +233,14 @@ export class OrdersPageComponent implements OnInit {
           this.getAllOrders();
           const message = Array.isArray(data) && data[0]?.message;
           if (!message) {
-            Swal.fire('Cancelled', 'Invoice cancelled successfully.', 'success');
+            this.toast.success('Invoice cancelled successfully.', 'Cancelled');
           } else {
-            Swal.fire('Error', message, 'error');
+            this.toast.error(message, 'Error');
             this.loggerService.LogError(message, 'cancelOrder()');
           }
         })
         .catch((error: any) => {
-          Swal.fire('Error', error?.toString?.() ?? 'Failed to cancel invoice', 'error');
+          this.toast.error(error?.toString?.() ?? 'Failed to cancel invoice', 'Error');
           this.loggerService.LogError(error, 'cancelOrder()');
         });
     });

@@ -11,10 +11,10 @@ import {
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideIndianRupee, lucideX, lucideCheck } from '@ng-icons/lucide';
-import Swal from 'sweetalert2';
 import { PaymentsDataModel, PaymentType } from '../../models/payments-data-model';
 import { OrderService } from '../../services/order.service';
 import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
+import { AppToastService } from '../../../../shared/services/AppToast/app-toast.service';
 
 type Mode = 'cash' | 'cheque' | 'online';
 
@@ -56,6 +56,7 @@ export class OrderPaymentsComponent implements OnInit {
     private fb: FormBuilder,
     private orderService: OrderService,
     private loggerService: LoggerService,
+    private toast: AppToastService,
   ) {
     this.recordPaymentForm = this.fb.group({
       amount: [0, [Validators.required, Validators.min(1)]],
@@ -149,13 +150,11 @@ export class OrderPaymentsComponent implements OnInit {
           return;
         }
         this.refreshPaymentsData.emit(true);
-        Swal.fire({
-          title: 'Payment recorded',
-          text: this.invoiceNumber ? `Against ${this.invoiceNumber}` : undefined,
-          icon: 'success',
-          timer: 1600,
-          showConfirmButton: false,
-        });
+        this.toast.success(
+          this.invoiceNumber ? `Against ${this.invoiceNumber}` : 'Payment recorded',
+          this.invoiceNumber ? 'Payment recorded' : undefined,
+          { timer: 1600 },
+        );
         this.closePanel();
       })
       .catch((error: any) => {

@@ -30,7 +30,8 @@ import {
   lucideX,
   lucidePiggyBank,
 } from '@ng-icons/lucide';
-import Swal from 'sweetalert2';
+import { AppDialogService } from '../../../../../../shared/services/AppDialog/app-dialog.service';
+import { AppToastService } from '../../../../../../shared/services/AppToast/app-toast.service';
 
 import { FileSystemService } from '../../../../../../../../Backend/Shared/file-system.service';
 import { UtilityService } from 'Backend/Shared/utitlity.service';
@@ -116,6 +117,8 @@ export class CartBuilderComponent implements OnInit, OnDestroy {
   private readonly oldGoldService = inject(OldGoldService);
   private readonly storeService = inject(StoreService);
   private readonly savingSchemesService = inject(SavingSchemesService);
+  private readonly dialog = inject(AppDialogService);
+  private readonly toast = inject(AppToastService);
 
   readonly cartLines = signal<InvoiceProductDataModel[]>([]);
   readonly totals = signal<CartTotals>({
@@ -588,36 +591,19 @@ export class CartBuilderComponent implements OnInit, OnDestroy {
       return sku === upper || huid === upper;
     });
     if (!match) {
-      Swal.fire({
-        toast: true,
-        position: 'top-end',
-        icon: 'warning',
-        title: `No product found for ${term}`,
-        showConfirmButton: false,
-        timer: 2400,
-      });
+      this.toast.warning(`No product found for ${term}`, undefined, { timer: 2400 });
       return;
     }
     if (this.cartLines().some((l) => l.productGuid === match.productGuid)) {
-      Swal.fire({
-        toast: true,
-        position: 'top-end',
-        icon: 'info',
-        title: `${match.sku} is already in the cart`,
-        showConfirmButton: false,
-        timer: 2000,
-      });
+      this.toast.info(`${match.sku} is already in the cart`, undefined, { timer: 2000 });
       return;
     }
     this.addProduct(match);
-    Swal.fire({
-      toast: true,
-      position: 'top-end',
-      icon: 'success',
-      title: `Added: ${match.sku}${match.productDescription ? ' · ' + match.productDescription : ''}`,
-      showConfirmButton: false,
-      timer: 1800,
-    });
+    this.toast.success(
+      `Added: ${match.sku}${match.productDescription ? ' · ' + match.productDescription : ''}`,
+      undefined,
+      { timer: 1800 },
+    );
   }
 
   // --- Scale integration --------------------------------------------------
@@ -625,37 +611,16 @@ export class CartBuilderComponent implements OnInit, OnDestroy {
   captureWeightForLine(line: InvoiceProductDataModel, event?: Event): void {
     event?.preventDefault();
     if (!this.scaleService.isConnected()) {
-      Swal.fire({
-        toast: true,
-        position: 'top-end',
-        icon: 'info',
-        title: 'No scale connected — configure in Settings',
-        showConfirmButton: false,
-        timer: 2400,
-      });
+      this.toast.info('No scale connected — configure in Settings', undefined, { timer: 2400 });
       return;
     }
     const reading = this.scaleService.currentReading();
     if (!reading) {
-      Swal.fire({
-        toast: true,
-        position: 'top-end',
-        icon: 'info',
-        title: 'No reading yet — place the item on the scale',
-        showConfirmButton: false,
-        timer: 2400,
-      });
+      this.toast.info('No reading yet — place the item on the scale', undefined, { timer: 2400 });
       return;
     }
     if (!reading.stable) {
-      Swal.fire({
-        toast: true,
-        position: 'top-end',
-        icon: 'warning',
-        title: 'Scale not stable — wait for reading to settle',
-        showConfirmButton: false,
-        timer: 2200,
-      });
+      this.toast.warning('Scale not stable — wait for reading to settle', undefined, { timer: 2200 });
       return;
     }
     this.onLineFieldChange(line, 'netWeight', reading.grams);
@@ -726,28 +691,16 @@ export class CartBuilderComponent implements OnInit, OnDestroy {
 
   captureWeightForOldGold(): void {
     if (!this.scaleService.isConnected()) {
-      Swal.fire({
-        toast: true, position: 'top-end', icon: 'info',
-        title: 'No scale connected — configure in Settings',
-        showConfirmButton: false, timer: 2200,
-      });
+      this.toast.info('No scale connected — configure in Settings', undefined, { timer: 2200 });
       return;
     }
     const reading = this.scaleService.currentReading();
     if (!reading) {
-      Swal.fire({
-        toast: true, position: 'top-end', icon: 'info',
-        title: 'No reading yet — place the item on the scale',
-        showConfirmButton: false, timer: 2200,
-      });
+      this.toast.info('No reading yet — place the item on the scale', undefined, { timer: 2200 });
       return;
     }
     if (!reading.stable) {
-      Swal.fire({
-        toast: true, position: 'top-end', icon: 'warning',
-        title: 'Scale not stable — wait for reading to settle',
-        showConfirmButton: false, timer: 2200,
-      });
+      this.toast.warning('Scale not stable — wait for reading to settle', undefined, { timer: 2200 });
       return;
     }
     this.oldGoldGrossWeight.set(reading.grams);
@@ -757,15 +710,15 @@ export class CartBuilderComponent implements OnInit, OnDestroy {
   async saveOldGoldReceipt(): Promise<void> {
     if (this.oldGoldSaving()) { return; }
     if (!this.selectedCustomer?.customerGuid) {
-      Swal.fire('Customer required', 'Select a customer before saving old-gold.', 'info');
+      this.dialog.fire({ icon: 'info', title: 'Customer required', text: 'Select a customer before saving old-gold.' });
       return;
     }
     if (this.oldGoldGrossWeight() <= 0) {
-      Swal.fire('Gross weight required', 'Enter a positive gross weight.', 'info');
+      this.dialog.fire({ icon: 'info', title: 'Gross weight required', text: 'Enter a positive gross weight.' });
       return;
     }
     if (this.oldGoldCreditAmount() <= 0) {
-      Swal.fire('Credit is zero', 'Check purity, rate and deduction.', 'info');
+      this.dialog.fire({ icon: 'info', title: 'Credit is zero', text: 'Check purity, rate and deduction.' });
       return;
     }
     this.oldGoldSaving.set(true);
@@ -783,7 +736,7 @@ export class CartBuilderComponent implements OnInit, OnDestroy {
         actorUserId: this.currentUserId,
       });
       if (!receipt || !receipt.receiptGuid) {
-        Swal.fire('Save failed', 'Old-gold receipt did not return a guid.', 'error');
+        this.toast.error('Old-gold receipt did not return a guid.', 'Save failed');
         return;
       }
       this.oldGoldReceiptGuid.set(receipt.receiptGuid);
@@ -800,15 +753,11 @@ export class CartBuilderComponent implements OnInit, OnDestroy {
       };
       this.cartService.setOldGold(state);
       this.recalcAll();
-      Swal.fire({
-        toast: true, position: 'top-end', icon: 'success',
-        title: `Old-gold receipt saved (₹${this.money(this.oldGoldCreditAmount())})`,
-        showConfirmButton: false, timer: 1800,
-      });
+      this.toast.success(`Old-gold receipt saved (₹${this.money(this.oldGoldCreditAmount())})`, undefined, { timer: 1800 });
       this.oldGoldOpen.set(false);
     } catch (err) {
       this.loggerService.LogError(err, 'CartBuilder.saveOldGoldReceipt');
-      Swal.fire('Error', 'Failed to save old-gold receipt.', 'error');
+      this.toast.error('Failed to save old-gold receipt.', 'Error');
     } finally {
       this.oldGoldSaving.set(false);
     }
@@ -851,7 +800,7 @@ export class CartBuilderComponent implements OnInit, OnDestroy {
 
   openSchemePicker(): void {
     if (!this.selectedCustomer?.customerGuid) {
-      Swal.fire({ icon: 'info', title: 'Select a customer first', showConfirmButton: false, timer: 1400 });
+      this.toast.info('Select a customer first', undefined, { timer: 1400 });
       return;
     }
     this.refreshEligibleSchemes().then(() => this.schemePickerOpen.set(true));
