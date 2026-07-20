@@ -1,0 +1,327 @@
+<section class="detail-shell repair-detail">
+
+  @if (loading()) {
+    <div class="loading-inline">
+      <ng-icon name="lucideLoader" class="animate-spin" size="20" aria-hidden="true"></ng-icon>
+      <span>Loading ticket…</span>
+    </div>
+  } @else if (errorMessage() && !ticket()) {
+    <div class="alert-banner alert-banner--danger" role="alert">{{ errorMessage() }}</div>
+  } @else if (ticket() !== null) {
+    @let t = ticket()!;
+
+    <div class="repair-detail__layout">
+
+      <div class="repair-detail__main">
+
+        <header class="detail-head">
+          <a class="icon-btn" [routerLink]="['/repair']" aria-label="Back to Repair">
+            <ng-icon name="lucideArrowLeft" aria-hidden="true"></ng-icon>
+          </a>
+          <div class="detail-head__meta">
+            <div class="detail-head__title font-serif tabular-nums">{{ t.ticketNumber }}</div>
+            <div class="detail-head__sub">
+              <span>{{ t.customerName || '—' }}</span>
+              <span class="detail-head__dot">·</span>
+              <span class="tabular-nums">{{ t.receivedAt | date: 'd MMM yyyy, h:mm a' }}</span>
+              <span class="detail-head__dot">·</span>
+              <span [class]="statusClass()">{{ statusLabel(t.status) }}</span>
+            </div>
+          </div>
+          <div class="detail-head__actions">
+            @if (canAdvance()) {
+              <button type="button" class="icon-btn" (click)="openAdvance()" [title]="advanceLabel()" [attr.aria-label]="advanceLabel()">
+                <ng-icon name="lucideCircleCheck" aria-hidden="true"></ng-icon>
+              </button>
+            }
+            <button type="button" class="icon-btn" (click)="openKarigarLink()" title="Link karigar" aria-label="Link karigar">
+              <ng-icon name="lucideHammer" aria-hidden="true"></ng-icon>
+            </button>
+            @if (canDecline()) {
+              <button type="button" class="icon-btn icon-btn--danger" (click)="decline()" title="Decline" aria-label="Decline">
+                <ng-icon name="lucideBan" aria-hidden="true"></ng-icon>
+              </button>
+            }
+            @if (userType() === 'admin') {
+              <button type="button" class="icon-btn icon-btn--danger" (click)="deleteTicket()" title="Delete ticket" aria-label="Delete ticket">
+                <ng-icon name="lucideTrash2" aria-hidden="true"></ng-icon>
+              </button>
+            }
+          </div>
+        </header>
+
+        <div class="detail-section">
+          <div class="detail-section__title">Party</div>
+          <div class="repair-detail__party">
+            <span class="avatar avatar--md">{{ (t.customerName?.[0] ?? '?').toUpperCase() }}</span>
+            <div>
+              <div class="repair-detail__party-name">{{ t.customerName || '—' }}</div>
+              @if (t.customerPhone) {
+                <div class="repair-detail__party-line tabular-nums">Ph: {{ t.customerPhone }}</div>
+              }
+              @if (t.customerEmail) {
+                <div class="repair-detail__party-line">{{ t.customerEmail }}</div>
+              }
+              @if (t.receivedByUserName) {
+                <div class="repair-detail__party-line">
+                  Received by <strong>{{ t.receivedByUserName }}</strong>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <div class="detail-section__title">Item</div>
+          <div class="repair-detail__item">
+            @if (photoSrc) {
+              <img class="repair-detail__photo" [src]="photoSrc" alt="Repair item photo" />
+            } @else {
+              <div class="repair-detail__photo repair-detail__photo--empty">
+                <ng-icon name="lucideWrench" size="28" aria-hidden="true"></ng-icon>
+                <span>No photo</span>
+              </div>
+            }
+            <div class="repair-detail__item-body">
+              <p class="repair-detail__item-desc">{{ t.itemDescription }}</p>
+              @if (t.weight) {
+                <div class="repair-detail__item-meta tabular-nums">Weight: {{ t.weight }} g</div>
+              }
+              @if (t.notes) {
+                <p class="repair-detail__item-notes">{{ t.notes }}</p>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <div class="detail-section__title">Estimates</div>
+          <div class="repair-detail__grid">
+            <div>
+              <div class="field-label">Estimated charge</div>
+              <div class="tabular-nums">&#8377;{{ money(t.estimatedCharge ?? 0) }}</div>
+            </div>
+            <div>
+              <div class="field-label">Estimated return</div>
+              <div>{{ t.estimatedReturnDate ? (t.estimatedReturnDate | date: 'd MMM yyyy') : '—' }}</div>
+            </div>
+            <div>
+              <div class="field-label">Days open</div>
+              <div class="tabular-nums">{{ daysOpen() }}</div>
+            </div>
+            @if (t.actualCharge !== null && t.actualCharge !== undefined) {
+              <div>
+                <div class="field-label">Actual charge</div>
+                <div class="tabular-nums">&#8377;{{ money(t.actualCharge) }}</div>
+              </div>
+            }
+            @if (t.paymentMode) {
+              <div>
+                <div class="field-label">Payment</div>
+                <div>{{ t.paymentMode }}<span *ngIf="t.paymentRef"> · <span class="tabular-nums">{{ t.paymentRef }}</span></span></div>
+              </div>
+            }
+            @if (t.deliveredAt) {
+              <div>
+                <div class="field-label">Delivered</div>
+                <div class="tabular-nums">{{ t.deliveredAt | date: 'd MMM yyyy, h:mm a' }}</div>
+              </div>
+            }
+          </div>
+        </div>
+
+        @if (t.karigarGuid) {
+          <div class="detail-section">
+            <div class="detail-section__title">Karigar link</div>
+            <div class="repair-detail__karigar">
+              <div>
+                <div class="repair-detail__karigar-name">{{ t.karigarName }}</div>
+                @if (t.karigarPhone) {
+                  <div class="repair-detail__party-line tabular-nums">Ph: {{ t.karigarPhone }}</div>
+                }
+              </div>
+              @if (t.karigarJobGuid) {
+                <a class="hlm-btn hlm-btn-ghost" [routerLink]="['/karigar/jobs', t.karigarJobGuid]">
+                  <ng-icon name="lucideExternalLink" size="14" aria-hidden="true"></ng-icon>
+                  <span>Job card</span>
+                </a>
+              }
+            </div>
+          </div>
+        }
+
+      </div>
+
+      <aside class="repair-detail__side">
+        <div class="kpi-card side-kpi">
+          <span class="kpi-label">Days open</span>
+          <span class="kpi-value tabular-nums">{{ daysOpen() }}</span>
+        </div>
+        <div class="kpi-card side-kpi">
+          <span class="kpi-label">Estimated charge</span>
+          <span class="kpi-value tabular-nums">&#8377;{{ money(t.estimatedCharge ?? 0) }}</span>
+        </div>
+        <div class="kpi-card side-kpi">
+          <span class="kpi-label">Actual charge</span>
+          <span class="kpi-value tabular-nums">{{ t?.actualCharge !== null && t?.actualCharge !== undefined ? '₹' + money(t?.actualCharge) : '—' }}</span>
+        </div>
+
+        <div class="side-actions">
+          <div class="side-actions__title">Quick actions</div>
+          <button type="button" class="side-action" (click)="printStub()">
+            <ng-icon name="lucidePrinter" aria-hidden="true"></ng-icon>
+            <span>Print receipt</span>
+            <span class="side-action__badge">P3</span>
+          </button>
+          <button type="button" class="side-action" (click)="openWhatsappDialog()">
+            <ng-icon name="lucideMessageCircle" aria-hidden="true"></ng-icon>
+            <span>Send WhatsApp update</span>
+          </button>
+        </div>
+      </aside>
+
+    </div>
+
+    <!-- Status advance slide-in panel -->
+    @if (statusPanelOpen()) {
+      <div class="repair-status-panel__backdrop" (click)="closeAdvance()"></div>
+      <aside class="repair-status-panel" role="dialog" aria-label="Advance status">
+        <header class="repair-status-panel__head">
+          <span class="repair-status-panel__title">{{ advanceLabel() }}</span>
+          <button type="button" class="icon-btn" (click)="closeAdvance()" aria-label="Close">
+            <ng-icon name="lucideCircleAlert" aria-hidden="true"></ng-icon>
+          </button>
+        </header>
+
+        <form [formGroup]="advanceForm" (ngSubmit)="submitAdvance()" class="repair-status-panel__form">
+          @if (t.status === 'ready') {
+            <div>
+              <label class="field-label">Actual charge (&#8377;)</label>
+              <input type="number" step="1" class="hlm-input tabular-nums" formControlName="actualCharge" />
+            </div>
+            <div>
+              <label class="field-label">Payment mode</label>
+              <div class="radio-pill-group">
+                @for (pm of paymentModes; track pm) {
+                  <label class="radio-pill" [class.is-active]="advanceForm.value.paymentMode === pm">
+                    <input type="radio" formControlName="paymentMode" [value]="pm" />
+                    <span>{{ pm }}</span>
+                  </label>
+                }
+              </div>
+            </div>
+            @if (advanceForm.value.paymentMode !== 'cash') {
+              <div>
+                <label class="field-label">Payment ref</label>
+                <input type="text" class="hlm-input tabular-nums" formControlName="paymentRef" placeholder="Cheque no. / UPI ref" />
+              </div>
+            }
+            <div>
+              <label class="field-label">Delivered at</label>
+              <input type="datetime-local" class="hlm-input tabular-nums" formControlName="deliveredAt" />
+              <p class="field-hint">Server stamps NOW() when settled — this input is informational.</p>
+            </div>
+          } @else {
+            <div>
+              <label class="field-label">Notes (optional)</label>
+              <textarea class="hlm-input" formControlName="notes" rows="3"></textarea>
+            </div>
+          }
+
+          @if (errorMessage()) {
+            <div class="alert-banner alert-banner--danger">{{ errorMessage() }}</div>
+          }
+
+          <div class="repair-status-panel__actions">
+            <button type="button" class="hlm-btn hlm-btn-ghost" (click)="closeAdvance()">Cancel</button>
+            <button type="submit" class="hlm-btn hlm-btn-primary" [disabled]="saving()">
+              @if (saving()) {
+                <ng-icon name="lucideLoader" class="animate-spin" size="14" aria-hidden="true"></ng-icon>
+                <span>Saving…</span>
+              } @else {
+                <ng-icon name="lucideCheck" size="14" aria-hidden="true"></ng-icon>
+                <span>{{ advanceLabel() }}</span>
+              }
+            </button>
+          </div>
+        </form>
+      </aside>
+    }
+
+    <!-- Karigar link panel -->
+    @if (karigarPanelOpen()) {
+      <div class="repair-status-panel__backdrop" (click)="closeKarigarLink()"></div>
+      <aside class="repair-status-panel" role="dialog" aria-label="Link karigar">
+        <header class="repair-status-panel__head">
+          <span class="repair-status-panel__title">Link karigar</span>
+          <button type="button" class="icon-btn" (click)="closeKarigarLink()" aria-label="Close">
+            <ng-icon name="lucideCircleAlert" aria-hidden="true"></ng-icon>
+          </button>
+        </header>
+        <form [formGroup]="linkForm" (ngSubmit)="submitKarigarLink()" class="repair-status-panel__form">
+          <div>
+            <label class="field-label">Karigar</label>
+            <select class="hlm-input" formControlName="karigarGuid">
+              <option value="">— Select —</option>
+              @for (k of karigars(); track k.karigarGuid) {
+                <option [value]="k.karigarGuid">{{ k.name }}</option>
+              }
+            </select>
+          </div>
+          <div class="repair-status-panel__actions">
+            <button type="button" class="hlm-btn hlm-btn-ghost" (click)="closeKarigarLink()">Cancel</button>
+            <button type="submit" class="hlm-btn hlm-btn-primary">
+              <ng-icon name="lucideCheck" size="14" aria-hidden="true"></ng-icon>
+              <span>Link</span>
+            </button>
+          </div>
+        </form>
+      </aside>
+    }
+
+    <!-- WhatsApp dialog -->
+    @if (whatsappDialogOpen()) {
+      <div class="repair-status-panel__backdrop" (click)="closeWhatsappDialog()"></div>
+      <aside class="repair-status-panel" role="dialog" aria-label="Send WhatsApp update">
+        <header class="repair-status-panel__head">
+          <span class="repair-status-panel__title">Send WhatsApp update</span>
+          <button type="button" class="icon-btn" (click)="closeWhatsappDialog()" aria-label="Close">
+            <ng-icon name="lucideCircleAlert" aria-hidden="true"></ng-icon>
+          </button>
+        </header>
+
+        @if (!whatsappConfigured()) {
+          <div class="whatsapp-verification-banner">
+            WhatsApp is not configured. Set it up in <a [routerLink]="['/settings']" [queryParams]="{ tab: 'whatsapp' }">Settings → WhatsApp</a>.
+          </div>
+        }
+
+        <form [formGroup]="whatsappForm" (ngSubmit)="submitWhatsapp()" class="repair-status-panel__form">
+          <div>
+            <label class="field-label">Customer phone</label>
+            <input type="tel" class="hlm-input tabular-nums" formControlName="phoneNumber" placeholder="+91xxxxxxxxxx" />
+          </div>
+          <div>
+            <label class="field-label">Template</label>
+            <select class="hlm-input" formControlName="templateName">
+              <option value="repair_ready">repair_ready</option>
+              <option value="invoice_ready">invoice_ready</option>
+            </select>
+          </div>
+          <p class="field-hint">
+            Variables sent: <em>{{ (ticket()?.customerName ?? '').split(' ')[0] }}</em>, <em>{{ ticket()?.ticketNumber }}</em>, <em>{{ ticket()?.actualCharge ?? ticket()?.estimatedCharge ?? '' }}</em>.
+          </p>
+          <div class="repair-status-panel__actions">
+            <button type="button" class="hlm-btn hlm-btn-ghost" (click)="closeWhatsappDialog()">Cancel</button>
+            <button type="submit" class="hlm-btn hlm-btn-primary" [disabled]="!whatsappConfigured()">
+              <ng-icon name="lucideMessageCircle" size="14" aria-hidden="true"></ng-icon>
+              <span>Send</span>
+            </button>
+          </div>
+        </form>
+      </aside>
+    }
+
+  }
+
+</section>

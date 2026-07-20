@@ -68,5 +68,11 @@ export const mainRoutes: Routes = [
     component: MainComponent,
     loadChildren: () => import('../karigar/karigar-routing.config').then(m => m.karigarRoutes),
     canActivate: [AuthGuard]
+  },
+  {
+    path: 'repair',
+    component: MainComponent,
+    loadChildren: () => import('../repair/repair-routing.config').then(m => m.repairRoutes),
+    canActivate: [AuthGuard]
   }
 ];

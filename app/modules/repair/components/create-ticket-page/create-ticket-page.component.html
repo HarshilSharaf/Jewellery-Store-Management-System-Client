@@ -1,0 +1,155 @@
+<section class="detail-shell repair-create">
+
+  <header class="detail-head">
+    <button type="button" class="icon-btn" (click)="goBack()" aria-label="Back">
+      <ng-icon name="lucideArrowLeft" aria-hidden="true"></ng-icon>
+    </button>
+    <div class="detail-head__meta">
+      <h1 class="detail-head__title font-serif">New repair ticket</h1>
+      <p class="detail-head__sub">Log an item dropped off for repair. Ticket number auto-generated from Shop settings.</p>
+    </div>
+  </header>
+
+  @if (errorMessage()) {
+    <div class="alert-banner alert-banner--danger" role="alert">{{ errorMessage() }}</div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="save()" class="repair-create__form">
+
+    <div class="form-section">
+      <h3 class="section-heading">Party</h3>
+      <div class="field-grid">
+        <div class="form-grid__full">
+          <label class="field-label">Customer</label>
+          <div class="repair-customer-picker" (click)="focusCustomerSearch()">
+            <ng-icon name="lucideSearch" size="14" aria-hidden="true"></ng-icon>
+            <input type="text" class="hlm-input hlm-input--flush"
+                   placeholder="Search by name or phone…"
+                   [value]="customerSearch()"
+                   (focus)="focusCustomerSearch()"
+                   (input)="onCustomerSearchInput($any($event.target).value)" />
+            @if (selectedCustomer()) {
+              <button type="button" class="chip chip-toggle" (click)="clearCustomer(); $event.stopPropagation()">Clear</button>
+            }
+          </div>
+          @if (customerDropdownOpen() && customers().length > 0) {
+            <div class="repair-customer-dropdown">
+              @for (c of customers().slice(0, 8); track c.customerGuid) {
+                <button type="button" class="repair-customer-dropdown__row"
+                        (click)="pickCustomer(c)">
+                  <span class="avatar avatar--sm">{{ (c.firstName?.[0] ?? '?').toUpperCase() }}{{ (c.lastName?.[0] ?? '').toUpperCase() }}</span>
+                  <span class="repair-customer-dropdown__name">{{ c.firstName }} {{ c.lastName }}</span>
+                  <span class="repair-customer-dropdown__phone tabular-nums">{{ c.phoneNumber ?? '' }}</span>
+                </button>
+              }
+            </div>
+          }
+          @if (form.get('customerGuid')?.touched && form.get('customerGuid')?.errors?.['required']) {
+            <span class="field-error">Customer is required.</span>
+          }
+        </div>
+
+        <div>
+          <label class="field-label">Received date</label>
+          <input type="text" class="hlm-input tabular-nums" formControlName="receivedDateHint" [attr.disabled]="true" />
+          <p class="field-hint">Server stamps the exact receipt timestamp.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h3 class="section-heading">Item</h3>
+      <div class="field-grid">
+        <div class="form-grid__full">
+          <label class="field-label">Description</label>
+          <textarea class="hlm-input"
+                    formControlName="itemDescription"
+                    maxlength="500"
+                    rows="3"
+                    placeholder="e.g. 22K chain broken at clasp, needs re-solder."></textarea>
+          <div class="field-hint tabular-nums">{{ descriptionCharsLeft() }} chars left</div>
+          @if (form.get('itemDescription')?.touched && form.get('itemDescription')?.errors?.['required']) {
+            <span class="field-error">Description is required.</span>
+          }
+        </div>
+
+        <div>
+          <label class="field-label">Weight (g)</label>
+          <input type="number" step="0.001" class="hlm-input tabular-nums"
+                 formControlName="weight"
+                 placeholder="Optional" />
+        </div>
+
+        <div class="form-grid__full">
+          <label class="field-label">Photo</label>
+          <div class="repair-photo">
+            <app-image-upload
+              [activeColor]="'var(--color-accent)'"
+              [baseColor]="'var(--color-border)'">
+            </app-image-upload>
+            <p class="field-hint">Optional. Helpful for HUID tampering disputes and cross-shop identification.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h3 class="section-heading">Estimates</h3>
+      <div class="field-grid">
+        <div>
+          <label class="field-label">Estimated charge (&#8377;)</label>
+          <input type="number" step="1" class="hlm-input tabular-nums"
+                 formControlName="estimatedCharge"
+                 placeholder="Optional" />
+        </div>
+        <div>
+          <label class="field-label">Estimated return date</label>
+          <input type="date" class="hlm-input tabular-nums" formControlName="estimatedReturnDate" />
+        </div>
+        <div class="form-grid__full">
+          <label class="field-label">Notes</label>
+          <textarea class="hlm-input" formControlName="notes" rows="2" placeholder="Anything else the counter should know…"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h3 class="section-heading">Karigar <span class="section-heading__optional">(optional)</span></h3>
+      <div class="field-grid">
+        <div>
+          <label class="field-label">Assign karigar</label>
+          <select class="hlm-input" formControlName="karigarGuid">
+            <option value="">— None —</option>
+            @for (k of karigars(); track k.karigarGuid) {
+              <option [value]="k.karigarGuid">{{ k.name }}</option>
+            }
+          </select>
+        </div>
+        @if (form.get('karigarGuid')?.value) {
+          <div>
+            <label class="field-label">
+              <input type="checkbox" formControlName="issueKarigarJob" />
+              Issue karigar job now
+            </label>
+            <p class="field-hint">Auto-creates a karigar job card once the ticket is saved.</p>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="repair-create__actions">
+      <button type="button" class="hlm-btn hlm-btn-ghost" (click)="goBack()">Cancel</button>
+      <button type="submit" class="hlm-btn hlm-btn-primary" [disabled]="saving()">
+        @if (saving()) {
+          <ng-icon name="lucideLoader" class="animate-spin" size="14" aria-hidden="true"></ng-icon>
+          <span>Saving…</span>
+        } @else {
+          <ng-icon name="lucideCheck" size="14" aria-hidden="true"></ng-icon>
+          <span>Save ticket</span>
+        }
+      </button>
+    </div>
+
+  </form>
+
+</section>
