@@ -68,6 +68,9 @@
       @if (totals().totalDiscount > 0) {
         <div class="review__totals-row muted"><span>Discount</span><span class="tabular-nums">− &#8377;{{ money(totals().totalDiscount) }}</span></div>
       }
+      @if (oldGoldCreditAmount() > 0) {
+        <div class="review__totals-row muted"><span><em>Old-gold credit</em></span><span class="tabular-nums">− &#8377;{{ money(oldGoldCreditAmount()) }}</span></div>
+      }
       @if (isInterState()) {
         <div class="review__totals-row"><span>IGST</span><span class="tabular-nums">&#8377;{{ money(totals().totalIgst) }}</span></div>
       } @else {
@@ -87,8 +90,11 @@
 
     <div class="review__save">
       <p class="review__save-note">
-        Once you save, the invoice number is assigned and stock is decremented. Old-gold and part-payment are not yet
-        wired — record payments from the invoice detail page after saving.
+        Once you save, the invoice number is assigned and stock is decremented. Record payments from the invoice detail page
+        after saving.
+        @if (oldGoldReceiptGuid()) {
+          <br>An old-gold receipt is attached and will be linked to the invoice on save.
+        }
       </p>
       <button type="button" class="hlm-btn hlm-btn-primary review__save-btn"
               [disabled]="!customer() || cartLines().length === 0 || totals().grandTotal <= 0 || saving()"

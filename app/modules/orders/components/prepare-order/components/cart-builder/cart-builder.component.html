@@ -7,10 +7,11 @@
       <div class="picker__field">
         <ng-icon name="lucideSearch" class="picker__icon" aria-hidden="true"></ng-icon>
         <input #searchInput type="search" class="hlm-input picker__input"
-               placeholder="Search SKU, HUID or product name  (press /)"
+               placeholder="Search SKU, HUID or product name  (press / or scan)"
                [formControl]="search"
                (keydown)="onSearchKeydown($event)"
                (focus)="picks().length > 0 && pickerOpen.set(true)"
+               data-accept-scan="1"
                autocomplete="off">
       </div>
 
@@ -54,7 +55,7 @@
       @if (cartLines().length === 0) {
         <div class="lines__empty">
           <p class="lines__empty-title">Cart is empty.</p>
-          <p class="lines__empty-sub">Start typing an SKU or product name in the search box to add items.</p>
+          <p class="lines__empty-sub">Start typing an SKU or product name in the search box to add items, or scan a barcode.</p>
         </div>
       } @else {
         <div class="lines__list">
@@ -83,9 +84,19 @@
               <div class="line__grid">
                 <label class="line__field">
                   <span class="line__field-label">Net weight (g)</span>
-                  <input class="hlm-input tabular-nums" type="number" step="0.001" min="0"
-                         [value]="line.netWeight"
-                         (input)="onLineFieldChange(line, 'netWeight', $any($event.target).value)">
+                  <div class="line__field-with-action">
+                    <input class="hlm-input tabular-nums" type="number" step="0.001" min="0"
+                           [value]="line.netWeight"
+                           [attr.data-net-weight-key]="line.productGuid"
+                           (input)="onLineFieldChange(line, 'netWeight', $any($event.target).value)">
+                    <button type="button" class="scale-btn"
+                            (click)="captureWeightForLine(line, $event)"
+                            [disabled]="!scaleService.isConnected()"
+                            [title]="scaleService.isConnected() ? 'Weigh from scale (Alt+W)' : 'No scale connected — configure in Settings'"
+                            aria-label="Weigh from scale">
+                      <ng-icon name="lucideScale" size="14" aria-hidden="true"></ng-icon>
+                    </button>
+                  </div>
                 </label>
                 <label class="line__field">
                   <span class="line__field-label">Rate / g (&#8377;)</span>
@@ -143,8 +154,93 @@
       }
     </div>
 
+    <!-- Old-gold exchange panel -->
+    <section class="old-gold-panel" [class.is-open]="oldGoldOpen()">
+      <button type="button" class="old-gold-panel__head" (click)="toggleOldGoldPanel()"
+              [attr.aria-expanded]="oldGoldOpen()">
+        <span class="old-gold-panel__head-title">
+          Old-gold exchange
+          @if (oldGoldReceiptGuid() && oldGoldCreditAmount() > 0) {
+            <span class="old-gold-panel__badge tabular-nums">− &#8377;{{ money(oldGoldCreditAmount()) }}</span>
+          }
+        </span>
+        <ng-icon [name]="oldGoldOpen() ? 'lucideChevronUp' : 'lucideChevronDown'" size="16" aria-hidden="true"></ng-icon>
+      </button>
+      @if (oldGoldOpen()) {
+        <div class="old-gold-panel__body">
+          <div class="old-gold-panel__row">
+            <label class="line__field">
+              <span class="line__field-label">Gross weight (g)</span>
+              <div class="line__field-with-action">
+                <input class="hlm-input tabular-nums" type="number" step="0.001" min="0"
+                       [value]="oldGoldGrossWeight()"
+                       (input)="onOldGoldField('grossWeight', $any($event.target).value)">
+                <button type="button" class="scale-btn"
+                        (click)="captureWeightForOldGold()"
+                        [disabled]="!scaleService.isConnected()"
+                        [title]="scaleService.isConnected() ? 'Weigh from scale' : 'No scale connected'"
+                        aria-label="Weigh from scale">
+                  <ng-icon name="lucideWeight" size="14" aria-hidden="true"></ng-icon>
+                </button>
+              </div>
+            </label>
+            <label class="line__field">
+              <span class="line__field-label">Tested purity</span>
+              <select class="hlm-input"
+                      [value]="oldGoldPurityCode()"
+                      (change)="onOldGoldPurityChange($any($event.target).value)">
+                @for (p of purities(); track p.code) {
+                  <option [value]="p.code">{{ p.label }} · {{ p.code }}</option>
+                }
+              </select>
+            </label>
+            <label class="line__field">
+              <span class="line__field-label">Fineness (0-1000)</span>
+              <input class="hlm-input tabular-nums" type="number" step="1" min="0" max="1000"
+                     [value]="oldGoldFineness() ?? ''"
+                     (input)="onOldGoldField('fineness', $any($event.target).value)">
+            </label>
+            <label class="line__field">
+              <span class="line__field-label">Rate / g (&#8377;)</span>
+              <input class="hlm-input tabular-nums" type="number" step="0.01" min="0"
+                     [value]="oldGoldRatePerGram()"
+                     (input)="onOldGoldField('ratePerGram', $any($event.target).value)">
+            </label>
+            <label class="line__field">
+              <span class="line__field-label">Deduction %</span>
+              <input class="hlm-input tabular-nums" type="number" step="0.1" min="0" max="100"
+                     [value]="oldGoldDeductionPercent()"
+                     (input)="onOldGoldField('deductionPercent', $any($event.target).value)">
+            </label>
+            <label class="line__field old-gold-panel__credit">
+              <span class="line__field-label">Credit</span>
+              <span class="money-lg tabular-nums">&#8377;{{ money(oldGoldCreditAmount()) }}</span>
+            </label>
+          </div>
+          <label class="line__field">
+            <span class="line__field-label">Remarks</span>
+            <input class="hlm-input" type="text" maxlength="240"
+                   [value]="oldGoldRemarks()"
+                   (input)="onOldGoldField('remarks', $any($event.target).value)"
+                   placeholder="e.g. 22K bangle, weighed after cleaning">
+          </label>
+          <div class="old-gold-panel__actions">
+            <button type="button" class="hlm-btn hlm-btn-ghost" (click)="cancelOldGoldEdit()">Cancel</button>
+            <button type="button" class="hlm-btn hlm-btn-primary"
+                    (click)="saveOldGoldReceipt()"
+                    [disabled]="oldGoldSaving() || oldGoldCreditAmount() <= 0 || !selectedCustomer">
+              {{ oldGoldSaving() ? 'Saving…' : (oldGoldReceiptGuid() ? 'Update receipt' : 'Add to invoice') }}
+            </button>
+          </div>
+          @if (!selectedCustomer) {
+            <p class="old-gold-panel__hint">Select a customer in step 1 to save an old-gold receipt.</p>
+          }
+        </div>
+      }
+    </section>
+
     <p class="cart-builder__shortcuts">
-      Tip: press <kbd>/</kbd> to focus search, <kbd>Enter</kbd> on a result to add, <kbd>Alt</kbd>+<kbd>D</kbd> to jump to the last line's discount.
+      Tip: press <kbd>/</kbd> to focus search, <kbd>Enter</kbd> on a result to add, <kbd>Alt</kbd>+<kbd>D</kbd> for the last line's discount, <kbd>Alt</kbd>+<kbd>W</kbd> to weigh from the scale.
     </p>
   </div>
 
@@ -211,11 +307,43 @@
           <span class="tabular-nums">− &#8377;{{ money(totals().totalDiscount) }}</span>
         </div>
       }
-      <div class="totals-panel__row totals-panel__row--stub">
-        <span>Old-gold credit</span>
-        <span class="tabular-nums">− &#8377;0.00</span>
-        <span class="totals-panel__badge">P2 — coming soon</span>
-      </div>
+      @if (oldGoldCreditAmount() > 0) {
+        <div class="totals-panel__row totals-panel__row--oldgold">
+          <button type="button" class="totals-panel__oldgold-btn" (click)="openOldGoldPanel()"
+                  title="Edit old-gold receipt">
+            <em>Old-gold credit</em>
+          </button>
+          <span class="tabular-nums totals-panel__oldgold-value">− &#8377;{{ money(oldGoldCreditAmount()) }}</span>
+          <button type="button" class="icon-btn totals-panel__oldgold-remove"
+                  (click)="removeOldGold()"
+                  title="Remove old-gold from invoice"
+                  aria-label="Remove old-gold">
+            <ng-icon name="lucideX" size="12" aria-hidden="true"></ng-icon>
+          </button>
+        </div>
+      }
+      @if (appliedScheme(); as scheme) {
+        <div class="totals-panel__row totals-panel__row--oldgold">
+          <span class="totals-panel__oldgold-btn">
+            <ng-icon name="lucidePiggyBank" size="12" aria-hidden="true"></ng-icon>
+            <em>{{ scheme.planName }} redeem</em>
+          </span>
+          <span class="tabular-nums totals-panel__oldgold-value">− &#8377;{{ money(scheme.corpusAmount) }}</span>
+          <button type="button" class="icon-btn totals-panel__oldgold-remove"
+                  (click)="removeScheme()"
+                  title="Unapply scheme"
+                  aria-label="Unapply scheme">
+            <ng-icon name="lucideX" size="12" aria-hidden="true"></ng-icon>
+          </button>
+        </div>
+      } @else {
+        <div class="totals-panel__row totals-panel__row--stub">
+          <span>Redeem saving scheme</span>
+          <button type="button" class="totals-panel__link" (click)="openSchemePicker()">
+            Apply scheme →
+          </button>
+        </div>
+      }
       @if (isInterState()) {
         <div class="totals-panel__row">
           <span>IGST</span>
@@ -242,8 +370,48 @@
         <span>Grand total</span>
         <span class="money-lg tabular-nums">&#8377;{{ money(totals().grandTotal) }}</span>
       </div>
+      @if (appliedScheme(); as scheme) {
+        <div class="totals-panel__row totals-panel__row--muted">
+          <span>Payable after scheme</span>
+          <span class="tabular-nums">&#8377;{{ money(grandTotalWithScheme()) }}</span>
+        </div>
+      }
     </div>
 
   </aside>
 
 </div>
+
+@if (schemePickerOpen()) {
+  <div class="scheme-picker-backdrop" (click)="closeSchemePicker()" role="presentation"></div>
+  <div class="scheme-picker" role="dialog" aria-modal="true" aria-labelledby="scheme-picker-title">
+    <header class="scheme-picker__head">
+      <h3 id="scheme-picker-title" class="scheme-picker__title">Apply saving scheme</h3>
+      <button type="button" class="icon-btn" (click)="closeSchemePicker()" aria-label="Close">
+        <ng-icon name="lucideX" size="16" aria-hidden="true"></ng-icon>
+      </button>
+    </header>
+    <div class="scheme-picker__body">
+      @if (eligibleSchemes().length === 0) {
+        <p class="scheme-picker__empty">
+          <ng-icon name="lucidePiggyBank" size="20" aria-hidden="true"></ng-icon>
+          No eligible schemes for this customer.
+        </p>
+      } @else {
+        <ul class="scheme-picker__list">
+          @for (s of eligibleSchemes(); track s.schemeGuid) {
+            <li class="scheme-picker__item" (click)="applyScheme(s)">
+              <div>
+                <div class="scheme-picker__plan">{{ s.planName }}</div>
+                <div class="scheme-picker__sub tabular-nums">
+                  Paid &#8377;{{ money(s.totalPaid) }} · {{ s.status }}
+                </div>
+              </div>
+              <span class="scheme-picker__corpus tabular-nums">&#8377;{{ money(s.projectedCorpus || s.totalPaid || 0) }}</span>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  </div>
+}

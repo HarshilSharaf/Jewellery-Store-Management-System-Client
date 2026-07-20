@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit, computed, signal } from '@angular/core';
+import { Component, Input, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -12,6 +12,7 @@ import { ProductDataModel } from '../../../../models/product-data-model';
 import { OrderService } from '../../../../services/order.service';
 import { CartService } from '../../../../../../shared/services/cart.service';
 import { LoggerService } from '../../../../../../../../Backend/Shared/logger.service';
+import { StoreService } from '../../../../../../../../Backend/Shared/store.service';
 
 import { MetalRatesService } from '../../../../../../shared/services/MetalRates/metal-rates.service';
 import { ShopSettingsService } from '../../../../../../shared/services/ShopSettings/shop-settings.service';
@@ -77,6 +78,11 @@ export class CreateInvoiceComponent implements OnInit {
     maximumFractionDigits: 2,
   });
 
+  private readonly storeService = inject(StoreService);
+  private currentUserId: number | null = null;
+  readonly oldGoldCreditAmount = computed<number>(() => Number(this.cartService.oldGoldState()?.creditAmount ?? 0));
+  readonly oldGoldReceiptGuid  = computed<string | null>(() => this.cartService.oldGoldState()?.receiptGuid ?? null);
+
   @Input() set selectedProductsData(data: { lengthOfData: number; selectedProducts: ProductDataModel[] } | null) {
     if (!data) return;
     const lines = (data.selectedProducts ?? []).map((p) => this.toCartLine(p));
@@ -102,6 +108,10 @@ export class CreateInvoiceComponent implements OnInit {
   ) {}
 
   async ngOnInit(): Promise<void> {
+    try {
+      const authData: any = await this.storeService.get('authData');
+      this.currentUserId = Number(authData?.uid ?? null) || null;
+    } catch { /* ignore */ }
     try {
       const [rates, settings, taxSlabs] = await Promise.all([
         this.metalRatesService.getCurrent(),
@@ -195,7 +205,7 @@ export class CreateInvoiceComponent implements OnInit {
       shopStateCode,
       invoicePlaceOfSupplyStateCode: placeOfSupplyStateCode,
       taxSlabsByHsn: this.taxSlabsByHsn,
-      oldGoldCreditAmount: 0,
+      oldGoldCreditAmount: this.oldGoldCreditAmount(),
       roundOff: true,
     });
 
@@ -252,6 +262,9 @@ export class CreateInvoiceComponent implements OnInit {
       paymentRefNumber: null,
       lineItems: this.totals().lines,
       oldGoldReceipts: null,
+      oldGoldReceiptGuid: this.oldGoldReceiptGuid(),
+      savingSchemeGuid: this.cartService.schemeState()?.schemeGuid ?? null,
+      actorUserId: this.currentUserId,
     };
 
     this.orderService

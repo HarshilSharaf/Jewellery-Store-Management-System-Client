@@ -5,6 +5,7 @@ import {
   ElementRef,
   HostListener,
   Input,
+  OnDestroy,
   OnInit,
   ViewChild,
   computed,
@@ -22,16 +23,29 @@ import {
   lucideCircleAlert,
   lucidePlus,
   lucideRotateCcw,
+  lucideScale,
+  lucideWeight,
+  lucideChevronDown,
+  lucideChevronUp,
+  lucideX,
+  lucidePiggyBank,
 } from '@ng-icons/lucide';
+import Swal from 'sweetalert2';
 
 import { FileSystemService } from '../../../../../../../../Backend/Shared/file-system.service';
 import { UtilityService } from 'Backend/Shared/utitlity.service';
 import { LoggerService } from '../../../../../../../../Backend/Shared/logger.service';
+import { StoreService } from '../../../../../../../../Backend/Shared/store.service';
 import { AvailableProductsService } from '../../../../../inventory/components/available-products/services/available-products.service';
-import { CartService } from '../../../../../../shared/services/cart.service';
+import { CartService, CartOldGoldState, CartSchemeState } from '../../../../../../shared/services/cart.service';
 import { MetalRatesService } from '../../../../../../shared/services/MetalRates/metal-rates.service';
 import { PuritiesService } from '../../../../../../shared/services/Purities/purities.service';
 import { ShopSettingsService } from '../../../../../../shared/services/ShopSettings/shop-settings.service';
+import { OldGoldService } from '../../../../../../shared/services/OldGold/old-gold.service';
+import { SavingSchemesService } from '../../../../../../shared/services/SavingSchemes/saving-schemes.service';
+import { ScannerService } from '../../../../../../shared/services/Hardware/scanner.service';
+import { ScaleService } from '../../../../../../shared/services/Hardware/scale.service';
+import { SavingScheme } from '../../../../../../interfaces/SavingSchemes/saving-scheme';
 import { computeCartTotals } from '../../../../../../shared/services/Orders/cart-totals';
 import {
   CartLineComputed,
@@ -42,9 +56,13 @@ import {
 } from '../../../../../../interfaces/Shared/cart';
 import { MetalRateRow } from '../../../../../../interfaces/Shared/metal-rate';
 import { ShopSettings } from '../../../../../../interfaces/Shared/shop-settings';
+import { Purity } from '../../../../../../interfaces/Shared/purity';
 import { CustomerDetails } from '../../../../../customers/models/customerDetails';
 import { InvoiceProductDataModel } from '../../../../models/invoice-product-data-model';
 import { ProductDataModel } from '../../../../models/product-data-model';
+
+const DEFAULT_OLD_GOLD_DEDUCTION_PERCENT = 5;
+const SCAN_ENABLED_STORAGE_KEY = 'jsms.scanner.cart.enabled';
 
 @Component({
   selector: 'app-cart-builder',
@@ -61,10 +79,16 @@ import { ProductDataModel } from '../../../../models/product-data-model';
       lucideCircleAlert,
       lucidePlus,
       lucideRotateCcw,
+      lucideScale,
+      lucideWeight,
+      lucideChevronDown,
+      lucideChevronUp,
+      lucideX,
+      lucidePiggyBank,
     }),
   ],
 })
-export class CartBuilderComponent implements OnInit {
+export class CartBuilderComponent implements OnInit, OnDestroy {
 
   @Input() selectedCustomer: CustomerDetails | null = null;
 
@@ -83,9 +107,15 @@ export class CartBuilderComponent implements OnInit {
   readonly metalRates = signal<MetalRateRow[]>([]);
   readonly rateLockedAt = signal<Date | null>(null);
   readonly shopSettings = signal<ShopSettings | null>(null);
+  readonly purities = signal<Purity[]>([]);
   private taxSlabsByHsn: Record<string, TaxSlab> = {};
 
   private readonly destroyRef = inject(DestroyRef);
+  private readonly scannerService = inject(ScannerService);
+  readonly scaleService = inject(ScaleService);
+  private readonly oldGoldService = inject(OldGoldService);
+  private readonly storeService = inject(StoreService);
+  private readonly savingSchemesService = inject(SavingSchemesService);
 
   readonly cartLines = signal<InvoiceProductDataModel[]>([]);
   readonly totals = signal<CartTotals>({
@@ -114,6 +144,33 @@ export class CartBuilderComponent implements OnInit {
     return set.size ? Array.from(set) : ['916'];
   });
 
+  // Old-gold panel state
+  readonly oldGoldOpen = signal(false);
+  readonly oldGoldSaving = signal(false);
+  readonly oldGoldGrossWeight = signal<number>(0);
+  readonly oldGoldPurityCode = signal<string>('916');
+  readonly oldGoldFineness = signal<number | null>(null);
+  readonly oldGoldRatePerGram = signal<number>(0);
+  readonly oldGoldDeductionPercent = signal<number>(DEFAULT_OLD_GOLD_DEDUCTION_PERCENT);
+  readonly oldGoldRemarks = signal<string>('');
+  readonly oldGoldReceiptGuid = signal<string | null>(null);
+
+  readonly oldGoldCreditAmount = computed<number>(() => {
+    const gross = Number(this.oldGoldGrossWeight()) || 0;
+    const fineness = Number(this.oldGoldFineness() ?? this.finenessOf(this.oldGoldPurityCode())) || 0;
+    const rate = Number(this.oldGoldRatePerGram()) || 0;
+    const deduction = Number(this.oldGoldDeductionPercent()) || 0;
+    if (gross <= 0 || fineness <= 0 || rate <= 0) { return 0; }
+    return Math.round(gross * (fineness / 1000) * rate * (1 - deduction / 100) * 100) / 100;
+  });
+
+  // Saving-scheme redemption state (Workstream M).
+  readonly appliedScheme = signal<CartSchemeState | null>(null);
+  readonly schemePickerOpen = signal(false);
+  readonly eligibleSchemes = signal<SavingScheme[]>([]);
+
+  private currentUserId: number | null = null;
+
   private readonly moneyFmt = new Intl.NumberFormat('en-IN', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
@@ -134,18 +191,56 @@ export class CartBuilderComponent implements OnInit {
   ) {}
 
   async ngOnInit(): Promise<void> {
+    // Read stored scanner-on-cart preference (default: on).
+    const scannerPref = localStorage.getItem(SCAN_ENABLED_STORAGE_KEY);
+    if (scannerPref === '0') { this.scannerService.disable(); }
+    this.scannerService.start();
+    this.scannerService.scan$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((code) => this.handleScan(code));
+
+    // Cache the currently-logged-in user id for actorUserId + receipt writes.
+    try {
+      const authData: any = await this.storeService.get('authData');
+      this.currentUserId = Number(authData?.uid ?? null) || null;
+    } catch { /* ignore */ }
+
+    // Restore any saved old-gold state that was persisted on the cart.
+    const savedOldGold = this.cartService.oldGoldState();
+    if (savedOldGold) {
+      this.oldGoldReceiptGuid.set(savedOldGold.receiptGuid);
+      this.oldGoldGrossWeight.set(savedOldGold.grossWeight);
+      this.oldGoldPurityCode.set(savedOldGold.testedPurityCode ?? '916');
+      this.oldGoldFineness.set(savedOldGold.testedPurityPercent ?? null);
+      this.oldGoldRatePerGram.set(savedOldGold.ratePerGram);
+      this.oldGoldDeductionPercent.set(savedOldGold.deductionPercent);
+      this.oldGoldRemarks.set(savedOldGold.remarks ?? '');
+    }
+
+    // Restore any saved scheme redemption on the cart.
+    const savedScheme = this.cartService.schemeState();
+    if (savedScheme) {
+      this.appliedScheme.set(savedScheme);
+    }
+
     // Load existing cart from CartService (persisted in localStorage).
     const existing = this.cartService.getProducts()();
     if (Array.isArray(existing)) {
       this.cartLines.set(existing.map((p) => this.toCartLine(p)));
     }
 
-    // Load rates, settings, tax slabs, and products in parallel.
+    // Preload eligible schemes for the current customer (if any).
+    if (this.selectedCustomer?.customerGuid) {
+      this.refreshEligibleSchemes();
+    }
+
+    // Load rates, settings, tax slabs, purities, and products in parallel.
     try {
-      const [rates, settings, taxSlabs, productsRaw] = await Promise.all([
+      const [rates, settings, taxSlabs, purities, productsRaw] = await Promise.all([
         this.metalRatesService.getCurrent(),
         this.shopSettingsService.get(),
         this.puritiesService.getTaxSlabs(),
+        this.puritiesService.getPurities(),
         this.productsService.getAllProductsData(500, 1, '', 0),
       ]);
 
@@ -153,6 +248,7 @@ export class CartBuilderComponent implements OnInit {
       this.shopSettings.set(settings);
       this.rateSnapshot.set(this.metalRatesService.buildSnapshot(rates ?? []));
       this.rateLockedAt.set(new Date());
+      this.purities.set(Array.isArray(purities) ? purities : []);
 
       this.taxSlabsByHsn = {};
       for (const slab of taxSlabs ?? []) {
@@ -174,6 +270,11 @@ export class CartBuilderComponent implements OnInit {
       }
       this.allProducts = products;
 
+      // Prime the old-gold rate from the current metal-rate snapshot.
+      if (!savedOldGold) {
+        this.oldGoldRatePerGram.set(this.rateFor(this.oldGoldPurityCode()));
+      }
+
       // Ensure existing lines have a rate if they were missing one.
       this.cartLines.update((lines) =>
         lines.map((l) => (l.ratePerGram ? l : { ...l, ratePerGram: this.rateFor(l.purityCode) })),
@@ -188,6 +289,12 @@ export class CartBuilderComponent implements OnInit {
     this.search.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((val) => {
       this.updatePicks(val ?? '');
     });
+  }
+
+  ngOnDestroy(): void {
+    // The scanner is a singleton; leave it running for other consumers, but
+    // ensure the cart-builder's subscription is torn down (handled by
+    // takeUntilDestroyed).
   }
 
   private updatePicks(text: string): void {
@@ -291,6 +398,11 @@ export class CartBuilderComponent implements OnInit {
     return Number(this.rateSnapshot()[purityCode] ?? 0);
   }
 
+  private finenessOf(purityCode: string): number {
+    const row = this.purities().find((p) => p.code === purityCode);
+    return Number(row?.fineness ?? 0);
+  }
+
   onLineFieldChange(line: InvoiceProductDataModel, field: string, value: any): void {
     const numeric = Number(value);
     const updated = { ...line } as any;
@@ -323,7 +435,7 @@ export class CartBuilderComponent implements OnInit {
         totalCgst: 0,
         totalSgst: 0,
         totalIgst: 0,
-        oldGoldCreditAmount: 0,
+        oldGoldCreditAmount: this.oldGoldCreditAmount(),
         roundOffAmount: 0,
         grandTotal: 0,
       });
@@ -352,7 +464,7 @@ export class CartBuilderComponent implements OnInit {
       shopStateCode,
       invoicePlaceOfSupplyStateCode: placeOfSupplyStateCode,
       taxSlabsByHsn: this.taxSlabsByHsn,
-      oldGoldCreditAmount: 0,
+      oldGoldCreditAmount: this.oldGoldCreditAmount(),
       roundOff: true,
     });
 
@@ -391,6 +503,7 @@ export class CartBuilderComponent implements OnInit {
       this.cartLines.update((lines) =>
         lines.map((l) => ({ ...l, ratePerGram: this.rateFor(l.purityCode) })),
       );
+      this.oldGoldRatePerGram.set(this.rateFor(this.oldGoldPurityCode()));
       this.recalcAll();
     } catch (err) {
       this.loggerService.LogError(err, 'CartBuilder.relockRate');
@@ -443,6 +556,11 @@ export class CartBuilderComponent implements OnInit {
     } else if (event.altKey && (event.key === 'd' || event.key === 'D')) {
       event.preventDefault();
       this.focusLastLineDiscount();
+    } else if (event.altKey && (event.key === 'w' || event.key === 'W')) {
+      // Alt+W: capture weight from scale into the currently-focused net-weight
+      // input, or trigger the HID keyboard-wedge pattern by focusing the
+      // first line's netWeight input if nothing weight-relevant has focus.
+      this.handleAltWeight(event);
     }
   }
 
@@ -455,5 +573,315 @@ export class CartBuilderComponent implements OnInit {
     );
     el?.focus();
     el?.select();
+  }
+
+  // --- Scanner integration ------------------------------------------------
+
+  private handleScan(code: string): void {
+    const term = (code ?? '').trim();
+    if (!term) { return; }
+    const upper = term.toUpperCase();
+    const match = this.allProducts.find((p) => {
+      if (p.isSold === true || p.isSold === 1) return false;
+      const sku = (p.sku ?? '').toUpperCase();
+      const huid = (p.huid ?? '').toUpperCase();
+      return sku === upper || huid === upper;
+    });
+    if (!match) {
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'warning',
+        title: `No product found for ${term}`,
+        showConfirmButton: false,
+        timer: 2400,
+      });
+      return;
+    }
+    if (this.cartLines().some((l) => l.productGuid === match.productGuid)) {
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'info',
+        title: `${match.sku} is already in the cart`,
+        showConfirmButton: false,
+        timer: 2000,
+      });
+      return;
+    }
+    this.addProduct(match);
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'success',
+      title: `Added: ${match.sku}${match.productDescription ? ' · ' + match.productDescription : ''}`,
+      showConfirmButton: false,
+      timer: 1800,
+    });
+  }
+
+  // --- Scale integration --------------------------------------------------
+
+  captureWeightForLine(line: InvoiceProductDataModel, event?: Event): void {
+    event?.preventDefault();
+    if (!this.scaleService.isConnected()) {
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'info',
+        title: 'No scale connected — configure in Settings',
+        showConfirmButton: false,
+        timer: 2400,
+      });
+      return;
+    }
+    const reading = this.scaleService.currentReading();
+    if (!reading) {
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'info',
+        title: 'No reading yet — place the item on the scale',
+        showConfirmButton: false,
+        timer: 2400,
+      });
+      return;
+    }
+    if (!reading.stable) {
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'warning',
+        title: 'Scale not stable — wait for reading to settle',
+        showConfirmButton: false,
+        timer: 2200,
+      });
+      return;
+    }
+    this.onLineFieldChange(line, 'netWeight', reading.grams);
+  }
+
+  private handleAltWeight(event: KeyboardEvent): void {
+    const activeEl = document.activeElement as HTMLElement | null;
+    const netWeightKey = activeEl?.getAttribute?.('data-net-weight-key');
+    if (netWeightKey) {
+      // Focus is on a net-weight input; capture into it.
+      const line = this.cartLines().find((l) => l.productGuid === netWeightKey);
+      if (line) {
+        event.preventDefault();
+        this.captureWeightForLine(line);
+      }
+      return;
+    }
+    // Otherwise, focus the first line's netWeight input (for HID keyboard
+    // wedge scales, the next characters they type will fill it).
+    const first = this.cartLines()[0];
+    if (!first) { return; }
+    const input = document.querySelector<HTMLInputElement>(
+      `input[data-net-weight-key="${first.productGuid}"]`,
+    );
+    if (input) {
+      event.preventDefault();
+      input.focus();
+      input.select();
+    }
+  }
+
+  // --- Old-gold panel -----------------------------------------------------
+
+  toggleOldGoldPanel(): void {
+    this.oldGoldOpen.update((v) => !v);
+  }
+
+  openOldGoldPanel(): void {
+    this.oldGoldOpen.set(true);
+  }
+
+  onOldGoldPurityChange(code: string): void {
+    this.oldGoldPurityCode.set(code);
+    // Auto-populate fineness + rate for the selected purity.
+    const p = this.purities().find((row) => row.code === code);
+    this.oldGoldFineness.set(p?.fineness ?? null);
+    this.oldGoldRatePerGram.set(this.rateFor(code));
+    this.recalcAll();
+  }
+
+  onOldGoldField(field: 'grossWeight' | 'fineness' | 'ratePerGram' | 'deductionPercent' | 'remarks', value: any): void {
+    if (field === 'remarks') { this.oldGoldRemarks.set(String(value ?? '')); return; }
+    const numeric = value === '' || value === null || value === undefined ? null : Number(value);
+    if (numeric === null || Number.isNaN(numeric)) {
+      if (field === 'grossWeight')       { this.oldGoldGrossWeight.set(0); }
+      if (field === 'fineness')          { this.oldGoldFineness.set(null); }
+      if (field === 'ratePerGram')       { this.oldGoldRatePerGram.set(0); }
+      if (field === 'deductionPercent')  { this.oldGoldDeductionPercent.set(0); }
+      this.recalcAll();
+      return;
+    }
+    if (field === 'grossWeight')       { this.oldGoldGrossWeight.set(numeric); }
+    if (field === 'fineness')          { this.oldGoldFineness.set(numeric); }
+    if (field === 'ratePerGram')       { this.oldGoldRatePerGram.set(numeric); }
+    if (field === 'deductionPercent')  { this.oldGoldDeductionPercent.set(numeric); }
+    this.recalcAll();
+  }
+
+  captureWeightForOldGold(): void {
+    if (!this.scaleService.isConnected()) {
+      Swal.fire({
+        toast: true, position: 'top-end', icon: 'info',
+        title: 'No scale connected — configure in Settings',
+        showConfirmButton: false, timer: 2200,
+      });
+      return;
+    }
+    const reading = this.scaleService.currentReading();
+    if (!reading) {
+      Swal.fire({
+        toast: true, position: 'top-end', icon: 'info',
+        title: 'No reading yet — place the item on the scale',
+        showConfirmButton: false, timer: 2200,
+      });
+      return;
+    }
+    if (!reading.stable) {
+      Swal.fire({
+        toast: true, position: 'top-end', icon: 'warning',
+        title: 'Scale not stable — wait for reading to settle',
+        showConfirmButton: false, timer: 2200,
+      });
+      return;
+    }
+    this.oldGoldGrossWeight.set(reading.grams);
+    this.recalcAll();
+  }
+
+  async saveOldGoldReceipt(): Promise<void> {
+    if (this.oldGoldSaving()) { return; }
+    if (!this.selectedCustomer?.customerGuid) {
+      Swal.fire('Customer required', 'Select a customer before saving old-gold.', 'info');
+      return;
+    }
+    if (this.oldGoldGrossWeight() <= 0) {
+      Swal.fire('Gross weight required', 'Enter a positive gross weight.', 'info');
+      return;
+    }
+    if (this.oldGoldCreditAmount() <= 0) {
+      Swal.fire('Credit is zero', 'Check purity, rate and deduction.', 'info');
+      return;
+    }
+    this.oldGoldSaving.set(true);
+    try {
+      const receipt = await this.oldGoldService.saveReceipt({
+        customerGuid: this.selectedCustomer.customerGuid,
+        invoiceGuid: null,
+        grossWeight: this.oldGoldGrossWeight(),
+        testedPurityCode: this.oldGoldPurityCode() ?? null,
+        testedPurityPercent: this.oldGoldFineness() ?? null,
+        deductionPercent: this.oldGoldDeductionPercent(),
+        ratePerGram: this.oldGoldRatePerGram(),
+        creditAmount: this.oldGoldCreditAmount(),
+        remarks: this.oldGoldRemarks() || null,
+        actorUserId: this.currentUserId,
+      });
+      if (!receipt || !receipt.receiptGuid) {
+        Swal.fire('Save failed', 'Old-gold receipt did not return a guid.', 'error');
+        return;
+      }
+      this.oldGoldReceiptGuid.set(receipt.receiptGuid);
+      const state: CartOldGoldState = {
+        receiptGuid: receipt.receiptGuid,
+        grossWeight: this.oldGoldGrossWeight(),
+        testedPurityCode: this.oldGoldPurityCode(),
+        testedPurityPercent: this.oldGoldFineness() ?? null,
+        ratePerGram: this.oldGoldRatePerGram(),
+        deductionPercent: this.oldGoldDeductionPercent(),
+        creditAmount: this.oldGoldCreditAmount(),
+        remarks: this.oldGoldRemarks() || null,
+        customerGuid: this.selectedCustomer.customerGuid,
+      };
+      this.cartService.setOldGold(state);
+      this.recalcAll();
+      Swal.fire({
+        toast: true, position: 'top-end', icon: 'success',
+        title: `Old-gold receipt saved (₹${this.money(this.oldGoldCreditAmount())})`,
+        showConfirmButton: false, timer: 1800,
+      });
+      this.oldGoldOpen.set(false);
+    } catch (err) {
+      this.loggerService.LogError(err, 'CartBuilder.saveOldGoldReceipt');
+      Swal.fire('Error', 'Failed to save old-gold receipt.', 'error');
+    } finally {
+      this.oldGoldSaving.set(false);
+    }
+  }
+
+  removeOldGold(): void {
+    // Client-side unlink only — the SP doesn't have an unlink helper yet
+    // (K's scope did not add one). The receipt row stays orphaned in the DB.
+    this.oldGoldReceiptGuid.set(null);
+    this.oldGoldGrossWeight.set(0);
+    this.oldGoldFineness.set(null);
+    this.oldGoldDeductionPercent.set(DEFAULT_OLD_GOLD_DEDUCTION_PERCENT);
+    this.oldGoldRemarks.set('');
+    this.cartService.clearOldGold();
+    this.recalcAll();
+  }
+
+  cancelOldGoldEdit(): void {
+    this.oldGoldOpen.set(false);
+  }
+
+  // ---------------- Saving-scheme redemption (Workstream M) ----------------
+
+  async refreshEligibleSchemes(): Promise<void> {
+    const c = this.selectedCustomer;
+    if (!c?.customerGuid) {
+      this.eligibleSchemes.set([]);
+      return;
+    }
+    try {
+      const list = await this.savingSchemesService.getByCustomer(c.customerGuid);
+      const eligible = (Array.isArray(list) ? list : []).filter(
+        (s) => s.status === 'active' || s.status === 'matured',
+      );
+      this.eligibleSchemes.set(eligible);
+    } catch (err) {
+      this.loggerService.LogError(err, 'CartBuilder.refreshEligibleSchemes');
+    }
+  }
+
+  openSchemePicker(): void {
+    if (!this.selectedCustomer?.customerGuid) {
+      Swal.fire({ icon: 'info', title: 'Select a customer first', showConfirmButton: false, timer: 1400 });
+      return;
+    }
+    this.refreshEligibleSchemes().then(() => this.schemePickerOpen.set(true));
+  }
+
+  closeSchemePicker(): void {
+    this.schemePickerOpen.set(false);
+  }
+
+  applyScheme(scheme: SavingScheme): void {
+    const corpus = Number(scheme.projectedCorpus ?? scheme.totalPaid ?? 0);
+    const state: CartSchemeState = {
+      schemeGuid: scheme.schemeGuid,
+      planName: scheme.planName,
+      customerGuid: scheme.customerGuid ?? this.selectedCustomer?.customerGuid ?? null,
+      corpusAmount: corpus,
+    };
+    this.appliedScheme.set(state);
+    this.cartService.setScheme(state);
+    this.schemePickerOpen.set(false);
+  }
+
+  removeScheme(): void {
+    this.appliedScheme.set(null);
+    this.cartService.clearScheme();
+  }
+
+  grandTotalWithScheme(): number {
+    const base = Number(this.totals().grandTotal ?? 0);
+    const corpus = Number(this.appliedScheme()?.corpusAmount ?? 0);
+    return Math.max(0, base - corpus);
   }
 }

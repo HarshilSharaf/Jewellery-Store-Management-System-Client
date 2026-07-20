@@ -423,4 +423,157 @@
       letter-spacing: 0.04em;
     }
   }
+
+  &__row--oldgold {
+    color: var(--color-danger-fg);
+    font-style: italic;
+    align-items: center;
+    gap: 8px;
+  }
+  &__oldgold-btn {
+    background: transparent;
+    border: 0;
+    padding: 0;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    text-align: left;
+    &:hover em { text-decoration: underline; }
+  }
+  &__oldgold-value { margin-left: auto; }
+  &__oldgold-remove {
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    color: var(--color-fg-muted);
+  }
+}
+
+// Compact field-with-action combo used by the net-weight column and the
+// old-gold gross-weight cell — input plus a small right-side icon button.
+.line__field-with-action {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+
+  input.hlm-input { flex: 1; min-width: 0; }
+}
+
+// Saving-scheme redemption additions (Workstream M).
+.totals-panel__link {
+  background: transparent;
+  border: 0;
+  color: var(--color-accent-fg);
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 500;
+
+  &:hover { color: var(--color-accent); }
+}
+
+.scheme-picker-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 20, 18, 0.35);
+  z-index: 1200;
+  animation: scheme-fade 0.14s ease-out;
+}
+
+.scheme-picker {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1210;
+  width: 100%;
+  max-width: 440px;
+  background: var(--color-panel);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: scheme-rise 0.18s ease-out;
+
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--color-border-subtle);
+  }
+
+  &__title {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-size: 1.25rem;
+    font-weight: 400;
+    color: var(--color-fg);
+  }
+
+  &__body {
+    padding: 12px 16px 16px;
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+
+  &__empty {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--color-fg-muted);
+    font-size: 13px;
+    padding: 12px 0;
+  }
+
+  &__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 10px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: background 0.12s ease, border-color 0.12s ease;
+
+    &:hover {
+      background: var(--color-bg-subtle);
+      border-color: var(--color-border-subtle);
+    }
+  }
+
+  &__plan {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-fg);
+  }
+
+  &__sub {
+    font-size: 11px;
+    color: var(--color-fg-muted);
+    margin-top: 2px;
+    text-transform: capitalize;
+  }
+
+  &__corpus {
+    font-family: var(--font-serif);
+    font-size: 1.15rem;
+    color: var(--color-fg);
+  }
+}
+
+@keyframes scheme-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes scheme-rise {
+  from { opacity: 0; transform: translate(-50%, calc(-50% + 8px)) scale(0.98); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 }
