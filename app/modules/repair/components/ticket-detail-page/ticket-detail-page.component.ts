@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, DestroyRef, ElementRef, HostListener, OnInit, ViewChild, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
@@ -18,6 +18,9 @@ import {
   lucideCheck,
   lucideBan,
   lucideExternalLink,
+  lucideEllipsisVertical,
+  lucidePackage,
+  lucideX,
 } from '@ng-icons/lucide';
 
 import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
@@ -55,6 +58,9 @@ import { Karigar } from '../../../../interfaces/Karigar/karigar';
       lucideCheck,
       lucideBan,
       lucideExternalLink,
+      lucideEllipsisVertical,
+      lucidePackage,
+      lucideX,
     }),
   ],
 })
@@ -66,6 +72,10 @@ export class TicketDetailPageComponent implements OnInit {
   readonly ticket = signal<RepairTicket | null>(null);
   readonly errorMessage = signal<string | null>(null);
   readonly userType = signal<string>('employee');
+
+  // Overflow menu (hand-rolled dropdown; closes on document-click + Escape)
+  readonly menuOpen = signal(false);
+  @ViewChild('menuAnchor') menuAnchor?: ElementRef<HTMLElement>;
 
   // Status advance panel
   readonly statusPanelOpen = signal(false);
@@ -233,6 +243,26 @@ export class TicketDetailPageComponent implements OnInit {
     return s !== 'declined' && s !== 'delivered';
   }
 
+  // Overflow menu handlers.
+  toggleMenu(): void {
+    this.menuOpen.update((v) => !v);
+  }
+  closeMenu(): void { this.menuOpen.set(false); }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (!this.menuOpen()) return;
+    const anchor = this.menuAnchor?.nativeElement;
+    if (anchor && !anchor.contains(event.target as Node)) {
+      this.closeMenu();
+    }
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (this.menuOpen()) this.closeMenu();
+  }
+
   openAdvance(): void {
     this.hydrateAdvanceForm(this.ticket()!);
     this.statusPanelOpen.set(true);
@@ -242,6 +272,7 @@ export class TicketDetailPageComponent implements OnInit {
   openKarigarLink(): void {
     this.linkForm.patchValue({ karigarGuid: this.ticket()?.karigarGuid ?? '' });
     this.karigarPanelOpen.set(true);
+    this.closeMenu();
   }
   closeKarigarLink(): void { this.karigarPanelOpen.set(false); }
 
@@ -291,6 +322,7 @@ export class TicketDetailPageComponent implements OnInit {
   }
 
   async decline(): Promise<void> {
+    this.closeMenu();
     const t = this.ticket(); if (!t) return;
     const c = await Swal.fire({
       title: `Decline ${t.ticketNumber}?`,
@@ -336,6 +368,7 @@ export class TicketDetailPageComponent implements OnInit {
   }
 
   async deleteTicket(): Promise<void> {
+    this.closeMenu();
     const t = this.ticket(); if (!t) return;
     const c = await Swal.fire({
       title: `Delete ${t.ticketNumber}?`,

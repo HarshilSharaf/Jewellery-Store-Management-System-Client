@@ -1,4 +1,4 @@
-<section class="detail-shell repair-detail">
+<section class="repair-detail">
 
   @if (loading()) {
     <div class="loading-inline">
@@ -10,134 +10,146 @@
   } @else if (ticket() !== null) {
     @let t = ticket()!;
 
-    <div class="repair-detail__layout">
-
-      <div class="repair-detail__main">
-
-        <header class="detail-head">
-          <a class="icon-btn" [routerLink]="['/repair']" aria-label="Back to Repair">
-            <ng-icon name="lucideArrowLeft" aria-hidden="true"></ng-icon>
-          </a>
-          <div class="detail-head__meta">
-            <div class="detail-head__title font-serif tabular-nums">{{ t.ticketNumber }}</div>
-            <div class="detail-head__sub">
-              <span>{{ t.customerName || '—' }}</span>
-              <span class="detail-head__dot">·</span>
-              <span class="tabular-nums">{{ t.receivedAt | date: 'd MMM yyyy, h:mm a' }}</span>
-              <span class="detail-head__dot">·</span>
-              <span [class]="statusClass()">{{ statusLabel(t.status) }}</span>
-            </div>
-          </div>
-          <div class="detail-head__actions">
-            @if (canAdvance()) {
-              <button type="button" class="icon-btn" (click)="openAdvance()" [title]="advanceLabel()" [attr.aria-label]="advanceLabel()">
-                <ng-icon name="lucideCircleCheck" aria-hidden="true"></ng-icon>
-              </button>
-            }
-            <button type="button" class="icon-btn" (click)="openKarigarLink()" title="Link karigar" aria-label="Link karigar">
-              <ng-icon name="lucideHammer" aria-hidden="true"></ng-icon>
+    <header class="repair-head">
+      <div class="repair-head__row repair-head__row--primary">
+        <a class="icon-btn" [routerLink]="['/repair']" aria-label="Back to Repair" title="Back">
+          <ng-icon name="lucideArrowLeft" size="18" aria-hidden="true"></ng-icon>
+        </a>
+        <h1 class="repair-head__title font-serif tabular-nums">{{ t.ticketNumber }}</h1>
+        <div class="repair-head__actions">
+          @if (canAdvance()) {
+            <button type="button" class="hlm-btn hlm-btn-primary repair-head__advance"
+                    (click)="openAdvance()"
+                    [attr.aria-label]="advanceLabel()">
+              <ng-icon name="lucideCircleCheck" size="14" aria-hidden="true"></ng-icon>
+              <span>{{ advanceLabel() }}</span>
             </button>
-            @if (canDecline()) {
-              <button type="button" class="icon-btn icon-btn--danger" (click)="decline()" title="Decline" aria-label="Decline">
-                <ng-icon name="lucideBan" aria-hidden="true"></ng-icon>
-              </button>
-            }
-            @if (userType() === 'admin') {
-              <button type="button" class="icon-btn icon-btn--danger" (click)="deleteTicket()" title="Delete ticket" aria-label="Delete ticket">
-                <ng-icon name="lucideTrash2" aria-hidden="true"></ng-icon>
-              </button>
+          }
+          <div class="repair-head__menu" #menuAnchor>
+            <button type="button" class="icon-btn"
+                    (click)="toggleMenu(); $event.stopPropagation()"
+                    [attr.aria-expanded]="menuOpen()"
+                    aria-haspopup="menu"
+                    aria-label="More actions"
+                    title="More actions">
+              <ng-icon name="lucideEllipsisVertical" size="18" aria-hidden="true"></ng-icon>
+            </button>
+            @if (menuOpen()) {
+              <div class="repair-head__menu-list" role="menu">
+                <button type="button" class="repair-head__menu-item" role="menuitem" (click)="openKarigarLink()">
+                  <ng-icon name="lucideHammer" size="14" aria-hidden="true"></ng-icon>
+                  <span>Link karigar</span>
+                </button>
+                @if (canDecline()) {
+                  <button type="button" class="repair-head__menu-item repair-head__menu-item--danger" role="menuitem" (click)="decline()">
+                    <ng-icon name="lucideBan" size="14" aria-hidden="true"></ng-icon>
+                    <span>Decline ticket</span>
+                  </button>
+                }
+                @if (userType() === 'admin') {
+                  <button type="button" class="repair-head__menu-item repair-head__menu-item--danger" role="menuitem" (click)="deleteTicket()">
+                    <ng-icon name="lucideTrash2" size="14" aria-hidden="true"></ng-icon>
+                    <span>Delete ticket</span>
+                  </button>
+                }
+              </div>
             }
           </div>
-        </header>
+        </div>
+      </div>
+      <div class="repair-head__row repair-head__row--meta">
+        <span class="repair-head__meta-item">{{ t.customerName || '—' }}</span>
+        <span class="repair-head__dot" aria-hidden="true">·</span>
+        <span class="repair-head__meta-item tabular-nums">{{ t.receivedAt | date: 'd MMM yyyy, h:mm a' }}</span>
+        <span class="repair-head__dot" aria-hidden="true">·</span>
+        <span [class]="statusClass()">{{ statusLabel(t.status) }}</span>
+      </div>
+    </header>
 
-        <div class="detail-section">
-          <div class="detail-section__title">Party</div>
-          <div class="repair-detail__party">
+    <div class="detail-shell">
+      <main class="repair-detail__main">
+
+        <section class="detail-section">
+          <p class="detail-section__title">Party</p>
+          <div class="repair-party">
             <span class="avatar avatar--md">{{ (t.customerName?.[0] ?? '?').toUpperCase() }}</span>
-            <div>
-              <div class="repair-detail__party-name">{{ t.customerName || '—' }}</div>
+            <div class="repair-party__body">
+              <div class="repair-party__name">{{ t.customerName || '—' }}</div>
               @if (t.customerPhone) {
-                <div class="repair-detail__party-line tabular-nums">Ph: {{ t.customerPhone }}</div>
+                <div class="repair-party__contact tabular-nums">{{ t.customerPhone }}</div>
               }
-              @if (t.customerEmail) {
-                <div class="repair-detail__party-line">{{ t.customerEmail }}</div>
-              }
-              @if (t.receivedByUserName) {
-                <div class="repair-detail__party-line">
-                  Received by <strong>{{ t.receivedByUserName }}</strong>
+              @if (t.customerEmail || t.receivedByUserName) {
+                <div class="repair-party__meta">
+                  @if (t.customerEmail) {
+                    <span>{{ t.customerEmail }}</span>
+                  }
+                  @if (t.customerEmail && t.receivedByUserName) {
+                    <span aria-hidden="true">·</span>
+                  }
+                  @if (t.receivedByUserName) {
+                    <span>Received by <strong>{{ t.receivedByUserName }}</strong></span>
+                  }
                 </div>
               }
             </div>
           </div>
-        </div>
+        </section>
 
-        <div class="detail-section">
-          <div class="detail-section__title">Item</div>
-          <div class="repair-detail__item">
+        <section class="detail-section">
+          <p class="detail-section__title">Item</p>
+          <div class="repair-item">
             @if (photoSrc) {
-              <img class="repair-detail__photo" [src]="photoSrc" alt="Repair item photo" loading="lazy" />
+              <img class="repair-item__photo" [src]="photoSrc" alt="Repair item photo" loading="lazy" />
             } @else {
-              <div class="repair-detail__photo repair-detail__photo--empty">
-                <ng-icon name="lucideWrench" size="28" aria-hidden="true"></ng-icon>
-                <span>No photo</span>
+              <div class="repair-item__photo repair-item__photo--empty">
+                <ng-icon name="lucidePackage" size="40" aria-hidden="true"></ng-icon>
               </div>
             }
-            <div class="repair-detail__item-body">
-              <p class="repair-detail__item-desc">{{ t.itemDescription }}</p>
-              @if (t.weight) {
-                <div class="repair-detail__item-meta tabular-nums">Weight: {{ t.weight }} g</div>
-              }
+            <div class="repair-item__body">
+              <p class="repair-item__desc">{{ t.itemDescription }}</p>
+              <div class="field-grid">
+                @if (t.weight) {
+                  <div>
+                    <span class="detail-field__label">Weight</span>
+                    <span class="detail-field__value tabular-nums">{{ t.weight }} g</span>
+                  </div>
+                }
+                @if (t.estimatedReturnDate) {
+                  <div>
+                    <span class="detail-field__label">Estimated return</span>
+                    <span class="detail-field__value">{{ t.estimatedReturnDate | date: 'd MMM yyyy' }}</span>
+                  </div>
+                }
+                @if (t.deliveredAt) {
+                  <div>
+                    <span class="detail-field__label">Delivered</span>
+                    <span class="detail-field__value tabular-nums">{{ t.deliveredAt | date: 'd MMM yyyy, h:mm a' }}</span>
+                  </div>
+                }
+                @if (t.paymentMode) {
+                  <div>
+                    <span class="detail-field__label">Payment</span>
+                    <span class="detail-field__value">
+                      {{ t.paymentMode }}<span *ngIf="t.paymentRef"> · <span class="tabular-nums">{{ t.paymentRef }}</span></span>
+                    </span>
+                  </div>
+                }
+              </div>
               @if (t.notes) {
-                <p class="repair-detail__item-notes">{{ t.notes }}</p>
+                <p class="repair-item__notes">{{ t.notes }}</p>
               }
             </div>
           </div>
-        </div>
-
-        <div class="detail-section">
-          <div class="detail-section__title">Estimates</div>
-          <div class="repair-detail__grid">
-            <div>
-              <div class="field-label">Estimated charge</div>
-              <div class="tabular-nums">&#8377;{{ money(t.estimatedCharge ?? 0) }}</div>
-            </div>
-            <div>
-              <div class="field-label">Estimated return</div>
-              <div>{{ t.estimatedReturnDate ? (t.estimatedReturnDate | date: 'd MMM yyyy') : '—' }}</div>
-            </div>
-            <div>
-              <div class="field-label">Days open</div>
-              <div class="tabular-nums">{{ daysOpen() }}</div>
-            </div>
-            @if (t.actualCharge !== null && t.actualCharge !== undefined) {
-              <div>
-                <div class="field-label">Actual charge</div>
-                <div class="tabular-nums">&#8377;{{ money(t.actualCharge) }}</div>
-              </div>
-            }
-            @if (t.paymentMode) {
-              <div>
-                <div class="field-label">Payment</div>
-                <div>{{ t.paymentMode }}<span *ngIf="t.paymentRef"> · <span class="tabular-nums">{{ t.paymentRef }}</span></span></div>
-              </div>
-            }
-            @if (t.deliveredAt) {
-              <div>
-                <div class="field-label">Delivered</div>
-                <div class="tabular-nums">{{ t.deliveredAt | date: 'd MMM yyyy, h:mm a' }}</div>
-              </div>
-            }
-          </div>
-        </div>
+        </section>
 
         @if (t.karigarGuid) {
-          <div class="detail-section">
-            <div class="detail-section__title">Karigar link</div>
-            <div class="repair-detail__karigar">
-              <div>
-                <div class="repair-detail__karigar-name">{{ t.karigarName }}</div>
+          <section class="detail-section">
+            <p class="detail-section__title">Karigar link</p>
+            <div class="repair-karigar">
+              <div class="repair-karigar__body">
+                <div class="repair-karigar__name">{{ t.karigarName }}</div>
                 @if (t.karigarPhone) {
-                  <div class="repair-detail__party-line tabular-nums">Ph: {{ t.karigarPhone }}</div>
+                  <div class="repair-karigar__phone tabular-nums">{{ t.karigarPhone }}</div>
                 }
               </div>
               @if (t.karigarJobGuid) {
@@ -147,39 +159,46 @@
                 </a>
               }
             </div>
+          </section>
+        }
+
+      </main>
+
+      <aside class="detail-side">
+        <div class="side-row">
+          <div class="kpi-card kpi-card--compact">
+            <p class="kpi-label">Days open</p>
+            <p class="kpi-value kpi-value--sm tabular-nums">{{ daysOpen() }}</p>
+          </div>
+          <div class="kpi-card kpi-card--compact">
+            <p class="kpi-label">Estimated</p>
+            <p class="kpi-value kpi-value--sm tabular-nums">&#8377;{{ money(t.estimatedCharge ?? 0) }}</p>
+          </div>
+        </div>
+        @if (t.actualCharge !== null && t.actualCharge !== undefined) {
+          <div class="kpi-card">
+            <p class="kpi-label">Actual charge</p>
+            <p class="kpi-value tabular-nums">&#8377;{{ money(t.actualCharge) }}</p>
           </div>
         }
 
-      </div>
-
-      <aside class="repair-detail__side">
-        <div class="kpi-card side-kpi">
-          <span class="kpi-label">Days open</span>
-          <span class="kpi-value tabular-nums">{{ daysOpen() }}</span>
-        </div>
-        <div class="kpi-card side-kpi">
-          <span class="kpi-label">Estimated charge</span>
-          <span class="kpi-value tabular-nums">&#8377;{{ money(t.estimatedCharge ?? 0) }}</span>
-        </div>
-        <div class="kpi-card side-kpi">
-          <span class="kpi-label">Actual charge</span>
-          <span class="kpi-value tabular-nums">{{ t?.actualCharge !== null && t?.actualCharge !== undefined ? '₹' + money(t?.actualCharge) : '—' }}</span>
-        </div>
-
         <div class="side-actions">
-          <div class="side-actions__title">Quick actions</div>
-          <button type="button" class="side-action" (click)="printStub()">
-            <ng-icon name="lucidePrinter" aria-hidden="true"></ng-icon>
-            <span>Print receipt</span>
-            <span class="side-action__badge">P3</span>
+          <p class="side-actions__title">Quick actions</p>
+          <button type="button" class="side-action" (click)="openKarigarLink()">
+            <ng-icon name="lucideHammer" size="14" aria-hidden="true"></ng-icon>
+            <span>{{ t.karigarGuid ? 'Change karigar' : 'Link karigar' }}</span>
           </button>
           <button type="button" class="side-action" (click)="openWhatsappDialog()">
-            <ng-icon name="lucideMessageCircle" aria-hidden="true"></ng-icon>
+            <ng-icon name="lucideMessageCircle" size="14" aria-hidden="true"></ng-icon>
             <span>Send WhatsApp update</span>
+          </button>
+          <button type="button" class="side-action" (click)="printStub()">
+            <ng-icon name="lucidePrinter" size="14" aria-hidden="true"></ng-icon>
+            <span>Print ticket receipt</span>
+            <span class="side-action__badge">P3</span>
           </button>
         </div>
       </aside>
-
     </div>
 
     <!-- Status advance slide-in panel -->
@@ -189,7 +208,7 @@
         <header class="repair-status-panel__head">
           <span class="repair-status-panel__title">{{ advanceLabel() }}</span>
           <button type="button" class="icon-btn" (click)="closeAdvance()" aria-label="Close">
-            <ng-icon name="lucideCircleAlert" aria-hidden="true"></ng-icon>
+            <ng-icon name="lucideX" size="16" aria-hidden="true"></ng-icon>
           </button>
         </header>
 
@@ -255,7 +274,7 @@
         <header class="repair-status-panel__head">
           <span class="repair-status-panel__title">Link karigar</span>
           <button type="button" class="icon-btn" (click)="closeKarigarLink()" aria-label="Close">
-            <ng-icon name="lucideCircleAlert" aria-hidden="true"></ng-icon>
+            <ng-icon name="lucideX" size="16" aria-hidden="true"></ng-icon>
           </button>
         </header>
         <form [formGroup]="linkForm" (ngSubmit)="submitKarigarLink()" class="repair-status-panel__form">
@@ -286,7 +305,7 @@
         <header class="repair-status-panel__head">
           <span class="repair-status-panel__title">Send WhatsApp update</span>
           <button type="button" class="icon-btn" (click)="closeWhatsappDialog()" aria-label="Close">
-            <ng-icon name="lucideCircleAlert" aria-hidden="true"></ng-icon>
+            <ng-icon name="lucideX" size="16" aria-hidden="true"></ng-icon>
           </button>
         </header>
 
