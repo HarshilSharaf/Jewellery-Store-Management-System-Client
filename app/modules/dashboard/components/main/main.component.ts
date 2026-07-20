@@ -110,12 +110,16 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.themeObserver = new MutationObserver(() => {
-      if (this.monthlySales.length) { void this.renderChart(); }
+      if (this.monthlySales.length) { this.scheduleChartRender(); }
     });
     this.themeObserver.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ['data-theme'],
     });
+    // The <canvas> lives inside an @if (monthlySales.length) branch. If the
+    // revenue data already landed before ngAfterViewInit fired, schedule a
+    // render now.
+    if (this.monthlySales.length) { this.scheduleChartRender(); }
   }
 
   private async ensureChart(): Promise<typeof ChartType> {
@@ -123,6 +127,13 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
     const mod = await import('chart.js/auto');
     this.chartCtor = mod.default;
     return this.chartCtor;
+  }
+
+  private scheduleChartRender(): void {
+    // Defer past the current Angular tick so the OnPush change detection can
+    // materialise <canvas #revenueChart> before we look it up via ViewChild.
+    // setTimeout(0) reliably fires after the change-detection macrotask.
+    setTimeout(() => { void this.renderChart(); }, 0);
   }
 
   ngOnDestroy(): void {
@@ -166,9 +177,14 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
       const sla: SalesAndLabourModel[] = await this.ordersService.getSalesAndLabour(6);
       if (sla?.[0]?.monthlySalesAndLabour) {
         this.monthlySales = [...sla[0].monthlySalesAndLabour];
-        void this.renderChart();
       }
+      // markForCheck first so the @if branch renders the <canvas>;
+      // then defer chart creation past the Angular tick so the ViewChild
+      // has a chance to resolve to the freshly-instantiated canvas.
       this.cdr.markForCheck();
+      if (this.monthlySales.length) {
+        this.scheduleChartRender();
+      }
     } catch (err) {
       this.logger.LogError(err, 'MainComponent#loadRevenue');
     }
@@ -262,7 +278,14 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private async renderChart(): Promise<void> {
-    if (!this.chartCanvas || !this.monthlySales.length) { return; }
+    if (!this.monthlySales.length) { return; }
+    // If the OnPush pass hasn't materialised the canvas yet, run one more
+    // detectChanges + micro-defer to give it a chance.
+    if (!this.chartCanvas) {
+      this.cdr.detectChanges();
+      await new Promise<void>(res => setTimeout(res, 0));
+    }
+    if (!this.chartCanvas) { return; }
     const ChartCtor = await this.ensureChart();
     if (!this.chartCanvas) { return; }
     this.chart?.destroy();
