@@ -1,0 +1,72 @@
+@if (open) {
+  <div class="modal-overlay" (click)="onOverlayClick($event)" role="presentation">
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="add-category-title">
+      <header class="modal-header">
+        <h2 class="modal-title" id="add-category-title">{{ title }}</h2>
+        <button type="button" class="modal-close" (click)="requestClose()" aria-label="Close" [disabled]="isLoading">
+          <ng-icon name="lucideX" aria-hidden="true"></ng-icon>
+        </button>
+      </header>
+
+      <div class="modal-content">
+        <form [formGroup]="form" class="category-form" (ngSubmit)="submit()" novalidate>
+
+          <div class="form-row">
+            <label class="form-row__label mandatory" for="cat-name">Name</label>
+            <div class="form-row__control">
+              <input type="text"
+                     id="cat-name"
+                     class="hlm-input"
+                     [class.is-invalid]="form.get('name')?.touched && form.get('name')?.errors?.['required']"
+                     formControlName="name"
+                     [placeholder]="placeholder"
+                     autofocus>
+              @if (form.get('name')?.touched && form.get('name')?.errors?.['required']) {
+                <small class="field-error">Name is required</small>
+              }
+            </div>
+          </div>
+
+          <div class="form-row form-row--stacked">
+            <label class="form-row__label" for="cat-desc">Description</label>
+            <div class="form-row__control">
+              <textarea id="cat-desc"
+                        class="hlm-input"
+                        formControlName="description"
+                        rows="3"
+                        placeholder="Optional short note"></textarea>
+            </div>
+          </div>
+
+          @if (response.status !== 0 || response.message !== '') {
+            <div class="form-response"
+                 [class.form-response--success]="response.status === 200"
+                 [class.form-response--error]="response.status !== 200 && response.status !== 0">
+              {{ response.message }}
+            </div>
+          }
+        </form>
+      </div>
+
+      <footer class="modal-actions">
+        <button type="button"
+                class="hlm-btn hlm-btn-ghost"
+                (click)="clearForm()"
+                [disabled]="isLoading">
+          Clear
+        </button>
+        <button type="button"
+                class="hlm-btn hlm-btn-primary"
+                (click)="submit()"
+                [disabled]="!form.valid || isLoading">
+          @if (isLoading) {
+            <ng-icon name="lucideLoader" class="animate-spin" aria-hidden="true"></ng-icon>
+            Saving...
+          } @else {
+            Save category
+          }
+        </button>
+      </footer>
+    </div>
+  </div>
+}
