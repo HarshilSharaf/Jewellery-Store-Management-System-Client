@@ -1,4 +1,63 @@
-.user-display-name{
-    margin-left: 10px;
-    margin-right: 10px;
+.user-display-name {
+  margin-left: 10px;
+  margin-right: 10px;
+  color: var(--color-fg);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  align-items: center;
+}
+
+.brand-word {
+  display: none;
+  color: var(--color-fg);
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 1.05rem;
+  letter-spacing: -0.005em;
+  margin-left: 0.6rem;
+
+  @media (min-width: 768px) {
+    display: inline-block;
+  }
+}
+
+.nav-item--theme {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 0.5rem;
+}
+
+.theme-toggle-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border);
+  background: var(--color-panel);
+  color: var(--color-fg);
+  cursor: pointer;
+  display: inline-grid;
+  place-items: center;
+  transition: background-color 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
+
+  &:hover {
+    background: var(--color-panel-hover);
+    border-color: var(--color-border-strong);
+  }
+
+  &:active {
+    transform: scale(0.96);
+  }
+
+  i {
+    font-size: 0.9rem;
+    color: var(--color-fg-muted);
+  }
+
+  &:hover i {
+    color: var(--color-accent-fg);
+  }
+}
+
+html[data-theme="dark"] .theme-toggle-btn:hover i {
+  color: var(--color-accent);
 }

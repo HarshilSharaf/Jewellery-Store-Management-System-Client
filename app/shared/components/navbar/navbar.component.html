@@ -3,19 +3,17 @@
   <!-- header -->
   <div class="navbar-header pl-2 pr-2 ml-3 text-center">
     <a class="navbar-brand m-0 w-100" href="#">
-      <img src="./assets/img/logo.png" alt="lightning logo" width="35px">
-      <span class="ml-1" style="margin-left: 5px !important;">Jewellery Store </span>
+      <img src="./assets/img/logo.png" alt="lightning logo" width="30px">
+      <span class="brand-word">Jewellery Store</span>
     </a>
   </div>
 
-  <!-- sidebar toggler -->
+  <!-- sidebar toggler (mobile) -->
   <div class="sidebar-toggler ml-auto mr-3">
     <button type="button" class="btn nav-link" (click)="toggleSidebar()" aria-label="Toggle sidebar">
       <i class="fa fa-bars fa-lg" aria-hidden="true"></i>
     </button>
   </div>
-
-
 
   <!-- left box -->
   <ul class="navbar-nav flex-fill mt-1 align-items-center left-nav">
@@ -30,11 +28,24 @@
     </li>
   </ul>
 
+  <!-- theme toggle -->
+  <div class="nav-item nav-item--theme">
+    <button type="button"
+            class="theme-toggle-btn"
+            (click)="toggleTheme()"
+            [attr.aria-label]="themeService.isDark() ? 'Switch to light theme' : 'Switch to dark theme'"
+            [attr.title]="themeService.isDark() ? 'Switch to light theme' : 'Switch to dark theme'">
+      @if (themeService.isDark()) {
+        <i class="fa-solid fa-sun" aria-hidden="true"></i>
+      } @else {
+        <i class="fa-solid fa-moon" aria-hidden="true"></i>
+      }
+    </button>
+  </div>
+
   <!-- userDisplayName section -->
   <div class="user-display-name d-md-flex d-none">
-    <span class="text-white">
-      {{userDisplayName()}}
-    </span>
+    <span>{{userDisplayName()}}</span>
   </div>
 
   <!-- profile icon dropdown -->
