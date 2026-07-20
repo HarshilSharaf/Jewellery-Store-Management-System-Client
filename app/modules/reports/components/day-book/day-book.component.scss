@@ -26,4 +26,69 @@
   .ds-table .right {
     text-align: right;
   }
+
+  .tally-setup {
+    margin: 8px 0 4px;
+    padding: 10px 14px;
+    background: var(--color-bg-subtle);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-md);
+    font-size: 12px;
+    color: var(--color-fg);
+
+    > summary {
+      cursor: pointer;
+      font-weight: 500;
+      color: var(--color-fg-muted);
+      list-style: none;
+
+      &::-webkit-details-marker { display: none; }
+      &::before {
+        content: '▸ ';
+        display: inline-block;
+        color: var(--color-fg-subtle);
+        transition: transform 0.12s ease;
+      }
+    }
+
+    &[open] > summary::before {
+      content: '▾ ';
+    }
+
+    &__body {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed var(--color-border-subtle);
+    }
+
+    &__lead {
+      margin: 0 0 8px;
+      color: var(--color-fg-muted);
+    }
+
+    &__list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+
+      li {
+        color: var(--color-fg);
+        line-height: 1.55;
+      }
+    }
+
+    &__label {
+      display: inline-block;
+      min-width: 90px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--color-fg-muted);
+      margin-right: 4px;
+    }
+  }
 }
