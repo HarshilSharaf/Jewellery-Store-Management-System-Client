@@ -1,21 +1,25 @@
-import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideCheck,
   lucideChevronRight,
   lucideChevronLeft,
+  lucideUser,
+  lucideShoppingCart,
+  lucideFileCheck,
 } from '@ng-icons/lucide';
 import { CustomerDetails } from '../../../../../customers/models/customerDetails';
-import { ProductDataModel } from '../../../../models/product-data-model';
+import { InvoiceProductDataModel } from '../../../../models/invoice-product-data-model';
 import { CartService } from '../../../../../../shared/services/cart.service';
 import { CreateInvoiceComponent } from '../create-invoice/create-invoice.component';
-import { CartItemsComponent } from '../../../../../../shared/components/cart-items/cart-items.component';
 import { SelectCustomerComponent } from '../select-customer/select-customer.component';
+import { CartBuilderComponent } from '../cart-builder/cart-builder.component';
 
 interface StepConfig {
-  key: 'products' | 'customer' | 'invoice' | 'done';
+  key: 'customer' | 'items' | 'review';
   label: string;
+  icon: string;
 }
 
 @Component({
@@ -26,65 +30,72 @@ interface StepConfig {
   imports: [
     CommonModule,
     NgIcon,
-    CreateInvoiceComponent,
-    CartItemsComponent,
     SelectCustomerComponent,
+    CartBuilderComponent,
+    CreateInvoiceComponent,
   ],
-  viewProviders: [provideIcons({ lucideCheck, lucideChevronLeft, lucideChevronRight })],
+  viewProviders: [
+    provideIcons({
+      lucideCheck,
+      lucideChevronLeft,
+      lucideChevronRight,
+      lucideUser,
+      lucideShoppingCart,
+      lucideFileCheck,
+    }),
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StepperComponent {
   readonly steps: StepConfig[] = [
-    { key: 'products', label: 'Review Products' },
-    { key: 'customer', label: 'Select Customer' },
-    { key: 'invoice', label: 'Prepare Invoice' },
-    { key: 'done', label: 'Done' },
+    { key: 'customer', label: 'Select customer', icon: 'lucideUser' },
+    { key: 'items', label: 'Add items', icon: 'lucideShoppingCart' },
+    { key: 'review', label: 'Review & save', icon: 'lucideFileCheck' },
   ];
 
-  readonly cartItems = computed<ProductDataModel[]>(() => {
+  readonly activeStep = signal<number>(0);
+  readonly selectedCustomer = signal<CustomerDetails | null>(null);
+
+  readonly cartItems = computed<InvoiceProductDataModel[]>(() => {
     const products = this.cartService.getProducts()();
     return Array.isArray(products) ? [...products] : [];
   });
 
-  activeStep = 0;
-  selectedCustomerData!: CustomerDetails;
+  readonly canAdvanceFromCustomer = computed(() => !!this.selectedCustomer() && this.selectedCustomer()!.id !== null);
+  readonly canAdvanceFromItems = computed(() => this.cartItems().length > 0);
 
   constructor(private cartService: CartService) {}
 
-  setCustomerData(customerData: CustomerDetails) {
-    this.selectedCustomerData = customerData;
+  setCustomer(customer: CustomerDetails): void {
+    this.selectedCustomer.set(customer);
   }
 
-  canAdvance(fromIndex: number): boolean {
-    if (fromIndex === 0) return this.cartItems().length > 0;
-    if (fromIndex === 1) return !!this.selectedCustomerData && this.selectedCustomerData.id !== null;
-    return true;
-  }
-
-  next() {
-    if (this.canAdvance(this.activeStep) && this.activeStep < this.steps.length - 1) {
-      this.activeStep += 1;
+  next(): void {
+    const idx = this.activeStep();
+    if (idx === 0 && !this.canAdvanceFromCustomer()) return;
+    if (idx === 1 && !this.canAdvanceFromItems()) return;
+    if (idx < this.steps.length - 1) {
+      this.activeStep.set(idx + 1);
     }
   }
 
-  prev() {
-    if (this.activeStep > 0) {
-      this.activeStep -= 1;
-    }
+  prev(): void {
+    if (this.activeStep() > 0) this.activeStep.set(this.activeStep() - 1);
   }
 
-  goTo(index: number) {
-    if (index <= this.activeStep) {
-      this.activeStep = index;
+  goTo(index: number): void {
+    if (index <= this.activeStep()) {
+      this.activeStep.set(index);
       return;
     }
-    for (let i = this.activeStep; i < index; i += 1) {
-      if (!this.canAdvance(i)) return;
+    for (let i = this.activeStep(); i < index; i += 1) {
+      if (i === 0 && !this.canAdvanceFromCustomer()) return;
+      if (i === 1 && !this.canAdvanceFromItems()) return;
     }
-    this.activeStep = index;
+    this.activeStep.set(index);
   }
 
   isCompleted(index: number): boolean {
-    return this.activeStep > index;
+    return this.activeStep() > index;
   }
 }

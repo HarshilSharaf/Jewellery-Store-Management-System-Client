@@ -1,21 +1,154 @@
-<app-page-header [pageName]="'Orders'"></app-page-header>
+<section class="books-shell">
 
-<div class="orders-toolbar">
-    <a routerLink="prepare-order" class="hlm-btn hlm-btn-primary">
-        <ng-icon name="lucideShoppingCart" aria-hidden="true"></ng-icon>
-        <span>Prepare an order</span>
+  <header class="page-title">
+    <div class="page-title__group">
+      <h1 class="page-title__heading">Books</h1>
+      <span class="page-title__count">({{ totalRecords() }} invoice{{ totalRecords() === 1 ? '' : 's' }})</span>
+    </div>
+    <a routerLink="/orders/prepare-order" class="hlm-btn hlm-btn-primary">
+      <ng-icon name="lucideFilePlus" aria-hidden="true"></ng-icon>
+      <span>New invoice</span>
     </a>
-</div>
+  </header>
 
-<div class="orders-table-wrap">
-    <app-data-table [COLUMNS_SCHEMA]="displayNameForColumns" [tableColumns]="tableColumns"
-        (viewDetails)="goToViewDetails($event)" (deleteItem)="openDeletePopUpForItem($event)"
-        [tableData]="ordersData" (refreshDataSource)="getAllOrders()"
-        [entityText]="'Orders'"
-        [sortByColumn]="'orderDate'"
-        [totalRecords]="totalRecords"
-        (searchQuery)="handleSearchQuery($event)"
-        (pageChangeEvent)="handlePageChange($event)"
-        [isLoading]="isLoading"
-        ></app-data-table>
-</div>
+  <div class="list-toolbar books-toolbar">
+    <div class="books-toolbar__search">
+      <ng-icon name="lucideSearch" class="books-toolbar__search-icon" aria-hidden="true"></ng-icon>
+      <input
+        type="search"
+        class="hlm-input books-toolbar__search-input"
+        placeholder="Search invoice number or customer..."
+        [formControl]="search">
+    </div>
+
+    <div class="books-toolbar__dates">
+      <ng-icon name="lucideCalendarDays" class="books-toolbar__dates-icon" aria-hidden="true"></ng-icon>
+      <input type="date" class="hlm-input books-toolbar__date" [formControl]="fromDate" aria-label="From date">
+      <span class="books-toolbar__dash">—</span>
+      <input type="date" class="hlm-input books-toolbar__date" [formControl]="toDate" aria-label="To date">
+      @if (fromDate.value || toDate.value) {
+        <button type="button" class="icon-btn" (click)="clearDateRange()" aria-label="Clear date range">
+          <ng-icon name="lucideX" aria-hidden="true"></ng-icon>
+        </button>
+      }
+    </div>
+
+    <div class="books-toolbar__status">
+      <div class="radio-pill-row" role="tablist" aria-label="Filter by status">
+        <button type="button" class="radio-pill" [class.is-active]="statusFilter() === 'all'"
+                (click)="setStatusFilter('all')" role="tab" [attr.aria-selected]="statusFilter() === 'all'">All</button>
+        <button type="button" class="radio-pill" [class.is-active]="statusFilter() === 'paid'"
+                (click)="setStatusFilter('paid')" role="tab" [attr.aria-selected]="statusFilter() === 'paid'">Paid</button>
+        <button type="button" class="radio-pill" [class.is-active]="statusFilter() === 'unpaid'"
+                (click)="setStatusFilter('unpaid')" role="tab" [attr.aria-selected]="statusFilter() === 'unpaid'">Unpaid</button>
+        <button type="button" class="radio-pill" [class.is-active]="statusFilter() === 'cancelled'"
+                (click)="setStatusFilter('cancelled')" role="tab" [attr.aria-selected]="statusFilter() === 'cancelled'">Cancelled</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="books-table-wrap">
+    <table class="books-table" role="table">
+      <thead>
+        <tr>
+          <th scope="col" class="col-invoice">Invoice #</th>
+          <th scope="col" class="col-date">Date</th>
+          <th scope="col" class="col-customer">Customer</th>
+          <th scope="col" class="col-items">Items</th>
+          <th scope="col" class="col-amount">Amount</th>
+          <th scope="col" class="col-status">Status</th>
+          <th scope="col" class="col-actions" aria-label="Actions"></th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (isLoading()) {
+          @for (row of [0,1,2,3,4]; track row) {
+            <tr class="is-skeleton">
+              <td colspan="7"><div class="books-skeleton-line"></div></td>
+            </tr>
+          }
+        } @else if (visibleOrders().length === 0) {
+          <tr class="books-empty-row">
+            <td colspan="7">
+              <div class="books-empty">
+                <ng-icon name="lucideReceipt" class="books-empty__icon" aria-hidden="true"></ng-icon>
+                <p class="books-empty__title">No invoices yet</p>
+                <a routerLink="/orders/prepare-order" class="hlm-btn hlm-btn-primary">
+                  <ng-icon name="lucideFilePlus" aria-hidden="true"></ng-icon>
+                  <span>Create your first invoice</span>
+                </a>
+              </div>
+            </td>
+          </tr>
+        } @else {
+          @for (row of visibleOrders(); track row.orderGuid) {
+            <tr class="books-row" (click)="goToViewDetails(row)"
+                (keyup.enter)="goToViewDetails(row)" tabindex="0"
+                [class.is-cancelled]="row.cancelledAt">
+              <td class="col-invoice">
+                <span class="books-row__invoice">{{ row.invoiceNumber ?? '—' }}</span>
+              </td>
+              <td class="col-date books-row__muted">
+                {{ row.orderDate | date:'d MMM yyyy' }}
+              </td>
+              <td class="col-customer">
+                <span class="books-row__customer">{{ row.customerFullName }}</span>
+              </td>
+              <td class="col-items books-row__muted tabular-nums">
+                {{ $any(row).totalLineItems ?? 0 }} item{{ $any(row).totalLineItems === 1 ? '' : 's' }}
+              </td>
+              <td class="col-amount">
+                <span class="money">{{ formatMoney(row.grandTotal) }}</span>
+              </td>
+              <td class="col-status">
+                @switch (statusOf(row)) {
+                  @case ('paid') {
+                    <span class="status-chip status-chip--paid">
+                      <ng-icon name="lucideCheck" aria-hidden="true"></ng-icon>Paid
+                    </span>
+                  }
+                  @case ('unpaid') {
+                    <span class="status-chip status-chip--unpaid">Unpaid</span>
+                  }
+                  @case ('cancelled') {
+                    <span class="status-chip status-chip--cancelled">Cancelled</span>
+                  }
+                }
+              </td>
+              <td class="col-actions">
+                <div class="books-row__actions">
+                  <button type="button" class="icon-btn" (click)="$event.stopPropagation(); goToViewDetails(row)"
+                          title="View invoice" aria-label="View invoice">
+                    <ng-icon name="lucideExternalLink" aria-hidden="true"></ng-icon>
+                  </button>
+                  <button type="button" class="icon-btn" (click)="goToPrint($event, row)"
+                          title="Print invoice" aria-label="Print invoice">
+                    <ng-icon name="lucidePrinter" aria-hidden="true"></ng-icon>
+                  </button>
+                  <button type="button" class="icon-btn icon-btn--danger" (click)="cancelOrder($event, row)"
+                          [disabled]="!!row.cancelledAt"
+                          title="Cancel invoice" aria-label="Cancel invoice">
+                    <ng-icon name="lucideTrash2" aria-hidden="true"></ng-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+
+  @if (!isLoading() && totalRecords() > 0) {
+    <div class="books-pagination">
+      <app-simple-paginator
+        [length]="totalRecords()"
+        [pageIndex]="pageIndex"
+        [pageSize]="pageSize"
+        [pageSizeOptions]="[10, 25, 50]"
+        (page)="onPageChange($event)">
+      </app-simple-paginator>
+    </div>
+  }
+
+</section>

@@ -1,128 +1,198 @@
-import { Component, EventEmitter, Input, OnInit, Output, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import {
+  Component,
+  EventEmitter,
+  HostListener,
+  Input,
+  OnInit,
+  Output,
+  signal,
+} from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { Subscription } from 'rxjs';
-import { HttpResponse } from '../../../../models/http-response';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideIndianRupee, lucideX, lucideCheck } from '@ng-icons/lucide';
+import Swal from 'sweetalert2';
 import { PaymentsDataModel, PaymentType } from '../../models/payments-data-model';
 import { OrderService } from '../../services/order.service';
 import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
-import { SkeletonLoaderComponent } from '../../../../shared/components/skeleton-loader/skeleton-loader.component';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideIndianRupee } from '@ng-icons/lucide';
+
+type Mode = 'cash' | 'cheque' | 'online';
 
 @Component({
   selector: 'app-order-payments',
   templateUrl: './order-payments.component.html',
   styleUrls: ['./order-payments.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, SkeletonLoaderComponent, NgIcon],
-  viewProviders: [provideIcons({ lucideIndianRupee })],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, NgIcon],
+  viewProviders: [provideIcons({ lucideIndianRupee, lucideX, lucideCheck })],
 })
 export class OrderPaymentsComponent implements OnInit {
 
-  _paymentsData:PaymentsDataModel[] = []
-  public recordPaymentResponse: HttpResponse = { status: 0, message: '' }
-
-  @Input() set paymentsData(data:PaymentsDataModel[]) {
-    this._paymentsData = [...data]
+  _paymentsData: PaymentsDataModel[] = [];
+  @Input() set paymentsData(data: PaymentsDataModel[]) {
+    this._paymentsData = Array.isArray(data) ? [...data] : [];
+    this.totalPaid.set(this._paymentsData.reduce((s, p) => s + Number(p.amount ?? 0), 0));
   }
 
-  @Input() orderGuid:string = ''
-  @Input() isPaymentDone:boolean = false
+  @Input() orderGuid = '';
+  @Input() isPaymentDone = false;
+  @Input() isCancelled = false;
+  @Input() grandTotal = 0;
+  @Input() invoiceNumber = '';
 
+  @Input() open = false;
+  @Output() openChange = new EventEmitter<boolean>();
   @Output() refreshPaymentsData = new EventEmitter<boolean>();
-  recordPaymentForm: FormGroup
-  recordPaymentFormInitialValues: unknown
 
-  recordPaymentSubscription = new Subscription()
+  readonly totalPaid = signal(0);
+  readonly outstanding = signal(0);
+  readonly saving = signal(false);
+  readonly errorMessage = signal<string | null>(null);
 
-  _isLoading = false;
-  @Input() set isLoading(value: boolean){
-    this._isLoading = value;
-  }
+  recordPaymentForm: FormGroup;
+  private readonly initialFormValue: unknown;
 
   constructor(
-    private formBuilder: FormBuilder,
+    private fb: FormBuilder,
     private orderService: OrderService,
-    private loggerService: LoggerService
+    private loggerService: LoggerService,
   ) {
-    this.recordPaymentForm = this.formBuilder.group({
+    this.recordPaymentForm = this.fb.group({
       amount: [0, [Validators.required, Validators.min(1)]],
-      paymentType: [PaymentType.CASH, Validators.required],
+      paymentType: ['cash' as Mode, Validators.required],
       refNumber: [''],
-      paymentDate: [this.formatDate(new Date())],
+      paymentDate: [this.formatDate(new Date()), Validators.required],
       remarks: [''],
     });
-    this.recordPaymentFormInitialValues = this.recordPaymentForm.value;
+    this.initialFormValue = this.recordPaymentForm.value;
+    this.recordPaymentForm.get('paymentType')!.valueChanges.subscribe((val) => {
+      const ref = this.recordPaymentForm.get('refNumber');
+      if (!ref) return;
+      if (val === 'cash') {
+        ref.disable({ emitEvent: false });
+        ref.setValue('', { emitEvent: false });
+        ref.clearValidators();
+      } else {
+        ref.enable({ emitEvent: false });
+        ref.setValidators([Validators.required]);
+      }
+      ref.updateValueAndValidity({ emitEvent: false });
+    });
   }
 
   ngOnInit(): void {
-
+    this.recordPaymentForm.get('refNumber')!.disable({ emitEvent: false });
+    this.recalcOutstanding();
   }
 
-  clearAndCloseForm() {
-    this.recordPaymentForm.reset(this.recordPaymentFormInitialValues)
-    this.recordPaymentResponse = { status: 0, message: '' }
+  recalcOutstanding(): void {
+    this.outstanding.set(Math.max(0, Number(this.grandTotal || 0) - this.totalPaid()));
   }
 
-  clearForm() {
-    this.recordPaymentForm.reset(this.recordPaymentFormInitialValues)
+  openPanel(): void {
+    this.errorMessage.set(null);
+    this.recordPaymentForm.reset({
+      ...(this.initialFormValue as any),
+      amount: Math.max(0, this.outstanding() || 0),
+      paymentDate: this.formatDate(new Date()),
+    });
+    this.recordPaymentForm.get('refNumber')!.disable({ emitEvent: false });
+    this.open = true;
+    this.openChange.emit(true);
   }
 
-  recordPayment() {
-    this.loggerService.LogInfo("recordPayment() Request Started.")
+  closePanel(): void {
+    this.open = false;
+    this.openChange.emit(false);
+  }
 
-    const paymentData =  {
-      orderGuid: this.orderGuid,
-      paymentAmount: this.recordPaymentForm.get('amount')?.value,
-      paymentType: this.recordPaymentForm.get('paymentType')?.value,
-      refNumber: this.recordPaymentForm.get('refNumber')?.value || null,
-      paymentDate: this.recordPaymentForm.get('paymentDate')?.value,
-      remarks: this.recordPaymentForm.get('remarks')?.value
+  setMode(mode: Mode): void {
+    this.recordPaymentForm.get('paymentType')!.setValue(mode);
+  }
+
+  currentMode(): Mode {
+    return this.recordPaymentForm.get('paymentType')!.value as Mode;
+  }
+
+  recordPayment(): void {
+    if (this.recordPaymentForm.invalid || this.saving()) {
+      this.recordPaymentForm.markAllAsTouched();
+      return;
     }
-    this.orderService.recordPayment(paymentData)
+    this.loggerService.LogInfo('recordPayment() Request Started.');
+    this.saving.set(true);
+    this.errorMessage.set(null);
+
+    const raw = this.recordPaymentForm.getRawValue() as {
+      amount: number;
+      paymentType: Mode;
+      refNumber: string;
+      paymentDate: string;
+      remarks: string;
+    };
+
+    this.orderService
+      .recordPayment({
+        orderGuid: this.orderGuid,
+        paymentAmount: Number(raw.amount),
+        paymentType: raw.paymentType,
+        refNumber: raw.refNumber || null,
+        paymentDate: raw.paymentDate,
+        remarks: raw.remarks,
+      })
       .then((response: any) => {
-      
-        if (response.length == 0 || !response[0]?.message) {
-          const paymentResponse:HttpResponse = {
-            status: 200,
-            message: "Successfully Recorded Payment!" 
-          }
-
-          this.recordPaymentResponse = {...paymentResponse}
-          
-          this.refreshPaymentsData.emit(true);
-          this.clearForm()
+        this.saving.set(false);
+        const msg = Array.isArray(response) && response[0]?.message;
+        if (msg) {
+          this.errorMessage.set(msg);
+          this.loggerService.LogError(msg, 'recordPayment()');
+          return;
         }
-
-        else {
-          const paymentResponse:HttpResponse = {
-            status: 500,
-            message: response[0]?.message
-          }
-          this.recordPaymentResponse = {...paymentResponse}
-        }
-        this.loggerService.LogInfo("recordPayment() Request Completed.") 
+        this.refreshPaymentsData.emit(true);
+        Swal.fire({
+          title: 'Payment recorded',
+          text: this.invoiceNumber ? `Against ${this.invoiceNumber}` : undefined,
+          icon: 'success',
+          timer: 1600,
+          showConfirmButton: false,
+        });
+        this.closePanel();
       })
       .catch((error: any) => {
-        const paymentResponse:HttpResponse = {
-          status: 500,
-          message: error
-        }
-        this.recordPaymentResponse = {...paymentResponse}
-        this.loggerService.LogError(error, "recordPayment()")
-      })
-
+        this.saving.set(false);
+        const msg = typeof error === 'string' ? error : error?.message ?? 'Failed to record payment';
+        this.errorMessage.set(msg);
+        this.loggerService.LogError(error, 'recordPayment()');
+      });
   }
 
-  private formatDate(date: Date) {
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (this.open) this.closePanel();
+  }
+
+  private formatDate(date: Date): string {
     const d = new Date(date);
-    let month = '' + (d.getMonth() + 1);
-    let day = '' + d.getDate();
-    const year = d.getFullYear();
-    if (month.length < 2) month = '0' + month;
-    if (day.length < 2) day = '0' + day;
-    return [year, month, day].join('-');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${d.getFullYear()}-${month}-${day}`;
   }
 
+  formatMoney(v: any): string {
+    const n = Number(v ?? 0);
+    return new Intl.NumberFormat('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(
+      Number.isFinite(n) ? n : 0,
+    );
+  }
+
+  paymentModeLabel(t: PaymentType | string): string {
+    switch (String(t).toLowerCase()) {
+      case 'cash': return 'Cash';
+      case 'cheque': return 'Cheque';
+      case 'online': return 'Online';
+      case 'upi': return 'UPI';
+      case 'card': return 'Card';
+      default: return String(t);
+    }
+  }
 }

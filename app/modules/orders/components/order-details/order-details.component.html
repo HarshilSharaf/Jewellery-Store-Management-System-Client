@@ -1,167 +1,217 @@
-<app-page-header [pageName]="'Order Details'"></app-page-header>
+<section class="order-shell">
 
+  <div class="order-shell__layout">
 
-<div class="container-fluid ">
+    <div class="order-shell__main">
 
-  <div class="card">
-
-    <div class="card-body">
-      <div class="row">
-
-        @if (customerData) {
-          <div class="col-4 col-sm-3 customerDetailsSection">
-            <div class="card-header">
-              <h5 class="text-center">Customer Details</h5>
-            </div>
-            <div class="row mt-3">
-              <div class="col">
-                <div class="customerImage mx-auto">
-                  @if (imageLoaded) {
-                    <img [src]="customerData.imagePath" class="img-thumbnail">
-                  }
-                </div>
-              </div>
-            </div>
-            <hr>
-            <div class="row mt-2">
-              <div class="col fw-bold text-center">Name:</div>
-              <div class="col text-start">
-                {{customerData.firstName + ' ' + customerData.lastName}}
-              </div>
-            </div>
-            @if (customerData.gstin) {
-              <div class="row mt-1">
-                <div class="col fw-bold text-center">GSTIN:</div>
-                <div class="col text-start">{{customerData.gstin}}</div>
-              </div>
-            }
-            @if (customerData.city) {
-              <div class="row mt-1">
-                <div class="col fw-bold text-center">City:</div>
-                <div class="col text-start">{{customerData.city}}{{customerData.state ? ', ' + customerData.state : ''}}</div>
-              </div>
+      <header class="order-head">
+        <a routerLink="/orders" class="order-head__back" aria-label="Back to Books">
+          <ng-icon name="lucideArrowLeft" aria-hidden="true"></ng-icon>
+        </a>
+        <div class="order-head__meta">
+          <div class="order-head__title font-serif tabular-nums">{{ invoiceNumber() || '—' }}</div>
+          <div class="order-head__sub">
+            <span class="tabular-nums">{{ orderData()?.orderDate | date:'d MMM yyyy, h:mm a' }}</span>
+            @if (customerData()?.firstName) {
+              <span class="order-head__dot">·</span>
+              <span>{{ customerData()?.firstName }} {{ customerData()?.lastName }}</span>
             }
           </div>
-        }
+        </div>
+        <div class="order-head__actions">
+          <button type="button" class="icon-btn" (click)="goToPrint()" title="Print invoice" aria-label="Print invoice">
+            <ng-icon name="lucidePrinter" aria-hidden="true"></ng-icon>
+          </button>
+          @if (paymentStatus() === 'unpaid' || paymentStatus() === 'partial') {
+            <button type="button" class="icon-btn" (click)="openPayments()"
+                    title="Record payment" aria-label="Record payment">
+              <ng-icon name="lucideIndianRupee" aria-hidden="true"></ng-icon>
+            </button>
+          }
+          @if (paymentStatus() !== 'cancelled') {
+            <button type="button" class="icon-btn icon-btn--danger" (click)="cancelInvoice()"
+                    title="Cancel invoice" aria-label="Cancel invoice">
+              <ng-icon name="lucideBan" aria-hidden="true"></ng-icon>
+            </button>
+          }
+        </div>
+      </header>
 
-        @if (orderData) {
-          <div class="col">
-            <div class="card-header">
-              <div class="row">
-                <div class="col-6">
-                  <h5>Order Details {{ invoiceNumber ? ' - ' + invoiceNumber : '' }}</h5>
-                </div>
-                <div class="col text-end">
-                  <button
-                    class="btn btn-danger text-end" [useExistingCss]="true"
-                    [ngClass]="{disabled: !orderData.isPaymentDone}"
-                    printSectionId="print-container" ngxPrint>
-                    <ng-icon name="lucidePrinter" aria-hidden="true"></ng-icon>&nbsp;
-                    Print Invoice
-                  </button>
-                </div>
-              </div>
-            </div>
-            <div class="container-fluid mt-3 orderDetailsMainContainer">
-              <div class="row">
-                <div class="col">
-                  <span class="h6"> <b>Grand Total:</b> &#8377;{{grandTotal}}</span>
-                </div>
-                <div class="col">
-                  <span class="h6"> <b>Sub Total (Taxable):</b> &#8377;{{subTotalTaxable}}</span>
-                </div>
-              </div>
-              <hr class="my-3">
-              <div class="row">
-                <div class="col">
-                  <span class="h6"><b>Order Date:</b> {{orderData.orderDate | date}}</span>
-                </div>
-                <div class="col">
-                  <span class="h6"><b>Remarks:</b> {{orderData.remarks ?? 'N/A'}}</span>
-                </div>
-              </div>
-              <hr class="my-3">
-              <div class="row">
-                <div class="col">
-                  <span class="h6"> <b>Payment Pending:</b> &#8377;
-                    <span class="text-danger">{{ orderData.isPaymentDone == true ? 0 : (grandTotal - totalPaymentRecieved) }}</span>
-                  </span>
-                </div>
-                <div class="col">
-                  <span class="h6">
-                    <b>Payment Status:</b>
-                    @if (orderData.isPaymentDone) {
-                      <span class="badge text-bg-success ms-2">Done</span>
-                    }
-                    @if (!orderData.isPaymentDone) {
-                      <span class="badge text-bg-danger ms-2">Pending</span>
-                    }
-                  </span>
-                </div>
-              </div>
-              <hr class="my-3">
-              <div class="row">
-                <div class="col">
-                  <span class="h6"> <b>Making:</b> &#8377;{{totalMakingAmount}}</span>
-                </div>
-                <div class="col">
-                  <span class="h6"> <b>Wastage:</b> &#8377;{{totalWastageAmount}}</span>
-                </div>
-                <div class="col">
-                  <span class="h6"> <b>Stones:</b> &#8377;{{totalStoneAmount}}</span>
-                </div>
-                <div class="col">
-                  <span class="h6"> <b>Total GST:</b> &#8377;{{totalGstAmount}}</span>
-                </div>
-                <div class="col">
-                  <span class="h6"> <b>Discount:</b> &#8377;{{totalDiscountAmount}}</span>
-                </div>
-                @if (oldGoldCreditAmount > 0) {
-                  <div class="col">
-                    <span class="h6"> <b>Old Gold Credit:</b> &#8377;{{oldGoldCreditAmount}}</span>
-                  </div>
-                }
-                @if (roundOffAmount !== 0) {
-                  <div class="col">
-                    <span class="h6"> <b>Round Off:</b> &#8377;{{roundOffAmount}}</span>
-                  </div>
-                }
-              </div>
-              @if (orderData.cancelledAt) {
-                <hr class="my-3">
-                <div class="alert alert-warning">
-                  <b>Cancelled on {{orderData.cancelledAt | date}}</b>
-                  @if (cancelReason) { — {{cancelReason}} }
-                </div>
+      @if (orderData()?.cancelledAt) {
+        <div class="order-cancelled-banner">
+          <ng-icon name="lucideCircleAlert" aria-hidden="true"></ng-icon>
+          <div>
+            <strong>This invoice was cancelled on {{ orderData()?.cancelledAt | date:'d MMM yyyy' }}</strong>
+            @if (cancelReason()) { <div class="order-cancelled-banner__reason">{{ cancelReason() }}</div> }
+          </div>
+        </div>
+      }
+
+      @if (customerData()) {
+        <div class="detail-section bill-to">
+          <div class="detail-section__title">Bill to</div>
+          <div class="bill-to__grid">
+            <div>
+              <div class="bill-to__name">{{ customerData()?.firstName }} {{ customerData()?.lastName }}</div>
+              @if (customerData()?.phoneNumber) {
+                <div class="bill-to__line tabular-nums">Ph: {{ customerData()?.phoneNumber }}</div>
+              }
+              @if (customerData()?.email) {
+                <div class="bill-to__line">{{ customerData()?.email }}</div>
               }
             </div>
-
-            <div class="row mt-3">
-              <app-order-products-details [productDetails]="productsData" [isLoading]="isLoading"></app-order-products-details>
+            <div>
+              @if (customerData()?.address) {
+                <div class="bill-to__line">{{ customerData()?.address }}</div>
+              }
+              @if (customerData()?.city || customerData()?.state) {
+                <div class="bill-to__line">
+                  {{ customerData()?.city }}<ng-container *ngIf="customerData()?.state">, {{ customerData()?.state }}</ng-container>
+                  @if (customerData()?.stateCode) { <span class="tabular-nums"> ({{ customerData()?.stateCode }})</span> }
+                </div>
+              }
+              @if (orderData()?.placeOfSupply) {
+                <div class="bill-to__line">Place of supply: {{ orderData()?.placeOfSupply }}</div>
+              }
+            </div>
+            <div>
+              @if (customerData()?.gstin) {
+                <div class="bill-to__label">GSTIN</div>
+                <div class="bill-to__line tabular-nums">{{ customerData()?.gstin }}</div>
+              }
+              @if (customerData()?.pan) {
+                <div class="bill-to__label">PAN</div>
+                <div class="bill-to__line tabular-nums">{{ customerData()?.pan }}</div>
+              }
             </div>
           </div>
-        }
+        </div>
+      }
 
+      <app-order-products-details
+        [productDetails]="productsData()"
+        [isLoading]="loading()"
+        [isInterState]="isInterState()">
+      </app-order-products-details>
+
+      <div class="totals-block">
+        <div class="totals-block__spacer"></div>
+        <div class="totals-card">
+          <div class="totals-row">
+            <span>Subtotal (taxable)</span>
+            <span class="tabular-nums">&#8377;{{ money(subTotalTaxable()) }}</span>
+          </div>
+          <div class="totals-row totals-row--muted">
+            <span>Making</span>
+            <span class="tabular-nums">&#8377;{{ money(totalMakingAmount()) }}</span>
+          </div>
+          <div class="totals-row totals-row--muted">
+            <span>Wastage</span>
+            <span class="tabular-nums">&#8377;{{ money(totalWastageAmount()) }}</span>
+          </div>
+          @if (totalStoneAmount() > 0) {
+            <div class="totals-row totals-row--muted">
+              <span>Stones</span>
+              <span class="tabular-nums">&#8377;{{ money(totalStoneAmount()) }}</span>
+            </div>
+          }
+          @if (totalDiscountAmount() > 0) {
+            <div class="totals-row totals-row--sub">
+              <span>Discount</span>
+              <span class="tabular-nums">− &#8377;{{ money(totalDiscountAmount()) }}</span>
+            </div>
+          }
+          @if (isInterState()) {
+            <div class="totals-row">
+              <span>IGST</span>
+              <span class="tabular-nums">&#8377;{{ money(totalIgst()) }}</span>
+            </div>
+          } @else {
+            <div class="totals-row">
+              <span>CGST</span>
+              <span class="tabular-nums">&#8377;{{ money(totalCgst()) }}</span>
+            </div>
+            <div class="totals-row">
+              <span>SGST</span>
+              <span class="tabular-nums">&#8377;{{ money(totalSgst()) }}</span>
+            </div>
+          }
+          @if (oldGoldCreditAmount() > 0) {
+            <div class="totals-row totals-row--sub totals-row--italic">
+              <span>Old-gold credit</span>
+              <span class="tabular-nums">− &#8377;{{ money(oldGoldCreditAmount()) }}</span>
+            </div>
+          }
+          @if (roundOffAmount() !== 0) {
+            <div class="totals-row totals-row--muted">
+              <span>Round-off</span>
+              <span class="tabular-nums">{{ roundOffAmount() > 0 ? '+' : '' }} &#8377;{{ money(roundOffAmount()) }}</span>
+            </div>
+          }
+          <hr class="totals-divider">
+          <div class="totals-row totals-row--grand">
+            <span>Grand total</span>
+            <span class="money-lg tabular-nums">&#8377;{{ money(grandTotal()) }}</span>
+          </div>
+          <div class="totals-words">
+            <em>{{ amountInWords() }}</em>
+          </div>
+        </div>
       </div>
 
+      <app-order-payments
+        [paymentsData]="paymentsData()"
+        [orderGuid]="orderGuid"
+        [isPaymentDone]="!!orderData()?.isPaymentDone"
+        [isCancelled]="!!orderData()?.cancelledAt"
+        [grandTotal]="grandTotal()"
+        [invoiceNumber]="invoiceNumber()"
+        (refreshPaymentsData)="getOrderDetails()"
+        [(open)]="paymentsPanelOpen">
+      </app-order-payments>
+
     </div>
+
+    <aside class="order-shell__side">
+      <div class="detail-side">
+        <div class="kpi-card side-kpi">
+          <span class="kpi-label">Paid so far</span>
+          <span class="kpi-value tabular-nums">&#8377;{{ money(totalPaymentReceived()) }}</span>
+        </div>
+        <div class="kpi-card side-kpi">
+          <span class="kpi-label">Outstanding</span>
+          <span class="kpi-value tabular-nums" [class.is-danger]="outstanding() > 0">&#8377;{{ money(outstanding()) }}</span>
+        </div>
+        <div class="kpi-card side-kpi side-kpi--status">
+          <span class="kpi-label">Status</span>
+          <span [class]="paymentStatusChipClass()">{{ paymentStatusLabel() }}</span>
+        </div>
+
+        <div class="side-actions">
+          <div class="side-actions__title">Quick actions</div>
+          <button type="button" class="side-action" (click)="goToPrint()">
+            <ng-icon name="lucidePrinter" aria-hidden="true"></ng-icon>
+            <span>Print invoice</span>
+          </button>
+          <button type="button" class="side-action" (click)="stubToast('WhatsApp send')">
+            <ng-icon name="lucideMessageCircle" aria-hidden="true"></ng-icon>
+            <span>Send via WhatsApp</span>
+            <span class="side-action__badge">P3</span>
+          </button>
+          <button type="button" class="side-action" (click)="stubToast('Duplicate invoice')">
+            <ng-icon name="lucideCopy" aria-hidden="true"></ng-icon>
+            <span>Duplicate</span>
+          </button>
+          @if (paymentStatus() !== 'cancelled') {
+            <button type="button" class="side-action side-action--danger" (click)="cancelInvoice()">
+              <ng-icon name="lucideBan" aria-hidden="true"></ng-icon>
+              <span>Cancel invoice</span>
+            </button>
+          }
+        </div>
+      </div>
+    </aside>
 
   </div>
 
-
-  <div class="mt-3">
-    <app-order-payments [paymentsData]="paymentsData" [orderGuid]="orderGuid"
-      [isPaymentDone]=" orderData && orderData.isPaymentDone"
-      (refreshPaymentsData)="getOrderDetails()"
-      [isLoading]="isLoading"
-    ></app-order-payments>
-  </div>
-
-
-  @if (invoiceData) {
-    <div id="print-container">
-      <app-print-invoice id="print-container-component" [InvoiceData]="invoiceData | async"></app-print-invoice>
-    </div>
-  }
-
-</div>
+</section>

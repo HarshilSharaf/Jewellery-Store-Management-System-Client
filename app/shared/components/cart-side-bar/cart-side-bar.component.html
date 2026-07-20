@@ -1,17 +1,20 @@
-<!-- Backdrop -->
-<div class="cart-backdrop" [class.show]="isOpen" (click)="onBackdropClick()"></div>
-
-<!-- Side panel -->
-<div class="cart-panel" [class.open]="isOpen">
-  <div class="cart-panel-header">
-    <h4>Cart Items</h4>
-    <button type="button" class="btn-close" aria-label="Close" (click)="close()"></button>
-  </div>
-  <hr>
-  <div class="cart-panel-body">
+@if (isOpen) {
+  <div class="cart-backdrop" (click)="onBackdropClick()" role="presentation"></div>
+}
+<aside class="cart-panel" [class.is-open]="isOpen" role="dialog" aria-labelledby="cart-panel-title" aria-modal="true">
+  <header class="cart-panel__head">
+    <h4 id="cart-panel-title" class="cart-panel__title">Cart</h4>
+    <button type="button" class="icon-btn" (click)="close()" aria-label="Close cart">
+      <ng-icon name="lucideX" aria-hidden="true"></ng-icon>
+    </button>
+  </header>
+  <div class="cart-panel__body">
     <app-cart-items></app-cart-items>
   </div>
-  <div class="cart-panel-footer">
-    <button type="button" class="btn btn-outline-dark" (click)="close()">Close</button>
-  </div>
-</div>
+  <footer class="cart-panel__foot">
+    <a routerLink="/orders/prepare-order" class="hlm-btn hlm-btn-primary cart-panel__cta" (click)="close()">
+      Go to Sell
+    </a>
+    <button type="button" class="hlm-btn hlm-btn-ghost" (click)="close()">Close</button>
+  </footer>
+</aside>

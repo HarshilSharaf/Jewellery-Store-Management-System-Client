@@ -1,57 +1,76 @@
-<div class="row mt-3">
-  <form>
-    <div class="mb-3 row">
-      <label for="table-filtering-search" class="col-xs-3 col-sm-auto col-form-label fw-bold text-info">Search
-      Customers:</label>
-      <div class="col-xs-3 col-sm-auto">
-        <input id="table-filtering-search" placeholder="Search using name,phone,city etc.." class="form-control" type="text"
-          [formControl]="filter" />
-      </div>
+<div class="select-customer">
+
+  <div class="select-customer__head">
+    <div class="select-customer__search">
+      <ng-icon name="lucideSearch" class="select-customer__search-icon" aria-hidden="true"></ng-icon>
+      <input type="search" class="hlm-input select-customer__input"
+             placeholder="Search by name, city or phone"
+             [formControl]="filter">
     </div>
-  </form>
+    <a routerLink="/customers/add-customer" class="hlm-btn hlm-btn-ghost select-customer__new">
+      <ng-icon name="lucideUserPlus" aria-hidden="true"></ng-icon>
+      New customer
+    </a>
+  </div>
+
+  <div class="select-customer__list">
+    @if (loading()) {
+      @for (n of [0,1,2,3]; track n) {
+        <div class="customer-card is-skeleton">
+          <div class="customer-card__avatar"></div>
+          <div class="customer-card__body">
+            <div class="skeleton-bar" style="width: 60%;"></div>
+            <div class="skeleton-bar" style="width: 40%; margin-top: 8px;"></div>
+          </div>
+        </div>
+      }
+    } @else if (visibleCustomers().length === 0) {
+      <div class="customer-empty">
+        <p class="customer-empty__title">No customers match your search.</p>
+        <a routerLink="/customers/add-customer" class="hlm-btn hlm-btn-ghost">
+          <ng-icon name="lucideUserPlus" aria-hidden="true"></ng-icon>
+          Add a new customer
+        </a>
+      </div>
+    } @else {
+      @for (customer of visibleCustomers(); track customer.customerGuid ?? customer.id) {
+        <button type="button"
+                class="customer-card"
+                [class.is-selected]="_selectedId() === customer.id"
+                (click)="selectCustomer(customer)"
+                [attr.aria-pressed]="_selectedId() === customer.id">
+          <span class="avatar avatar--md customer-card__avatar">
+            <img [src]="customer.image" alt="">
+          </span>
+          <span class="customer-card__body">
+            <span class="customer-card__name">{{ customer.firstName }} {{ customer.lastName }}</span>
+            <span class="customer-card__meta">
+              @if (customer.city) { <span>{{ customer.city }}</span><span class="customer-card__dot">·</span> }
+              <span class="tabular-nums">{{ customer.phoneNumber }}</span>
+              @if (customer.gstin) {
+                <span class="customer-card__dot">·</span>
+                <span class="tabular-nums">GSTIN {{ customer.gstin }}</span>
+              }
+            </span>
+          </span>
+          @if (_selectedId() === customer.id) {
+            <span class="customer-card__check">
+              <ng-icon name="lucideCheck" aria-hidden="true"></ng-icon>
+            </span>
+          }
+        </button>
+      }
+    }
+  </div>
+
+  @if (!loading() && totalMatches() > pageSize) {
+    <app-simple-paginator
+      [length]="totalMatches()"
+      [pageIndex]="pageIndex"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="[6, 12, 24]"
+      (page)="onPageChange($event)">
+    </app-simple-paginator>
+  }
+
 </div>
-
-<div class="table-responsive">
-  <form class="form" [formGroup]="selectCustomer">
-    <table class="table table-striped table-hover table-bordered">
-      <thead>
-        <tr>
-          <th scope="col">#</th>
-          <th scope="col">Customer Photo</th>
-          <th scope="col">First Name</th>
-          <th scope="col">Last Name</th>
-          <th scope="col">Gender</th>
-          <th scope="col">City</th>
-          <th scope="col">Phone Number</th>
-        </tr>
-      </thead>
-
-      <tbody>
-        @for (customer of dataToBeShown; track customer.customerGuid ?? customer.id ?? $index) {
-          <tr>
-            <td>
-              <input class="form-check-input mt-0" type="radio" formControlName="selectedCustomerId"
-                [value]="customer.id">
-            </td>
-            <td class="text-center">
-              <img class="img-thumbnail" [src]="customer.image" height="90" width="90">
-            </td>
-            <td>{{customer.firstName}}</td>
-            <td>{{customer.lastName}}</td>
-            <td>{{customer.gender}}</td>
-            <td>{{customer.city}}</td>
-            <td>{{customer.phoneNumber}}</td>
-          </tr>
-        }
-      </tbody>
-    </table>
-  </form>
-</div>
-
-<app-simple-paginator
-  [length]="customersData.length"
-  [pageSize]="pageSize"
-  [pageIndex]="pageIndex"
-  [pageSizeOptions]="[2, 5, 7]"
-  (page)="onPageChange($event)">
-</app-simple-paginator>

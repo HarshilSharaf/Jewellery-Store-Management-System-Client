@@ -1,8 +1,9 @@
-import { DecimalPipe, CommonModule } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, Input, OnInit, computed, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideSave, lucideCheck } from '@ng-icons/lucide';
 import Swal from 'sweetalert2';
 
 import { CustomerDetails } from '../../../../../customers/models/customerDetails';
@@ -16,39 +17,37 @@ import { MetalRatesService } from '../../../../../../shared/services/MetalRates/
 import { ShopSettingsService } from '../../../../../../shared/services/ShopSettings/shop-settings.service';
 import { PuritiesService } from '../../../../../../shared/services/Purities/purities.service';
 import { computeCartTotals } from '../../../../../../shared/services/Orders/cart-totals';
-import { CartLineComputed, CartLineInput, CartTotals, MakingMode, TaxSlab } from '../../../../../../interfaces/Shared/cart';
+import {
+  CartLineComputed,
+  CartLineInput,
+  CartTotals,
+  MakingMode,
+  TaxSlab,
+} from '../../../../../../interfaces/Shared/cart';
 import { MetalRateRow } from '../../../../../../interfaces/Shared/metal-rate';
 import { ShopSettings } from '../../../../../../interfaces/Shared/shop-settings';
 import { SaveOrderPayload } from '../../../../../../interfaces/Orders/orders-service-interface';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideSave } from '@ng-icons/lucide';
+import { numberToIndianRupees } from '../../../../../../shared/utils/amount-in-words';
 
 @Component({
   selector: 'app-create-invoice',
   templateUrl: './create-invoice.component.html',
   styleUrls: ['./create-invoice.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, NgIcon],
-  viewProviders: [provideIcons({ lucideSave })],
-  providers: [DecimalPipe]
+  imports: [CommonModule, NgIcon],
+  viewProviders: [provideIcons({ lucideSave, lucideCheck })],
 })
 export class CreateInvoiceComponent implements OnInit {
 
-  _selectedCustomersInfo!: CustomerDetails;
-  _selectedProductsData: InvoiceProductDataModel[] = [];
+  readonly customer = signal<CustomerDetails | null>(null);
+  readonly cartLines = signal<InvoiceProductDataModel[]>([]);
 
-  currentDate: Date = new Date();
-  paymentMethod = 'cash';
-  paymentRefNumber = '';
-  amountPaid = 0;
+  readonly rateSnapshot = signal<Record<string, number>>({});
+  readonly metalRates = signal<MetalRateRow[]>([]);
+  readonly shopSettings = signal<ShopSettings | null>(null);
+  private taxSlabsByHsn: Record<string, TaxSlab> = {};
 
-  rateSnapshot: Record<string, number> = {};
-  ratesLoaded = false;
-  metalRates: MetalRateRow[] = [];
-  shopSettings: ShopSettings | null = null;
-  taxSlabsByHsn: Record<string, TaxSlab> = {};
-
-  totals: CartTotals = {
+  readonly totals = signal<CartTotals>({
     lines: [],
     subTotalTaxable: 0,
     totalMakingCharge: 0,
@@ -61,16 +60,32 @@ export class CreateInvoiceComponent implements OnInit {
     oldGoldCreditAmount: 0,
     roundOffAmount: 0,
     grandTotal: 0,
-  };
+  });
 
-  @Input() set selectedProductsData(productsData: { lengthOfData: number, selectedProducts: ProductDataModel[] }) {
-    const clone = structuredClone(productsData);
-    this._selectedProductsData = clone.selectedProducts.map((p) => this.toCartLine(p));
+  readonly saving = signal(false);
+  readonly today = new Date();
+
+  readonly isInterState = computed<boolean>(() => {
+    const shop = this.shopSettings()?.stateCode;
+    const cust = this.customer()?.stateCode;
+    if (!shop || !cust) return false;
+    return String(shop).trim() !== String(cust).trim();
+  });
+
+  private readonly moneyFmt = new Intl.NumberFormat('en-IN', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+
+  @Input() set selectedProductsData(data: { lengthOfData: number; selectedProducts: ProductDataModel[] } | null) {
+    if (!data) return;
+    const lines = (data.selectedProducts ?? []).map((p) => this.toCartLine(p));
+    this.cartLines.set(lines);
     this.recalcAll();
   }
 
-  @Input() set selectedCustomersInfo(customerInfo: any) {
-    this._selectedCustomersInfo = customerInfo;
+  @Input() set selectedCustomersInfo(customerInfo: CustomerDetails | null) {
+    this.customer.set(customerInfo);
     this.recalcAll();
   }
 
@@ -83,7 +98,7 @@ export class CreateInvoiceComponent implements OnInit {
     private loggerService: LoggerService,
     private metalRatesService: MetalRatesService,
     private shopSettingsService: ShopSettingsService,
-    private puritiesService: PuritiesService
+    private puritiesService: PuritiesService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -93,9 +108,9 @@ export class CreateInvoiceComponent implements OnInit {
         this.shopSettingsService.get(),
         this.puritiesService.getTaxSlabs(),
       ]);
-      this.metalRates = rates ?? [];
-      this.shopSettings = settings;
-      this.rateSnapshot = this.metalRatesService.buildSnapshot(this.metalRates);
+      this.metalRates.set(rates ?? []);
+      this.shopSettings.set(settings);
+      this.rateSnapshot.set(this.metalRatesService.buildSnapshot(rates ?? []));
       this.taxSlabsByHsn = {};
       for (const slab of taxSlabs ?? []) {
         this.taxSlabsByHsn[slab.hsnCode] = {
@@ -105,20 +120,16 @@ export class CreateInvoiceComponent implements OnInit {
           igstRate: Number(slab.igstRate),
         };
       }
-      this.ratesLoaded = true;
-      this._selectedProductsData.forEach((line) => {
-        if (!line.ratePerGram) {
-          line.ratePerGram = this.rateFor(line.purityCode);
-        }
-      });
+      this.cartLines.update((lines) =>
+        lines.map((l) => (l.ratePerGram ? l : { ...l, ratePerGram: this.rateFor(l.purityCode) })),
+      );
       this.recalcAll();
-    } catch (error) {
-      this.ratesLoaded = true;
-      this.loggerService.LogError(error, 'CreateInvoice.ngOnInit');
+    } catch (err) {
+      this.loggerService.LogError(err, 'CreateInvoice.ngOnInit');
     }
   }
 
-  private toCartLine(product: ProductDataModel | any): InvoiceProductDataModel {
+  private toCartLine(product: any): InvoiceProductDataModel {
     const purityCode = product.purityCode ?? '916';
     const makingMode: MakingMode = (product.makingMode as MakingMode) ?? 'perGram';
     return {
@@ -134,37 +145,36 @@ export class CreateInvoiceComponent implements OnInit {
       makingValue: Number(product.makingValue ?? 0),
       wastagePercent: Number(product.wastagePercent ?? 0),
       ratePerGram: Number(product.ratePerGram ?? this.rateFor(purityCode)),
-      discountAmount: 0,
+      discountAmount: Number(product.discountAmount ?? 0),
       tagPrice: Number(product.tagPrice ?? 0),
-    };
+    } as InvoiceProductDataModel;
   }
 
   private rateFor(purityCode: string): number {
-    return Number(this.rateSnapshot[purityCode] ?? 0);
+    return Number(this.rateSnapshot()[purityCode] ?? 0);
   }
 
-  onLineFieldChange(product: InvoiceProductDataModel, field: string, value: any) {
-    const numeric = Number(value);
-    switch (field) {
-      case 'ratePerGram':    product.ratePerGram = numeric; break;
-      case 'netWeight':      product.netWeight = numeric; break;
-      case 'makingMode':     product.makingMode = value as MakingMode; break;
-      case 'makingValue':    product.makingValue = numeric; break;
-      case 'wastagePercent': product.wastagePercent = numeric; break;
-      case 'stoneCharges':   product.stoneCharges = numeric; break;
-      case 'discountAmount': product.discountAmount = numeric; break;
-    }
-    this.recalcAll();
-  }
-
-  recalcAll() {
-    if (!this._selectedProductsData?.length) {
-      this.totals = { ...this.totals, lines: [], subTotalTaxable: 0, totalCgst: 0, totalSgst: 0, totalIgst: 0, totalMakingCharge: 0, totalStoneCharge: 0, totalWastageCharge: 0, totalDiscount: 0, grandTotal: 0, oldGoldCreditAmount: 0, roundOffAmount: 0 };
+  recalcAll(): void {
+    if (this.cartLines().length === 0) {
+      this.totals.set({
+        lines: [],
+        subTotalTaxable: 0,
+        totalMakingCharge: 0,
+        totalStoneCharge: 0,
+        totalWastageCharge: 0,
+        totalDiscount: 0,
+        totalCgst: 0,
+        totalSgst: 0,
+        totalIgst: 0,
+        oldGoldCreditAmount: 0,
+        roundOffAmount: 0,
+        grandTotal: 0,
+      });
       return;
     }
-    const shopStateCode = this.shopSettings?.stateCode ?? '27';
-    const placeOfSupplyStateCode = this._selectedCustomersInfo?.stateCode ?? shopStateCode;
-    const lines: CartLineInput[] = this._selectedProductsData.map((p) => ({
+    const shopStateCode = this.shopSettings()?.stateCode ?? '27';
+    const placeOfSupplyStateCode = this.customer()?.stateCode ?? shopStateCode;
+    const inputs: CartLineInput[] = this.cartLines().map((p) => ({
       productId: p.id,
       lineType: p.lineType ?? 'product',
       description: p.productDescription ?? null,
@@ -181,7 +191,7 @@ export class CreateInvoiceComponent implements OnInit {
       discountAmount: Number(p.discountAmount) || 0,
     }));
 
-    this.totals = computeCartTotals(lines, {
+    const totals = computeCartTotals(inputs, {
       shopStateCode,
       invoicePlaceOfSupplyStateCode: placeOfSupplyStateCode,
       taxSlabsByHsn: this.taxSlabsByHsn,
@@ -189,79 +199,103 @@ export class CreateInvoiceComponent implements OnInit {
       roundOff: true,
     });
 
-    this.totals.lines.forEach((computed: CartLineComputed, idx: number) => {
-      const target = this._selectedProductsData[idx];
-      if (!target) { return; }
-      target.metalValue = computed.metalValue;
-      target.makingCharge = computed.makingCharge;
-      target.wastageCharge = computed.wastageCharge;
-      target.stoneCharge = computed.stoneCharge;
-      target.discountAmount = computed.discountAmount;
-      target.taxableAmount = computed.taxableAmount;
-      target.cgst = computed.cgst;
-      target.sgst = computed.sgst;
-      target.igst = computed.igst;
-      target.lineTotal = computed.lineTotal;
-    });
+    this.totals.set(totals);
+
+    this.cartLines.update((lines) =>
+      lines.map((l, idx) => {
+        const c: CartLineComputed | undefined = totals.lines[idx];
+        if (!c) return l;
+        return {
+          ...l,
+          metalValue: c.metalValue,
+          makingCharge: c.makingCharge,
+          wastageCharge: c.wastageCharge,
+          stoneCharge: c.stoneCharge,
+          discountAmount: c.discountAmount,
+          taxableAmount: c.taxableAmount,
+          cgst: c.cgst,
+          sgst: c.sgst,
+          igst: c.igst,
+          lineTotal: c.lineTotal,
+        };
+      }),
+    );
   }
 
-  saveOrder() {
+  saveOrder(): void {
+    const cust = this.customer();
+    if (!cust || this.cartLines().length === 0 || this.totals().grandTotal <= 0 || this.saving()) return;
+
+    this.saving.set(true);
     this.loggerService.LogInfo('saveOrder() Request Started.');
     this.loaderService.start();
 
     const payload: SaveOrderPayload = {
-      customerId: this._selectedCustomersInfo.id,
-      placeOfSupply: this._selectedCustomersInfo.state ?? this.shopSettings?.state ?? '',
+      customerId: cust.id,
+      placeOfSupply: cust.state ?? this.shopSettings()?.state ?? '',
       hsn: '7113',
-      rateSnapshot: this.rateSnapshot,
-      subTotalTaxable: this.totals.subTotalTaxable,
-      totalCgst: this.totals.totalCgst,
-      totalSgst: this.totals.totalSgst,
-      totalIgst: this.totals.totalIgst,
-      totalDiscount: this.totals.totalDiscount,
-      totalMakingCharge: this.totals.totalMakingCharge,
-      totalStoneCharge: this.totals.totalStoneCharge,
-      totalWastageCharge: this.totals.totalWastageCharge,
-      oldGoldCreditAmount: this.totals.oldGoldCreditAmount,
-      roundOffAmount: this.totals.roundOffAmount,
-      grandTotal: this.totals.grandTotal,
+      rateSnapshot: this.rateSnapshot(),
+      subTotalTaxable: this.totals().subTotalTaxable,
+      totalCgst: this.totals().totalCgst,
+      totalSgst: this.totals().totalSgst,
+      totalIgst: this.totals().totalIgst,
+      totalDiscount: this.totals().totalDiscount,
+      totalMakingCharge: this.totals().totalMakingCharge,
+      totalStoneCharge: this.totals().totalStoneCharge,
+      totalWastageCharge: this.totals().totalWastageCharge,
+      oldGoldCreditAmount: this.totals().oldGoldCreditAmount,
+      roundOffAmount: this.totals().roundOffAmount,
+      grandTotal: this.totals().grandTotal,
       remarks: null,
-      amountPaid: Number(this.amountPaid) || 0,
-      paymentMethod: this.paymentMethod,
-      paymentRefNumber: this.paymentRefNumber || null,
-      lineItems: this.totals.lines,
+      amountPaid: 0,
+      paymentMethod: 'cash',
+      paymentRefNumber: null,
+      lineItems: this.totals().lines,
       oldGoldReceipts: null,
     };
 
-    this.orderService.saveOrder(payload)
+    this.orderService
+      .saveOrder(payload)
       .then((response: any) => {
         this.loaderService.stop();
+        this.saving.set(false);
         const flat = Array.isArray(response) ? response.flat() : response;
-        const hasError = Array.isArray(flat) && flat.some((r: any) => r && typeof r === 'object' && r.message?.startsWith?.('Error:'));
+        const hasError =
+          Array.isArray(flat) && flat.some((r: any) => r && typeof r === 'object' && r.message?.startsWith?.('Error:'));
         if (!hasError) {
           this.cartService.emptyCart();
           Swal.fire({
             title: 'Invoice saved',
-            html: 'Redirecting to orders...',
-            timer: 2500,
+            html: 'Redirecting to Books…',
+            timer: 1800,
             timerProgressBar: true,
             didOpen: () => Swal.showLoading(),
           }).then((result) => {
             if (result.dismiss === Swal.DismissReason.timer) {
               this.loggerService.LogInfo('saveOrder() Request Completed.');
-              this.router.navigate(['../'], { relativeTo: this.route });
+              this.router.navigate(['/orders']);
             }
           });
         } else {
-          const errMsg = flat.find((r: any) => r?.message?.startsWith?.('Error:'))?.message ?? 'Failed to save order';
+          const errMsg = flat.find((r: any) => r?.message?.startsWith?.('Error:'))?.message ?? 'Failed to save invoice';
           this.loggerService.LogError(errMsg, 'saveOrder()');
           Swal.fire('Error', errMsg, 'error');
         }
       })
       .catch((error: any) => {
-        this.loggerService.LogError(error, 'saveOrder()');
+        this.saving.set(false);
         this.loaderService.stop();
-        Swal.fire('Error', error ?? 'Failed to save order', 'error');
+        this.loggerService.LogError(error, 'saveOrder()');
+        Swal.fire('Error', typeof error === 'string' ? error : 'Failed to save invoice', 'error');
       });
+  }
+
+  money(v: any): string {
+    const n = Number(v ?? 0);
+    return this.moneyFmt.format(Number.isFinite(n) ? n : 0);
+  }
+
+  amountInWords(): string {
+    return numberToIndianRupees(this.totals().grandTotal);
   }
 }

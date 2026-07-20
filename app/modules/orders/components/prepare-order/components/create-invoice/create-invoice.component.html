@@ -1,148 +1,102 @@
-<div class="container-fluid">
-  <div class="row mt-3 align-items-center">
-    <div class="col">
-      <p>Customer: <b>{{_selectedCustomersInfo?.firstName + ' ' + _selectedCustomersInfo?.lastName}}</b>
-        @if (_selectedCustomersInfo?.gstin) {
-          <small class="text-muted"> · GSTIN {{_selectedCustomersInfo.gstin}}</small>
+<div class="review">
+
+  <div class="review__customer">
+    <div class="review__customer-body">
+      <span class="review__label">Customer</span>
+      <span class="review__name">{{ customer()?.firstName }} {{ customer()?.lastName }}</span>
+      <span class="review__meta">
+        @if (customer()?.city) { <span>{{ customer()?.city }}</span><span class="dot">·</span> }
+        <span class="tabular-nums">{{ customer()?.phoneNumber }}</span>
+        @if (customer()?.gstin) {
+          <span class="dot">·</span>
+          <span class="tabular-nums">GSTIN {{ customer()?.gstin }}</span>
         }
-      </p>
+      </span>
     </div>
-    <div class="col text-end">
-      <p>Invoice Date: <b>{{currentDate | date}}</b></p>
+    <div class="review__customer-side">
+      <span class="review__label">Invoice date</span>
+      <span class="review__date tabular-nums">{{ today | date:'d MMM yyyy' }}</span>
     </div>
   </div>
 
-  @if (ratesLoaded) {
-    <div class="alert alert-secondary py-2 mb-3 tabular-nums">
-      <b>Rate lock:</b>
-      @for (r of metalRates; track r.purityCode) {
-        <span class="me-3">{{r.purityLabel ?? r.purityCode}} · &#8377;{{r.ratePerGram}}/g</span>
+  <div class="review__lines">
+    <div class="review__lines-title">Line items ({{ cartLines().length }})</div>
+    <table class="review-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Description</th>
+          <th class="right">Net wt</th>
+          <th class="right">Rate/g</th>
+          <th class="right">Making</th>
+          <th class="right">Discount</th>
+          <th class="right">Line total</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (line of cartLines(); track line.productGuid; let i = $index) {
+          <tr>
+            <td class="muted">{{ i + 1 }}</td>
+            <td>
+              <div class="review__row-top">
+                <span class="review__sku">{{ line.sku }}</span>
+                <span class="purity-chip">{{ line.purityLabel ?? line.purityCode }}</span>
+                @if (line.huid) { <span class="purity-chip">HUID {{ line.huid }}</span> }
+              </div>
+              <div class="review__row-sub">{{ line.productDescription || line.masterCategory }}</div>
+            </td>
+            <td class="right tabular-nums">{{ line.netWeight }}g</td>
+            <td class="right tabular-nums">&#8377;{{ money(line.ratePerGram) }}</td>
+            <td class="right tabular-nums">&#8377;{{ money(line.makingCharge) }}</td>
+            <td class="right tabular-nums">&#8377;{{ money(line.discountAmount) }}</td>
+            <td class="right tabular-nums col-total">&#8377;{{ money(line.lineTotal) }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <div class="review__grid">
+    <div class="review__totals">
+      <div class="review__totals-title">Totals</div>
+      <div class="review__totals-row"><span>Subtotal (taxable)</span><span class="tabular-nums">&#8377;{{ money(totals().subTotalTaxable) }}</span></div>
+      <div class="review__totals-row muted"><span>Making</span><span class="tabular-nums">&#8377;{{ money(totals().totalMakingCharge) }}</span></div>
+      <div class="review__totals-row muted"><span>Wastage</span><span class="tabular-nums">&#8377;{{ money(totals().totalWastageCharge) }}</span></div>
+      @if (totals().totalStoneCharge > 0) {
+        <div class="review__totals-row muted"><span>Stone</span><span class="tabular-nums">&#8377;{{ money(totals().totalStoneCharge) }}</span></div>
       }
-      @if (!metalRates.length) { <span class="text-danger">No metal rates on file — add today's rates in Settings.</span> }
-    </div>
-  }
-
-  <div class="row">
-    <div class="col">
-      <div class="table-responsive">
-        <table class="table table-striped table-bordered tabular-nums">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>SKU / HUID</th>
-              <th>Purity</th>
-              <th>Net Wt (g)</th>
-              <th>Rate &#8377;/g</th>
-              <th>Making Mode</th>
-              <th>Making Value</th>
-              <th>Wastage %</th>
-              <th>Stones &#8377;</th>
-              <th>Discount &#8377;</th>
-              <th>Metal &#8377;</th>
-              <th>Tax &#8377;</th>
-              <th>Line Total &#8377;</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (item of _selectedProductsData; track item.productGuid; let i = $index) {
-              <tr>
-                <th>{{i+1}}</th>
-                <td>
-                  <div><b>{{item.sku}}</b></div>
-                  <small class="text-muted">{{item.huid}}</small>
-                </td>
-                <td>{{item.purityCode}}</td>
-                <td>
-                  <input class="form-control form-control-sm" type="number" step="0.001"
-                         [value]="item.netWeight" (input)="onLineFieldChange(item, 'netWeight', $any($event.target).value)">
-                </td>
-                <td>
-                  <input class="form-control form-control-sm" type="number" step="0.01"
-                         [value]="item.ratePerGram" (input)="onLineFieldChange(item, 'ratePerGram', $any($event.target).value)">
-                </td>
-                <td>
-                  <select class="form-select form-select-sm"
-                          [value]="item.makingMode"
-                          (change)="onLineFieldChange(item, 'makingMode', $any($event.target).value)">
-                    <option value="flat">Flat</option>
-                    <option value="perGram">Per gram</option>
-                    <option value="percent">Percent</option>
-                  </select>
-                </td>
-                <td>
-                  <input class="form-control form-control-sm" type="number" step="0.01"
-                         [value]="item.makingValue" (input)="onLineFieldChange(item, 'makingValue', $any($event.target).value)">
-                </td>
-                <td>
-                  <input class="form-control form-control-sm" type="number" step="0.01"
-                         [value]="item.wastagePercent" (input)="onLineFieldChange(item, 'wastagePercent', $any($event.target).value)">
-                </td>
-                <td>
-                  <input class="form-control form-control-sm" type="number" step="0.01"
-                         [value]="item.stoneCharges" (input)="onLineFieldChange(item, 'stoneCharges', $any($event.target).value)">
-                </td>
-                <td>
-                  <input class="form-control form-control-sm" type="number" step="0.01"
-                         [value]="item.discountAmount" (input)="onLineFieldChange(item, 'discountAmount', $any($event.target).value)">
-                </td>
-                <td>&#8377;{{item.metalValue ?? 0}}</td>
-                <td>&#8377;{{(item.cgst ?? 0) + (item.sgst ?? 0) + (item.igst ?? 0)}}</td>
-                <td><b>&#8377;{{item.lineTotal ?? 0}}</b></td>
-              </tr>
-            }
-          </tbody>
-        </table>
+      @if (totals().totalDiscount > 0) {
+        <div class="review__totals-row muted"><span>Discount</span><span class="tabular-nums">− &#8377;{{ money(totals().totalDiscount) }}</span></div>
+      }
+      @if (isInterState()) {
+        <div class="review__totals-row"><span>IGST</span><span class="tabular-nums">&#8377;{{ money(totals().totalIgst) }}</span></div>
+      } @else {
+        <div class="review__totals-row"><span>CGST</span><span class="tabular-nums">&#8377;{{ money(totals().totalCgst) }}</span></div>
+        <div class="review__totals-row"><span>SGST</span><span class="tabular-nums">&#8377;{{ money(totals().totalSgst) }}</span></div>
+      }
+      @if (totals().roundOffAmount !== 0) {
+        <div class="review__totals-row muted"><span>Round-off</span><span class="tabular-nums">{{ totals().roundOffAmount > 0 ? '+' : '' }} &#8377;{{ money(totals().roundOffAmount) }}</span></div>
+      }
+      <hr class="review__totals-divider">
+      <div class="review__totals-grand">
+        <span>Grand total</span>
+        <span class="money-lg tabular-nums">&#8377;{{ money(totals().grandTotal) }}</span>
       </div>
+      <div class="review__totals-words"><em>{{ amountInWords() }}</em></div>
+    </div>
+
+    <div class="review__save">
+      <p class="review__save-note">
+        Once you save, the invoice number is assigned and stock is decremented. Old-gold and part-payment are not yet
+        wired — record payments from the invoice detail page after saving.
+      </p>
+      <button type="button" class="hlm-btn hlm-btn-primary review__save-btn"
+              [disabled]="!customer() || cartLines().length === 0 || totals().grandTotal <= 0 || saving()"
+              (click)="saveOrder()">
+        <ng-icon name="lucideSave" aria-hidden="true"></ng-icon>
+        {{ saving() ? 'Saving…' : 'Save invoice' }}
+      </button>
     </div>
   </div>
 
-  <hr>
-
-  <div class="info-div">
-    <div class="row">
-      <div class="col"><b>Sub Total (Taxable):</b> &#8377;{{totals.subTotalTaxable}}</div>
-      <div class="col"><b>Making:</b> &#8377;{{totals.totalMakingCharge}}</div>
-      <div class="col"><b>Wastage:</b> &#8377;{{totals.totalWastageCharge}}</div>
-      <div class="col"><b>Stones:</b> &#8377;{{totals.totalStoneCharge}}</div>
-      <div class="col"><b>Discount:</b> &#8377;{{totals.totalDiscount}}</div>
-    </div>
-    <div class="row my-2">
-      <div class="col"><b>CGST:</b> &#8377;{{totals.totalCgst}}</div>
-      <div class="col"><b>SGST:</b> &#8377;{{totals.totalSgst}}</div>
-      <div class="col"><b>IGST:</b> &#8377;{{totals.totalIgst}}</div>
-      <div class="col"><b>Round Off:</b> &#8377;{{totals.roundOffAmount}}</div>
-      <div class="col"><b>Grand Total:</b> &#8377;<span class="fs-5">{{totals.grandTotal}}</span></div>
-    </div>
-
-    <div class="row my-3 align-items-center">
-      <div class="col-3">
-        <label class="small">Payment Method</label>
-        <select class="form-select" [(ngModel)]="paymentMethod">
-          <option value="cash">Cash</option>
-          <option value="upi">UPI</option>
-          <option value="card">Card</option>
-          <option value="cheque">Cheque</option>
-          <option value="online">Online</option>
-        </select>
-      </div>
-      <div class="col-3">
-        <label class="small">Ref Number</label>
-        <input class="form-control" [(ngModel)]="paymentRefNumber" placeholder="UPI / cheque no">
-      </div>
-      <div class="col-3">
-        <label class="small">Amount Paid</label>
-        <input class="form-control" type="number" min="0"
-               [max]="totals.grandTotal || 99999999" [(ngModel)]="amountPaid">
-      </div>
-    </div>
-
-    <div class="row mt-2 text-center">
-      <div class="col">
-        <button class="btn btn-success" (click)="saveOrder()"
-                [disabled]="!_selectedProductsData.length || !_selectedCustomersInfo || totals.grandTotal <= 0">
-          <ng-icon name="lucideSave" aria-hidden="true"></ng-icon> Save Invoice
-        </button>
-      </div>
-    </div>
-  </div>
 </div>

@@ -1,39 +1,32 @@
 @if (cartItems().length > 0) {
-  @for (item of cartItems(); track item.productGuid ?? $index) {
-    <div class="row mb-4 border border-3 border-info p-3 rounded">
-      <div class="col-3 align-self-center">
-        <img [src]="item.image" class="border border-2 rounded" width="50" height="50">
-      </div>
-      <div class="col align-self-center">
-        <div class="row">
-          <h6>
-            {{item.sku}} @if (item.huid) { <small class="text-muted">· {{item.huid}}</small> }
-          </h6>
+  <ul class="cart-items">
+    @for (item of cartItems(); track item.productGuid ?? $index) {
+      <li class="cart-items__row">
+        <div class="cart-items__thumb">
+          @if (item.image) { <img [src]="item.image" alt=""> }
         </div>
-        <div class="row">
-          <div class="col">
-            <small class="text-muted">
-              {{item.subCategory}} · {{item.masterCategory}}
-            </small>
+        <div class="cart-items__body">
+          <div class="cart-items__top">
+            <span class="cart-items__sku">{{ item.sku }}</span>
+            @if (item.huid) { <span class="purity-chip">HUID {{ item.huid }}</span> }
           </div>
-          <div class="col">
-            <small class="text-muted tabular-nums">
-              Net: {{item.netWeight}}g · {{item.purityCode}}
-            </small>
+          <div class="cart-items__meta">
+            <span class="purity-chip">{{ item.purityCode }}</span>
+            <span class="cart-items__dot">·</span>
+            <span class="tabular-nums">Net {{ item.netWeight }}g</span>
           </div>
         </div>
-      </div>
-      <div class="col-2 align-self-center text-center">
-        <button class="btn btn-danger" (click)="removeItem(item)">
+        <button type="button" class="icon-btn icon-btn--danger" (click)="removeItem(item)"
+                [attr.aria-label]="'Remove ' + item.sku">
           <ng-icon name="lucideCircleMinus" aria-hidden="true"></ng-icon>
         </button>
-      </div>
-    </div>
-  }
+      </li>
+    }
+  </ul>
 } @else {
-  <div class="row my-5 text-center">
-    <div class="maxImage">
-      <img src="./assets/img/cart-empty.png" style="object-fit: contain">
-    </div>
+  <div class="cart-items__empty">
+    <img src="./assets/img/cart-empty.png" alt="" class="cart-items__empty-img">
+    <p class="cart-items__empty-title">Cart is empty</p>
+    <p class="cart-items__empty-sub">Head to Sell to build an invoice.</p>
   </div>
 }

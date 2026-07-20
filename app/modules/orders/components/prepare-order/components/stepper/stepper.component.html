@@ -1,90 +1,88 @@
-<nav class="wizard-stepper" aria-label="Prepare order steps">
-  <ol class="wizard-stepper__list">
-    @for (step of steps; track step.key; let i = $index) {
-      <li class="wizard-stepper__item"
-        [class.wizard-stepper__item--active]="i === activeStep"
-        [class.wizard-stepper__item--complete]="isCompleted(i)">
-        <button type="button"
-          class="wizard-stepper__pill"
-          (click)="goTo(i)"
-          [attr.aria-current]="i === activeStep ? 'step' : null">
-          <span class="wizard-stepper__number" aria-hidden="true">
-            @if (isCompleted(i)) {
-              <ng-icon name="lucideCheck"></ng-icon>
-            } @else {
-              {{ i + 1 }}
+<section class="sell-wizard">
+
+  <header class="sell-wizard__head">
+    <h1 class="sell-wizard__title">Sell</h1>
+    <nav class="sell-wizard__stepper" aria-label="Prepare invoice steps">
+      <ol class="sell-wizard__list">
+        @for (step of steps; track step.key; let i = $index) {
+          <li class="sell-wizard__item"
+              [class.is-active]="i === activeStep()"
+              [class.is-complete]="isCompleted(i)">
+            <button type="button"
+                    class="sell-wizard__pill"
+                    (click)="goTo(i)"
+                    [attr.aria-current]="i === activeStep() ? 'step' : null">
+              <span class="sell-wizard__number" aria-hidden="true">
+                @if (isCompleted(i)) {
+                  <ng-icon name="lucideCheck"></ng-icon>
+                } @else {
+                  {{ i + 1 }}
+                }
+              </span>
+              <span class="sell-wizard__label">{{ step.label }}</span>
+            </button>
+            @if (i < steps.length - 1) {
+              <span class="sell-wizard__sep" aria-hidden="true"></span>
             }
-          </span>
-          <span class="wizard-stepper__label">{{ step.label }}</span>
-        </button>
-      </li>
-    }
-  </ol>
-</nav>
-
-<section class="wizard-panel">
-  @switch (steps[activeStep].key) {
-
-    @case ('products') {
-      <div class="wizard-panel__toolbar">
-        @if (cartItems().length < 1) {
-          <span class="wizard-panel__hint">Please add some items to move to next step.</span>
+          </li>
         }
-        <div class="wizard-panel__spacer"></div>
-        <button type="button"
-          class="hlm-btn hlm-btn-primary"
-          [disabled]="cartItems().length < 1"
-          (click)="next()">
-          Next
-          <ng-icon name="lucideChevronRight" aria-hidden="true"></ng-icon>
-        </button>
-      </div>
-      <app-cart-items></app-cart-items>
-    }
+      </ol>
+    </nav>
+  </header>
 
-    @case ('customer') {
-      <div class="wizard-panel__toolbar">
-        @if (!selectedCustomerData || selectedCustomerData.id === null) {
-          <span class="wizard-panel__hint">Please select a customer to move to next step.</span>
-        }
-        <div class="wizard-panel__spacer"></div>
-        <button type="button" class="hlm-btn hlm-btn-ghost" (click)="prev()">
-          <ng-icon name="lucideChevronLeft" aria-hidden="true"></ng-icon>
-          Back
-        </button>
-        <button type="button"
-          class="hlm-btn hlm-btn-primary"
-          [disabled]="!selectedCustomerData || selectedCustomerData.id === null"
-          (click)="next()">
-          Next
-          <ng-icon name="lucideChevronRight" aria-hidden="true"></ng-icon>
-        </button>
-      </div>
-      <app-select-customer (emitSelectedCustomerData)="setCustomerData($event)"></app-select-customer>
-    }
+  <div class="sell-wizard__body">
+    @switch (steps[activeStep()].key) {
 
-    @case ('invoice') {
-      <div class="wizard-panel__toolbar">
-        <div class="wizard-panel__spacer"></div>
-        <button type="button" class="hlm-btn hlm-btn-ghost" (click)="prev()">
-          <ng-icon name="lucideChevronLeft" aria-hidden="true"></ng-icon>
-          Back
-        </button>
-      </div>
-      <app-create-invoice
-        [selectedCustomersInfo]="selectedCustomerData"
-        [selectedProductsData]="{ lengthOfData: cartItems().length, selectedProducts: cartItems() }">
-      </app-create-invoice>
-    }
+      @case ('customer') {
+        <app-select-customer
+          [selectedId]="selectedCustomer()?.id ?? null"
+          (emitSelectedCustomerData)="setCustomer($event)">
+        </app-select-customer>
+        <footer class="sell-wizard__foot">
+          @if (!canAdvanceFromCustomer()) {
+            <span class="sell-wizard__hint">Pick a customer to continue.</span>
+          }
+          <div class="sell-wizard__foot-spacer"></div>
+          <button type="button" class="hlm-btn hlm-btn-primary"
+                  [disabled]="!canAdvanceFromCustomer()" (click)="next()">
+            Continue
+            <ng-icon name="lucideChevronRight" aria-hidden="true"></ng-icon>
+          </button>
+        </footer>
+      }
 
-    @case ('done') {
-      <div class="wizard-panel__done">
-        <p>You are now done.</p>
-        <button type="button" class="hlm-btn hlm-btn-ghost" (click)="prev()">
-          <ng-icon name="lucideChevronLeft" aria-hidden="true"></ng-icon>
-          Back
-        </button>
-      </div>
+      @case ('items') {
+        <app-cart-builder [selectedCustomer]="selectedCustomer()"></app-cart-builder>
+        <footer class="sell-wizard__foot">
+          <button type="button" class="hlm-btn hlm-btn-ghost" (click)="prev()">
+            <ng-icon name="lucideChevronLeft" aria-hidden="true"></ng-icon>
+            Back
+          </button>
+          @if (!canAdvanceFromItems()) {
+            <span class="sell-wizard__hint">Add at least one item to continue.</span>
+          }
+          <div class="sell-wizard__foot-spacer"></div>
+          <button type="button" class="hlm-btn hlm-btn-primary"
+                  [disabled]="!canAdvanceFromItems()" (click)="next()">
+            Review invoice
+            <ng-icon name="lucideChevronRight" aria-hidden="true"></ng-icon>
+          </button>
+        </footer>
+      }
+
+      @case ('review') {
+        <app-create-invoice
+          [selectedCustomersInfo]="selectedCustomer()"
+          [selectedProductsData]="{ lengthOfData: cartItems().length, selectedProducts: cartItems() }">
+        </app-create-invoice>
+        <footer class="sell-wizard__foot">
+          <button type="button" class="hlm-btn hlm-btn-ghost" (click)="prev()">
+            <ng-icon name="lucideChevronLeft" aria-hidden="true"></ng-icon>
+            Back to items
+          </button>
+        </footer>
+      }
     }
-  }
+  </div>
+
 </section>

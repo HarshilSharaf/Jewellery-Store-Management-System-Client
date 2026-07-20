@@ -1,9 +1,16 @@
-import { DecimalPipe } from '@angular/common';
-import { Component, EventEmitter, OnInit, OnDestroy, Output } from '@angular/core';
-import { FormBuilder, FormControl, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { DomSanitizer } from '@angular/platform-browser';
+import { CommonModule } from '@angular/common';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, signal } from '@angular/core';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
-import { SimplePaginatorComponent, SimplePageEvent } from '../../../../../../shared/components/simple-paginator/simple-paginator.component';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideSearch, lucideUserPlus, lucideCheck } from '@ng-icons/lucide';
+import { Subscription } from 'rxjs';
+
+import {
+  SimplePaginatorComponent,
+  SimplePageEvent,
+} from '../../../../../../shared/components/simple-paginator/simple-paginator.component';
 import { CustomerDataService } from '../../../../../customers/services/customer-data.service';
 import { FileSystemService } from '../../../../../../../../Backend/Shared/file-system.service';
 import { UtilityService } from 'Backend/Shared/utitlity.service';
@@ -15,97 +22,105 @@ import { CustomerDetails } from '../../../../../customers/models/customerDetails
   templateUrl: './select-customer.component.html',
   styleUrls: ['./select-customer.component.scss'],
   standalone: true,
-  imports: [ReactiveFormsModule, FormsModule, SimplePaginatorComponent],
-  providers: [DecimalPipe]
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, SimplePaginatorComponent, NgIcon],
+  viewProviders: [provideIcons({ lucideSearch, lucideUserPlus, lucideCheck })],
 })
 export class SelectCustomerComponent implements OnInit, OnDestroy {
 
-  dataToBeShown: CustomerDetails[] = [];
-  customersData: CustomerDetails[] = [];
-  pageIndex = 0;
-  pageSize = 5;
-  filter = new FormControl('', { nonNullable: true });
+  @Input() set selectedId(value: number | null) {
+    this._selectedId.set(value);
+  }
   @Output() emitSelectedCustomerData = new EventEmitter<CustomerDetails>();
-  selectCustomer = this._formBuilder.group({
-    selectedCustomerId: [0, Validators.required],
-  });
-  private filterSubscription: any;
-  private selectCustomerSubscription: any;
+
+  readonly _selectedId = signal<number | null>(null);
+  readonly filter = new FormControl<string>('', { nonNullable: true });
+
+  private allCustomers: CustomerDetails[] = [];
+  readonly visibleCustomers = signal<CustomerDetails[]>([]);
+  readonly totalMatches = signal(0);
+  readonly loading = signal(false);
+
+  pageIndex = 0;
+  pageSize = 6;
+
+  private filterSub?: Subscription;
 
   constructor(
-    private _formBuilder: FormBuilder,
     private customerService: CustomerDataService,
     private fileSystemService: FileSystemService,
     private loaderService: NgxUiLoaderService,
-    private sanitizer: DomSanitizer,
     private loggerService: LoggerService,
-    private utilityService: UtilityService
-  ) {
-    this.filterSubscription = this.filter.valueChanges.subscribe((data) => {
-      this.dataToBeShown = this.search(data);
-    });
-  }
+    private utilityService: UtilityService,
+  ) {}
 
   ngOnInit(): void {
-    this.loggerService.LogInfo('getAllCustomers() Request Started From select-customer component.');
+    this.loading.set(true);
     this.loaderService.start();
-    this.customerService.getAllCustomers(true, 10, 1, '', true)
+    this.customerService
+      .getAllCustomers(true, 500, 1, '', true)
       .then((response: any) => {
-        for (const customer of response) {
+        const rows = (response ?? []) as CustomerDetails[];
+        for (const customer of rows) {
           if (customer.imagePath) {
-            customer.image = this.utilityService.getFilePath(this.fileSystemService.customerImagesDir + '\\' + customer.imagePath);
+            customer.image = this.utilityService.getFilePath(
+              this.fileSystemService.customerImagesDir + '\\' + customer.imagePath,
+            );
           } else {
             customer.image = 'assets/img/No-Image-Icon.png';
           }
         }
-
-        this.customersData = [...response];
-        this.changeCategoryDataToBeShown();
+        this.allCustomers = rows;
+        this.applyFilter('');
+        this.loading.set(false);
         this.loaderService.stop();
-        this.loggerService.LogInfo('getAllCustomers() Request Completed From select-customer component.');
       })
-      .catch((error: any) => {
-        this.loggerService.LogError(error, 'getAllCustomers() From select-customer component');
+      .catch((err) => {
+        this.loading.set(false);
         this.loaderService.stop();
+        this.loggerService.LogError(err, 'select-customer.getAllCustomers');
       });
 
-    this.selectCustomerSubscription = this.selectCustomer.valueChanges.subscribe((data: any) => {
-      const selectedCustomerData = this.customersData.find(customer => customer.id === data.selectedCustomerId);
-      this.emitSelectedCustomerData.emit(selectedCustomerData);
+    this.filterSub = this.filter.valueChanges.subscribe((value) => {
+      this.pageIndex = 0;
+      this.applyFilter(value ?? '');
     });
   }
 
   ngOnDestroy(): void {
-    this.filterSubscription?.unsubscribe();
-    this.selectCustomerSubscription?.unsubscribe();
-  }
-
-  search(text: string): CustomerDetails[] {
-    return this.customersData.filter((customer) => {
-      const term = text.toLowerCase();
-      return (
-        customer.firstName.toLowerCase().includes(term) ||
-        customer.lastName.toLowerCase().includes(term) ||
-        customer.city.toLowerCase().includes(term) ||
-        (customer.phoneNumber).toString().includes(term) ||
-        (customer.firstName.toLowerCase() + ' ' + customer.lastName.toLowerCase()).includes(term) ||
-        (customer.firstName.toLowerCase() + customer.lastName.toLowerCase()).includes(term)
-      );
-    });
+    this.filterSub?.unsubscribe();
   }
 
   onPageChange(event: SimplePageEvent): void {
     this.pageIndex = event.pageIndex;
     this.pageSize = event.pageSize;
-    this.changeCategoryDataToBeShown();
+    this.applyFilter(this.filter.value ?? '');
   }
 
-  changeCategoryDataToBeShown(): void {
-    this.dataToBeShown = this.customersData
-      .map((customer: any, i: number) => ({ id: i + 1, ...customer }))
-      .slice(
-        this.pageIndex * this.pageSize,
-        this.pageIndex * this.pageSize + this.pageSize,
-      );
+  private applyFilter(text: string): void {
+    const term = text.trim().toLowerCase();
+    const filtered = term
+      ? this.allCustomers.filter((c) => {
+          const first = (c.firstName ?? '').toLowerCase();
+          const last = (c.lastName ?? '').toLowerCase();
+          const city = (c.city ?? '').toLowerCase();
+          const phone = String(c.phoneNumber ?? '');
+          return (
+            first.includes(term) ||
+            last.includes(term) ||
+            city.includes(term) ||
+            phone.includes(term) ||
+            (`${first} ${last}`).includes(term)
+          );
+        })
+      : this.allCustomers;
+
+    this.totalMatches.set(filtered.length);
+    const start = this.pageIndex * this.pageSize;
+    this.visibleCustomers.set(filtered.slice(start, start + this.pageSize));
+  }
+
+  selectCustomer(customer: CustomerDetails): void {
+    this._selectedId.set(customer.id);
+    this.emitSelectedCustomerData.emit(customer);
   }
 }

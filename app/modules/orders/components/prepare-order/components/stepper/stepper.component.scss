@@ -1,108 +1,125 @@
-.wizard-stepper {
-  padding: 1rem 0.5rem;
+.sell-wizard {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 
-  &__list {
+  &__head {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    list-style: none;
-    margin: 0;
-    padding: 0;
+    justify-content: space-between;
+    gap: 20px;
     flex-wrap: wrap;
   }
 
-  &__item {
-    position: relative;
+  &__title {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: 2.25rem;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--color-fg);
+    margin: 0;
+  }
+
+  &__stepper {
+    display: block;
+  }
+
+  &__list {
     display: inline-flex;
     align-items: center;
+    gap: 4px;
+    list-style: none;
+    margin: 0;
+    padding: 4px;
+    background: var(--color-panel);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-full);
+  }
 
-    &:not(:last-child)::after {
-      content: '';
-      display: inline-block;
-      width: 40px;
-      height: 1px;
-      background: var(--color-border);
-      margin: 0 0.5rem;
-    }
-
-    &--complete .wizard-stepper__number {
-      background: var(--color-accent);
-      color: var(--color-accent-fg);
-      border-color: var(--color-accent);
-    }
-
-    &--active .wizard-stepper__pill {
-      background: var(--color-accent-subtle);
-      color: var(--color-accent-fg);
-    }
-
-    &--active .wizard-stepper__number {
-      border-color: var(--color-accent);
-      color: var(--color-accent-fg);
-    }
+  &__item {
+    display: inline-flex;
+    align-items: center;
   }
 
   &__pill {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.4rem 0.75rem;
-    border-radius: var(--radius-full);
-    border: 0;
+    gap: 8px;
+    padding: 6px 14px;
     background: transparent;
-    color: var(--color-fg-muted);
-    font-size: var(--fs-sm);
-    font-weight: var(--fw-medium);
+    border: 0;
+    border-radius: var(--radius-full);
     cursor: pointer;
+    color: var(--color-fg-muted);
+    font-size: 13px;
+    font-weight: 500;
     transition: background 0.15s ease, color 0.15s ease;
 
     &:hover {
-      background: var(--color-bg-subtle);
+      color: var(--color-fg);
     }
   }
 
   &__number {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
+    display: inline-grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
     border-radius: 50%;
-    border: 1px solid var(--color-border);
-    background: var(--color-panel);
-    font-size: var(--fs-xs);
-    font-weight: var(--fw-semibold);
+    background: var(--color-bg-subtle);
+    border: 1px solid var(--color-border-subtle);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--color-fg-muted);
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+
+    ng-icon { font-size: 12px; }
   }
 
-  &__label {
-    white-space: nowrap;
+  &__sep {
+    display: inline-block;
+    width: 24px;
+    height: 1px;
+    background: var(--color-border-subtle);
+    margin: 0 2px;
   }
-}
 
-.wizard-panel {
-  padding: 1rem 0.5rem 2rem;
+  &__item.is-active &__pill {
+    background: var(--color-accent-subtle);
+    color: var(--color-accent-fg);
+  }
 
-  &__toolbar {
+  &__item.is-active &__number {
+    background: var(--color-accent);
+    color: var(--color-accent-fg);
+    border-color: var(--color-accent);
+  }
+
+  &__item.is-complete &__number {
+    background: var(--color-success);
+    color: #fff;
+    border-color: var(--color-success);
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  &__foot {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    padding-bottom: 1rem;
-    flex-wrap: wrap;
+    gap: 12px;
+    padding: 16px 0;
+    border-top: 1px solid var(--color-border-subtle);
   }
 
-  &__spacer {
-    flex: 1 1 auto;
-  }
+  &__foot-spacer { flex: 1; }
 
   &__hint {
-    color: var(--color-danger-fg);
-    font-weight: var(--fw-semibold);
-    font-size: var(--fs-sm);
-  }
-
-  &__done {
-    padding: 2rem;
-    text-align: center;
     color: var(--color-fg-muted);
+    font-size: 13px;
   }
 }
