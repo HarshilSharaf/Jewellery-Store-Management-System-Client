@@ -1,32 +1,22 @@
-$primary: #7C8CF8;
-$primary-lighter: #EEF0FF;
-$text-primary: #2D3142;
-$text-secondary: #6B7194;
-$border-color: #E8EAF0;
-$bg-color: #F8F9FC;
-$danger: #E44D65;
-$danger-tint: rgba(228, 77, 101, 0.1);
-$success: #4CAF50;
-$success-tint: rgba(76, 175, 80, 0.1);
-$primary-tint: rgba(124, 140, 248, 0.1);
+// -------------------------------------------------------------------------
+// Hand-rolled data table (Workstream F). Replaces mat-table/mat-paginator/
+// mat-sort. Tokens from client/styles.scss; layout via native table.
+// -------------------------------------------------------------------------
 
-table {
-  width: 100%;
+:host {
+  display: block;
+  --data-table-row-height: 36px;
 }
 
-// -------------------------------------------------------------------------
-// Toolbar (filter + paginator) - clean flex layout, no more overlapping
-// grid columns from the old .row/.col markup.
-// -------------------------------------------------------------------------
 .data-table-toolbar {
   display: flex;
   align-items: center;
   gap: 1rem;
   padding: 0.75rem 1rem;
-  margin: 0 0.5rem;
-  background: #ffffff;
-  border: 1px solid $border-color;
-  border-radius: 12px;
+  margin: 0 0.5rem 1rem;
+  background: var(--color-panel);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
   flex-wrap: wrap;
 
   &__filter {
@@ -35,54 +25,217 @@ table {
     min-width: 200px;
   }
 
+  &__filter-icon {
+    position: absolute;
+    top: 50%;
+    left: 12px;
+    transform: translateY(-50%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-fg-subtle);
+    font-size: 16px;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  &__filter-input {
+    padding-left: 2.375rem;
+  }
+
   &__paginator {
     flex: 1 1 auto;
     min-width: 280px;
     display: flex;
     justify-content: flex-end;
     align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+}
 
-    ::ng-deep .mat-mdc-paginator {
-      background: transparent;
+.data-table-paginator {
+  &__page-size {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-fg-muted);
+    font-size: var(--fs-xs);
+  }
+
+  &__page-size-select {
+    width: auto;
+    padding: 0.35rem 1.75rem 0.35rem 0.6rem;
+    background-image: none;
+    font-size: var(--fs-sm);
+  }
+
+  &__range {
+    color: var(--color-fg-muted);
+    font-size: var(--fs-sm);
+  }
+
+  &__controls {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  &__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--color-border);
+    background: var(--color-panel);
+    color: var(--color-fg-muted);
+    border-radius: var(--radius-md);
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+
+    &:hover:not(:disabled) {
+      background: var(--color-bg-subtle);
+      color: var(--color-fg);
+      border-color: var(--color-border-strong);
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 3px var(--color-focus-ring);
     }
   }
 }
 
-.has-search .form-control {
-  padding-left: 2.375rem;
-  height: 40px;
+// -------------------------------------------------------------------------
+// Table
+// -------------------------------------------------------------------------
+.data-table-container {
+  padding: 0 0.5rem;
 }
 
-.has-search .form-control-feedback {
-  position: absolute;
-  top: 50%;
-  left: 12px;
-  transform: translateY(-50%);
-  z-index: 2;
-  display: block;
-  width: 1.1rem;
-  height: 1.1rem;
-  line-height: 1.1rem;
-  text-align: center;
-  pointer-events: none;
-  color: $text-secondary;
+.data-table-scroll {
+  position: relative;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  background: var(--color-panel);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
 }
 
-.has-search input {
-  border-color: $border-color;
-  border-radius: 10px;
-  border-width: 1.5px;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+.data-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: var(--fs-base);
+  color: var(--color-fg);
 
-  &:focus {
-    border-color: $primary;
-    box-shadow: 0 0 0 3px rgba($primary, 0.1);
+  &__header-cell {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-size: var(--fs-xs);
+    font-weight: var(--fw-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: var(--color-fg-muted);
+    background: var(--color-bg-subtle);
+    border-bottom: 1px solid var(--color-border);
+    white-space: nowrap;
+    user-select: none;
+
+    &--sortable {
+      cursor: pointer;
+
+      &:hover {
+        color: var(--color-fg);
+      }
+    }
+
+    &--actions {
+      text-align: center;
+    }
+  }
+
+  &__header-inner {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  &__sort-icon {
+    display: inline-flex;
+    font-size: 14px;
+    color: var(--color-fg-subtle);
+  }
+
+  &__row {
+    transition: background 0.15s ease;
+
+    &:nth-child(odd) {
+      background: color-mix(in oklab, var(--color-bg-subtle) 45%, transparent);
+    }
+
+    &:hover {
+      background: var(--color-panel-hover);
+      cursor: pointer;
+    }
+
+    &--cancelled .data-table__cell {
+      color: color-mix(in oklab, var(--color-danger) 60%, var(--color-fg));
+    }
+
+    &--skeleton:hover {
+      background: transparent;
+      cursor: default;
+    }
+  }
+
+  &__cell {
+    padding: 0.65rem 1rem;
+    min-height: var(--data-table-row-height);
+    border-bottom: 1px solid var(--color-border-subtle);
+    color: var(--color-fg);
+    text-align: left;
+    vertical-align: middle;
+    font-size: var(--fs-base);
+
+    &.actions {
+      text-align: center;
+    }
+
+    &.cancelledAt {
+      color: color-mix(in oklab, var(--color-danger) 70%, var(--color-fg));
+      font-weight: var(--fw-semibold);
+    }
+
+    &.totalAmountWithGst,
+    &.grandTotal {
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum" 1;
+
+      &::before {
+        content: '\20B9\00a0';
+      }
+    }
+  }
+
+  &__thumb {
+    max-width: 60px;
+    max-height: 60px;
+    border-radius: var(--radius-sm);
+    object-fit: cover;
   }
 }
 
 // -------------------------------------------------------------------------
-// Compact icon-only row action buttons. Previous version rendered as full
-// coloured blocks that dominated every row.
+// Row action buttons
 // -------------------------------------------------------------------------
 .row-actions {
   display: inline-flex;
@@ -98,39 +251,42 @@ table {
     height: 32px;
     padding: 0;
     background: transparent;
-    color: $text-secondary;
+    color: var(--color-fg-muted);
     border: 1px solid transparent;
-    border-radius: 8px;
-    font-size: var(--fs-sm);
+    border-radius: var(--radius-md);
+    font-size: 16px;
     cursor: pointer;
     transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 
     &:focus-visible {
       outline: none;
-      box-shadow: 0 0 0 3px rgba($primary, 0.25);
+      box-shadow: 0 0 0 3px var(--color-focus-ring);
     }
 
     &--view {
-      color: $primary;
+      color: var(--color-accent-fg);
+
       &:hover:not(.row-actions__btn--disabled) {
-        background: $primary-tint;
-        border-color: rgba($primary, 0.35);
+        background: var(--color-accent-subtle);
+        border-color: color-mix(in oklab, var(--color-accent) 35%, transparent);
       }
     }
 
     &--delete {
-      color: $danger;
+      color: var(--color-danger-fg);
+
       &:hover:not(.row-actions__btn--disabled) {
-        background: $danger-tint;
-        border-color: rgba($danger, 0.35);
+        background: var(--color-danger-subtle);
+        border-color: color-mix(in oklab, var(--color-danger) 35%, transparent);
       }
     }
 
     &--add {
-      color: $success;
+      color: var(--color-success-fg);
+
       &:hover:not(.row-actions__btn--disabled) {
-        background: $success-tint;
-        border-color: rgba($success, 0.35);
+        background: var(--color-success-subtle);
+        border-color: color-mix(in oklab, var(--color-success) 35%, transparent);
       }
     }
 
@@ -143,7 +299,30 @@ table {
 }
 
 // -------------------------------------------------------------------------
-// Empty state: replaces the stray No-Data-Found.jpg cartoon.
+// Status pills (payment, etc.)
+// -------------------------------------------------------------------------
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.6rem;
+  border-radius: var(--radius-full);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  text-transform: capitalize;
+
+  &--success {
+    background: var(--color-success-subtle);
+    color: var(--color-success-fg);
+  }
+
+  &--warning {
+    background: var(--color-warning-subtle);
+    color: var(--color-warning-fg);
+  }
+}
+
+// -------------------------------------------------------------------------
+// Empty state
 // -------------------------------------------------------------------------
 .empty-state {
   display: flex;
@@ -152,182 +331,65 @@ table {
   justify-content: center;
   padding: 2.5rem 1rem;
   width: 100%;
-  color: $text-secondary;
+  color: var(--color-fg-muted);
   text-align: center;
 
   &__icon {
     width: 48px;
     height: 48px;
     border-radius: 50%;
-    background: $primary-tint;
-    color: $primary;
+    background: var(--color-accent-subtle);
+    color: var(--color-accent-fg);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: var(--fs-lg);
+    font-size: 22px;
     margin-bottom: 0.75rem;
   }
 
   &__title {
     font-size: var(--fs-md);
     font-weight: var(--fw-semibold);
-    color: $text-primary;
+    color: var(--color-fg);
     margin-bottom: 0.25rem;
   }
 
   &__hint {
     font-size: var(--fs-sm);
-    color: $text-secondary;
+    color: var(--color-fg-muted);
   }
-}
-
-.dataTable {
-  mat-table {
-    border-radius: 12px;
-    overflow-x: auto;
-  }
-
-  mat-header-cell {
-    color: $text-secondary;
-    font-weight: var(--fw-semibold);
-    font-size: var(--fs-xs);
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-    flex-direction: column;
-    justify-content: center;
-  }
-
-  ::ng-deep .mat-sort-header-arrow {
-    color: $primary;
-  }
-
-  mat-row:nth-child(odd) {
-    background: $bg-color;
-  }
-
-  mat-row {
-    padding-top: 10px;
-    padding-bottom: 10px;
-    transition: background 0.15s ease;
-
-    &:hover {
-      cursor: pointer;
-      background: $primary-lighter;
-    }
-  }
-
-  // Let the table shrink to fit small viewports; use a horizontal scroll
-  // container in the template if the intrinsic column widths overflow.
-  mat-row,
-  mat-header-row {
-    min-width: 0;
-  }
-
-  mat-cell {
-    color: $text-primary;
-    text-align: center;
-    justify-content: center;
-    text-overflow: ellipsis;
-    font-size: var(--fs-base);
-  }
-
-  .totalAmountWithGst::before {
-    content: '\20B9\00a0';
-  }
-}
-
-.loadingTable {
-  mat-header-cell {
-    color: $text-secondary;
-    font-weight: var(--fw-semibold);
-    font-size: var(--fs-xs);
-    flex-direction: column;
-    justify-content: center;
-  }
-
-  mat-cell {
-    text-align: center;
-    justify-content: center;
-  }
-}
-
-.hideMatTable {
-  display: none;
-}
-
-// The mat-footer-cell holding the empty-state needs to span the whole row.
-mat-footer-row {
-  min-height: 200px;
-
-  mat-footer-cell {
-    flex: 1 1 100%;
-    justify-content: center;
-    padding: 0;
-    border: none;
-  }
-}
-
-.dataTableContainer {
-  padding-left: 0.2rem !important;
-  padding-right: 0.2rem !important;
-}
-
-// On narrow viewports, allow the table to scroll horizontally instead
-// of forcing the whole layout to blow out with a fixed 800px min-width.
-.table-scroll-wrapper {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
 }
 
 .loader-container {
+  position: absolute;
+  inset: 0;
   display: flex;
-  justify-content: center;
   align-items: center;
-  background: white;
-  border-radius: 0 0 12px 12px;
-}
+  justify-content: center;
+  background: color-mix(in oklab, var(--color-panel) 60%, transparent);
+  border-radius: var(--radius-lg);
 
-.mat-table-header-row-if-loader {
-  border-radius: 12px 12px 0 0;
-}
-
-.cancelledAt {
-  color: #F88C9C;
-  font-weight: 600;
-}
-
-@media only screen and (max-width: 321px) {
-  ::ng-deep .mat-paginator {
-    .mat-paginator-container {
-      justify-content: center;
-      margin-top: 5px;
-      flex-wrap: wrap;
-    }
-
-    .mat-paginator-range-label {
-      font-size: var(--fs-xs);
-    }
-
-    .mat-paginator-page-size {
-      order: 1;
-    }
+  &__spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid var(--color-border);
+    border-top-color: var(--color-accent);
+    border-radius: 50%;
+    animation: data-table-spin 0.8s linear infinite;
   }
 }
 
-@media only screen and (min-width: 321px) and (max-width: 768px) {
-  ::ng-deep .mat-paginator {
-    .mat-paginator-container {
-      justify-content: center;
-      margin-top: 5px;
-      flex-wrap: wrap;
-    }
+@keyframes data-table-spin {
+  to { transform: rotate(360deg); }
+}
 
-    .mat-paginator-range-label {
-      font-size: var(--fs-xs);
-    }
-
-    .mat-paginator-page-size {
-      order: 1;
-    }
+// Touch/dense density adjustment - controlled by CSS variable so consumers
+// can bump if needed.
+@media (pointer: coarse) {
+  :host {
+    --data-table-row-height: 44px;
+  }
+  .data-table__cell {
+    padding: 0.85rem 1rem;
   }
 }
