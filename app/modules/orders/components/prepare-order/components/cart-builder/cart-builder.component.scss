@@ -9,6 +9,12 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
+  // On ultra-wide displays the 4fr totals column balloons past useful width.
+  // Cap it at a fixed 400px and let the line-items column absorb the extra.
+  @media (min-width: 1800px) {
+    grid-template-columns: minmax(0, 1fr) 400px;
+  }
+
   &__left {
     display: flex;
     flex-direction: column;

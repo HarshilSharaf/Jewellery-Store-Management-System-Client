@@ -643,6 +643,13 @@ html[data-theme="dark"] .btn.btn-outline-lightning {
       grid-template-columns: minmax(0, 1fr);
     }
   }
+  // Ultra-wide: pin the side rail so main content absorbs the extra width
+  // rather than the side KPIs ballooning.
+  @media (min-width: 1800px) {
+    .detail-shell {
+      grid-template-columns: minmax(0, 1fr) 380px;
+    }
+  }
 
   .detail-side {
     display: flex;

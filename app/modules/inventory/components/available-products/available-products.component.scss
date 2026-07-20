@@ -7,6 +7,12 @@
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 16px;
   margin-bottom: 20px;
+
+  // Ultra-wide: cap each tile so they don't sprawl into billboards.
+  @media (min-width: 1600px) {
+    grid-template-columns: repeat(auto-fit, minmax(260px, 340px));
+    justify-content: start;
+  }
 }
 
 .stock-tile {
@@ -162,6 +168,14 @@ html[data-theme="dark"] .stock-tile__icon {
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 16px;
   padding-bottom: 16px;
+
+  // Tighter minimum on wider screens so we pack more product cards per row.
+  @media (min-width: 1400px) {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+  @media (min-width: 1800px) {
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  }
 }
 
 .product-card {

@@ -24,3 +24,10 @@
     grid-column: span 4;
   }
 }
+
+// Ultra-wide: 4 tiles per row so they don't stretch to canvas widths.
+@media (min-width: 1600px) {
+  .reports-grid > .report-tile {
+    grid-column: span 3;
+  }
+}

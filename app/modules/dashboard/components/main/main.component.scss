@@ -56,6 +56,17 @@
   .dash__head { flex-direction: column; align-items: start; gap: 4px; }
 }
 
+// Ultra-wide: chart card grows more, rate card and KPI tiles hold at
+// sensible widths so nothing looks like a lonely billboard.
+@media (min-width: 1800px) {
+  .dash__row--primary > .card--revenue { grid-column: span 9; }
+  .dash__row--primary > .card--rate    { grid-column: span 3; }
+}
+@media (min-width: 2400px) {
+  .dash__row--primary > .card--revenue { grid-column: span 10; }
+  .dash__row--primary > .card--rate    { grid-column: span 2; }
+}
+
 // ---------------- Card chrome ----------------
 .card {
   background: var(--color-panel);

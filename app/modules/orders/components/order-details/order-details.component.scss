@@ -1,6 +1,6 @@
 .order-shell {
   display: block;
-  max-width: 1400px;
+  width: 100%;
 
   &__layout {
     display: grid;
@@ -9,6 +9,12 @@
 
     @media (max-width: 1100px) {
       grid-template-columns: minmax(0, 1fr);
+    }
+
+    // Right rail (totals + side actions) doesn't need to keep growing on 4K.
+    // Cap its fraction on ultra-wide screens; main column takes the extra.
+    @media (min-width: 1800px) {
+      grid-template-columns: minmax(0, 1fr) 420px;
     }
   }
 
