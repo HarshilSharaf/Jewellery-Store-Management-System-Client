@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import Swal from 'sweetalert2';
+import { AppToastService } from '../../../../shared/services/AppToast/app-toast.service';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideArrowLeft,
@@ -75,6 +75,7 @@ export class CreateTicketPageComponent implements OnInit {
   private readonly storeService = inject(StoreService);
   private readonly loggerService = inject(LoggerService);
   private readonly fileSystemService = inject(FileSystemService);
+  private readonly toast = inject(AppToastService);
 
   constructor() {
     const todayIso = new Date().toISOString().slice(0, 10);
@@ -230,13 +231,13 @@ export class CreateTicketPageComponent implements OnInit {
         }
       }
 
-      Swal.fire({ icon: 'success', title: 'Ticket created', text: created.ticketNumber, timer: 1400, showConfirmButton: false });
+      this.toast.success(created.ticketNumber, 'Ticket created', { timer: 1400 });
       this.router.navigate(['../', created.ticketGuid], { relativeTo: this.route });
     } catch (error) {
       this.loggerService.LogError(error, 'CreateTicket.save');
       const msg = (error as any)?.message ?? String(error);
       this.errorMessage.set(msg);
-      Swal.fire('Error', msg, 'error');
+      this.toast.error(msg, 'Error');
     } finally {
       this.saving.set(false);
     }

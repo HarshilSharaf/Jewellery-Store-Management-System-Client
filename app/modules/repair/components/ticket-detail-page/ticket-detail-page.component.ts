@@ -3,7 +3,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import Swal from 'sweetalert2';
+import { AppDialogService } from '../../../../shared/services/AppDialog/app-dialog.service';
+import { AppToastService } from '../../../../shared/services/AppToast/app-toast.service';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideArrowLeft,
@@ -107,6 +108,8 @@ export class TicketDetailPageComponent implements OnInit {
   private readonly storeService = inject(StoreService);
   private readonly fileSystemService = inject(FileSystemService);
   private readonly utilityService = inject(UtilityService);
+  private readonly dialog = inject(AppDialogService);
+  private readonly toast = inject(AppToastService);
 
   ngOnInit(): void {
     this.storeService.get('authData').then((auth: any) => {
@@ -311,11 +314,11 @@ export class TicketDetailPageComponent implements OnInit {
       }
 
       this.statusPanelOpen.set(false);
-      Swal.fire({ icon: 'success', title: `Status updated → ${this.statusLabel(next)}`, timer: 1000, showConfirmButton: false });
+      this.toast.success(`Status updated → ${this.statusLabel(next)}`, undefined, { timer: 1000 });
       this.loadTicket();
     } catch (error) {
       this.loggerService.LogError(error, 'TicketDetail.submitAdvance');
-      Swal.fire('Error', (error as any)?.message ?? String(error), 'error');
+      this.toast.error((error as any)?.message ?? String(error), 'Error');
     } finally {
       this.saving.set(false);
     }
@@ -324,14 +327,12 @@ export class TicketDetailPageComponent implements OnInit {
   async decline(): Promise<void> {
     this.closeMenu();
     const t = this.ticket(); if (!t) return;
-    const c = await Swal.fire({
-      title: `Decline ${t.ticketNumber}?`,
-      text: 'Marks the ticket declined. This can be a good record of items customers changed their mind on.',
-      icon: 'warning', showCancelButton: true,
-      confirmButtonText: 'Yes, decline',
-      confirmButtonColor: '#ce2c31',
-    });
-    if (!c.isConfirmed) return;
+    const confirmed = await this.dialog.danger(
+      `Decline ${t.ticketNumber}?`,
+      'Marks the ticket declined. This can be a good record of items customers changed their mind on.',
+      { confirmButtonText: 'Yes, decline' }
+    );
+    if (!confirmed) return;
     try {
       const auth: any = await this.storeService.get('authData');
       await this.service.updateStatus({
@@ -339,11 +340,11 @@ export class TicketDetailPageComponent implements OnInit {
         newStatus: 'declined',
         actorUserId: auth?.uid ?? null,
       });
-      Swal.fire({ icon: 'success', title: 'Declined', timer: 900, showConfirmButton: false });
+      this.toast.success('Declined', undefined, { timer: 900 });
       this.loadTicket();
     } catch (error) {
       this.loggerService.LogError(error, 'TicketDetail.decline');
-      Swal.fire('Error', (error as any)?.message ?? String(error), 'error');
+      this.toast.error((error as any)?.message ?? String(error), 'Error');
     }
   }
 
@@ -359,32 +360,31 @@ export class TicketDetailPageComponent implements OnInit {
         actorUserId: auth?.uid ?? null,
       });
       this.karigarPanelOpen.set(false);
-      Swal.fire({ icon: 'success', title: 'Karigar linked', timer: 900, showConfirmButton: false });
+      this.toast.success('Karigar linked', undefined, { timer: 900 });
       this.loadTicket();
     } catch (error) {
       this.loggerService.LogError(error, 'TicketDetail.submitKarigarLink');
-      Swal.fire('Error', (error as any)?.message ?? String(error), 'error');
+      this.toast.error((error as any)?.message ?? String(error), 'Error');
     }
   }
 
   async deleteTicket(): Promise<void> {
     this.closeMenu();
     const t = this.ticket(); if (!t) return;
-    const c = await Swal.fire({
-      title: `Delete ${t.ticketNumber}?`,
-      text: 'Soft-delete: the ticket disappears from lists but remains in the auditlog.',
-      icon: 'warning', showCancelButton: true, confirmButtonText: 'Yes, delete',
-      confirmButtonColor: '#ce2c31',
-    });
-    if (!c.isConfirmed) return;
+    const confirmed = await this.dialog.danger(
+      `Delete ${t.ticketNumber}?`,
+      'Soft-delete: the ticket disappears from lists but remains in the auditlog.',
+      { confirmButtonText: 'Yes, delete' }
+    );
+    if (!confirmed) return;
     try {
       const auth: any = await this.storeService.get('authData');
       await this.service.delete(t.ticketGuid, auth?.uid ?? null);
-      Swal.fire({ icon: 'success', title: 'Deleted', timer: 900, showConfirmButton: false });
+      this.toast.success('Deleted', undefined, { timer: 900 });
       this.router.navigate(['/repair']);
     } catch (error) {
       this.loggerService.LogError(error, 'TicketDetail.deleteTicket');
-      Swal.fire('Error', (error as any)?.message ?? String(error), 'error');
+      this.toast.error((error as any)?.message ?? String(error), 'Error');
     }
   }
 
@@ -397,7 +397,7 @@ export class TicketDetailPageComponent implements OnInit {
     const t = this.ticket(); if (!t) return;
     if (!this.whatsappForm.valid) { this.whatsappForm.markAllAsTouched(); return; }
     if (!this.whatsappConfigured()) {
-      Swal.fire({ icon: 'info', title: 'Not configured', text: 'Set up WhatsApp in Settings → WhatsApp.' });
+      this.dialog.fire({ icon: 'info', title: 'Not configured', text: 'Set up WhatsApp in Settings → WhatsApp.' });
       return;
     }
     try {
@@ -417,21 +417,21 @@ export class TicketDetailPageComponent implements OnInit {
         sentByUserId: auth?.uid ?? null,
       });
       if (res.ok) {
-        Swal.fire({ icon: 'success', title: 'Queued to WhatsApp', timer: 1200, showConfirmButton: false });
+        this.toast.success('Queued to WhatsApp', undefined, { timer: 1200 });
         this.whatsappDialogOpen.set(false);
       } else if (res.error === 'not_configured') {
-        Swal.fire({ icon: 'info', title: 'Not configured', text: 'Set up WhatsApp in Settings → WhatsApp.' });
+        this.dialog.fire({ icon: 'info', title: 'Not configured', text: 'Set up WhatsApp in Settings → WhatsApp.' });
       } else {
-        Swal.fire('Send failed', res.error ?? 'Unknown', 'error');
+        this.toast.error(res.error ?? 'Unknown', 'Send failed');
       }
     } catch (error) {
       this.loggerService.LogError(error, 'TicketDetail.submitWhatsapp');
-      Swal.fire('Error', (error as any)?.message ?? String(error), 'error');
+      this.toast.error((error as any)?.message ?? String(error), 'Error');
     }
   }
 
   printStub(): void {
-    Swal.fire({ icon: 'info', title: 'Print receipt', text: 'Ticket receipt printing lands in a follow-up.', timer: 1400, showConfirmButton: false });
+    this.toast.info('Ticket receipt printing lands in a follow-up.', 'Print receipt', { timer: 1400 });
   }
 
   money(v: any): string {
