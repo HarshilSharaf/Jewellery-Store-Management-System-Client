@@ -7,6 +7,7 @@ import {
   OnInit,
   Output,
   ViewChild,
+  inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
@@ -21,6 +22,7 @@ import { PuritiesService } from '../../../../../../shared/services/Purities/puri
 import { Purity } from '../../../../../../interfaces/Shared/purity';
 import { MetalRatesService } from '../../../../../../shared/services/MetalRates/metal-rates.service';
 import { StoreService } from '../../../../../../../../Backend/Shared/store.service';
+import { PermissionsService } from '../../../../../../shared/services/Auth/permissions.service';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideX,
@@ -52,6 +54,7 @@ export class AddProductFormComponent implements OnInit, OnDestroy {
 
   purities: Purity[] = [];
   isAdmin = false;
+  readonly permissions = inject(PermissionsService);
 
   protected computedPreview: {
     metal: number;
@@ -109,6 +112,7 @@ export class AddProductFormComponent implements OnInit, OnDestroy {
     } catch {
       this.isAdmin = false;
     }
+    this.permissions.getUserPermissions();
   }
 
   @HostListener('document:keydown.escape')

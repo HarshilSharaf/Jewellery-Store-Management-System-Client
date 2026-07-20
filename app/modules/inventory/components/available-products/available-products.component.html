@@ -149,7 +149,7 @@
             <span class="product-card__price-value tabular-nums">{{ formatINR(product.tagPrice) }}</span>
             <span class="product-card__weight tabular-nums">{{ formatWeight(product.netWeight) }} net</span>
           </div>
-          @if (isAdmin && product.costPrice !== undefined && product.costPrice !== null) {
+          @if (permissions.costsVisible() && product.costPrice !== undefined && product.costPrice !== null) {
             <p class="product-card__cost tabular-nums">Cost {{ formatINR(product.costPrice) }}</p>
           }
         </div>
@@ -161,13 +161,15 @@
                   aria-label="View details">
             <ng-icon name="lucideExternalLink" size="15" aria-hidden="true"></ng-icon>
           </button>
-          <button type="button"
-                  class="icon-btn icon-btn--danger"
-                  (click)="openDeletePopUpForItem($event, product)"
-                  title="Delete product"
-                  aria-label="Delete product">
-            <ng-icon name="lucideTrash2" size="15" aria-hidden="true"></ng-icon>
-          </button>
+          @if (permissions.canDeleteProduct()) {
+            <button type="button"
+                    class="icon-btn icon-btn--danger"
+                    (click)="openDeletePopUpForItem($event, product)"
+                    title="Delete product"
+                    aria-label="Delete product">
+              <ng-icon name="lucideTrash2" size="15" aria-hidden="true"></ng-icon>
+            </button>
+          }
         </div>
       </article>
     }
@@ -226,7 +228,7 @@
         <span class="col-weight tabular-nums">{{ formatWeight(product.netWeight) }}</span>
         <span class="col-price">
           <span class="col-price__value tabular-nums">{{ formatINR(product.tagPrice) }}</span>
-          @if (isAdmin && product.costPrice !== undefined && product.costPrice !== null) {
+          @if (permissions.costsVisible() && product.costPrice !== undefined && product.costPrice !== null) {
             <span class="col-price__cost tabular-nums">Cost {{ formatINR(product.costPrice) }}</span>
           }
         </span>
@@ -238,13 +240,15 @@
                   aria-label="View details">
             <ng-icon name="lucideExternalLink" size="15" aria-hidden="true"></ng-icon>
           </button>
-          <button type="button"
-                  class="icon-btn icon-btn--danger"
-                  (click)="openDeletePopUpForItem($event, product)"
-                  title="Delete product"
-                  aria-label="Delete product">
-            <ng-icon name="lucideTrash2" size="15" aria-hidden="true"></ng-icon>
-          </button>
+          @if (permissions.canDeleteProduct()) {
+            <button type="button"
+                    class="icon-btn icon-btn--danger"
+                    (click)="openDeletePopUpForItem($event, product)"
+                    title="Delete product"
+                    aria-label="Delete product">
+              <ng-icon name="lucideTrash2" size="15" aria-hidden="true"></ng-icon>
+            </button>
+          }
         </div>
       </div>
     }

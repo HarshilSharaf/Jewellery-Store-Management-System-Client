@@ -1,8 +1,9 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { Auth } from 'Backend/Auth/auth';
 import { StoreService } from '../../../../../Backend/Shared/store.service';
 import { LoggerService } from '../../../../../Backend/Shared/logger.service';
+import { PermissionsService } from './permissions.service';
 
 /**
  * AuthService no longer imports `bcryptjs` directly. Under Electron's
@@ -20,6 +21,7 @@ export class AuthService {
   public isLoggedIn = signal<boolean>(false);
 
   private electronAPI: any = (window as any).electronAPI;
+  private readonly permissionsService = inject(PermissionsService);
 
   constructor(
     private router: Router,
@@ -49,6 +51,7 @@ export class AuthService {
           };
           await this.storeService.set('authData', authData);
           this.isLoggedIn.set(true);
+          this.permissionsService.invalidate();
 
           resolve({
             status: 200,
@@ -97,6 +100,7 @@ export class AuthService {
     try {
       await this.storeService.delete('authData');
       this.isLoggedIn.set(false);
+      this.permissionsService.invalidate();
       this.loggerService.LogInfo('logout() Request Completed.');
       this.router.navigate(['login']);
     } catch (error) {

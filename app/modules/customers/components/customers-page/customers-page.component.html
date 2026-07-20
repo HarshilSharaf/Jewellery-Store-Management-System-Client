@@ -88,13 +88,15 @@
                 aria-label="View details">
           <ng-icon name="lucideExternalLink" size="15" aria-hidden="true"></ng-icon>
         </button>
-        <button type="button"
-                class="icon-btn icon-btn--danger"
-                (click)="openDeletePopUpForItem($event, customer)"
-                title="Delete customer"
-                aria-label="Delete customer">
-          <ng-icon name="lucideTrash2" size="15" aria-hidden="true"></ng-icon>
-        </button>
+        @if (permissions.canDeleteCustomer()) {
+          <button type="button"
+                  class="icon-btn icon-btn--danger"
+                  (click)="openDeletePopUpForItem($event, customer)"
+                  title="Delete customer"
+                  aria-label="Delete customer">
+            <ng-icon name="lucideTrash2" size="15" aria-hidden="true"></ng-icon>
+          </button>
+        }
       </div>
     </div>
   }

@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { NgxUiLoaderService } from 'ngx-ui-loader';
@@ -22,6 +22,7 @@ import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
 import Swal from 'sweetalert2';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AddCustomerFormComponent } from '../add-customer-form/add-customer-form.component';
+import { PermissionsService } from '../../../../shared/services/Auth/permissions.service';
 import {
   SimplePaginatorComponent,
   SimplePageEvent,
@@ -59,6 +60,7 @@ export class CustomersPageComponent implements OnInit, OnDestroy {
   protected isLoading = false;
 
   protected showAddCustomerForm = false;
+  readonly permissions = inject(PermissionsService);
 
   private debounceTimer: any;
 
@@ -72,6 +74,7 @@ export class CustomersPageComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.permissions.getUserPermissions();
     this.getAllCustomersData();
   }
 

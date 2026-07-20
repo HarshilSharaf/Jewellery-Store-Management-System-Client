@@ -34,6 +34,7 @@ import { InvoiceProductDataModel } from '../../models/invoice-product-data-model
 import { OrderProductsDetailsComponent } from '../order-products-details/order-products-details.component';
 import { OrderPaymentsComponent } from '../order-payments/order-payments.component';
 import { ShopSettingsService } from '../../../../shared/services/ShopSettings/shop-settings.service';
+import { PermissionsService } from '../../../../shared/services/Auth/permissions.service';
 import { numberToIndianRupees } from '../../../../shared/utils/amount-in-words';
 
 @Component({
@@ -83,6 +84,7 @@ export class OrderDetailsComponent implements OnInit {
   readonly isInterState = signal(false);
 
   paymentsPanelOpen = false;
+  readonly permissions = inject(PermissionsService);
 
   private readonly moneyFmt = new Intl.NumberFormat('en-IN', {
     minimumFractionDigits: 2,
@@ -103,6 +105,7 @@ export class OrderDetailsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.permissions.getUserPermissions();
     this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       this.orderGuid = params['orderGuid'];
       this.getOrderDetails();

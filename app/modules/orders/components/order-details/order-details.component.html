@@ -28,7 +28,7 @@
               <ng-icon name="lucideIndianRupee" aria-hidden="true"></ng-icon>
             </button>
           }
-          @if (paymentStatus() !== 'cancelled') {
+          @if (paymentStatus() !== 'cancelled' && permissions.canCancelInvoice()) {
             <button type="button" class="icon-btn icon-btn--danger" (click)="cancelInvoice()"
                     title="Cancel invoice" aria-label="Cancel invoice">
               <ng-icon name="lucideBan" aria-hidden="true"></ng-icon>
@@ -202,7 +202,7 @@
             <ng-icon name="lucideCopy" aria-hidden="true"></ng-icon>
             <span>Duplicate</span>
           </button>
-          @if (paymentStatus() !== 'cancelled') {
+          @if (paymentStatus() !== 'cancelled' && permissions.canCancelInvoice()) {
             <button type="button" class="side-action side-action--danger" (click)="cancelInvoice()">
               <ng-icon name="lucideBan" aria-hidden="true"></ng-icon>
               <span>Cancel invoice</span>

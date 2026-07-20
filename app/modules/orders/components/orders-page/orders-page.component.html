@@ -125,11 +125,13 @@
                           title="Print invoice" aria-label="Print invoice">
                     <ng-icon name="lucidePrinter" aria-hidden="true"></ng-icon>
                   </button>
-                  <button type="button" class="icon-btn icon-btn--danger" (click)="cancelOrder($event, row)"
-                          [disabled]="!!row.cancelledAt"
-                          title="Cancel invoice" aria-label="Cancel invoice">
-                    <ng-icon name="lucideTrash2" aria-hidden="true"></ng-icon>
-                  </button>
+                  @if (permissions.canCancelInvoice()) {
+                    <button type="button" class="icon-btn icon-btn--danger" (click)="cancelOrder($event, row)"
+                            [disabled]="!!row.cancelledAt"
+                            title="Cancel invoice" aria-label="Cancel invoice">
+                      <ng-icon name="lucideTrash2" aria-hidden="true"></ng-icon>
+                    </button>
+                  }
                 </div>
               </td>
             </tr>

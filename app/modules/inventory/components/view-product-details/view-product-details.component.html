@@ -22,9 +22,11 @@
       <button type="button" class="icon-btn" (click)="toggleEditMode()" title="{{ editMode ? 'Cancel edit' : 'Edit product' }}" aria-label="Edit">
         <ng-icon [name]="editMode ? 'lucideX' : 'lucidePencil'" size="16" aria-hidden="true"></ng-icon>
       </button>
-      <button type="button" class="icon-btn icon-btn--danger" (click)="deleteProduct()" title="Delete product" aria-label="Delete">
-        <ng-icon name="lucideTrash2" size="16" aria-hidden="true"></ng-icon>
-      </button>
+      @if (permissions.canDeleteProduct()) {
+        <button type="button" class="icon-btn icon-btn--danger" (click)="deleteProduct()" title="Delete product" aria-label="Delete">
+          <ng-icon name="lucideTrash2" size="16" aria-hidden="true"></ng-icon>
+        </button>
+      }
     </div>
   </header>
 
@@ -118,7 +120,7 @@
         <section class="detail-section">
           <p class="detail-section__title">Pricing</p>
           <div class="detail-grid">
-            @if (isAdmin) {
+            @if (permissions.costsVisible()) {
               <div>
                 <span class="detail-field__label">Cost price</span>
                 <span class="detail-field__value tabular-nums">{{ formatINR(productDetails.costPrice) }}</span>

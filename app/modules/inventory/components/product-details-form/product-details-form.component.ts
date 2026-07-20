@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
@@ -10,6 +10,7 @@ import { PuritiesService } from '../../../../shared/services/Purities/purities.s
 import { Purity } from '../../../../interfaces/Shared/purity';
 import { MetalRatesService } from '../../../../shared/services/MetalRates/metal-rates.service';
 import { StoreService } from '../../../../../../Backend/Shared/store.service';
+import { PermissionsService } from '../../../../shared/services/Auth/permissions.service';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideLoader, lucideSave, lucideRotateCcw, lucideRefreshCw } from '@ng-icons/lucide';
 
@@ -26,6 +27,7 @@ export class ProductDetailsFormComponent implements OnInit, OnChanges {
   productDetailsFormInitialValues: any;
   purities: Purity[] = [];
   isAdmin = false;
+  readonly permissions = inject(PermissionsService);
 
   computedPreview: {
     metal: number;
@@ -69,6 +71,7 @@ export class ProductDetailsFormComponent implements OnInit, OnChanges {
     } catch {
       this.isAdmin = false;
     }
+    this.permissions.getUserPermissions();
     if (this.productData) {
       this.populateproductDetailsForm(this.productData);
     }

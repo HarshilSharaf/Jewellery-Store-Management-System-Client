@@ -146,7 +146,7 @@
         <section class="form-section">
           <p class="form-section__title">Pricing</p>
           <div class="form-grid">
-            @if (isAdmin) {
+            @if (permissions.costsVisible()) {
               <div>
                 <label class="field-label" for="costPrice">Cost price (INR)</label>
                 <input class="hlm-input tabular-nums" id="costPrice" type="number" step="0.01" min="0" formControlName="costPrice" />

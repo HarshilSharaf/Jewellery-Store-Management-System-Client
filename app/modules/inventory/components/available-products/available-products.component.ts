@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, OnDestroy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ColumnSchema } from '../../../../shared/models/columnsSchema';
 import { FileSystemService } from '../../../../../../Backend/Shared/file-system.service';
@@ -13,6 +13,7 @@ import { AddProductFormComponent } from './components/add-product-form/add-produ
 import { PuritiesService } from '../../../../shared/services/Purities/purities.service';
 import { Purity } from '../../../../interfaces/Shared/purity';
 import { StoreService } from '../../../../../../Backend/Shared/store.service';
+import { PermissionsService } from '../../../../shared/services/Auth/permissions.service';
 import {
   SimplePaginatorComponent,
   SimplePageEvent,
@@ -90,6 +91,7 @@ export class AvailableProductsComponent implements OnInit, OnDestroy {
   protected isLoading = false;
   protected isAdmin = false;
   protected showAddProductForm = false;
+  readonly permissions = inject(PermissionsService);
 
   protected selectedPurities = new Set<string>();
   protected selectedMasterCategories = new Set<number>();
@@ -116,6 +118,7 @@ export class AvailableProductsComponent implements OnInit, OnDestroy {
       this.viewMode = storedMode;
     }
     await this.loadAuthType();
+    this.permissions.getUserPermissions();
     await Promise.all([this.getAllCategoriesData(), this.loadPurities()]);
     this.getAllProductsData();
   }

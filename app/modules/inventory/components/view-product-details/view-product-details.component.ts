@@ -15,6 +15,7 @@ import { ProductDataModel } from '../../../orders/models/product-data-model';
 import { ProductDetailsFormComponent } from '../product-details-form/product-details-form.component';
 import { MetalRatesService } from '../../../../shared/services/MetalRates/metal-rates.service';
 import { StoreService } from '../../../../../../Backend/Shared/store.service';
+import { PermissionsService } from '../../../../shared/services/Auth/permissions.service';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideArrowLeft,
@@ -61,6 +62,7 @@ export class ViewProductDetailsComponent implements OnInit {
   allCategoriesData!: AllCategoriesModel;
   productDetails!: ProductDataModel;
   isAdmin = false;
+  readonly permissions = inject(PermissionsService);
 
   @ViewChild(ProductImageUploadComponent) imageUploadComponent?: ProductImageUploadComponent;
   protected initialProductImageSrc: any;
@@ -88,6 +90,7 @@ export class ViewProductDetailsComponent implements OnInit {
     this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       this.productGuid = params['productGuid'];
       this.loadAuth();
+      this.permissions.getUserPermissions();
       this.getAllCategoriesData();
       this.getProductDetails();
       this.getProductImage();

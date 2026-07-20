@@ -20,6 +20,7 @@ import {
 import { OrdersDataModel, PaymentStatus } from '../../models/orders-data-model';
 import { OrderService } from '../../services/order.service';
 import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
+import { PermissionsService } from '../../../../shared/services/Auth/permissions.service';
 import {
   SimplePaginatorComponent,
   SimplePageEvent,
@@ -61,6 +62,8 @@ export class OrdersPageComponent implements OnInit {
   pageIndex = 0;
   pageSize = 10;
 
+  readonly permissions = inject(PermissionsService);
+
   private readonly destroyRef = inject(DestroyRef);
   private searchDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -97,6 +100,7 @@ export class OrdersPageComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.permissions.getUserPermissions();
     this.getAllOrders();
     this.search.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((val) => {
       if (this.searchDebounceTimer) clearTimeout(this.searchDebounceTimer);
