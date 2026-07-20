@@ -5,7 +5,7 @@
       <h1 class="dash-title">Dashboard</h1>
     </div>
     <div class="dash-head-meta">
-      <span class="pill">{{ liveRates[0].session }} · Today</span>
+      <span class="pill">{{ liveRatesSession }} · Today</span>
     </div>
   </header>
 
@@ -61,9 +61,9 @@
       <header class="panel-head">
         <div>
           <h2 class="panel-title">Live metal rates</h2>
-          <p class="panel-sub">Per gram · placeholder feed</p>
+          <p class="panel-sub">Per gram · latest session on file</p>
         </div>
-        <span class="pill pill-muted">{{ liveRates[0].session }}</span>
+        <span class="pill pill-muted">{{ liveRatesSession }}</span>
       </header>
 
       <ul class="rate-list">
@@ -74,18 +74,25 @@
             </div>
             <div class="rate-value">
               <span class="font-serif tabular-nums">{{ formatCurrency(r.ratePerGram) }}</span>
-              <span class="rate-change tabular-nums"
-                    [class.up]="r.changePct >= 0"
-                    [class.down]="r.changePct < 0">
-                {{ r.changePct >= 0 ? '+' : '' }}{{ r.changePct }}%
-              </span>
             </div>
           </li>
+        }
+        @if (liveRatesLoaded && !liveRates.length) {
+          <li class="rate-row rate-empty">
+            <span>No rates on file yet.</span>
+          </li>
+        }
+        @if (!liveRatesLoaded) {
+          @for (i of [0,1,2]; track i) {
+            <li class="rate-row product-skeleton">
+              <span class="sk sk-line"></span>
+            </li>
+          }
         }
       </ul>
 
       <footer class="rate-foot">
-        <span>Source: manual · to be replaced by IBJA feed</span>
+        <span>Source: shopfront · manual entry until IBJA feed lands</span>
       </footer>
     </article>
   </section>
@@ -152,15 +159,15 @@
             @for (o of recentOrders; track trackByOrder(0, o)) {
               <tr [routerLink]="['/orders/view-order-details', o.invoiceGuid]" class="clickable">
                 <td>
-                  <span class="cell-strong tabular-nums">#{{ o.id }}</span>
+                  <span class="cell-strong tabular-nums">{{ o.invoiceNumber ?? '#' + o.id }}</span>
                   <span class="cell-sub">{{ o.createdAt | date:'mediumDate' }}</span>
                 </td>
                 <td>
                   <span class="cell-strong">{{ customerFullName(o) | titlecase }}</span>
-                  <span class="cell-sub tabular-nums">{{ o.total_products }} item(s)</span>
+                  <span class="cell-sub tabular-nums">{{ orderItemCount(o) }} item(s)</span>
                 </td>
                 <td class="ta-right">
-                  <span class="cell-strong tabular-nums">{{ formatCurrency(o.totalAmountWithGst) }}</span>
+                  <span class="cell-strong tabular-nums">{{ formatCurrency(orderTotal(o)) }}</span>
                 </td>
                 <td>
                   @if (o.isPaymentDone) {

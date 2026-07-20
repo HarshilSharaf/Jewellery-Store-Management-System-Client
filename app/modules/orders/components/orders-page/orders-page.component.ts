@@ -26,58 +26,23 @@ export class OrdersPageComponent implements OnInit, OnDestroy {
     Or else it will throw an error
   */
 
-  tableColumns = ["orderId",
+  tableColumns = ["invoiceNumber",
     "customerFullName",
-    // "customerId",
-    // "customerGuid",
-    // "payments",
     "paymentStatus",
-    // "remarks",
     "totalAmountWithGst",
-    // "totalAmountWithGstAndDiscount",
-    // "totalDiscount",
-    // "totalLabour",
     "orderDate",
     "cancelledAt",
     "actions"]
 
 displayNameForColumns: ColumnSchema[] =
   [
-    {
-      key: "orderId",
-      type: "text",
-      label: "Id"
-    },
-    {
-      key: "customerFullName",
-      type: "text",
-      label: "Customer Name"
-    },
-    {
-      key: "totalAmountWithGst",
-      type: "text",
-      label: "Bill Amount"
-    },
-    {
-      key: "paymentStatus",
-      type: "text",
-      label: "Payment Status"
-    },
-    {
-      key: "orderDate",
-      type: "date",
-      label: "Order Date"
-    },
-    {
-      key: "cancelledAt",
-      type: "date",
-      label: "Cancelled On"
-    },
-    {
-      key: "actions",
-      type: "text",
-      label: "Actions"
-    },
+    { key: "invoiceNumber", type: "text", label: "Invoice #" },
+    { key: "customerFullName", type: "text", label: "Customer" },
+    { key: "totalAmountWithGst", type: "text", label: "Grand Total" },
+    { key: "paymentStatus", type: "text", label: "Payment Status" },
+    { key: "orderDate", type: "date", label: "Order Date" },
+    { key: "cancelledAt", type: "date", label: "Cancelled On" },
+    { key: "actions", type: "text", label: "Actions" },
   ]
 
   itemsPerPage = 5;
@@ -142,25 +107,40 @@ displayNameForColumns: ColumnSchema[] =
   }
 
   prepareOrdersData(orders:any):OrdersDataModel[] {
-    const ordersData:OrdersDataModel[] = orders.map((order:any) => (
-      {
+    const ordersData:OrdersDataModel[] = orders.map((order:any) => {
+      const cust = order.customerDetails ?? order.customer_details ?? {};
+      const grand = Number(order.grandTotal ?? order.totalAmountWithGst ?? 0);
+      const isPaid = order.isPaymentDone === true || order.isPaymentDone === 1;
+      return {
         orderId: order.id,
         orderGuid: order.invoiceGuid,
+        invoiceNumber: order.invoiceNumber,
+        placeOfSupply: order.placeOfSupply,
+        hsn: order.hsn,
         orderDate: order.createdAt,
-        customerFullName: order.customer_details.firstName + ' ' + order.customer_details.lastName,
-        customerId: order.customer_details.customerId,
-        customerGuid: order.customer_details.customerGuid,
-        payments: order.payments,
-        paymentStatus: order.isPaymentDone === true? PaymentStatus.DONE : PaymentStatus.PENDING,
+        customerFullName: `${cust.firstName ?? ''} ${cust.lastName ?? ''}`.trim(),
+        customerId: cust.customerId ?? cust.id ?? 0,
+        customerGuid: cust.customerGuid ?? '',
+        payments: order.payments ?? [],
+        paymentStatus: isPaid ? PaymentStatus.DONE : PaymentStatus.PENDING,
+        isPaymentDone: isPaid,
         remarks: order.remarks ?? null,
-        totalAmountWithGst: this.decimalPipe.transform(order.totalAmountWithGst),
-        totalAmountWithGstAndDiscount: order.totalAmountWithoutGstAndDiscount,
+        totalAmountWithGst: this.decimalPipe.transform(grand),
+        subTotalTaxable: order.subTotalTaxable,
+        totalCgst: order.totalCgst,
+        totalSgst: order.totalSgst,
+        totalIgst: order.totalIgst,
+        totalMakingCharge: order.totalMakingCharge,
+        totalStoneCharge: order.totalStoneCharge,
+        totalWastageCharge: order.totalWastageCharge,
         totalDiscount: order.totalDiscount,
-        totalGst: order.totalGst,
-        totalLabour: order.totalLabour,
-        cancelledAt: order.cancelledAt
-      }
-    ))
+        oldGoldCreditAmount: order.oldGoldCreditAmount,
+        roundOffAmount: order.roundOffAmount,
+        grandTotal: grand,
+        cancelledAt: order.cancelledAt,
+        cancelReason: order.cancelReason
+      } as OrdersDataModel;
+    })
 
     return ordersData
   }

@@ -7,18 +7,18 @@
       <div class="col align-self-center">
         <div class="row">
           <h6>
-            {{item.subCategory}} {{item.masterCategory}}
+            {{item.sku}} @if (item.huid) { <small class="text-muted">· {{item.huid}}</small> }
           </h6>
         </div>
         <div class="row">
           <div class="col">
             <small class="text-muted">
-              {{item.productCategory}}
+              {{item.subCategory}} · {{item.masterCategory}}
             </small>
           </div>
           <div class="col">
-            <small class="text-muted">
-              Wt: {{item.productWeight}}
+            <small class="text-muted tabular-nums">
+              Net: {{item.netWeight}}g · {{item.purityCode}}
             </small>
           </div>
         </div>
@@ -37,4 +37,3 @@
     </div>
   </div>
 }
-

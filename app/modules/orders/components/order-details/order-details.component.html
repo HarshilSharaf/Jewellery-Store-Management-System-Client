@@ -23,125 +23,145 @@
               </div>
             </div>
             <hr>
-              <div class="row mt-3">
-                <div class="col fw-bold text-center">
-                  Name:
+            <div class="row mt-2">
+              <div class="col fw-bold text-center">Name:</div>
+              <div class="col text-start">
+                {{customerData.firstName + ' ' + customerData.lastName}}
+              </div>
+            </div>
+            @if (customerData.gstin) {
+              <div class="row mt-1">
+                <div class="col fw-bold text-center">GSTIN:</div>
+                <div class="col text-start">{{customerData.gstin}}</div>
+              </div>
+            }
+            @if (customerData.city) {
+              <div class="row mt-1">
+                <div class="col fw-bold text-center">City:</div>
+                <div class="col text-start">{{customerData.city}}{{customerData.state ? ', ' + customerData.state : ''}}</div>
+              </div>
+            }
+          </div>
+        }
+
+        @if (orderData) {
+          <div class="col">
+            <div class="card-header">
+              <div class="row">
+                <div class="col-6">
+                  <h5>Order Details {{ invoiceNumber ? ' - ' + invoiceNumber : '' }}</h5>
                 </div>
-                <div class="col text-start">
-                  {{customerData.firstName + ' ' + customerData.lastName}}
+                <div class="col text-end">
+                  <button
+                    class="btn btn-danger text-end" [useExistingCss]="true"
+                    [ngClass]="{disabled: !orderData.isPaymentDone}"
+                    printSectionId="print-container" ngxPrint>
+                    <i class="fa-solid fa-print"></i> &nbsp;
+                    Print Invoice
+                  </button>
                 </div>
               </div>
             </div>
-          }
-
-          @if (orderData) {
-            <div class="col">
-              <div class="card-header">
-                <div class="row">
-                  <div class="col-6">
-                    <h5>Order Details</h5>
-                  </div>
-                  <div class="col text-end">
-                    <button
-                      class="btn btn-danger text-end" [useExistingCss]="true"
-                      [ngClass]="{disabled: !orderData.isPaymentDone}"
-                      printSectionId="print-container" ngxPrint>
-                      <i class="fa-solid fa-print"></i> &nbsp;
-                      Print Invoice
-                    </button>
-                  </div>
+            <div class="container-fluid mt-3 orderDetailsMainContainer">
+              <div class="row">
+                <div class="col">
+                  <span class="h6"> <b>Grand Total:</b> &#8377;{{grandTotal}}</span>
+                </div>
+                <div class="col">
+                  <span class="h6"> <b>Sub Total (Taxable):</b> &#8377;{{subTotalTaxable}}</span>
                 </div>
               </div>
-              <div class="container-fluid mt-3 orderDetailsMainContainer">
-                <div class="row">
-                  <div class="col">
-                    <span class="h6"> <b>Total Bill Amount:</b> &#8377;{{orderData.totalAmountWithGst}}
+              <hr class="my-3">
+              <div class="row">
+                <div class="col">
+                  <span class="h6"><b>Order Date:</b> {{orderData.orderDate | date}}</span>
+                </div>
+                <div class="col">
+                  <span class="h6"><b>Remarks:</b> {{orderData.remarks ?? 'N/A'}}</span>
+                </div>
+              </div>
+              <hr class="my-3">
+              <div class="row">
+                <div class="col">
+                  <span class="h6"> <b>Payment Pending:</b> &#8377;
+                    <span class="text-danger">{{ orderData.isPaymentDone == true ? 0 : (grandTotal - totalPaymentRecieved) }}</span>
                   </span>
                 </div>
                 <div class="col">
-                  <span class="h6"> <b>Amount Without GST And Discount :</b>
-                  &#8377;{{orderData.totalAmountWithoutGstAndDiscount}}
-                </span>
+                  <span class="h6">
+                    <b>Payment Status:</b>
+                    @if (orderData.isPaymentDone) {
+                      <span class="badge text-bg-success ms-2">Done</span>
+                    }
+                    @if (!orderData.isPaymentDone) {
+                      <span class="badge text-bg-danger ms-2">Pending</span>
+                    }
+                  </span>
+                </div>
               </div>
-            </div>
-            <hr class="my-3">
-            <div class="row">
-              <div class="col">
-                <span class="h6">
-                  <b>Order Date:</b>
-                  {{orderData.orderDate | date}}
-                </span>
+              <hr class="my-3">
+              <div class="row">
+                <div class="col">
+                  <span class="h6"> <b>Making:</b> &#8377;{{totalMakingAmount}}</span>
+                </div>
+                <div class="col">
+                  <span class="h6"> <b>Wastage:</b> &#8377;{{totalWastageAmount}}</span>
+                </div>
+                <div class="col">
+                  <span class="h6"> <b>Stones:</b> &#8377;{{totalStoneAmount}}</span>
+                </div>
+                <div class="col">
+                  <span class="h6"> <b>Total GST:</b> &#8377;{{totalGstAmount}}</span>
+                </div>
+                <div class="col">
+                  <span class="h6"> <b>Discount:</b> &#8377;{{totalDiscountAmount}}</span>
+                </div>
+                @if (oldGoldCreditAmount > 0) {
+                  <div class="col">
+                    <span class="h6"> <b>Old Gold Credit:</b> &#8377;{{oldGoldCreditAmount}}</span>
+                  </div>
+                }
+                @if (roundOffAmount !== 0) {
+                  <div class="col">
+                    <span class="h6"> <b>Round Off:</b> &#8377;{{roundOffAmount}}</span>
+                  </div>
+                }
               </div>
-              <div class="col">
-                <span class="h6">
-                  <b>Order Remarks:</b>
-                  {{orderData.remarks ?? 'N/A'}}
-                </span>
-              </div>
-            </div>
-            <hr class="my-3">
-            <div class="row">
-              <div class="col">
-                <span class="h6"> <b>Payment Pending:</b> &#8377; <span class="text-danger">{{
-                orderData.isPaymentDone == true ? 0 :
-                (orderData.totalAmountWithGst -
-              totalPaymentRecieved)}}</span>
-            </span>
-          </div>
-          <div class="col">
-            <span class="h6">
-              <b>Payment Status:</b>
-              @if (orderData?.isPaymentDone) {
-                <span class="badge text-bg-success ms-2">Done</span>
+              @if (orderData.cancelledAt) {
+                <hr class="my-3">
+                <div class="alert alert-warning">
+                  <b>Cancelled on {{orderData.cancelledAt | date}}</b>
+                  @if (cancelReason) { — {{cancelReason}} }
+                </div>
               }
-              @if (!orderData?.isPaymentDone) {
-                <span class="badge text-bg-danger ms-2">Pending</span>
-              }
-            </span>
+            </div>
+
+            <div class="row mt-3">
+              <app-order-products-details [productDetails]="productsData" [isLoading]="isLoading"></app-order-products-details>
+            </div>
           </div>
-        </div>
-        <hr class="my-3">
-        <div class="row">
-          <div class="col">
-            <span class="h6"> <b>Total Discount:</b> &#8377;{{orderData.totalDiscount}}
-          </span>
-        </div>
-        <div class="col">
-          <span class="h6"> <b>Total GST:</b> &#8377;{{orderData.totalGst}}
-        </span>
+        }
+
       </div>
-      <div class="col">
-        <span class="h6"> <b>Total Labour:</b> &#8377;{{orderData.totalLabour}}
-      </span>
+
     </div>
+
   </div>
-</div>
-</div>
-}
-
-</div>
-
-<div class="row mt-3">
-  <app-order-products-details [productDetails]="productsData" [isLoading]="isLoading" ></app-order-products-details>
-</div>
-</div>
-
-</div>
 
 
-<div class="mt-3">
-  <app-order-payments [paymentsData]="paymentsData" [orderGuid]="orderGuid"
-    [isPaymentDone]=" orderData && orderData.isPaymentDone"
-    (refreshPaymentsData)="getOrderDetails()"
-    [isLoading]="isLoading"
-  ></app-order-payments>
-</div>
-
-
-@if (invoiceData) {
-  <div id="print-container">
-    <app-print-invoice id="print-container-component" [InvoiceData]="invoiceData | async" ></app-print-invoice>
+  <div class="mt-3">
+    <app-order-payments [paymentsData]="paymentsData" [orderGuid]="orderGuid"
+      [isPaymentDone]=" orderData && orderData.isPaymentDone"
+      (refreshPaymentsData)="getOrderDetails()"
+      [isLoading]="isLoading"
+    ></app-order-payments>
   </div>
-}
+
+
+  @if (invoiceData) {
+    <div id="print-container">
+      <app-print-invoice id="print-container-component" [InvoiceData]="invoiceData | async"></app-print-invoice>
+    </div>
+  }
 
 </div>

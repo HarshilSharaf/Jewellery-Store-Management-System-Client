@@ -127,6 +127,45 @@
       </div>
     </div>
 
+    <div class="form-row form-row--stacked">
+      <button type="button" class="btn btn-outline-secondary btn-sm" (click)="toggleAdditional()">
+        {{ showAdditional ? 'Hide' : 'Add' }} additional details (GSTIN, PAN, remarks)
+      </button>
+    </div>
+
+    @if (showAdditional) {
+      <div class="form-row">
+        <label class="form-row__label" for="state">State</label>
+        <div class="form-row__control">
+          <input type="text" class="form-control" id="state" formControlName="state" placeholder="e.g. Maharashtra">
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-row__label" for="stateCode">State Code</label>
+        <div class="form-row__control">
+          <input type="text" class="form-control" id="stateCode" formControlName="stateCode" maxlength="2" placeholder="e.g. 27">
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-row__label" for="gstin">GSTIN</label>
+        <div class="form-row__control">
+          <input type="text" class="form-control" id="gstin" formControlName="gstin" maxlength="15" placeholder="15-char GSTIN">
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-row__label" for="pan">PAN</label>
+        <div class="form-row__control">
+          <input type="text" class="form-control" id="pan" formControlName="pan" maxlength="10" placeholder="10-char PAN">
+        </div>
+      </div>
+      <div class="form-row form-row--stacked">
+        <label class="form-row__label" for="remarks">Remarks</label>
+        <div class="form-row__control">
+          <textarea class="form-control" id="remarks" formControlName="remarks" rows="2" placeholder="Internal notes"></textarea>
+        </div>
+      </div>
+    }
+
     @if (addCustomerResponse.status !== 0 || addCustomerResponse.message !== '') {
       <div class="form-response"
            [class.form-response--success]="addCustomerResponse.status === 200"

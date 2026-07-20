@@ -46,6 +46,7 @@ export class OrderPaymentsComponent implements OnInit {
     this.recordPaymentForm = this.formBuilder.group({
       amount: [0, [Validators.required, Validators.min(1)]],
       paymentType: [PaymentType.CASH, Validators.required],
+      refNumber: [''],
       paymentDate: [this.formatDate(new Date())],
       remarks: [''],
     });
@@ -72,6 +73,7 @@ export class OrderPaymentsComponent implements OnInit {
       orderGuid: this.orderGuid,
       paymentAmount: this.recordPaymentForm.get('amount')?.value,
       paymentType: this.recordPaymentForm.get('paymentType')?.value,
+      refNumber: this.recordPaymentForm.get('refNumber')?.value || null,
       paymentDate: this.recordPaymentForm.get('paymentDate')?.value,
       remarks: this.recordPaymentForm.get('remarks')?.value
     }

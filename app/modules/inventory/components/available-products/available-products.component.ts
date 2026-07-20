@@ -27,55 +27,28 @@ export class AvailableProductsComponent implements OnInit, OnDestroy {
   availableCategoriesSubscription: Subscription = new Subscription
   allProductsDataSubscription: Subscription = new Subscription
   displayNameForColumns: ColumnSchema[] = [
-    {
-      key: "id",
-      type: "text",
-      label: "#"
-    },
-    {
-      key: "productDescription",
-      type: "text",
-      label: "Product Description"
-    },
-    {
-      key: "productGuid",
-      type: "text",
-      label: "Product Guid"
-    },
-    {
-      key: "productWeight",
-      type: "text",
-      label: "Product Weight"
-    },
-    {
-      key: "image",
-      type: "text",
-      label: "Product Image"
-    },
-    {
-      key: "masterCategory",
-      type: "text",
-      label: "Master Category"
-    },    {
-      key: "subCategory",
-      type: "text",
-      label: "Sub Category"
-    },    {
-      key: "productCategory",
-      type: "text",
-      label: "Product Category"
-    },
-    {
-      key: "actions",
-      type: "text",
-      label: "Actions"
-    },
+    { key: "id", type: "text", label: "#" },
+    { key: "sku", type: "text", label: "SKU" },
+    { key: "huid", type: "text", label: "HUID" },
+    { key: "purityCode", type: "text", label: "Purity" },
+    { key: "productDescription", type: "text", label: "Description" },
+    { key: "netWeight", type: "text", label: "Net Wt (g)" },
+    { key: "grossWeight", type: "text", label: "Gross Wt (g)" },
+    { key: "tagPrice", type: "text", label: "Tag Price" },
+    { key: "image", type: "text", label: "Image" },
+    { key: "masterCategory", type: "text", label: "Master Category" },
+    { key: "subCategory", type: "text", label: "Sub Category" },
+    { key: "productCategory", type: "text", label: "Product Category" },
+    { key: "actions", type: "text", label: "Actions" },
   ];
   tableColumns: string[] = [
     "id",
     "image",
-    "productDescription",
-    "productWeight",
+    "sku",
+    "huid",
+    "purityCode",
+    "netWeight",
+    "tagPrice",
     "masterCategory",
     "subCategory",
     "productCategory",

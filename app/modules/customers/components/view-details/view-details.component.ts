@@ -122,6 +122,8 @@ export class ViewDetailsComponent implements OnInit, OnDestroy {
     });
   }
 
+  creditBalance = 0;
+
   populateCustomerDetailsForm(customerDetails: CustomerDetails) {
     this.customerDetailsForm = this.formBuilder.group({
       "firstName": [customerDetails.firstName, Validators.required],
@@ -132,8 +134,14 @@ export class ViewDetailsComponent implements OnInit, OnDestroy {
       "email": [customerDetails.email],
       "phone": [customerDetails.phoneNumber, Validators.required],
       "city": [customerDetails.city, Validators.required],
-    })
-    this.customerDetailsFormInitialValues = this.customerDetailsForm.value
+      "state": [customerDetails.state ?? ''],
+      "stateCode": [customerDetails.stateCode ?? ''],
+      "gstin": [customerDetails.gstin ?? ''],
+      "pan": [customerDetails.pan ?? ''],
+      "remarks": [customerDetails.remarks ?? ''],
+    });
+    this.creditBalance = Number(customerDetails.creditBalance ?? 0);
+    this.customerDetailsFormInitialValues = this.customerDetailsForm.value;
   }
 
   clearImage() {
@@ -324,13 +332,15 @@ export class ViewDetailsComponent implements OnInit, OnDestroy {
   protected prepareCustomerOrdersData(orders: any) {
     const ordersData:CustomerOrders[] = orders.map((order:any) => (
       {
-        orderId: order.orderId,
-        orderGuid: order.invoiceGuid,
-        numberOfProducts: order.numberOfProducts,
-        orderDate: order.orderDate,
-        paymentStatus: order.paymentStatus === true? PaymentStatus.DONE : PaymentStatus.PENDING,
+        orderId: order.orderId ?? order.id,
+        orderGuid: order.orderGuid ?? order.invoiceGuid,
+        invoiceNumber: order.invoiceNumber,
+        numberOfProducts: order.numberOfProducts ?? order.totalLineItems ?? 0,
+        orderDate: order.orderDate ?? order.createdAt,
+        paymentStatus: (order.paymentStatus === true || order.isPaymentDone === 1 || order.isPaymentDone === true) ? PaymentStatus.DONE : PaymentStatus.PENDING,
         remarks: order.remarks ?? null,
-        totalAmountWithGst: this.decimalPipe.transform(order.totalAmountWithGst),
+        totalAmountWithGst: this.decimalPipe.transform(order.totalAmountWithGst ?? order.grandTotal),
+        grandTotal: order.grandTotal,
         cancelledAt: order.cancelledAt
       }
     ))

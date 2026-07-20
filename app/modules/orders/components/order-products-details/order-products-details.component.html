@@ -1,21 +1,26 @@
 <div class="card-header">
-  <h5>Product Details</h5>
+  <h5>Line Items</h5>
 </div>
 
 
 <div class="table-responsive mt-2 rounded border border-dark">
-  <table class="table table-bordered" [ngClass]="{'table-striped': !_isLoading, 'table-hover': !_isLoading }">
+  <table class="table table-bordered tabular-nums" [ngClass]="{'table-striped': !_isLoading, 'table-hover': !_isLoading }">
     <thead class="table-danger">
       <tr>
         <th scope="col">#</th>
-        <th scope="col">Product Type</th>
-        <th scope="col">Weight (In gms)</th>
-        <th scope="col">Price</th>
-        <th scope="col">Labour</th>
-        <th scope="col">CGST (In %)</th>
-        <th scope="col">SGST (In %)</th>
+        <th scope="col">SKU / HUID</th>
+        <th scope="col">Description</th>
+        <th scope="col">Purity</th>
+        <th scope="col">Gross (g)</th>
+        <th scope="col">Net (g)</th>
+        <th scope="col">Rate &#8377;/g</th>
+        <th scope="col">Metal</th>
+        <th scope="col">Making</th>
+        <th scope="col">Wastage</th>
+        <th scope="col">Stones</th>
         <th scope="col">Discount</th>
-        <th scope="col">Final Amount</th>
+        <th scope="col">Tax</th>
+        <th scope="col">Line Total</th>
       </tr>
     </thead>
 
@@ -24,51 +29,44 @@
       @if (_isLoading) {
         @for (row of [0, 1, 2, 3, 4]; track row) {
           <tr class="text-center">
-            @for (cell of [0, 1, 2, 3, 4, 5, 6, 7, 8]; track cell) {
+            @for (cell of [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]; track cell) {
               <td>
                 <app-skeleton-loader [count]="1" [shapeOfLoader]="'circle'"
                   [theme]="{height: '20px', width: '80%', 'border-radius': '0'}" />
-                </td>
-              }
-            </tr>
-          }
+              </td>
+            }
+          </tr>
         }
+      }
 
-        @if (!_isLoading) {
-          @for (product of _productDetails; track product; let i = $index) {
-            <tr>
-              <th scope="row">
-                {{i+1}}
-              </th>
-              <td>
-                {{product.masterCategory
-                +"-"+product.subCategory+
-                "-"+product.productCategory}}
-              </td>
-              <td>
-                {{product.productWeight}}
-              </td>
-              <td>
-                &#8377;{{product.price}}
-              </td>
-              <td>
-                &#8377;{{product.labour}}
-              </td>
-              <td>
-                {{product.CGST}}
-              </td>
-              <td>
-                {{product.SGST}}
-              </td>
-              <td>
-                &#8377;{{product.discount}}
-              </td>
-              <td>
-                &#8377;{{product.finalAmount}}
-              </td>
-            </tr>
-          }
+      @if (!_isLoading) {
+        @for (product of _productDetails; track product; let i = $index) {
+          <tr>
+            <th scope="row">{{i+1}}</th>
+            <td>
+              <div><b>{{product.sku}}</b></div>
+              <small class="text-muted">{{product.huid}}</small>
+            </td>
+            <td>
+              <div>{{product.productDescription ?? product.description}}</div>
+              <small class="text-muted">
+                @if (product.masterCategory) { {{product.masterCategory}} · {{product.subCategory}} · {{product.productCategory}} }
+              </small>
+            </td>
+            <td>{{product.purityCode}}</td>
+            <td>{{product.grossWeight}}</td>
+            <td>{{product.netWeight}}</td>
+            <td>&#8377;{{product.ratePerGram}}</td>
+            <td>&#8377;{{product.metalValue}}</td>
+            <td>&#8377;{{product.makingCharge}}</td>
+            <td>&#8377;{{product.wastageCharge}}</td>
+            <td>&#8377;{{product.stoneCharge}}</td>
+            <td>&#8377;{{product.discountAmount}}</td>
+            <td>&#8377;{{(product.cgst ?? 0) + (product.sgst ?? 0) + (product.igst ?? 0)}}</td>
+            <td><b>&#8377;{{product.lineTotal}}</b></td>
+          </tr>
         }
-      </tbody>
-    </table>
-  </div>
+      }
+    </tbody>
+  </table>
+</div>

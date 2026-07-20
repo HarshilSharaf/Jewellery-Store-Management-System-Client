@@ -20,6 +20,8 @@ import { TotalRevenueModel } from '../../models/total-revenue-model';
 
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 import { ThemeService } from '../../../../shared/services/theme.service';
+import { MetalRatesService } from '../../../../shared/services/MetalRates/metal-rates.service';
+import { MetalRateRow } from '../../../../interfaces/Shared/metal-rate';
 
 type DashboardKpiSlot = 'revenue' | 'stock' | 'customers';
 
@@ -35,9 +37,11 @@ interface Kpi {
 
 interface LiveRate {
   purity: string;
+  purityCode: string;
   ratePerGram: number;
   session: 'AM' | 'PM';
   changePct: number;
+  metalType?: string;
 }
 
 @Component({
@@ -59,13 +63,9 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
   topSellingProducts: TopProductCategoriesModel[] = [];
   monthlySalesAndLabour: MonthlySalesAndLabourModel[] = [];
 
-  // Live-rate card placeholder data. Real feed will come from Workstream A
-  // (metal-rates SP + shop-settings source config). See REDESIGN_PLAN.md 3.
-  liveRates: LiveRate[] = [
-    { purity: '22K (916)', ratePerGram: 7245, session: 'AM', changePct: 0.42 },
-    { purity: '18K (750)', ratePerGram: 5924, session: 'AM', changePct: 0.42 },
-    { purity: 'Silver (999)', ratePerGram: 92, session: 'AM', changePct: -0.18 },
-  ];
+  liveRates: LiveRate[] = [];
+  liveRatesLoaded = false;
+  liveRatesSession: 'AM' | 'PM' = 'AM';
 
   get kpis(): Kpi[] {
     return (['revenue', 'stock', 'customers'] as DashboardKpiSlot[])
@@ -80,7 +80,8 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
     private productCategoryService: ProductCategoryService,
     private loaderService: NgxUiLoaderService,
     private loggerService: LoggerService,
-    private themeService: ThemeService
+    private themeService: ThemeService,
+    private metalRatesService: MetalRatesService
   ) {}
 
   ngOnInit() {
@@ -90,6 +91,7 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
     this.getRecentOrders();
     this.getTopProductCategories();
     this.getSalesAndLabour();
+    this.loadLiveRates();
   }
 
   ngAfterViewInit(): void {
@@ -125,9 +127,18 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   customerFullName(o: RecentOrdersModel): string {
-    const first = o.customer_details?.firstName ?? '';
-    const last = o.customer_details?.lastName ?? '';
+    const cd = o.customerDetails ?? o.customer_details;
+    const first = cd?.firstName ?? '';
+    const last = cd?.lastName ?? '';
     return `${first} ${last}`.trim();
+  }
+
+  orderTotal(o: RecentOrdersModel): number {
+    return Number(o.grandTotal ?? o.totalAmountWithGst ?? 0);
+  }
+
+  orderItemCount(o: RecentOrdersModel): number {
+    return Number(o.totalLineItems ?? o.total_products ?? 0);
   }
 
   private renderChart(): void {
@@ -312,6 +323,33 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
     } catch (error) {
       this.loggerService.LogError(error, 'getTotalStock()');
     }
+  }
+
+  async loadLiveRates() {
+    try {
+      this.loggerService.LogInfo('loadLiveRates() Request Started.');
+      const rows: MetalRateRow[] = await this.metalRatesService.getCurrent();
+      this.liveRates = rows.map((r) => this.toLiveRate(r));
+      if (rows.length && rows[0].session) {
+        this.liveRatesSession = rows[0].session;
+      }
+      this.liveRatesLoaded = true;
+      this.loggerService.LogInfo('loadLiveRates() Request Completed.');
+    } catch (error) {
+      this.liveRatesLoaded = true;
+      this.loggerService.LogError(error, 'loadLiveRates()');
+    }
+  }
+
+  private toLiveRate(row: MetalRateRow): LiveRate {
+    return {
+      purity: row.purityLabel ?? row.purityCode,
+      purityCode: row.purityCode,
+      ratePerGram: Number(row.ratePerGram) || 0,
+      session: row.session,
+      changePct: 0,
+      metalType: row.metalType,
+    };
   }
 
   async getTotalRevenueInLast6Months() {

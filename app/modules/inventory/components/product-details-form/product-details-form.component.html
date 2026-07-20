@@ -2,122 +2,128 @@
   <div class="card-header">Product Details</div>
   <div class="card-body">
     @if (productDetailsForm) {
-      <form [formGroup]="productDetailsForm"
-        (ngSubmit)="updateProductDetails()">
-        <!-- Form Row-->
+      <form [formGroup]="productDetailsForm" (ngSubmit)="updateProductDetails()">
+
         <div class="row gx-3 mb-3">
-          <!-- Form Group (Master Category)-->
           <div class="col-md-4">
-            <label class="small mb-1" for="masterCategory">Master Category</label>
-            <select name="masterCategoryId" class="form-select" formControlName="masterCategoryId">
-              @for (masterCategoryName of allCategoriesData.masterCategories; track masterCategoryName) {
-                <option
-                  [ngValue]="masterCategoryName.id">
-                  {{masterCategoryName.masterCategoryName}}
-                </option>
-              }
-            </select>
-            <!-- Master Category Validation Message -->
-            <div class="row">
-              <div class="col text-center">
-                @if ((productDetailsForm.get('masterCategory')?.touched || productDetailsForm.valid) && productDetailsForm.get('masterCategory')?.errors?.['required']) {
-                  <span class="text-danger text-bold"
-                    >
-                    Master Category is required
-                  </span>
-                }
-              </div>
-            </div>
+            <label class="small mb-1">SKU</label>
+            <input class="form-control" formControlName="sku">
           </div>
-          <!-- Form Group (Sub Category)-->
           <div class="col-md-4">
-            <label class="small mb-1" for="subCategory">Sub Category</label>
-            <select name="subCategoryId" class="form-select" formControlName="subCategoryId">
-              @for (subCategoryName of allCategoriesData.subCategories; track subCategoryName) {
-                <option [ngValue]="subCategoryName.id">
-                  {{subCategoryName.subCategoryName}}
-                </option>
-              }
-            </select>
-            <!-- Sub Category Validation Message -->
-            <div class="row">
-              <div class="col text-center">
-                @if ((productDetailsForm.get('subCategory')?.touched || productDetailsForm.valid) && productDetailsForm.get('subCategory')?.errors?.['required']) {
-                  <span class="text-danger text-bold"
-                    >
-                    Sub Category is required
-                  </span>
-                }
-              </div>
-            </div>
+            <label class="small mb-1">HUID</label>
+            <input class="form-control" formControlName="huid" maxlength="6">
           </div>
-          <!-- Form Group (Product Category)-->
-          <div class="col-md-4">
-            <label class="small mb-1" for="productCategory">Product Category</label>
-            <select name="productCategoryId" class="form-select" formControlName="productCategoryId">
-              @for (productCategoryName of allCategoriesData.productCategories; track productCategoryName) {
-                <option
-                  [ngValue]="productCategoryName.id">
-                  {{productCategoryName.productCategoryName}}
-                </option>
+          <div class="col-md-2">
+            <label class="small mb-1">Purity</label>
+            <select class="form-select" formControlName="purityCode">
+              @for (p of purities; track p.code) {
+                <option [ngValue]="p.code">{{p.label}}</option>
               }
             </select>
-            <!-- Product Category Validation Message -->
-            <div class="row">
-              <div class="col text-center">
-                @if ((productDetailsForm.get('productCategory')?.touched || productDetailsForm.valid) && productDetailsForm.get('productCategory')?.errors?.['required']) {
-                  <span class="text-danger text-bold"
-                    >
-                    Product Category is required
-                  </span>
-                }
-              </div>
-            </div>
+          </div>
+          <div class="col-md-2">
+            <label class="small mb-1">HSN</label>
+            <input class="form-control" formControlName="hsnCode">
           </div>
         </div>
-        <!-- Form Row -->
+
         <div class="row gx-3 mb-3">
-          <!-- Form Group (Product Description)-->
-          <div class="col-md-6">
-            <label class="small mb-1" for="Description">Product Description</label>
-            <textarea class="form-control" name="productDescription" formControlName="productDescription"
-            placeholder="Enter Description" style="height: 100px"></textarea>
+          <div class="col-md-4">
+            <label class="small mb-1">Master Category</label>
+            <select class="form-select" formControlName="masterCategoryId">
+              @for (m of allCategoriesData.masterCategories; track m) {
+                <option [ngValue]="m.id">{{m.masterCategoryName}}</option>
+              }
+            </select>
           </div>
-          <!-- Form Group (ProductWeight)-->
-          <div class="col-md-6">
-            <label class="small mb-1" for="productWeight">Product Weight</label>
-            <input type="text" name="productWeight" class="form-control" id="productWeight" formControlName="productWeight">
-            <div class="row">
-              <div class="col text-center">
-                @if ((productDetailsForm.get('productWeight')?.touched || productDetailsForm.valid) && productDetailsForm.get('productWeight')?.errors?.['required']) {
-                  <span class="text-danger text-bold"
-                    >
-                    Product Weight Cannot be empty
-                  </span>
-                }
-              </div>
-            </div>
+          <div class="col-md-4">
+            <label class="small mb-1">Sub Category</label>
+            <select class="form-select" formControlName="subCategoryId">
+              @for (s of allCategoriesData.subCategories; track s) {
+                <option [ngValue]="s.id">{{s.subCategoryName}}</option>
+              }
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="small mb-1">Product Category</label>
+            <select class="form-select" formControlName="productCategoryId">
+              @for (pc of allCategoriesData.productCategories; track pc) {
+                <option [ngValue]="pc.id">{{pc.productCategoryName}}</option>
+              }
+            </select>
           </div>
         </div>
-        <!-- Save changes button-->
+
+        <div class="row gx-3 mb-3">
+          <div class="col-md-4">
+            <label class="small mb-1">Gross Wt (g)</label>
+            <input class="form-control" type="number" step="0.001" formControlName="grossWeight">
+          </div>
+          <div class="col-md-4">
+            <label class="small mb-1">Net Wt (g)</label>
+            <input class="form-control" type="number" step="0.001" formControlName="netWeight">
+          </div>
+          <div class="col-md-4">
+            <label class="small mb-1">Stone Wt (g)</label>
+            <input class="form-control" type="number" step="0.001" formControlName="stoneWeight">
+          </div>
+        </div>
+
+        <div class="row gx-3 mb-3">
+          <div class="col-md-4">
+            <label class="small mb-1">Making Mode</label>
+            <select class="form-select" formControlName="makingMode">
+              <option value="flat">Flat &#8377;</option>
+              <option value="perGram">Per gram &#8377;/g</option>
+              <option value="percent">Percent %</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="small mb-1">Making Value</label>
+            <input class="form-control" type="number" step="0.01" formControlName="makingValue">
+          </div>
+          <div class="col-md-4">
+            <label class="small mb-1">Wastage %</label>
+            <input class="form-control" type="number" step="0.01" formControlName="wastagePercent">
+          </div>
+        </div>
+
+        <div class="row gx-3 mb-3">
+          <div class="col-md-4">
+            <label class="small mb-1">Stone Charges &#8377;</label>
+            <input class="form-control" type="number" step="0.01" formControlName="stoneCharges">
+          </div>
+          <div class="col-md-4">
+            <label class="small mb-1">Cost Price &#8377;</label>
+            <input class="form-control" type="number" step="0.01" formControlName="costPrice">
+          </div>
+          <div class="col-md-4">
+            <label class="small mb-1">Tag Price &#8377;</label>
+            <input class="form-control" type="number" step="0.01" formControlName="tagPrice">
+          </div>
+        </div>
+
+        <div class="row gx-3 mb-3">
+          <div class="col-md-12">
+            <label class="small mb-1">Description</label>
+            <textarea class="form-control" formControlName="productDescription" rows="3"></textarea>
+          </div>
+        </div>
+
         <div class="row text-center">
           <div class="col">
-                    <button class="btn btn-primary mx-4" [ngClass]="{'disabled': !productDetailsForm.dirty ||
-                        !productDetailsForm.valid}" type="submit">
+            <button class="btn btn-primary mx-4"
+                    [ngClass]="{'disabled': !productDetailsForm.dirty || !productDetailsForm.valid}"
+                    type="submit">
               @if (isLoading) {
-                <div>
-                  <i class="fa fa-spinner fa-spin"></i>
-                </div>
-              }
-              @if (!isLoading) {
-                <div>
-                  <i class="fa-solid fa-floppy-disk"></i> Save changes
-                </div>
+                <div><i class="fa fa-spinner fa-spin"></i></div>
+              } @else {
+                <div><i class="fa-solid fa-floppy-disk"></i> Save changes</div>
               }
             </button>
             <button class="btn btn-danger mx-4 mt-xs-2 mt-md-0"
-              [ngClass]="{'disabled': !productDetailsForm.dirty}"
-              type="button" (click)="resetForm()">
+                    [ngClass]="{'disabled': !productDetailsForm.dirty}"
+                    type="button" (click)="resetForm()">
               <i class="fa-solid fa-rotate-left"></i> Reset
             </button>
           </div>

@@ -37,6 +37,17 @@ export class OrderDetailsComponent implements OnInit {
   totalPaymentRecieved = 0
   imageLoaded = false
   isLoading = false;
+  grandTotal = 0;
+  subTotalTaxable = 0;
+  totalGstAmount = 0;
+  totalMakingAmount = 0;
+  totalWastageAmount = 0;
+  totalStoneAmount = 0;
+  totalDiscountAmount = 0;
+  oldGoldCreditAmount = 0;
+  roundOffAmount = 0;
+  invoiceNumber = '';
+  cancelReason: string | null | undefined = null;
   private readonly destroyRef = inject(DestroyRef);
 
   constructor(
@@ -73,39 +84,52 @@ export class OrderDetailsComponent implements OnInit {
     this.orderService.getOrderDetails(this.orderGuid)
       .then((response: any) => {
 
-        this.orderData = response[0]
-        this.orderData.totalAmountWithGst =  Number(this.orderData?.totalAmountWithGst) ?? 0
-        this.customerData = response[0].customer_details
+        const row = Array.isArray(response) && Array.isArray(response[0])
+          ? response[0][0]
+          : response[0];
 
-        if(this.customerData.imagePath) {
+        this.orderData = row as InvoiceDataModel;
+        this.grandTotal = Number(row.grandTotal ?? row.totalAmountWithGst ?? 0);
+        this.subTotalTaxable = Number(row.subTotalTaxable ?? 0);
+        this.totalGstAmount = Number(row.totalCgst ?? 0) + Number(row.totalSgst ?? 0) + Number(row.totalIgst ?? 0);
+        this.totalMakingAmount = Number(row.totalMakingCharge ?? 0);
+        this.totalWastageAmount = Number(row.totalWastageCharge ?? 0);
+        this.totalStoneAmount = Number(row.totalStoneCharge ?? 0);
+        this.totalDiscountAmount = Number(row.totalDiscount ?? 0);
+        this.oldGoldCreditAmount = Number(row.oldGoldCreditAmount ?? 0);
+        this.roundOffAmount = Number(row.roundOffAmount ?? 0);
+        this.invoiceNumber = row.invoiceNumber ?? '';
+        this.cancelReason = row.cancelReason;
+        this.customerData = row.customerDetails ?? row.customer_details ?? ({} as CustomerDetails);
+        this.orderData.customer_details = this.customerData;
+        this.orderData.customerDetails = this.customerData;
+
+        if (this.customerData?.imagePath) {
           this.customerData.imagePath = this.utilityService.getFilePath(
-            this.fsService.customerImagesDir +
-              '\\' +
-              this.customerData.imagePath
+            this.fsService.customerImagesDir + '\\' + this.customerData.imagePath
           );
+        } else if (this.customerData) {
+          this.customerData.imagePath = 'assets/img/No-Image-Icon.png';
         }
 
-        else {
-          this.customerData.imagePath = 'assets/img/No-Image-Icon.png'
-        }
-
-        this.imageLoaded = true
-        this.productsData = response[0].invoice_products
-        this.paymentsData = response[0].payments ?? []
-        this.totalPaymentRecieved = 0
-        this.paymentsData?.forEach((payment)=> {
-          this.totalPaymentRecieved += Number(payment.amount)
-        })
-        this.invoiceData.next(this.orderData)
+        this.imageLoaded = true;
+        const rawLines = row.lineItems ?? row.invoice_products ?? [];
+        this.productsData = Array.isArray(rawLines) ? rawLines as InvoiceProductDataModel[] : [];
+        this.orderData.lineItems = this.productsData;
+        this.orderData.invoice_products = this.productsData;
+        this.paymentsData = row.payments ?? [];
+        this.totalPaymentRecieved = 0;
+        this.paymentsData?.forEach((payment) => { this.totalPaymentRecieved += Number(payment.amount); });
+        this.invoiceData.next(this.orderData);
         this.isLoading = false;
-        this.loaderService.stop()
-        this.loggerService.LogInfo("getOrderDetails() Request Completed.")
+        this.loaderService.stop();
+        this.loggerService.LogInfo("getOrderDetails() Request Completed.");
       })
       .catch((error: any) => {
         this.isLoading = false;
-        this.loaderService.stop()
-        this.loggerService.LogError(error, "getOrderDetails()")
-      })
+        this.loaderService.stop();
+        this.loggerService.LogError(error, "getOrderDetails()");
+      });
   }
 
 }

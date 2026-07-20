@@ -3,13 +3,23 @@ import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
+import Swal from 'sweetalert2';
+
 import { CustomerDetails } from '../../../../../customers/models/customerDetails';
 import { InvoiceProductDataModel } from '../../../../models/invoice-product-data-model';
 import { ProductDataModel } from '../../../../models/product-data-model';
 import { OrderService } from '../../../../services/order.service';
 import { CartService } from '../../../../../../shared/services/cart.service';
 import { LoggerService } from '../../../../../../../../Backend/Shared/logger.service';
-import Swal from 'sweetalert2';
+
+import { MetalRatesService } from '../../../../../../shared/services/MetalRates/metal-rates.service';
+import { ShopSettingsService } from '../../../../../../shared/services/ShopSettings/shop-settings.service';
+import { PuritiesService } from '../../../../../../shared/services/Purities/purities.service';
+import { computeCartTotals } from '../../../../../../shared/services/Orders/cart-totals';
+import { CartLineComputed, CartLineInput, CartTotals, MakingMode, TaxSlab } from '../../../../../../interfaces/Shared/cart';
+import { MetalRateRow } from '../../../../../../interfaces/Shared/metal-rate';
+import { ShopSettings } from '../../../../../../interfaces/Shared/shop-settings';
+import { SaveOrderPayload } from '../../../../../../interfaces/Orders/orders-service-interface';
 
 @Component({
   selector: 'app-create-invoice',
@@ -21,39 +31,44 @@ import Swal from 'sweetalert2';
 })
 export class CreateInvoiceComponent implements OnInit {
 
-  _selectedCustomersInfo!: CustomerDetails
-  _selectedProductsData: InvoiceProductDataModel[] = []
-  totalWeight = 0
-  totalDiscount = 0
-  totalGST = 0
-  totalAmountWithGST = 0
-  totalAmountWithoutGSTAndDiscount = 0
-  totalLabour = 0
-  amountPaid = 0
-  paymentMethod = 'cash'
-  currentDate: Date = new Date()
+  _selectedCustomersInfo!: CustomerDetails;
+  _selectedProductsData: InvoiceProductDataModel[] = [];
+
+  currentDate: Date = new Date();
+  paymentMethod = 'cash';
+  paymentRefNumber = '';
+  amountPaid = 0;
+
+  rateSnapshot: Record<string, number> = {};
+  ratesLoaded = false;
+  metalRates: MetalRateRow[] = [];
+  shopSettings: ShopSettings | null = null;
+  taxSlabsByHsn: Record<string, TaxSlab> = {};
+
+  totals: CartTotals = {
+    lines: [],
+    subTotalTaxable: 0,
+    totalMakingCharge: 0,
+    totalStoneCharge: 0,
+    totalWastageCharge: 0,
+    totalDiscount: 0,
+    totalCgst: 0,
+    totalSgst: 0,
+    totalIgst: 0,
+    oldGoldCreditAmount: 0,
+    roundOffAmount: 0,
+    grandTotal: 0,
+  };
 
   @Input() set selectedProductsData(productsData: { lengthOfData: number, selectedProducts: ProductDataModel[] }) {
-    this.totalWeight = 0
-    this.totalDiscount = 0
-    this.totalAmountWithGST = 0
-    this.totalGST = 0
-    this.totalLabour = 0
-
-    /* creating a clone is necessary otherwise as the data we are getting from the parent is a nested object
-     the reference of the array will still be present.
-     so any change in the _selectedProductsData will also change cartItems array in the parent component
-     Refer this link: https://stackoverflow.com/a/75339720/18480147
-    */
-    const tempClone = structuredClone(productsData)
-    this._selectedProductsData = [...tempClone.selectedProducts]
-    this._selectedProductsData.forEach((product) => {
-      this.totalWeight += product.productWeight
-    })
+    const clone = structuredClone(productsData);
+    this._selectedProductsData = clone.selectedProducts.map((p) => this.toCartLine(p));
+    this.recalcAll();
   }
 
   @Input() set selectedCustomersInfo(customerInfo: any) {
-    this._selectedCustomersInfo = customerInfo
+    this._selectedCustomersInfo = customerInfo;
+    this.recalcAll();
   }
 
   constructor(
@@ -62,165 +77,188 @@ export class CreateInvoiceComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private loaderService: NgxUiLoaderService,
-    private loggerService: LoggerService
+    private loggerService: LoggerService,
+    private metalRatesService: MetalRatesService,
+    private shopSettingsService: ShopSettingsService,
+    private puritiesService: PuritiesService
   ) {}
 
-  ngOnInit(): void {
-  }
-
-  getValue(event: Event, productId: number, valueOf: string): number {
-    let product = this._selectedProductsData.find(item => item.id === productId)
-    if (product) {
-      switch (valueOf) {
-        case 'labour':
-          product.labour = Number((event.target as HTMLInputElement).value)
-          this.setFinalAmountOfEachProduct(product)
-          this.setTotalAmountWithGST()
-          this.setTotalLabour()
-          this.setTotalGST()
-          this.setTotalAmountWithoutGSTAndDiscount()
-          break
-
-        case 'price':
-          product.price = Number((event.target as HTMLInputElement).value)
-          this.setFinalAmountOfEachProduct(product)
-          this.setTotalAmountWithGST()
-          this.setTotalAmountWithoutGSTAndDiscount()
-          break
-
-        case 'sgst':
-          product.SGST = Number((event.target as HTMLInputElement).value)
-          this.setFinalAmountOfEachProduct(product)
-          this.setTotalAmountWithGST()
-          this.setTotalGST()
-          this.setTotalAmountWithoutGSTAndDiscount()
-          break
-
-        case 'cgst':
-          product.CGST = Number((event.target as HTMLInputElement).value)
-          this.setFinalAmountOfEachProduct(product)
-          this.setTotalAmountWithGST()
-          this.setTotalGST()
-          this.setTotalAmountWithoutGSTAndDiscount()
-          break
-
-        case 'discount':
-          product.discount = Number((event.target as HTMLInputElement).value)
-          this.setFinalAmountOfEachProduct(product)
-          this.setTotalDiscount()
-          this.setTotalAmountWithGST()
-          this.setTotalAmountWithoutGSTAndDiscount()
-          break
-
+  async ngOnInit(): Promise<void> {
+    try {
+      const [rates, settings, taxSlabs] = await Promise.all([
+        this.metalRatesService.getCurrent(),
+        this.shopSettingsService.get(),
+        this.puritiesService.getTaxSlabs(),
+      ]);
+      this.metalRates = rates ?? [];
+      this.shopSettings = settings;
+      this.rateSnapshot = this.metalRatesService.buildSnapshot(this.metalRates);
+      this.taxSlabsByHsn = {};
+      for (const slab of taxSlabs ?? []) {
+        this.taxSlabsByHsn[slab.hsnCode] = {
+          hsnCode: slab.hsnCode,
+          cgstRate: Number(slab.cgstRate),
+          sgstRate: Number(slab.sgstRate),
+          igstRate: Number(slab.igstRate),
+        };
       }
+      this.ratesLoaded = true;
+      this._selectedProductsData.forEach((line) => {
+        if (!line.ratePerGram) {
+          line.ratePerGram = this.rateFor(line.purityCode);
+        }
+      });
+      this.recalcAll();
+    } catch (error) {
+      this.ratesLoaded = true;
+      this.loggerService.LogError(error, 'CreateInvoice.ngOnInit');
     }
-    return Number((event.target as HTMLInputElement).value);
   }
 
-  setFinalAmountOfEachProduct(product: InvoiceProductDataModel) {
-
-    product.finalAmount = 0
-    let partialSum = (product.labour ?? 0) + (product.price ?? 0) - (product.discount ?? 0)
-    let cgst = product.CGST ? partialSum * ((product.CGST ?? 100) / 100) : 0
-    let sgst = product.SGST ? partialSum * ((product.SGST ?? 100) / 100) : 0
-
-    product.totalGST = cgst + sgst
-    product.finalAmount = Math.round((partialSum + cgst + sgst + Number.EPSILON) * 100) / 100
+  private toCartLine(product: ProductDataModel | any): InvoiceProductDataModel {
+    const purityCode = product.purityCode ?? '916';
+    const makingMode: MakingMode = (product.makingMode as MakingMode) ?? 'perGram';
+    return {
+      ...product,
+      lineType: 'product',
+      purityCode,
+      hsnCode: product.hsnCode ?? '7113',
+      grossWeight: Number(product.grossWeight ?? 0),
+      netWeight: Number(product.netWeight ?? 0),
+      stoneWeight: Number(product.stoneWeight ?? 0),
+      stoneCharges: Number(product.stoneCharges ?? 0),
+      makingMode,
+      makingValue: Number(product.makingValue ?? 0),
+      wastagePercent: Number(product.wastagePercent ?? 0),
+      ratePerGram: Number(product.ratePerGram ?? this.rateFor(purityCode)),
+      discountAmount: 0,
+      tagPrice: Number(product.tagPrice ?? 0),
+    };
   }
 
-  setTotalDiscount() {
-    this.totalDiscount = 0
-    this._selectedProductsData.forEach((item) => {
-      this.totalDiscount += item.discount ?? 0
-    })
+  private rateFor(purityCode: string): number {
+    return Number(this.rateSnapshot[purityCode] ?? 0);
   }
 
-  setTotalAmountWithGST() {
-    this.totalAmountWithGST = 0
-    this._selectedProductsData.forEach((item) => {
-      this.totalAmountWithGST += item.finalAmount ?? 0
-    })
+  onLineFieldChange(product: InvoiceProductDataModel, field: string, value: any) {
+    const numeric = Number(value);
+    switch (field) {
+      case 'ratePerGram':    product.ratePerGram = numeric; break;
+      case 'netWeight':      product.netWeight = numeric; break;
+      case 'makingMode':     product.makingMode = value as MakingMode; break;
+      case 'makingValue':    product.makingValue = numeric; break;
+      case 'wastagePercent': product.wastagePercent = numeric; break;
+      case 'stoneCharges':   product.stoneCharges = numeric; break;
+      case 'discountAmount': product.discountAmount = numeric; break;
+    }
+    this.recalcAll();
   }
 
-  setTotalAmountWithoutGSTAndDiscount() {
-    this.totalAmountWithoutGSTAndDiscount = 0
-    this._selectedProductsData.forEach((item) => {
-      this.totalAmountWithoutGSTAndDiscount += ((item.price ?? 0) + (item.labour ?? 0) )
-    })
-  }
+  recalcAll() {
+    if (!this._selectedProductsData?.length) {
+      this.totals = { ...this.totals, lines: [], subTotalTaxable: 0, totalCgst: 0, totalSgst: 0, totalIgst: 0, totalMakingCharge: 0, totalStoneCharge: 0, totalWastageCharge: 0, totalDiscount: 0, grandTotal: 0, oldGoldCreditAmount: 0, roundOffAmount: 0 };
+      return;
+    }
+    const shopStateCode = this.shopSettings?.stateCode ?? '27';
+    const placeOfSupplyStateCode = this._selectedCustomersInfo?.stateCode ?? shopStateCode;
+    const lines: CartLineInput[] = this._selectedProductsData.map((p) => ({
+      productId: p.id,
+      lineType: p.lineType ?? 'product',
+      description: p.productDescription ?? null,
+      hsnCode: p.hsnCode ?? '7113',
+      purityCode: p.purityCode,
+      grossWeight: Number(p.grossWeight) || 0,
+      netWeight: Number(p.netWeight) || 0,
+      stoneWeight: Number(p.stoneWeight) || 0,
+      ratePerGram: Number(p.ratePerGram) || 0,
+      makingMode: p.makingMode ?? 'perGram',
+      makingValue: Number(p.makingValue) || 0,
+      wastagePercent: Number(p.wastagePercent) || 0,
+      stoneCharges: Number(p.stoneCharges) || 0,
+      discountAmount: Number(p.discountAmount) || 0,
+    }));
 
-  setTotalGST() {
-    this.totalGST = 0
-    this._selectedProductsData.forEach((item) => {
-      this.totalGST += item.totalGST ?? 0
-    })
-    if(this.totalGST)
-     this.totalGST = Math.round((this.totalGST + Number.EPSILON) * 100) / 100
-  }
+    this.totals = computeCartTotals(lines, {
+      shopStateCode,
+      invoicePlaceOfSupplyStateCode: placeOfSupplyStateCode,
+      taxSlabsByHsn: this.taxSlabsByHsn,
+      oldGoldCreditAmount: 0,
+      roundOff: true,
+    });
 
-  setTotalLabour() {
-    this.totalLabour = 0
-    this._selectedProductsData.forEach((item) => {
-      this.totalLabour += item.labour ?? 0
-    })
-    if(this.totalLabour)
-     this.totalLabour = Math.round((this.totalLabour+ Number.EPSILON) * 100) / 100
+    this.totals.lines.forEach((computed: CartLineComputed, idx: number) => {
+      const target = this._selectedProductsData[idx];
+      if (!target) { return; }
+      target.metalValue = computed.metalValue;
+      target.makingCharge = computed.makingCharge;
+      target.wastageCharge = computed.wastageCharge;
+      target.stoneCharge = computed.stoneCharge;
+      target.discountAmount = computed.discountAmount;
+      target.taxableAmount = computed.taxableAmount;
+      target.cgst = computed.cgst;
+      target.sgst = computed.sgst;
+      target.igst = computed.igst;
+      target.lineTotal = computed.lineTotal;
+    });
   }
 
   saveOrder() {
-    this.loggerService.LogInfo("saveOrder() Request Started.")
+    this.loggerService.LogInfo('saveOrder() Request Started.');
+    this.loaderService.start();
 
-    this.loaderService.start()
-    const requestData = {
-      productsData: this._selectedProductsData,
+    const payload: SaveOrderPayload = {
       customerId: this._selectedCustomersInfo.id,
-      totalAmountWithGST: this.totalAmountWithGST,
-      totalAmountWithoutGst: this.totalAmountWithoutGSTAndDiscount,
-      totalDiscount: this.totalDiscount,
-      totalLabour: this.totalLabour,
-      totalGST: this.totalGST,
-      amountPaid: this.amountPaid,
-      paymentMethod: this.paymentMethod
-    }
+      placeOfSupply: this._selectedCustomersInfo.state ?? this.shopSettings?.state ?? '',
+      hsn: '7113',
+      rateSnapshot: this.rateSnapshot,
+      subTotalTaxable: this.totals.subTotalTaxable,
+      totalCgst: this.totals.totalCgst,
+      totalSgst: this.totals.totalSgst,
+      totalIgst: this.totals.totalIgst,
+      totalDiscount: this.totals.totalDiscount,
+      totalMakingCharge: this.totals.totalMakingCharge,
+      totalStoneCharge: this.totals.totalStoneCharge,
+      totalWastageCharge: this.totals.totalWastageCharge,
+      oldGoldCreditAmount: this.totals.oldGoldCreditAmount,
+      roundOffAmount: this.totals.roundOffAmount,
+      grandTotal: this.totals.grandTotal,
+      remarks: null,
+      amountPaid: Number(this.amountPaid) || 0,
+      paymentMethod: this.paymentMethod,
+      paymentRefNumber: this.paymentRefNumber || null,
+      lineItems: this.totals.lines,
+      oldGoldReceipts: null,
+    };
 
-    this.orderService.saveOrder(requestData)
+    this.orderService.saveOrder(payload)
       .then((response: any) => {
-        this.loaderService.stop()
-        if (response.length == 0 || !response[0]?.message ) {
-          this.cartService.emptyCart()
+        this.loaderService.stop();
+        const flat = Array.isArray(response) ? response.flat() : response;
+        const hasError = Array.isArray(flat) && flat.some((r: any) => r && typeof r === 'object' && r.message?.startsWith?.('Error:'));
+        if (!hasError) {
+          this.cartService.emptyCart();
           Swal.fire({
-            title: 'Order Saved Successfully!',
-            html: 'Redirecting to orders page.',
-            timer: 3500,
+            title: 'Invoice saved',
+            html: 'Redirecting to orders...',
+            timer: 2500,
             timerProgressBar: true,
-            didOpen: () => {
-              Swal.showLoading()
-            }
+            didOpen: () => Swal.showLoading(),
           }).then((result) => {
             if (result.dismiss === Swal.DismissReason.timer) {
-              this.loggerService.LogInfo("saveOrder() Request Completed.")
+              this.loggerService.LogInfo('saveOrder() Request Completed.');
               this.router.navigate(['../'], { relativeTo: this.route });
             }
-          })
+          });
+        } else {
+          const errMsg = flat.find((r: any) => r?.message?.startsWith?.('Error:'))?.message ?? 'Failed to save order';
+          this.loggerService.LogError(errMsg, 'saveOrder()');
+          Swal.fire('Error', errMsg, 'error');
         }
-        else {
-          this.loggerService.LogError(response[0].message ?? 'Failed to save order', "saveOrder()")
-          Swal.fire(
-            'Error',
-            response[0].message ?? 'Failed to save order',
-            'error')
-
-        }
-
       })
       .catch((error: any) => {
-        this.loggerService.LogError(error, "saveOrder()")
-        this.loaderService.stop()
-        Swal.fire(
-          'Error',
-          error?? 'Failed to save order',
-          'error')
-      })
+        this.loggerService.LogError(error, 'saveOrder()');
+        this.loaderService.stop();
+        Swal.fire('Error', error ?? 'Failed to save order', 'error');
+      });
   }
-
 }

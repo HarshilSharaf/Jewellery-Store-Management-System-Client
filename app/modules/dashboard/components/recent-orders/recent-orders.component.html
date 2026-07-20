@@ -36,9 +36,9 @@
             @for (order of _recentOrders; track order.orderGuid ?? $index) {
               <tr  class="text-center">
                 <th scope="row">{{order.id}}</th>
-                <td>{{order.total_products}}</td>
-                <td> &#8377; {{order.totalAmountWithGst}}</td>
-                <td>{{(order.customer_details.firstName + ' ' + order.customer_details.lastName) | titlecase}}</td>
+                <td>{{order.totalLineItems ?? order.total_products}}</td>
+                <td> &#8377; {{order.grandTotal ?? order.totalAmountWithGst}}</td>
+                <td>{{((order.customerDetails?.firstName ?? order.customer_details?.firstName ?? '') + ' ' + (order.customerDetails?.lastName ?? order.customer_details?.lastName ?? '')) | titlecase}}</td>
                 <td>{{order.createdAt | date:'fullDate'}}</td>
                 <td>
                   @if (order.isPaymentDone==true) {

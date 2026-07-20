@@ -186,6 +186,39 @@
                                   formControlName="dob" placeholder="Enter Date Of Birth">
                                 </div>
                               </div>
+
+                              <details class="mb-3">
+                                <summary class="small mb-1" style="cursor:pointer;">Additional details</summary>
+                                <div class="row gx-3 mt-2">
+                                  <div class="col-md-4">
+                                    <label class="small mb-1" for="state">State</label>
+                                    <input class="form-control" id="state" formControlName="state" placeholder="e.g. Maharashtra">
+                                  </div>
+                                  <div class="col-md-2">
+                                    <label class="small mb-1" for="stateCode">State Code</label>
+                                    <input class="form-control" id="stateCode" formControlName="stateCode" maxlength="2">
+                                  </div>
+                                  <div class="col-md-3">
+                                    <label class="small mb-1" for="gstin">GSTIN</label>
+                                    <input class="form-control" id="gstin" formControlName="gstin" maxlength="15">
+                                  </div>
+                                  <div class="col-md-3">
+                                    <label class="small mb-1" for="pan">PAN</label>
+                                    <input class="form-control" id="pan" formControlName="pan" maxlength="10">
+                                  </div>
+                                </div>
+                                <div class="row gx-3 mt-2">
+                                  <div class="col-md-8">
+                                    <label class="small mb-1" for="remarks">Remarks</label>
+                                    <textarea class="form-control" id="remarks" formControlName="remarks" rows="2"></textarea>
+                                  </div>
+                                  <div class="col-md-4">
+                                    <label class="small mb-1">Credit Balance</label>
+                                    <input class="form-control" [value]="creditBalance" readonly>
+                                  </div>
+                                </div>
+                              </details>
+
                               <!-- Save changes button-->
                               <div class="row text-center">
                                 <div class="col">

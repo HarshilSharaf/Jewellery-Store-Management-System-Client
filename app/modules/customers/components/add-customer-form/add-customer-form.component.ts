@@ -41,8 +41,16 @@ export class AddCustomerFormComponent {
       email: [''],
       phoneNumber: ['', Validators.required],
       city: ['', Validators.required],
+      state: [''],
+      stateCode: [''],
+      gstin: [''],
+      pan: [''],
+      remarks: [''],
     });
   }
+
+  showAdditional = false;
+  toggleAdditional() { this.showAdditional = !this.showAdditional; }
 
   async submitForm() {
     this.loggerService.LogInfo("addCustomer() Request Started.")
