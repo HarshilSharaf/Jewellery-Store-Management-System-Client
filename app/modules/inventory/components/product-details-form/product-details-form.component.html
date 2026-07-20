@@ -17,7 +17,7 @@
             <label class="small mb-1">Purity</label>
             <select class="form-select" formControlName="purityCode">
               @for (p of purities; track p.code) {
-                <option [ngValue]="p.code">{{p.label}}</option>
+                <option [ngValue]="p.code">{{p.label}} {{p.metalType | titlecase}} &mdash; {{p.fineness}}</option>
               }
             </select>
           </div>
