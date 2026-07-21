@@ -28,11 +28,12 @@
     // Photo tile on the left, karigar controls stacked on the right.
     // Both columns inset generously from the section walls; the row
     // itself is centered horizontally so any leftover width sits
-    // symmetrically around them.
-    grid-template-columns: minmax(0, 340px) minmax(0, 1fr);
+    // symmetrically around them. Karigar column gets more real estate
+    // so the "Assign karigar" dropdown reads longer names comfortably.
+    grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
     align-items: start;
     gap: 24px;
-    max-width: 720px;
+    max-width: 760px;
     margin: 0 auto;
     padding-bottom: 24px;
 
