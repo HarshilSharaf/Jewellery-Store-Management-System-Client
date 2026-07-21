@@ -26,18 +26,19 @@
 
   &--photo-karigar {
     // Photo tile on the left, karigar controls stacked on the right.
-    // Extra gap so the two columns breathe; each column pads inward.
+    // Photo pads on its LEFT (outer edge), karigar pads on its RIGHT
+    // (outer edge) so the two columns sit inset from the section walls
+    // but touch each other in the middle with a soft gap.
     grid-template-columns: minmax(0, 340px) minmax(0, 1fr);
     align-items: start;
-    gap: 24px;
+    gap: 16px;
 
     > :first-child {
-      padding: 8px 16px 8px 4px;
-      border-right: 1px solid var(--color-border-subtle);
+      padding-left: 16px;
     }
 
     > :last-child {
-      padding: 8px 4px 8px 16px;
+      padding-right: 16px;
     }
   }
 }
@@ -195,12 +196,7 @@
     gap: 16px;
   }
   .repair-create__grid--photo-karigar {
-    > :first-child {
-      padding: 0;
-      border-right: none;
-      border-bottom: 1px solid var(--color-border-subtle);
-      padding-bottom: 16px;
-    }
+    > :first-child,
     > :last-child {
       padding: 0;
     }
