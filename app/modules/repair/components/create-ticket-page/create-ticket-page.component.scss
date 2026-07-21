@@ -24,9 +24,17 @@
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  &--karigar {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  &--photo-karigar {
+    // Photo tile on the left, karigar controls stacked on the right.
+    grid-template-columns: minmax(0, 340px) minmax(0, 1fr);
+    align-items: start;
   }
+}
+
+.repair-create__karigar-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .repair-create__stack {
@@ -166,7 +174,7 @@
   .repair-create__grid,
   .repair-create__grid--party,
   .repair-create__grid--triple,
-  .repair-create__grid--karigar {
+  .repair-create__grid--photo-karigar {
     grid-template-columns: 1fr;
   }
   .repair-create__checkbox-cell {

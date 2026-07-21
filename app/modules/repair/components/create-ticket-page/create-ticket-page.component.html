@@ -94,13 +94,35 @@
               </div>
             </div>
 
-            <div>
-              <label class="field-label">Photo <span class="field-hint field-hint--inline">(optional)</span></label>
-              <div class="repair-photo">
-                <app-image-upload
-                  [activeColor]="'var(--color-accent)'"
-                  [baseColor]="'var(--color-border)'">
-                </app-image-upload>
+            <div class="repair-create__grid repair-create__grid--photo-karigar">
+              <div>
+                <label class="field-label">Photo <span class="field-hint field-hint--inline">(optional)</span></label>
+                <div class="repair-photo">
+                  <app-image-upload
+                    [activeColor]="'var(--color-accent)'"
+                    [baseColor]="'var(--color-border)'">
+                  </app-image-upload>
+                </div>
+              </div>
+              <div class="repair-create__karigar-col">
+                <div>
+                  <label class="field-label">Assign karigar <span class="field-hint field-hint--inline">(optional)</span></label>
+                  <select class="hlm-input" formControlName="karigarGuid">
+                    <option value="">— None —</option>
+                    @for (k of karigars(); track k.karigarGuid) {
+                      <option [value]="k.karigarGuid">{{ k.name }}</option>
+                    }
+                  </select>
+                </div>
+                @if (form.get('karigarGuid')?.value) {
+                  <label class="repair-create__checkbox">
+                    <input type="checkbox" formControlName="issueKarigarJob" />
+                    <span>
+                      <span class="repair-create__checkbox-title">Issue karigar job now</span>
+                      <span class="field-hint">Auto-creates a job card on save.</span>
+                    </span>
+                  </label>
+                }
               </div>
             </div>
 
@@ -108,32 +130,6 @@
               <label class="field-label">Notes</label>
               <textarea class="hlm-input" formControlName="notes" rows="2" placeholder="Anything else the counter should know…"></textarea>
             </div>
-          </div>
-        </div>
-
-        <div class="form-section">
-          <h3 class="section-heading">Karigar <span class="section-heading__optional">(optional)</span></h3>
-          <div class="repair-create__grid repair-create__grid--karigar">
-            <div>
-              <label class="field-label">Assign karigar</label>
-              <select class="hlm-input" formControlName="karigarGuid">
-                <option value="">— None —</option>
-                @for (k of karigars(); track k.karigarGuid) {
-                  <option [value]="k.karigarGuid">{{ k.name }}</option>
-                }
-              </select>
-            </div>
-            @if (form.get('karigarGuid')?.value) {
-              <div class="repair-create__checkbox-cell">
-                <label class="repair-create__checkbox">
-                  <input type="checkbox" formControlName="issueKarigarJob" />
-                  <span>
-                    <span class="repair-create__checkbox-title">Issue karigar job now</span>
-                    <span class="field-hint">Auto-creates a job card on save.</span>
-                  </span>
-                </label>
-              </div>
-            }
           </div>
         </div>
       </form>
