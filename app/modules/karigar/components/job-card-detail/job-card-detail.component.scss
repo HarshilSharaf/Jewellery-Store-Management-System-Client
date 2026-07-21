@@ -274,3 +274,14 @@
     grid-template-columns: 80px 80px 60px 80px 80px 1fr;
   }
 }
+
+@media (max-width: 767px) {
+  .ledger-table {
+    overflow-x: auto;
+
+    &__head, &__row {
+      grid-template-columns: 80px 80px 60px 80px 80px 120px;
+      min-width: 480px;
+    }
+  }
+}

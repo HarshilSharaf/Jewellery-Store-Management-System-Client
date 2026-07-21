@@ -235,3 +235,18 @@
     .col-job { display: none; }
   }
 }
+
+@media (max-width: 767px) {
+  .ledger-table {
+    overflow-x: auto;
+
+    &__head, &__row {
+      grid-template-columns: 90px 80px 24px 100px 100px 140px;
+      min-width: 520px;
+    }
+  }
+  .active-jobs__row {
+    grid-template-columns: 1fr auto;
+    row-gap: 4px;
+  }
+}
