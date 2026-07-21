@@ -46,13 +46,13 @@
   }
 }
 
-// Full-modal-width divider matching the modal-header border. Rendered
-// via negative margins that cancel the parent .modal-content padding
-// (28px each side per styles.scss modal-content recipe).
+// Divider matching the .form-section border-bottom (the line under
+// "Party"). Spans the full modal-content inner width — same left/right
+// edges as .form-section, not stretched to the modal walls.
 .repair-create__row-divider {
   height: 0;
   border-top: 1px solid var(--color-border-subtle);
-  margin: 4px -28px 20px;
+  margin: 4px 0 20px;
 }
 
 .repair-create__karigar-col {
@@ -219,7 +219,7 @@
     }
   }
   .repair-create__row-divider {
-    margin: 4px -16px 16px;
+    margin: 4px 0 16px;
   }
   .repair-create__checkbox-cell {
     min-height: 0;
