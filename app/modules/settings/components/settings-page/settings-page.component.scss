@@ -154,7 +154,7 @@
 
 .rate-row {
   display: grid;
-  grid-template-columns: 140px 1fr 1fr 40px;
+  grid-template-columns: minmax(180px, 200px) minmax(0, 1fr) minmax(0, 1fr) 40px;
   gap: 12px;
   align-items: center;
   padding: 10px 12px;
@@ -172,7 +172,15 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    small { color: var(--color-fg-subtle); font-size: 11px; font-variant-numeric: tabular-nums; }
+    min-width: 0;
+
+    .chip {
+      white-space: nowrap;
+      flex-shrink: 1;
+      min-width: 0;
+    }
+
+    small { color: var(--color-fg-subtle); font-size: 11px; font-variant-numeric: tabular-nums; flex-shrink: 0; }
   }
 
   .rate-input {
@@ -180,6 +188,8 @@
     flex-direction: column;
     gap: 4px;
     min-width: 0;
+
+    input { width: 100%; min-width: 0; }
 
     label {
       font-size: 10px;
@@ -214,28 +224,45 @@
   }
 }
 
-// Purity chip variants keyed off metal type
+// Purity chip variants keyed off metal type. Metal-accurate palette
+// with deliberate light/dark values — subtle warm gold, cool silver,
+// pale platinum. Colors are hardcoded (not tokens) because they encode
+// domain semantics: gold ≠ accent, silver ≠ neutral.
 .chip.chip--purity {
+  font-weight: 600;
+
   &.chip--gold {
-    background: color-mix(in oklab, oklch(78% 0.15 80) 18%, var(--color-bg-subtle));
-    color: oklch(45% 0.12 80);
-    border-color: color-mix(in oklab, oklch(78% 0.15 80) 40%, transparent);
+    background: #fbe6a8;
+    color: #6b4a00;
+    border-color: #e9c877;
   }
   &.chip--silver {
-    background: color-mix(in oklab, oklch(80% 0.02 250) 25%, var(--color-bg-subtle));
-    color: oklch(38% 0.02 250);
-    border-color: color-mix(in oklab, oklch(70% 0.02 250) 40%, transparent);
+    background: #e8ecf1;
+    color: #4a5568;
+    border-color: #c8d1dc;
   }
   &.chip--platinum {
-    background: color-mix(in oklab, oklch(85% 0.02 300) 20%, var(--color-bg-subtle));
-    color: oklch(35% 0.05 300);
-    border-color: color-mix(in oklab, oklch(70% 0.03 300) 40%, transparent);
+    background: #ede8f3;
+    color: #514668;
+    border-color: #cfc4dc;
   }
 }
 html[data-theme="dark"] .chip.chip--purity {
-  &.chip--gold     { color: oklch(80% 0.14 80); }
-  &.chip--silver   { color: oklch(80% 0.02 250); }
-  &.chip--platinum { color: oklch(80% 0.03 300); }
+  &.chip--gold {
+    background: color-mix(in oklab, #ffcf5c 22%, var(--color-bg-subtle));
+    color: #ffd97a;
+    border-color: color-mix(in oklab, #ffcf5c 40%, transparent);
+  }
+  &.chip--silver {
+    background: color-mix(in oklab, #c8d1dc 18%, var(--color-bg-subtle));
+    color: #d6dde8;
+    border-color: color-mix(in oklab, #c8d1dc 35%, transparent);
+  }
+  &.chip--platinum {
+    background: color-mix(in oklab, #cfc4dc 18%, var(--color-bg-subtle));
+    color: #ddd0ef;
+    border-color: color-mix(in oklab, #cfc4dc 35%, transparent);
+  }
 }
 
 .empty-note {
