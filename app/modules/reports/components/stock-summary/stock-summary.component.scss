@@ -1,10 +1,24 @@
 .report-page {
   padding: 24px 32px;
 
+  @media (max-width: 1023px) { padding: 20px 16px; }
+  @media (max-width: 639px)  { padding: 16px 12px; }
+
+  .report-scroll {
+    margin-top: 12px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
   .ds-table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 12px;
+  }
+
+  .report-scroll .ds-table {
+    min-width: 620px;
+    margin-top: 0;
   }
 
   .ds-table th,

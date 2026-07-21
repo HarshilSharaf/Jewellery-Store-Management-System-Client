@@ -29,6 +29,13 @@
     position: sticky;
     top: 96px;
     align-self: start;
+
+    // Below 1024px the totals stack under the line items - un-stick so
+    // it just flows in normal document order.
+    @media (max-width: 1100px) {
+      position: static;
+      top: auto;
+    }
   }
 
   &__shortcuts {
@@ -582,4 +589,61 @@
 @keyframes scheme-rise {
   from { opacity: 0; transform: translate(-50%, calc(-50% + 8px)) scale(0.98); }
   to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+// Narrow-viewport tuning.
+@media (max-width: 767px) {
+  .cart-builder { gap: 16px; }
+
+  .picker__input {
+    font-size: 14px;
+  }
+  .picker__list {
+    max-height: 320px;
+  }
+  .picker__item {
+    flex-wrap: wrap;
+  }
+  .picker__add {
+    margin-left: auto;
+  }
+
+  .line {
+    padding: 12px;
+    gap: 10px;
+  }
+  .line__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .line__foot {
+    justify-content: flex-start;
+    gap: 8px;
+  }
+  .line__foot-bits {
+    order: 2;
+    width: 100%;
+  }
+
+  .rate-card {
+    padding: 12px 14px;
+
+    &__list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 4px 12px;
+    }
+  }
+
+  .totals-panel {
+    padding: 16px 18px;
+  }
+}
+
+@media (max-width: 479px) {
+  .line__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .rate-card__list {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
