@@ -59,6 +59,16 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  min-width: 0;
+
+  // Chromium user-agent stylesheet sizes <select> to intrinsic content
+  // width in some flex/grid contexts even under Tailwind's w-full. Force
+  // full-column width so the dropdown fills the karigar column.
+  select.hlm-input {
+    width: 100%;
+    min-width: 0;
+    display: block;
+  }
 }
 
 .repair-create__stack {
