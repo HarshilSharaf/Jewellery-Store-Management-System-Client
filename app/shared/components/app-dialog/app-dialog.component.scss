@@ -240,3 +240,48 @@
   }
   .app-dialog-spinner { animation: none; }
 }
+
+// Dark-mode contrast guard.
+//
+// Field report (Section 21.3): dialog text was unreadable in dark mode while
+// toasts using the same token family rendered correctly. Both components
+// reference `--color-panel`/`--color-fg` and the tokens themselves resolve
+// to the dark scale on `html[data-theme="dark"]`. The paradox pointed to a
+// specificity or paint-layer conflict specific to the fixed-position panel;
+// this block re-anchors the semantic tokens with a higher-specificity
+// selector so the panel is guaranteed to read the theme-scoped values
+// regardless of upstream cascade quirks. No hardcoded colors — the token
+// layer stays authoritative.
+:host-context(html[data-theme="dark"]) {
+  .app-dialog-panel {
+    background: var(--color-panel);
+    color: var(--color-fg);
+    border-color: var(--color-border-subtle);
+  }
+
+  .app-dialog-title { color: var(--color-fg); }
+  .app-dialog-text { color: var(--color-fg-muted); }
+  .app-dialog-text b,
+  .app-dialog-text strong { color: var(--color-fg); }
+
+  .app-dialog-close { color: var(--color-fg-muted); }
+  .app-dialog-close:hover {
+    background: var(--color-bg-subtle);
+    color: var(--color-fg);
+  }
+
+  .app-dialog-input-label { color: var(--color-fg-muted); }
+  .app-dialog-input {
+    color: var(--color-fg);
+    background: var(--color-bg);
+    border-color: var(--color-border-subtle);
+  }
+
+  .app-dialog-btn--secondary {
+    color: var(--color-fg);
+    border-color: var(--color-border);
+  }
+  .app-dialog-btn--secondary:hover:not(:disabled) {
+    background: var(--color-bg-subtle);
+  }
+}
