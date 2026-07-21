@@ -26,22 +26,20 @@
 
   &--photo-karigar {
     // Photo tile on the left, karigar controls stacked on the right.
-    // Both columns inset generously from the section walls; the row
-    // itself is centered horizontally so any leftover width sits
-    // symmetrically around them.
-    grid-template-columns: minmax(0, 340px) minmax(0, 1fr);
+    // Both columns inset from the section walls; the row centers
+    // inside the .modal-content column. Karigar cell gets a much
+    // larger fixed track so the dropdown reads long karigar names.
+    grid-template-columns: 220px minmax(360px, 1fr);
     align-items: start;
-    gap: 24px;
-    max-width: 720px;
-    margin: 0 auto;
+    gap: 32px;
     padding-bottom: 24px;
 
     > :first-child {
-      padding-left: 40px;
+      padding-left: 24px;
     }
 
     > :last-child {
-      padding-right: 40px;
+      padding-right: 24px;
     }
   }
 }
