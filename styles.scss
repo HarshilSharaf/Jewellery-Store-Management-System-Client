@@ -72,20 +72,48 @@
   }
 
   // Dashboard KPI recipe. Reused by G's pattern; H/I/J will pull this
-  // into their screens when they need a stat tile.
+  // into their screens when they need a stat tile. Card is a flex
+  // column so children get proper vertical rhythm regardless of tag
+  // (some screens use <span>, others <p> / <div>).
   .kpi-card {
     @apply rounded-lg border border-border-subtle bg-panel p-6 shadow-sm;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    // Compact size modifier used across detail-page sidebars.
+    &.kpi-card--compact {
+      @apply p-4;
+      gap: 6px;
+    }
   }
   .kpi-label {
     @apply text-xs font-medium text-fg-muted uppercase tracking-wide;
+    display: block;
+    margin: 0;
+    letter-spacing: 0.05em;
   }
   .kpi-value {
-    @apply mt-2 font-serif text-fg tabular-nums;
+    @apply font-serif text-fg tabular-nums;
+    display: block;
+    margin: 0;
     font-size: 2.25rem;
     line-height: 1.05;
+
+    &.kpi-value--sm {
+      font-size: 1.375rem;
+      line-height: 1.15;
+    }
+    &.kpi-value--md {
+      font-size: 1.75rem;
+      line-height: 1.1;
+    }
   }
   .kpi-delta {
-    @apply mt-3 text-sm tabular-nums;
+    @apply text-sm tabular-nums;
+    display: block;
+    margin: 0;
+    margin-top: 4px;
   }
   .kpi-delta-up {
     color: var(--color-success-fg);

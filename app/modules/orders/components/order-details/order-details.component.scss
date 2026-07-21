@@ -200,19 +200,19 @@
 
 .side-kpi {
   padding: 16px 20px !important;
+  gap: 6px;
 
   .kpi-value {
     font-size: 1.5rem;
-    line-height: 1.05;
-    margin-top: 4px;
+    line-height: 1.15;
 
     &.is-danger { color: var(--color-danger-fg); }
   }
 
   &--status {
     .status-chip {
-      margin-top: 8px;
       font-size: 12px;
+      align-self: flex-start;
     }
   }
 }
