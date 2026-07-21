@@ -260,12 +260,12 @@ $display-values: (none, block, flex, inline, inline-block, inline-flex);
 .text-nowrap    { white-space: nowrap !important; }
 .text-break     { word-wrap: break-word !important; overflow-wrap: break-word !important; }
 
-.text-muted     { color: $text-secondary !important; }
+.text-muted     { color: var(--color-fg-muted) !important; }
 .text-white     { color: #ffffff !important; }
-.text-danger    { color: $secondary !important; }
-.text-success   { color: $success !important; }
-.text-warning   { color: $warning !important; }
-.text-dark      { color: $text-primary !important; }
+.text-danger    { color: var(--color-danger) !important; }
+.text-success   { color: var(--color-success) !important; }
+.text-warning   { color: var(--color-warning) !important; }
+.text-dark      { color: var(--color-fg) !important; }
 
 .text-sm        { font-size: var(--fs-sm) !important; }
 
@@ -286,7 +286,7 @@ $display-values: (none, block, flex, inline, inline-block, inline-flex);
   padding: 0.45rem 0.75rem;
   font-size: var(--fs-base);
   line-height: 1.5;
-  background-color: $surface-color;
+  background-color: var(--color-panel);
   background-clip: padding-box;
   appearance: none;
   // `width: 100%` + native padding would otherwise overflow the parent by
@@ -296,7 +296,7 @@ $display-values: (none, block, flex, inline, inline-block, inline-flex);
 
   &:disabled,
   &[readonly] {
-    background-color: $bg-color;
+    background-color: var(--color-bg);
     opacity: 1;
   }
 }
@@ -321,7 +321,7 @@ $display-values: (none, block, flex, inline, inline-block, inline-flex);
   display: inline-block;
   margin-bottom: 0.375rem;
   font-weight: var(--fw-medium);
-  color: $text-primary;
+  color: var(--color-fg);
   font-size: var(--fs-sm);
 }
 
@@ -331,20 +331,20 @@ $display-values: (none, block, flex, inline, inline-block, inline-flex);
   padding: 0.45rem 2.25rem 0.45rem 0.75rem;
   font-size: var(--fs-base);
   line-height: 1.5;
-  color: $text-primary;
-  background-color: $surface-color;
+  color: var(--color-fg);
+  background-color: var(--color-panel);
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%236B7194' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
   background-repeat: no-repeat;
   background-position: right 0.75rem center;
   background-size: 16px 12px;
-  border: 1px solid $border-color;
+  border: 1px solid var(--color-border-subtle);
   border-radius: 8px;
   appearance: none;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
   &:focus {
-    border-color: $primary-light;
-    box-shadow: 0 0 0 3px rgba($primary, 0.1);
+    border-color: var(--color-accent-subtle);
+    box-shadow: 0 0 0 3px rgba(var(--color-accent), 0.1);
     outline: none;
   }
 }
@@ -354,8 +354,8 @@ $display-values: (none, block, flex, inline, inline-block, inline-flex);
   height: 1rem;
   margin-top: 0.25rem;
   vertical-align: top;
-  background-color: $surface-color;
-  border: 1px solid $border-color;
+  background-color: var(--color-panel);
+  border: 1px solid var(--color-border-subtle);
   appearance: none;
   cursor: pointer;
 
@@ -368,12 +368,12 @@ $display-values: (none, block, flex, inline, inline-block, inline-flex);
   }
 
   &:checked {
-    background-color: $primary;
-    border-color: $primary;
+    background-color: var(--color-accent);
+    border-color: var(--color-accent);
   }
 
   &:focus {
-    box-shadow: 0 0 0 3px rgba($primary, 0.1);
+    box-shadow: 0 0 0 3px rgba(var(--color-accent), 0.1);
     outline: none;
   }
 }
@@ -409,7 +409,7 @@ $display-values: (none, block, flex, inline, inline-block, inline-flex);
     top: 50%;
     transform: translateY(-50%);
     right: 0.75rem;
-    color: $text-secondary;
+    color: var(--color-fg-muted);
     pointer-events: none;
     z-index: 2;
   }
@@ -450,35 +450,35 @@ $display-values: (none, block, flex, inline, inline-block, inline-flex);
 // Colors not already in _themes.scss
 .btn-danger {
   color: #ffffff;
-  background-color: $secondary;
-  border-color: $secondary;
+  background-color: var(--color-danger);
+  border-color: var(--color-danger);
 
   &:hover {
-    background-color: color.adjust($secondary, $lightness: -8%);
-    border-color: color.adjust($secondary, $lightness: -8%);
+    background-color: color-mix(in oklab, var(--color-danger), black 8%);
+    border-color: color-mix(in oklab, var(--color-danger), black 8%);
   }
 }
 
 .btn-dark {
   color: #ffffff;
-  background-color: $text-primary;
-  border-color: $text-primary;
+  background-color: var(--color-fg);
+  border-color: var(--color-fg);
 
   &:hover {
-    background-color: color.adjust($text-primary, $lightness: -8%);
-    border-color: color.adjust($text-primary, $lightness: -8%);
+    background-color: color-mix(in oklab, var(--color-fg), black 8%);
+    border-color: color-mix(in oklab, var(--color-fg), black 8%);
   }
 }
 
 .btn-outline-dark {
-  color: $text-primary;
+  color: var(--color-fg);
   background-color: transparent;
-  border-color: $text-primary;
+  border-color: var(--color-fg);
 
   &:hover {
     color: #ffffff;
-    background-color: $text-primary;
-    border-color: $text-primary;
+    background-color: var(--color-fg);
+    border-color: var(--color-fg);
   }
 }
 
@@ -499,7 +499,7 @@ $display-values: (none, block, flex, inline, inline-block, inline-flex);
 
 .card-header {
   padding: 0.85rem 1.25rem;
-  border-bottom: 1px solid $border-color;
+  border-bottom: 1px solid var(--color-border-subtle);
   background: none;
 }
 
@@ -512,11 +512,11 @@ $display-values: (none, block, flex, inline, inline-block, inline-flex);
 }
 
 .card-text {
-  color: $text-secondary;
+  color: var(--color-fg-muted);
 }
 
 .card-stats {
-  border-left: 3px solid $primary;
+  border-left: 3px solid var(--color-accent);
 }
 
 // ============================================================================
@@ -539,11 +539,11 @@ $display-values: (none, block, flex, inline, inline-block, inline-flex);
   }
 
   &.table-bordered {
-    border: 1px solid $border-color;
+    border: 1px solid var(--color-border-subtle);
 
     th,
     td {
-      border: 1px solid $border-color;
+      border: 1px solid var(--color-border-subtle);
     }
   }
 }
@@ -559,7 +559,7 @@ $display-values: (none, block, flex, inline, inline-block, inline-flex);
 // block just carries shared colour so anything using .h1..h6 utility
 // classes still gets the primary text tone.
 .h1, .h2, .h3, .h4, .h5, .h6 {
-  color: $text-primary;
+  color: var(--color-fg);
 }
 
 .small {
@@ -588,11 +588,11 @@ $display-values: (none, block, flex, inline, inline-block, inline-flex);
 }
 
 // Background color utilities (for badges, etc.)
-.bg-success { background-color: $success !important; }
-.bg-warning { background-color: $warning !important; color: $text-primary !important; }
-.bg-danger  { background-color: $secondary !important; }
-.bg-info    { background-color: $accent !important; }
-.bg-primary { background-color: $primary !important; }
+.bg-success { background-color: var(--color-success) !important; }
+.bg-warning { background-color: var(--color-warning) !important; color: var(--color-fg) !important; }
+.bg-danger  { background-color: var(--color-danger) !important; }
+.bg-info    { background-color: var(--color-accent) !important; }
+.bg-primary { background-color: var(--color-accent) !important; }
 
 .alert {
   position: relative;
@@ -604,21 +604,21 @@ $display-values: (none, block, flex, inline, inline-block, inline-flex);
 }
 
 .alert-danger {
-  color: color.adjust($secondary, $lightness: -25%);
-  background-color: rgba($secondary, 0.12);
-  border-color: rgba($secondary, 0.25);
+  color: color-mix(in oklab, var(--color-danger), black 25%);
+  background-color: rgba(var(--color-danger), 0.12);
+  border-color: rgba(var(--color-danger), 0.25);
 }
 
 .alert-success {
-  color: color.adjust($success, $lightness: -25%);
-  background-color: rgba($success, 0.12);
-  border-color: rgba($success, 0.25);
+  color: color-mix(in oklab, var(--color-success), black 25%);
+  background-color: rgba(var(--color-success), 0.12);
+  border-color: rgba(var(--color-success), 0.25);
 }
 
 .alert-warning {
-  color: color.adjust($warning, $lightness: -30%);
-  background-color: rgba($warning, 0.12);
-  border-color: rgba($warning, 0.25);
+  color: color-mix(in oklab, var(--color-warning), black 30%);
+  background-color: rgba(var(--color-warning), 0.12);
+  border-color: rgba(var(--color-warning), 0.25);
 }
 
 // ============================================================================
@@ -630,7 +630,7 @@ $display-values: (none, block, flex, inline, inline-block, inline-flex);
   align-items: center;
   justify-content: space-between;
   padding: 1rem 1.25rem;
-  border-bottom: 1px solid $border-color;
+  border-bottom: 1px solid var(--color-border-subtle);
 }
 
 .modal-body {
@@ -646,7 +646,7 @@ $display-values: (none, block, flex, inline, inline-block, inline-flex);
   align-items: center;
   justify-content: flex-end;
   padding: 0.85rem 1.25rem;
-  border-top: 1px solid $border-color;
+  border-top: 1px solid var(--color-border-subtle);
   gap: 0.5rem;
 }
 
@@ -661,8 +661,8 @@ $display-values: (none, block, flex, inline, inline-block, inline-flex);
 
 .img-thumbnail {
   padding: 0.25rem;
-  background-color: $surface-color;
-  border: 1px solid $border-color;
+  background-color: var(--color-panel);
+  border: 1px solid var(--color-border-subtle);
   border-radius: 8px;
   max-width: 100%;
   height: auto;
@@ -684,10 +684,10 @@ $display-values: (none, block, flex, inline, inline-block, inline-flex);
 .rounded-circle { border-radius: 50% !important; }
 // .rounded-pill is defined above in Badge section
 
-.border        { border: 1px solid $border-color !important; }
+.border        { border: 1px solid var(--color-border-subtle) !important; }
 .border-0      { border: 0 !important; }
-.border-top    { border-top: 1px solid $border-color !important; }
-.border-bottom { border-bottom: 1px solid $border-color !important; }
+.border-top    { border-top: 1px solid var(--color-border-subtle) !important; }
+.border-bottom { border-bottom: 1px solid var(--color-border-subtle) !important; }
 
 // ============================================================================
 // 15. FLOAT UTILITIES
@@ -842,8 +842,8 @@ ol.list-unstyled,
   min-width: 10rem;
   padding: 0.5rem 0;
   margin: 0.125rem 0 0;
-  background-color: $surface-color;
-  border: 1px solid $border-color;
+  background-color: var(--color-panel);
+  border: 1px solid var(--color-border-subtle);
   border-radius: 8px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
@@ -857,7 +857,7 @@ ol.list-unstyled,
   display: block;
   padding: 0.5rem 1rem;
   font-size: var(--fs-xs);
-  color: $text-secondary;
+  color: var(--color-fg-muted);
   white-space: nowrap;
   font-weight: var(--fw-semibold);
 }
@@ -868,7 +868,7 @@ ol.list-unstyled,
   padding: 0.4rem 1rem;
   clear: both;
   font-weight: var(--fw-regular);
-  color: $text-primary;
+  color: var(--color-fg);
   text-decoration: none;
   white-space: nowrap;
   background-color: transparent;
@@ -877,7 +877,7 @@ ol.list-unstyled,
   cursor: pointer;
 
   &:hover {
-    background-color: $bg-color;
+    background-color: var(--color-bg);
   }
 
   i {
@@ -891,7 +891,7 @@ ol.list-unstyled,
   height: 0;
   margin: 0.25rem 0;
   overflow: hidden;
-  border-top: 1px solid $border-color;
+  border-top: 1px solid var(--color-border-subtle);
 }
 
 // ============================================================================
@@ -940,7 +940,7 @@ ol.list-unstyled,
   width: 100%;
   max-height: 100%;
   pointer-events: auto;
-  background-color: $surface-color;
+  background-color: var(--color-panel);
   border-radius: 12px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
   outline: 0;
@@ -952,7 +952,7 @@ ol.list-unstyled,
   width: 1em;
   height: 1em;
   padding: 0.25em;
-  color: $text-primary;
+  color: var(--color-fg);
   background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%232D3142'%3e%3cpath d='M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z'/%3e%3c/svg%3e") center/1em auto no-repeat;
   border: 0;
   border-radius: 4px;
@@ -969,7 +969,7 @@ ol.list-unstyled,
 // Required-field red asterisk
 .mandatory::after {
   content: ' *';
-  color: $secondary;
+  color: var(--color-danger);
   font-weight: 700;
 }
 
