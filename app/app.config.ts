@@ -2,7 +2,7 @@ import { ApplicationConfig, APP_INITIALIZER, ErrorHandler, importProvidersFrom }
 import { provideRouter, withPreloading, PreloadAllModules } from '@angular/router';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideHttpClient, HTTP_INTERCEPTORS } from '@angular/common/http';
-import { NgxUiLoaderModule, NgxUiLoaderHttpModule, NgxUiLoaderRouterModule } from 'ngx-ui-loader';
+import { NgxUiLoaderModule, NgxUiLoaderHttpModule } from 'ngx-ui-loader';
 
 import { routes } from './app-routing.config';
 import { DatabaseService } from '../../Backend/Shared/database.service';
@@ -27,8 +27,7 @@ export const appConfig: ApplicationConfig = {
 
     importProvidersFrom(
       NgxUiLoaderModule,
-      NgxUiLoaderHttpModule,
-      NgxUiLoaderRouterModule
+      NgxUiLoaderHttpModule
     ),
 
     StoreService,
