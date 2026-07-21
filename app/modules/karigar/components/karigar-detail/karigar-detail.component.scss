@@ -1,6 +1,9 @@
 :host {
   display: block;
   padding: 16px 24px 32px;
+
+  @media (max-width: 1023px) { padding: 16px; }
+  @media (max-width: 767px)  { padding: 12px; }
 }
 
 .view-header {
@@ -34,6 +37,8 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     max-width: 100%;
+
+    @media (max-width: 767px) { font-size: 1.5rem; }
   }
 
   &__sub {

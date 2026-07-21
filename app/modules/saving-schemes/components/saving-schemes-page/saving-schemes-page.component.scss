@@ -1,6 +1,9 @@
 :host {
   display: block;
   padding: 16px 24px 32px;
+
+  @media (max-width: 1023px) { padding: 16px; }
+  @media (max-width: 767px)  { padding: 12px; }
 }
 
 .schemes-toolbar {

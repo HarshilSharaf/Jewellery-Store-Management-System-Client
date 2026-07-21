@@ -41,6 +41,8 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+
+    @media (max-width: 767px) { font-size: 1.35rem; }
   }
 
   &__actions {

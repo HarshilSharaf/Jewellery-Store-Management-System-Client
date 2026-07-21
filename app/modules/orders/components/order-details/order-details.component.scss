@@ -59,6 +59,8 @@
     line-height: 1.1;
     color: var(--color-fg);
     letter-spacing: -0.01em;
+
+    @media (max-width: 767px) { font-size: 1.5rem; }
   }
 
   &__sub {
