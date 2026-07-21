@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, OnDestroy, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -187,6 +187,7 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly location = inject(Location);
   private readonly fb = inject(FormBuilder);
+  private readonly cdRef = inject(ChangeDetectorRef);
   private readonly migrationService = inject(MigrationService);
 
   readonly customerFields: Array<{ key: keyof CustomerMapping; label: string }> = [
@@ -646,6 +647,9 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
   async saveRates() {
     this.ratesSaving.set(true);
     try {
+      const auth: any = await this.storeService.get('authData');
+      const setByUserId = Number.isFinite(Number(auth?.uid)) ? Number(auth.uid) : null;
+
       const date = this.ratesEffectiveDate();
       const amRates: MetalRateUpsertPayload[] = this.rateEditors()
         .filter(e => e.am !== null && !Number.isNaN(e.am!))
@@ -654,19 +658,27 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
         .filter(e => e.pm !== null && !Number.isNaN(e.pm!))
         .map(e => ({ purityCode: e.purityCode, ratePerGram: Number(e.pm) }));
 
+      if (!amRates.length && !pmRates.length) {
+        this.toast.warning('Enter at least one AM or PM rate to save.', 'Nothing to save');
+        return;
+      }
+
       if (amRates.length) {
-        await this.metalRatesService.save({ effectiveDate: date, session: 'AM', source: 'manual', rates: amRates });
+        await this.metalRatesService.save({ effectiveDate: date, session: 'AM', source: 'manual', setByUserId, rates: amRates });
       }
       if (pmRates.length) {
-        await this.metalRatesService.save({ effectiveDate: date, session: 'PM', source: 'manual', rates: pmRates });
+        await this.metalRatesService.save({ effectiveDate: date, session: 'PM', source: 'manual', setByUserId, rates: pmRates });
       }
+      await this.loadCurrentRates();
       await this.loadRateHistory();
       this.toast.success('Rates saved', undefined, { timer: 1400 });
-    } catch (err) {
+    } catch (err: any) {
       this.loggerService.LogError(err, 'saveRates');
-      this.toast.error('Failed to save rates', 'Error');
+      const msg = err?.message ?? String(err);
+      this.toast.error(msg, 'Failed to save rates');
     } finally {
       this.ratesSaving.set(false);
+      this.cdRef.detectChanges();
     }
   }
 

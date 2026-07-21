@@ -62,24 +62,20 @@ export class MetalRatesService {
   }
 
   async save(request: SaveMetalRatesRequest): Promise<MetalRateRow[]> {
-    try {
-      if (this.api?.save) {
-        const rows: MetalRateRow[] = this.normalise(await this.api.save(request));
-        this._rates.set(rows);
-        this._loaded.set(true);
-        return rows;
-      }
-      await this.db.execute('call save_metal_rates(?, ?, ?, ?, ?);', [
-        request.effectiveDate,
-        request.session,
-        request.source ?? 'manual',
-        request.setByUserId ?? null,
-        JSON.stringify(request.rates),
-      ]);
-      return await this.getCurrent();
-    } catch {
-      return this._rates();
+    if (this.api?.save) {
+      const rows: MetalRateRow[] = this.normalise(await this.api.save(request));
+      this._rates.set(rows);
+      this._loaded.set(true);
+      return rows;
     }
+    await this.db.execute('call save_metal_rates(?, ?, ?, ?, ?);', [
+      request.effectiveDate,
+      request.session,
+      request.source ?? 'manual',
+      request.setByUserId ?? null,
+      JSON.stringify(request.rates),
+    ]);
+    return await this.getCurrent();
   }
 
   buildSnapshot(rates: MetalRateRow[] = this._rates()): Record<string, number> {

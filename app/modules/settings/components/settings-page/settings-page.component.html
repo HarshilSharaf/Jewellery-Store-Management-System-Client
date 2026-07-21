@@ -239,7 +239,7 @@
         @for (r of rateEditors(); track r.purityCode) {
           <div class="rate-row">
             <div class="rate-row__purity">
-              <span class="chip chip--purity" [ngClass]="purityChipClass(r.purityLabel, r.purityCode)">{{ r.purityLabel }}</span>
+              <span class="purity-badge" [ngClass]="purityChipClass(r.purityLabel, r.purityCode)">{{ r.purityLabel }}</span>
               <small>{{ r.purityCode }}</small>
             </div>
             <div class="rate-input">
@@ -251,7 +251,10 @@
               <input type="number" class="hlm-input tabular-nums" [value]="r.pm ?? ''" (input)="updateRatePm(r.purityCode, $any($event.target).value)" step="1">
             </div>
             <button type="button" class="rate-copy-btn" (click)="copyPurityAmToPm(r.purityCode)" [title]="'Copy AM to PM for ' + r.purityLabel" aria-label="Copy AM to PM">
-              <ng-icon name="lucideCopy" size="14" aria-hidden="true"></ng-icon>
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
+                <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
+              </svg>
             </button>
           </div>
         } @empty {
