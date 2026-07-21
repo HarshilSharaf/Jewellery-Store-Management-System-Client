@@ -17,4 +17,7 @@ export const karigarRoutes: Routes = [
     path: 'karigars/:karigarGuid',
     loadComponent: () => import('./components/karigar-detail/karigar-detail.component').then(m => m.KarigarDetailComponent),
   },
+  { path: 'jobs', redirectTo: '', pathMatch: 'full' },
+  { path: 'karigars', redirectTo: '', pathMatch: 'full' },
+  { path: '**', redirectTo: '' },
 ];

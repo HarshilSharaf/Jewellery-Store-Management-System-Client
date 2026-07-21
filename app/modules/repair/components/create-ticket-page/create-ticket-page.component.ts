@@ -106,7 +106,7 @@ export class CreateTicketPageComponent implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['../'], { relativeTo: this.route });
+    this.router.navigate(['/repair']);
   }
 
   private async loadKarigars(): Promise<void> {
@@ -238,7 +238,7 @@ export class CreateTicketPageComponent implements OnInit {
       }
 
       this.toast.success(created.ticketNumber, 'Ticket created', { timer: 1400 });
-      this.router.navigate(['../', created.ticketGuid], { relativeTo: this.route });
+      this.router.navigate(['/repair', created.ticketGuid]);
     } catch (error) {
       this.loggerService.LogError(error, 'CreateTicket.save');
       const msg = (error as any)?.message ?? String(error);

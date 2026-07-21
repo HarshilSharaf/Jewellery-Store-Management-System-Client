@@ -113,7 +113,7 @@ export class ViewProductDetailsComponent implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['../../'], { relativeTo: this.route });
+    this.router.navigate(['/inventory']);
   }
 
   toggleEditMode(): void {
@@ -265,7 +265,7 @@ export class ViewProductDetailsComponent implements OnInit {
     try {
       await this.ProductService.deleteProduct(this.productGuid);
       this.toast.success('Product removed.', 'Deleted');
-      this.router.navigate(['../../'], { relativeTo: this.route });
+      this.router.navigate(['/inventory']);
     } catch (error: any) {
       this.loggerService.LogError(error, 'deleteProduct()');
       this.toast.error(error?.error?.message ?? 'Failed to delete product.', 'Error');

@@ -13,4 +13,5 @@ export const repairRoutes: Routes = [
     path: ':ticketGuid',
     loadComponent: () => import('./components/ticket-detail-page/ticket-detail-page.component').then(m => m.TicketDetailPageComponent),
   },
+  { path: '**', redirectTo: '' },
 ];

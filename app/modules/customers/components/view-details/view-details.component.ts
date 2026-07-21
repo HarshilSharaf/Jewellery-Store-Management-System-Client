@@ -238,7 +238,7 @@ export class ViewDetailsComponent implements OnInit, OnDestroy {
   }
 
   goBack(): void {
-    this.router.navigate(['../'], { relativeTo: this.route });
+    this.router.navigate(['/customers']);
   }
 
   populateCustomerDetailsForm(customerDetails: CustomerDetails): void {
@@ -422,7 +422,7 @@ export class ViewDetailsComponent implements OnInit, OnDestroy {
     try {
       await this.customerDataService.deleteCustomer(this.customerGuid);
       this.toast.success('Customer removed.', 'Deleted');
-      this.router.navigate(['../'], { relativeTo: this.route });
+      this.router.navigate(['/customers']);
     } catch (error) {
       this.loggerService.LogError(error, 'deleteCustomer()');
       this.toast.error(error as string, 'Error');

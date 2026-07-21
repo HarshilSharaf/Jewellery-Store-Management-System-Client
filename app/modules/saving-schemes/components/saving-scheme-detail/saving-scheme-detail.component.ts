@@ -158,7 +158,7 @@ export class SavingSchemeDetailComponent implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['..'], { relativeTo: this.route });
+    this.router.navigate(['/saving-schemes']);
   }
 
   goToCustomer(): void {

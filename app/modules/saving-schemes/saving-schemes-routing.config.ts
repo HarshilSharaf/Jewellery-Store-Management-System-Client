@@ -9,4 +9,5 @@ export const savingSchemesRoutes: Routes = [
     path: ':schemeGuid',
     loadComponent: () => import('./components/saving-scheme-detail/saving-scheme-detail.component').then(m => m.SavingSchemeDetailComponent),
   },
+  { path: '**', redirectTo: '' },
 ];
