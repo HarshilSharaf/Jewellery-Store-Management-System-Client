@@ -5,7 +5,19 @@
 .repair-table {
   .jobs-table__head,
   .repair-row {
+    display: grid;
     grid-template-columns: 160px 1.6fr 120px 90px 130px 120px 100px;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .jobs-table__head {
+    padding: 8px 12px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-fg-muted);
+    border-bottom: 1px solid var(--color-border-subtle);
   }
 }
 
