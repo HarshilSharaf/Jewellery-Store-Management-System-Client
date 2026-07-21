@@ -593,7 +593,7 @@ html[data-theme="dark"] .btn.btn-outline-lightning {
     gap: 24px;
     grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
   }
-  @media (max-width: 1100px) {
+  @media (max-width: 1023px) {
     .detail-shell {
       grid-template-columns: minmax(0, 1fr);
     }
@@ -1914,6 +1914,16 @@ html[data-theme="dark"] .btn.btn-outline-lightning {
       text-transform: uppercase;
       letter-spacing: 0.06em;
       color: var(--color-fg-muted);
+    }
+
+    @media (max-width: 767px) {
+      &__head { display: none; }
+
+      .data-row {
+        grid-template-columns: 1fr auto;
+        gap: 4px 12px;
+        padding: 12px 14px;
+      }
     }
   }
 

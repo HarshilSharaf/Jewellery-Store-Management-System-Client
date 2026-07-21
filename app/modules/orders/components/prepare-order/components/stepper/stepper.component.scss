@@ -123,3 +123,32 @@
     font-size: 13px;
   }
 }
+
+@media (max-width: 767px) {
+  .sell-wizard__title { font-size: 1.75rem; }
+  .sell-wizard__list {
+    flex-wrap: wrap;
+    row-gap: 4px;
+  }
+  .sell-wizard__pill {
+    padding: 4px 10px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 479px) {
+  .sell-wizard__foot {
+    flex-wrap: wrap;
+    gap: 8px;
+
+    .hlm-btn {
+      flex: 1 1 auto;
+      justify-content: center;
+    }
+  }
+  .sell-wizard__hint {
+    width: 100%;
+    order: -1;
+    text-align: center;
+  }
+}

@@ -7,7 +7,7 @@
     grid-template-columns: minmax(0, 8fr) minmax(0, 4fr);
     gap: 24px;
 
-    @media (max-width: 1100px) {
+    @media (max-width: 1023px) {
       grid-template-columns: minmax(0, 1fr);
     }
 
