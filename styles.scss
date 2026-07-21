@@ -2463,3 +2463,105 @@ body {
   }
 }
 
+
+// -------------------------------------------------------------------------
+// Shared modal recipes — lifted from customer-form component-scoped SCSS
+// so any overlay-form component (customer, product, repair, saving-scheme,
+// karigar) can reuse them without copy-pasting. Component-scoped
+// duplicates should be removed as they're migrated.
+// -------------------------------------------------------------------------
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(20, 18, 12, 0.5);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 3rem 1rem 2rem;
+  overflow-y: auto;
+  animation: modalFadeIn 120ms ease-out;
+}
+
+.modal-panel {
+  background: var(--color-panel);
+  color: var(--color-fg);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  width: 100%;
+  max-width: 640px;
+  max-height: calc(100vh - 4rem);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: modalRiseIn 140ms ease-out;
+
+  &--wide { max-width: 780px; }
+  &--narrow { max-width: 460px; }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px 28px 16px;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.modal-title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  font-weight: 400;
+  color: var(--color-fg);
+  letter-spacing: -0.01em;
+}
+
+.modal-subtitle {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--color-fg-muted);
+}
+
+.modal-content {
+  padding: 16px 28px 20px;
+  overflow-y: auto;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px 28px;
+  border-top: 1px solid var(--color-border-subtle);
+  gap: 8px;
+  background: var(--color-panel);
+}
+
+.req {
+  color: var(--color-danger);
+  margin-left: 2px;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes modalRiseIn {
+  from { opacity: 0; transform: translateY(8px) scale(0.985); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (max-width: 640px) {
+  .modal-overlay { padding: 1rem 0.75rem; }
+  .modal-header,
+  .modal-content,
+  .modal-actions { padding-left: 16px; padding-right: 16px; }
+}

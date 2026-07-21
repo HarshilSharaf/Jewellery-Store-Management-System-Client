@@ -20,13 +20,14 @@ import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
 import { StoreService } from '../../../../../../Backend/Shared/store.service';
 import { RepairService } from '../../../../shared/services/Repair/repair.service';
 import { RepairStatus, RepairTicket } from '../../../../interfaces/Repair/repair';
+import { CreateTicketPageComponent } from '../create-ticket-page/create-ticket-page.component';
 
 @Component({
   selector: 'app-repair-page',
   templateUrl: './repair-page.component.html',
   styleUrls: ['./repair-page.component.scss'],
   standalone: true,
-  imports: [CommonModule, NgIcon, DatePipe],
+  imports: [CommonModule, NgIcon, DatePipe, CreateTicketPageComponent],
   viewProviders: [
     provideIcons({
       lucidePlus,
@@ -55,6 +56,8 @@ export class RepairPageComponent implements OnInit {
   readonly dateTo = signal<string>('');
 
   readonly userType = signal<string>('employee');
+
+  readonly showCreateTicket = signal(false);
 
   readonly statusOptions: { value: RepairStatus; label: string }[] = [
     { value: 'received',    label: 'Received' },
@@ -148,8 +151,18 @@ export class RepairPageComponent implements OnInit {
     this.loadTickets();
   }
 
-  goToNew(): void {
-    this.router.navigate(['new'], { relativeTo: this.route });
+  openCreateTicket(): void {
+    this.showCreateTicket.set(true);
+  }
+
+  onCreateTicketClosed(): void {
+    this.showCreateTicket.set(false);
+  }
+
+  onTicketCreated(ev: { ticketGuid: string; ticketNumber: string }): void {
+    this.showCreateTicket.set(false);
+    this.loadTickets();
+    this.router.navigate(['/repair', ev.ticketGuid]);
   }
 
   goToTicket(t: RepairTicket): void {

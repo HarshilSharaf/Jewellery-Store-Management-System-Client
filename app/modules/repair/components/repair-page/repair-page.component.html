@@ -6,7 +6,7 @@
     }
   </div>
   <div class="page-title__actions">
-    <button type="button" class="hlm-btn hlm-btn-primary" (click)="goToNew()">
+    <button type="button" class="hlm-btn hlm-btn-primary" (click)="openCreateTicket()">
       <ng-icon name="lucidePlus" size="16" aria-hidden="true"></ng-icon>
       <span>New ticket</span>
     </button>
@@ -100,7 +100,7 @@
       <ng-icon name="lucideWrench" size="32" aria-hidden="true"></ng-icon>
       <p class="empty-state__title">No repair tickets yet</p>
       <p class="empty-state__sub">Log the first item that walks in for repair — chains, clasps, resizing, stone re-sets.</p>
-      <button type="button" class="hlm-btn hlm-btn-primary" (click)="goToNew()">
+      <button type="button" class="hlm-btn hlm-btn-primary" (click)="openCreateTicket()">
         <ng-icon name="lucidePlus" size="14" aria-hidden="true"></ng-icon>
         <span>New ticket</span>
       </button>
@@ -114,3 +114,10 @@
     </div>
   }
 </section>
+
+<app-create-ticket-page
+  [open]="showCreateTicket()"
+  [navigateOnCreate]="false"
+  (closed)="onCreateTicketClosed()"
+  (created)="onTicketCreated($event)">
+</app-create-ticket-page>

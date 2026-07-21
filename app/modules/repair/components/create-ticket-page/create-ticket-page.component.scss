@@ -1,23 +1,10 @@
-// Component-scoped tweaks for the create-ticket form. Shared form-section /
-// detail-shell chrome lives in styles.scss.
+// Component-scoped tweaks for the create-ticket modal form. Shared
+// .modal-* / .form-section chrome lives in styles.scss.
 
-.repair-create {
-  max-width: 900px;
-  margin: 0 auto;
-  padding-bottom: 32px;
-
-  &__form {
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-  }
-
-  &__actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
-    padding-top: 8px;
-  }
+.repair-create__form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
 .section-heading__optional {

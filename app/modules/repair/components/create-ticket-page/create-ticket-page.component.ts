@@ -1,11 +1,11 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild, inject, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, HostListener, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { AppToastService } from '../../../../shared/services/AppToast/app-toast.service';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
-  lucideArrowLeft,
+  lucideX,
   lucideWrench,
   lucideSearch,
   lucideCheck,
@@ -38,7 +38,7 @@ interface CustomerLite {
   imports: [CommonModule, ReactiveFormsModule, NgIcon, ImageUploadComponent],
   viewProviders: [
     provideIcons({
-      lucideArrowLeft,
+      lucideX,
       lucideWrench,
       lucideSearch,
       lucideCheck,
@@ -47,7 +47,12 @@ interface CustomerLite {
     }),
   ],
 })
-export class CreateTicketPageComponent implements OnInit {
+export class CreateTicketPageComponent implements OnInit, OnChanges {
+
+  @Input() open = false;
+  @Input() navigateOnCreate = true;
+  @Output() closed = new EventEmitter<void>();
+  @Output() created = new EventEmitter<{ ticketGuid: string; ticketNumber: string }>();
 
   @ViewChild(ImageUploadComponent) imageUpload?: ImageUploadComponent;
 
@@ -68,7 +73,6 @@ export class CreateTicketPageComponent implements OnInit {
 
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
-  private readonly route = inject(ActivatedRoute);
   private readonly service = inject(RepairService);
   private readonly karigarService = inject(KarigarService);
   private readonly customerService = inject(CustomerDataService);
@@ -95,6 +99,34 @@ export class CreateTicketPageComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.hydrateAuthAndOptions();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['open'] && this.open) {
+      this.resetForm();
+      this.hydrateAuthAndOptions();
+    }
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (this.open && !this.saving()) {
+      this.requestClose();
+    }
+  }
+
+  requestClose(): void {
+    this.closed.emit();
+  }
+
+  onOverlayClick(event: MouseEvent): void {
+    if ((event.target as HTMLElement)?.classList.contains('modal-overlay')) {
+      this.requestClose();
+    }
+  }
+
+  private hydrateAuthAndOptions(): void {
     this.storeService.get('authData').then((auth: any) => {
       if (auth?.uid) {
         this.form.patchValue({ receivedByUserId: auth.uid });
@@ -105,8 +137,29 @@ export class CreateTicketPageComponent implements OnInit {
     this.loadCustomers('');
   }
 
-  goBack(): void {
-    this.router.navigate(['/repair']);
+  private resetForm(): void {
+    const todayIso = new Date().toISOString().slice(0, 10);
+    this.form.reset({
+      customerGuid: '',
+      receivedByUserId: null,
+      receivedDateHint: todayIso,
+      itemDescription: '',
+      weight: null,
+      estimatedCharge: null,
+      estimatedReturnDate: '',
+      notes: '',
+      karigarGuid: '',
+      issueKarigarJob: false,
+    });
+    this.errorMessage.set(null);
+    this.selectedCustomer.set(null);
+    this.customerSearch.set('');
+    this.customerDropdownOpen.set(false);
+    if (this.imageUpload) {
+      this.imageUpload.customerPhoto = null;
+      this.imageUpload.imageSrc = '';
+      this.imageUpload.imageLoaded = false;
+    }
   }
 
   private async loadKarigars(): Promise<void> {
@@ -238,7 +291,11 @@ export class CreateTicketPageComponent implements OnInit {
       }
 
       this.toast.success(created.ticketNumber, 'Ticket created', { timer: 1400 });
-      this.router.navigate(['/repair', created.ticketGuid]);
+      this.created.emit({ ticketGuid: created.ticketGuid, ticketNumber: created.ticketNumber });
+      if (this.navigateOnCreate) {
+        this.router.navigate(['/repair', created.ticketGuid]);
+      }
+      this.requestClose();
     } catch (error) {
       this.loggerService.LogError(error, 'CreateTicket.save');
       const msg = (error as any)?.message ?? String(error);
