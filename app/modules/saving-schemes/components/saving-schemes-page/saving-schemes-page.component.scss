@@ -162,3 +162,34 @@
     .col-monthly, .col-progress { display: none; }
   }
 }
+
+@media (max-width: 767px) {
+  .schemes-table {
+    background: transparent;
+    border: 0;
+    overflow: visible;
+  }
+  .schemes-table__head { display: none; }
+  .schemes-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 12px 14px;
+    min-height: 0;
+    background: var(--color-panel);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-md);
+    margin-bottom: 8px;
+
+    .col-customer { align-items: flex-start; }
+    .col-plan { font-size: 13px; }
+    .col-corpus, .col-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--color-fg-muted);
+    }
+    .col-monthly, .col-progress { display: none; }
+  }
+}

@@ -206,3 +206,116 @@
   display: flex;
   justify-content: flex-end;
 }
+
+@media (max-width: 1023px) {
+  .books-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .books-table {
+    min-width: 720px;
+  }
+}
+
+@media (max-width: 767px) {
+  .books-toolbar {
+    gap: 10px;
+
+    &__search {
+      flex: 1 1 100%;
+      max-width: none;
+    }
+
+    &__dates {
+      flex-wrap: wrap;
+    }
+
+    &__date {
+      width: 130px;
+      flex: 1 1 130px;
+    }
+
+    &__status {
+      margin-left: 0;
+      width: 100%;
+
+      .radio-pill-row {
+        flex-wrap: wrap;
+      }
+    }
+  }
+
+  // Card-view fallback: repaint every row as a stacked card.
+  .books-table-wrap {
+    overflow: visible;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+  .books-table {
+    display: block;
+    min-width: 0;
+
+    thead { display: none; }
+
+    tbody, tr { display: block; }
+
+    tbody tr.books-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 12px 14px;
+      height: auto;
+      min-height: 0;
+      background: var(--color-panel);
+      border: 1px solid var(--color-border-subtle);
+      border-radius: var(--radius-md);
+      margin-bottom: 8px;
+
+      td {
+        padding: 0;
+        border-bottom: 0;
+        display: block;
+      }
+
+      // Row 1: invoice # + actions
+      .col-invoice {
+        order: 1;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      // Row 2: customer + amount
+      .col-customer {
+        order: 2;
+      }
+      .col-amount {
+        order: 2;
+        text-align: right;
+        font-weight: 500;
+      }
+      // Meta line
+      .col-date, .col-items, .col-status {
+        order: 3;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--color-fg-muted);
+        font-size: 12px;
+      }
+      .col-actions {
+        order: 4;
+        display: flex;
+        justify-content: flex-end;
+      }
+      .books-row__actions {
+        opacity: 1 !important;
+      }
+    }
+  }
+
+  .books-empty-row td {
+    display: block;
+    padding: 20px 12px;
+  }
+}

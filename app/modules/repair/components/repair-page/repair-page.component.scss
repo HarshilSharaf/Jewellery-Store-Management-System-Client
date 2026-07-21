@@ -54,3 +54,40 @@
     }
   }
 }
+
+@media (max-width: 1023px) {
+  .repair-table {
+    .jobs-table__head,
+    .repair-row {
+      grid-template-columns: 140px 1fr 110px 100px 84px;
+    }
+    .col-days, .col-return { display: none; }
+  }
+}
+
+@media (max-width: 767px) {
+  .repair-table .jobs-table__head { display: none; }
+  .repair-table .repair-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 14px;
+    min-height: 0;
+    background: var(--color-panel);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-md);
+    margin-bottom: 8px;
+
+    .col-ticket { font-weight: 500; }
+    .col-customer { margin-left: 0; }
+    .col-date, .col-days, .col-return {
+      display: inline-flex;
+      color: var(--color-fg-muted);
+      font-size: 12px;
+    }
+    .col-status { align-self: flex-start; }
+    .col-actions {
+      justify-content: flex-end;
+    }
+  }
+}

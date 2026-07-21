@@ -230,3 +230,67 @@
     .col-days, .col-return { display: none; }
   }
 }
+
+@media (max-width: 1023px) {
+  :host {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 767px) {
+  :host {
+    padding: 12px;
+  }
+  .list-toolbar {
+    gap: 8px;
+  }
+  .search-input {
+    min-width: 0;
+    flex: 1 1 100%;
+  }
+  .jobs-toolbar__select {
+    min-width: 0;
+    flex: 1 1 100%;
+  }
+
+  .jobs-table {
+    border: 0;
+    background: transparent;
+    overflow: visible;
+  }
+  .jobs-table__head {
+    display: none;
+  }
+  .jobs-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 14px;
+    min-height: 0;
+    background: var(--color-panel);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-md);
+    margin-bottom: 8px;
+
+    .col-job {
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      font-weight: 500;
+
+      &::before {
+        content: attr(data-label);
+      }
+    }
+    .col-karigar {
+      font-size: 13px;
+    }
+    .col-status {
+      align-self: flex-start;
+    }
+    .col-date, .col-weight {
+      color: var(--color-fg-muted);
+      font-size: 12px;
+    }
+  }
+}

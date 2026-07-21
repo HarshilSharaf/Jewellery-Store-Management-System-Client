@@ -193,7 +193,12 @@
   to { transform: rotate(360deg); }
 }
 
-@media (max-width: 720px) {
+@media (max-width: 767px) {
+  .people-table {
+    background: transparent;
+    border: 0;
+    overflow: visible;
+  }
   .people-table__head { display: none; }
 
   .people-row {
@@ -202,8 +207,12 @@
       "name actions"
       "city city"
       "remarks remarks";
-    padding: 12px 16px;
+    padding: 12px 14px;
     row-gap: 4px;
+    background: var(--color-panel);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-md);
+    margin-bottom: 8px;
 
     .col-name { grid-area: name; }
     .col-city { grid-area: city; }

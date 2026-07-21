@@ -519,7 +519,12 @@ html[data-theme="dark"] .stock-tile__icon {
   to { transform: rotate(360deg); }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 767px) {
+  .stock-table {
+    background: transparent;
+    border: 0;
+    overflow: visible;
+  }
   .stock-table__head { display: none; }
 
   .stock-table__row {
@@ -528,8 +533,12 @@ html[data-theme="dark"] .stock-tile__icon {
       "thumb name actions"
       "thumb price price"
       "sku huid weight";
-    padding: 12px 16px;
+    padding: 12px 14px;
     row-gap: 4px;
+    background: var(--color-panel);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-md);
+    margin-bottom: 8px;
 
     .col-thumb { grid-area: thumb; }
     .col-sku { grid-area: sku; }

@@ -2221,3 +2221,217 @@ body {
     line-height: 1.5;
   }
 }
+
+// -------------------------------------------------------------------------
+// Workstream 21.4 — mobile-responsive recipes
+//
+// Systematic small-screen (<1024px) pass. Every rule here is a media-query
+// guarded ADDITION over the existing desktop layout. Nothing above 1024px
+// changes. Breakpoints:
+//   1024px  small laptop / iPad landscape - rail collapses, detail-shell stacks
+//   768px   tablet portrait - data-row -> card, form-grid -> single col
+//   640px   phone landscape - field-grid -> single col, tabs -> vertical
+//   480px   phone portrait - buttons full-width, page-title tightens
+// -------------------------------------------------------------------------
+
+@media (max-width: 1023px) {
+  .detail-shell {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 20px;
+  }
+  .detail-side {
+    position: static;
+    top: auto;
+  }
+  .list-toolbar {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 767px) {
+  .page-title {
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+
+    &__heading {
+      font-size: 1.75rem;
+    }
+  }
+  .form-grid,
+  .form-grid--3 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .detail-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  // KPI stack on the right-hand detail rail collapses into a 2-column
+  // mini-grid at the top of the screen instead of a single column.
+  .detail-side {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .detail-side > * {
+    min-width: 0;
+  }
+  // Section cards inside the detail-side stack should span 2 cols when
+  // they're not KPI tiles (avoid awkward half-width sections).
+  .detail-side .detail-section,
+  .detail-side .kpi-card--wide,
+  .detail-side > .side-wide {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 639px) {
+  .field-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  // Full-width primary CTAs so touch targets never wrap awkwardly.
+  .page-title .hlm-btn,
+  .page-title__actions .hlm-btn {
+    width: 100%;
+    justify-content: center;
+  }
+  .page-title__actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+  // Tabs strip: keep horizontal-scroll behaviour (already set) but tighten
+  // padding so more tabs fit on screen.
+  .tabs-strip .tab-item {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+  // Detail-side falls back to a single column below the 2-col phone break.
+  .detail-side {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 479px) {
+  .page-title__heading {
+    font-size: 1.5rem;
+  }
+  // When a page-title contains a heading + action button, let them stack.
+  .page-title {
+    align-items: stretch;
+  }
+}
+
+// Card-view fallback for list rows. Templates opt-in by adding the
+// `data-row--card` modifier to their grid rows; the recipe repaints
+// each row as a stacked card below the 768px breakpoint. Screens that
+// still want a table on tablet can omit the modifier and rely on their
+// own component-level overrides.
+@media (max-width: 767px) {
+  .data-row--card {
+    display: grid !important;
+    grid-template-columns: 1fr auto;
+    grid-auto-rows: min-content;
+    gap: 6px 12px;
+    padding: 12px 14px;
+    min-height: 0;
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-md);
+    background: var(--color-panel, transparent);
+    margin-bottom: 8px;
+  }
+  .data-row--card:hover {
+    background: var(--color-bg-subtle);
+  }
+  .data-row--card > * {
+    min-width: 0;
+  }
+  .data-row--card__primary {
+    grid-column: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+  .data-row--card__actions {
+    grid-column: 2;
+    grid-row: 1;
+    display: inline-flex;
+    gap: 4px;
+    justify-self: end;
+    opacity: 1 !important;
+  }
+  .data-row--card__meta {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    color: var(--color-fg-muted);
+    font-size: 12px;
+  }
+  .data-row--card__meta > * {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .data-row--card__amount {
+    grid-column: 2;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    font-weight: 500;
+    color: var(--color-fg);
+  }
+  // Any list-page table head row inside a card-view container is redundant.
+  .data-list--cards .data-list__head {
+    display: none;
+  }
+}
+
+// Report tables: horizontal scroll wrapper below tablet with sticky
+// first column. Templates should wrap their table in `.report-scroll`;
+// that class exists in a few report scss files already.
+@media (max-width: 767px) {
+  .report-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .report-scroll .ds-table {
+    font-size: 12px;
+  }
+  .report-scroll .ds-table th:first-child,
+  .report-scroll .ds-table td:first-child {
+    position: sticky;
+    left: 0;
+    background: var(--color-panel);
+    z-index: 1;
+  }
+  .report-scroll .ds-table thead th:first-child {
+    background: var(--color-bg-subtle);
+    z-index: 2;
+  }
+}
+
+// Settings tabs strip: convert horizontal-scroll strip to a stacked
+// pill grid below the phone breakpoint so all tabs are visible without
+// horizontal scrolling. Uses existing tab-item styling.
+@media (max-width: 639px) {
+  .settings-shell .tabs-strip {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px;
+    border-bottom: 0;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--color-border-subtle);
+    overflow-x: visible;
+  }
+  .settings-shell .tabs-strip .tab-item {
+    justify-content: center;
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-md);
+    margin-bottom: 0;
+
+    &.is-active {
+      background: var(--color-accent-subtle);
+      border-color: var(--color-accent);
+    }
+  }
+}
+
