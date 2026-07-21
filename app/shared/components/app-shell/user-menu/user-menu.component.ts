@@ -45,10 +45,12 @@ export class UserMenuComponent implements OnInit {
     try {
       const authData: any = await this.store.get('authData');
       if (!authData) { return; }
-      this.userId = authData.uid;
+      const uid = Number(authData.uid);
+      if (!Number.isFinite(uid) || uid <= 0) { return; }
+      this.userId = uid;
       this.userService.userName.set(authData.userName);
       this.displayName.set(authData.userName);
-      const res: any = await this.userService.getUserImage(this.userId);
+      const res: any = await this.userService.getUserImage(uid);
       if (Array.isArray(res) && res[0]?.imagePath) {
         const path = this.util.getFilePath(this.fs.userImagesDir + '\\' + res[0].imagePath);
         this.userService.userImage.set(path);

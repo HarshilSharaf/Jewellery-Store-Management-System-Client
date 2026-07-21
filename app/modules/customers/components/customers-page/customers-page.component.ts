@@ -142,7 +142,16 @@ export class CustomersPageComponent implements OnInit, OnDestroy {
   }
 
   goToViewDetails(customer: CustomerDetails): void {
-    this.router.navigate([`view-customer-details/${customer.customerGuid}`], { relativeTo: this.route });
+    const guid = customer?.customerGuid;
+    if (!guid || typeof guid !== 'string' || guid.trim() === '') {
+      this.loggerService.LogError(
+        `goToViewDetails: missing customerGuid on customer id=${customer?.id ?? 'unknown'}`,
+        'customers-page.goToViewDetails',
+      );
+      this.toast.warning('Customer link is missing — please refresh the list.');
+      return;
+    }
+    this.router.navigate([`view-customer-details/${guid}`], { relativeTo: this.route });
   }
 
   onRowClick(event: MouseEvent, customer: CustomerDetails): void {
