@@ -4,7 +4,74 @@
 .repair-create__form {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
+}
+
+// Per-section layouts. Packed to keep the modal short — 3 rows in most
+// sections, fields on the same row where semantically related.
+.repair-create__grid {
+  display: grid;
+  gap: 16px;
+  align-items: start;
+
+  &--party {
+    // Customer picker wide, Received date narrow.
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  }
+
+  &--triple {
+    // Weight | Est. charge | Est. return date — three narrow numeric fields.
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  &--karigar {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+
+.repair-create__stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.repair-create__col--wide { min-width: 0; }
+
+.repair-create__checkbox-cell {
+  display: flex;
+  align-items: center;
+  min-height: 68px;
+}
+
+.repair-create__checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+
+  input[type="checkbox"] {
+    margin-top: 4px;
+    accent-color: var(--color-accent);
+    flex-shrink: 0;
+  }
+
+  span {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+}
+
+.repair-create__checkbox-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-fg);
+}
+
+.field-hint--inline {
+  display: inline;
+  font-weight: 400;
+  margin-left: 4px;
 }
 
 .section-heading__optional {
@@ -32,6 +99,7 @@
     flex: 1;
     padding: 8px 0;
     box-shadow: none;
+    min-width: 0;
 
     &:focus {
       box-shadow: none;
@@ -45,7 +113,7 @@
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-md);
   background: var(--color-panel, var(--color-bg));
-  max-height: 260px;
+  max-height: 240px;
   overflow-y: auto;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
 
@@ -90,4 +158,18 @@
   font-size: 11px;
   color: var(--color-fg-muted);
   margin-top: 4px;
+}
+
+// Below 640px collapse every multi-column grid to a single column so the
+// modal remains usable on phones.
+@media (max-width: 640px) {
+  .repair-create__grid,
+  .repair-create__grid--party,
+  .repair-create__grid--triple,
+  .repair-create__grid--karigar {
+    grid-template-columns: 1fr;
+  }
+  .repair-create__checkbox-cell {
+    min-height: 0;
+  }
 }

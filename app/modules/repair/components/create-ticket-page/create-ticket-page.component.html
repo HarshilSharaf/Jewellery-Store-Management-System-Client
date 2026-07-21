@@ -20,8 +20,8 @@
 
         <div class="form-section">
           <h3 class="section-heading">Party</h3>
-          <div class="field-grid">
-            <div class="form-grid__full">
+          <div class="repair-create__grid repair-create__grid--party">
+            <div class="repair-create__col--wide">
               <label class="field-label">Customer <span class="req">*</span></label>
               <div class="repair-customer-picker" (click)="focusCustomerSearch()">
                 <ng-icon name="lucideSearch" size="14" aria-hidden="true"></ng-icon>
@@ -54,15 +54,15 @@
             <div>
               <label class="field-label">Received date</label>
               <input type="text" class="hlm-input tabular-nums" formControlName="receivedDateHint" [attr.disabled]="true" />
-              <p class="field-hint">Server stamps the exact receipt timestamp.</p>
+              <p class="field-hint">Server stamps exact time.</p>
             </div>
           </div>
         </div>
 
         <div class="form-section">
           <h3 class="section-heading">Item</h3>
-          <div class="field-grid">
-            <div class="form-grid__full">
+          <div class="repair-create__stack">
+            <div>
               <label class="field-label">Description <span class="req">*</span></label>
               <textarea class="hlm-input"
                         formControlName="itemDescription"
@@ -75,40 +75,36 @@
               }
             </div>
 
-            <div>
-              <label class="field-label">Weight (g)</label>
-              <input type="number" step="0.001" class="hlm-input tabular-nums"
-                     formControlName="weight"
-                     placeholder="Optional" />
+            <div class="repair-create__grid repair-create__grid--triple">
+              <div>
+                <label class="field-label">Weight (g)</label>
+                <input type="number" step="0.001" class="hlm-input tabular-nums"
+                       formControlName="weight"
+                       placeholder="Optional" />
+              </div>
+              <div>
+                <label class="field-label">Est. charge (&#8377;)</label>
+                <input type="number" step="1" class="hlm-input tabular-nums"
+                       formControlName="estimatedCharge"
+                       placeholder="Optional" />
+              </div>
+              <div>
+                <label class="field-label">Est. return</label>
+                <input type="date" class="hlm-input tabular-nums" formControlName="estimatedReturnDate" />
+              </div>
             </div>
 
-            <div class="form-grid__full">
-              <label class="field-label">Photo</label>
+            <div>
+              <label class="field-label">Photo <span class="field-hint field-hint--inline">(optional)</span></label>
               <div class="repair-photo">
                 <app-image-upload
                   [activeColor]="'var(--color-accent)'"
                   [baseColor]="'var(--color-border)'">
                 </app-image-upload>
-                <p class="field-hint">Optional. Helpful for HUID tampering disputes and cross-shop identification.</p>
               </div>
             </div>
-          </div>
-        </div>
 
-        <div class="form-section">
-          <h3 class="section-heading">Estimates</h3>
-          <div class="field-grid">
             <div>
-              <label class="field-label">Estimated charge (&#8377;)</label>
-              <input type="number" step="1" class="hlm-input tabular-nums"
-                     formControlName="estimatedCharge"
-                     placeholder="Optional" />
-            </div>
-            <div>
-              <label class="field-label">Estimated return date</label>
-              <input type="date" class="hlm-input tabular-nums" formControlName="estimatedReturnDate" />
-            </div>
-            <div class="form-grid__full">
               <label class="field-label">Notes</label>
               <textarea class="hlm-input" formControlName="notes" rows="2" placeholder="Anything else the counter should know…"></textarea>
             </div>
@@ -117,7 +113,7 @@
 
         <div class="form-section">
           <h3 class="section-heading">Karigar <span class="section-heading__optional">(optional)</span></h3>
-          <div class="field-grid">
+          <div class="repair-create__grid repair-create__grid--karigar">
             <div>
               <label class="field-label">Assign karigar</label>
               <select class="hlm-input" formControlName="karigarGuid">
@@ -128,12 +124,14 @@
               </select>
             </div>
             @if (form.get('karigarGuid')?.value) {
-              <div>
-                <label class="field-label">
+              <div class="repair-create__checkbox-cell">
+                <label class="repair-create__checkbox">
                   <input type="checkbox" formControlName="issueKarigarJob" />
-                  Issue karigar job now
+                  <span>
+                    <span class="repair-create__checkbox-title">Issue karigar job now</span>
+                    <span class="field-hint">Auto-creates a job card on save.</span>
+                  </span>
                 </label>
-                <p class="field-hint">Auto-creates a karigar job card once the ticket is saved.</p>
               </div>
             }
           </div>
