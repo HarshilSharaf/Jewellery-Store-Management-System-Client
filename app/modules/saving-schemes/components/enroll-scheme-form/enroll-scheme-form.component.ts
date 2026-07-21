@@ -1,4 +1,4 @@
-import { Component, EventEmitter, HostListener, Input, OnInit, Output, inject, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, HostListener, Input, OnInit, Output, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -42,6 +42,7 @@ export class EnrollSchemeFormComponent implements OnInit {
   private readonly schemesService = inject(SavingSchemesService);
   private readonly storeService = inject(StoreService);
   private readonly loggerService = inject(LoggerService);
+  private readonly cdRef = inject(ChangeDetectorRef);
 
   constructor() {
     this.form = this.fb.group({
@@ -93,6 +94,8 @@ export class EnrollSchemeFormComponent implements OnInit {
         this.showResults.set(list.length > 0);
       } catch (err) {
         this.loggerService.LogError(err, 'EnrollSchemeForm.onCustomerSearch');
+      } finally {
+        this.cdRef.detectChanges();
       }
     }, 200);
   }
@@ -151,6 +154,8 @@ export class EnrollSchemeFormComponent implements OnInit {
       const msg = (error as any)?.message ?? String(error);
       this.errorMessage.set(msg);
       this.loggerService.LogError(error, 'EnrollSchemeForm.submitForm');
+    } finally {
+      this.cdRef.detectChanges();
     }
   }
 }

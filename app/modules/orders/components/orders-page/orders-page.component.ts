@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, DestroyRef, OnInit, inject, signal, computed } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, OnInit, inject, signal, computed } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -68,6 +68,7 @@ export class OrdersPageComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly dialog = inject(AppDialogService);
   private readonly toast = inject(AppToastService);
+  private readonly cdRef = inject(ChangeDetectorRef);
   private searchDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 
   readonly moneyFormatter = new Intl.NumberFormat('en-IN', {
@@ -143,6 +144,7 @@ export class OrdersPageComponent implements OnInit {
         this.isLoading.set(false);
         this.loaderService.stop();
         this.loggerService.LogInfo('getAllOrders() Request Completed.');
+        this.cdRef.detectChanges();
       })
       .catch((error: any) => {
         this.orders.set([]);
@@ -150,6 +152,7 @@ export class OrdersPageComponent implements OnInit {
         this.isLoading.set(false);
         this.loaderService.stop();
         this.loggerService.LogError(error, 'getAllOrders()');
+        this.cdRef.detectChanges();
       });
   }
 

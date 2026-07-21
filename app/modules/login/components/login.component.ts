@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -26,6 +26,7 @@ import { LoggerService } from '../../../../../Backend/Shared/logger.service';
 export class LoginComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   protected themeService = inject(ThemeService);
+  private readonly cdRef = inject(ChangeDetectorRef);
 
   errorMessage = '';
   showError = false;
@@ -71,6 +72,7 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.loggerService.LogError(error, 'login()');
       }).finally(() => {
         this.submitting = false;
+        this.cdRef.detectChanges();
       });
   }
 

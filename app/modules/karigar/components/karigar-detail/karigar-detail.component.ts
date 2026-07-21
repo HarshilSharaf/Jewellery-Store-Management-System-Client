@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -83,6 +83,7 @@ export class KarigarDetailComponent implements OnInit {
   private readonly storeService = inject(StoreService);
   private readonly dialog = inject(AppDialogService);
   private readonly toast = inject(AppToastService);
+  private readonly cdRef = inject(ChangeDetectorRef);
 
   ngOnInit(): void {
     this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
@@ -91,6 +92,7 @@ export class KarigarDetailComponent implements OnInit {
     });
     this.storeService.get('authData').then((auth: any) => {
       this.userType.set(auth?.type ?? 'employee');
+      this.cdRef.detectChanges();
     });
   }
 
@@ -119,6 +121,7 @@ export class KarigarDetailComponent implements OnInit {
       this.loggerService.LogError(error, 'KarigarDetail.load');
     } finally {
       this.isLoading.set(false);
+      this.cdRef.detectChanges();
     }
   }
 
@@ -170,6 +173,8 @@ export class KarigarDetailComponent implements OnInit {
     } catch (error) {
       this.loggerService.LogError(error, 'KarigarDetail.delete');
       this.toast.error((error as any)?.message ?? String(error), 'Error');
+    } finally {
+      this.cdRef.detectChanges();
     }
   }
 

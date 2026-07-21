@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit, ViewChild, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, OnInit, ViewChild, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -76,6 +76,7 @@ export class ViewProductDetailsComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly dialog = inject(AppDialogService);
   private readonly toast = inject(AppToastService);
+  private readonly cdRef = inject(ChangeDetectorRef);
 
   constructor(
     private ProductService: AvailableProductsService,
@@ -106,6 +107,8 @@ export class ViewProductDetailsComponent implements OnInit {
       this.isAdmin = auth?.type === 'admin';
     } catch {
       this.isAdmin = false;
+    } finally {
+      this.cdRef.detectChanges();
     }
   }
 
@@ -150,6 +153,7 @@ export class ViewProductDetailsComponent implements OnInit {
       this.loggerService.LogError(error, 'getProductImage()');
     } finally {
       this.loaderService.stop();
+      this.cdRef.detectChanges();
     }
   }
 
@@ -189,6 +193,7 @@ export class ViewProductDetailsComponent implements OnInit {
       this.dialog.fire({ icon: 'error', title: 'Failed to update image', text: error?.error?.message ?? 'Please try again.' });
     } finally {
       this.loaderService.stop();
+      this.cdRef.detectChanges();
     }
   }
 
@@ -202,6 +207,8 @@ export class ViewProductDetailsComponent implements OnInit {
       };
     } catch (error) {
       this.loggerService.LogError(error, 'getAllCategoriesData() From view-product-details component');
+    } finally {
+      this.cdRef.detectChanges();
     }
   }
 
@@ -212,6 +219,8 @@ export class ViewProductDetailsComponent implements OnInit {
       await this.recomputeFloor();
     } catch (error) {
       this.loggerService.LogError(error, 'getProductDetails()');
+    } finally {
+      this.cdRef.detectChanges();
     }
   }
 
@@ -237,6 +246,8 @@ export class ViewProductDetailsComponent implements OnInit {
       this.computedFloor = metal + making + wastage + stones;
     } catch {
       this.computedFloor = null;
+    } finally {
+      this.cdRef.detectChanges();
     }
   }
 

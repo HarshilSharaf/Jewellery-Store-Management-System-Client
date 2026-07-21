@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -66,6 +66,7 @@ export class SavingSchemesPageComponent implements OnInit {
   private readonly schemesService = inject(SavingSchemesService);
   private readonly loggerService = inject(LoggerService);
   private readonly loaderService = inject(NgxUiLoaderService);
+  private readonly cdRef = inject(ChangeDetectorRef);
 
   private readonly moneyFmt = new Intl.NumberFormat('en-IN', {
     maximumFractionDigits: 0,
@@ -105,6 +106,7 @@ export class SavingSchemesPageComponent implements OnInit {
     } finally {
       this.isLoading.set(false);
       this.loaderService.stop();
+      this.cdRef.detectChanges();
     }
   }
 

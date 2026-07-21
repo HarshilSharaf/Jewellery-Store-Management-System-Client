@@ -1,4 +1,4 @@
-import { Component, EventEmitter, HostListener, Input, OnChanges, Output, SimpleChanges, inject, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, HostListener, Input, OnChanges, Output, SimpleChanges, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -34,6 +34,7 @@ export class KarigarFormComponent implements OnChanges {
   private readonly service = inject(KarigarService);
   private readonly storeService = inject(StoreService);
   private readonly loggerService = inject(LoggerService);
+  private readonly cdRef = inject(ChangeDetectorRef);
 
   constructor() {
     this.form = this.fb.group({
@@ -104,6 +105,8 @@ export class KarigarFormComponent implements OnChanges {
       const msg = (error as any)?.message ?? String(error);
       this.errorMessage.set(msg);
       this.loggerService.LogError(error, 'KarigarForm.submitForm');
+    } finally {
+      this.cdRef.detectChanges();
     }
   }
 

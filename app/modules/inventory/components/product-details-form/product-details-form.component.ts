@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { AppDialogService } from '../../../../shared/services/AppDialog/app-dialog.service';
@@ -31,6 +31,7 @@ export class ProductDetailsFormComponent implements OnInit, OnChanges {
   readonly permissions = inject(PermissionsService);
   private readonly dialog = inject(AppDialogService);
   private readonly toast = inject(AppToastService);
+  private readonly cdRef = inject(ChangeDetectorRef);
 
   computedPreview: {
     metal: number;
@@ -78,6 +79,7 @@ export class ProductDetailsFormComponent implements OnInit, OnChanges {
     if (this.productData) {
       this.populateproductDetailsForm(this.productData);
     }
+    this.cdRef.detectChanges();
   }
 
   populateproductDetailsForm(productDetails: any): void {
@@ -159,11 +161,13 @@ export class ProductDetailsFormComponent implements OnInit, OnChanges {
         this.isLoading = false;
         this.refreshProductDetails.emit(true);
         this.toast.success('Product details updated.', 'Saved');
+        this.cdRef.detectChanges();
       })
       .catch((error: any) => {
         this.loggerService.LogError(error, 'updateProductDetails()');
         this.isLoading = false;
         this.dialog.fire({ icon: 'error', title: 'Update failed', text: 'Failed to update product details.' });
+        this.cdRef.detectChanges();
       });
   }
 }

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output, inject, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
@@ -44,6 +44,7 @@ export class SelectCustomerComponent implements OnInit, OnDestroy {
   pageSize = 6;
 
   private filterSub?: Subscription;
+  private readonly cdRef = inject(ChangeDetectorRef);
 
   constructor(
     private customerService: CustomerDataService,
@@ -73,11 +74,13 @@ export class SelectCustomerComponent implements OnInit, OnDestroy {
         this.applyFilter('');
         this.loading.set(false);
         this.loaderService.stop();
+        this.cdRef.detectChanges();
       })
       .catch((err) => {
         this.loading.set(false);
         this.loaderService.stop();
         this.loggerService.LogError(err, 'select-customer.getAllCustomers');
+        this.cdRef.detectChanges();
       });
 
     this.filterSub = this.filter.valueChanges.subscribe((value) => {

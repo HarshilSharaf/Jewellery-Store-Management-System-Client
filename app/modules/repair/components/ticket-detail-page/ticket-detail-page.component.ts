@@ -1,4 +1,4 @@
-import { Component, DestroyRef, ElementRef, HostListener, OnInit, ViewChild, inject, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, ElementRef, HostListener, OnInit, ViewChild, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
@@ -110,10 +110,12 @@ export class TicketDetailPageComponent implements OnInit {
   private readonly utilityService = inject(UtilityService);
   private readonly dialog = inject(AppDialogService);
   private readonly toast = inject(AppToastService);
+  private readonly cdRef = inject(ChangeDetectorRef);
 
   ngOnInit(): void {
     this.storeService.get('authData').then((auth: any) => {
       this.userType.set(auth?.type ?? 'employee');
+      this.cdRef.detectChanges();
     });
     this.buildForms();
     this.loadKarigars();
@@ -150,6 +152,8 @@ export class TicketDetailPageComponent implements OnInit {
       this.karigars.set((rows ?? []).filter((r: any) => r?.karigarGuid) as Karigar[]);
     } catch (error) {
       this.loggerService.LogError(error, 'TicketDetail.loadKarigars');
+    } finally {
+      this.cdRef.detectChanges();
     }
   }
 
@@ -157,7 +161,9 @@ export class TicketDetailPageComponent implements OnInit {
     try {
       const shop = await this.shopSettingsService.get();
       this.whatsappConfigured.set(!!shop?.whatsappEnabled);
-    } catch { /* leave default */ }
+    } catch { /* leave default */ } finally {
+      this.cdRef.detectChanges();
+    }
   }
 
   async loadTicket(): Promise<void> {
@@ -183,6 +189,7 @@ export class TicketDetailPageComponent implements OnInit {
       this.errorMessage.set((error as any)?.message ?? String(error));
     } finally {
       this.loading.set(false);
+      this.cdRef.detectChanges();
     }
   }
 
@@ -321,6 +328,7 @@ export class TicketDetailPageComponent implements OnInit {
       this.toast.error((error as any)?.message ?? String(error), 'Error');
     } finally {
       this.saving.set(false);
+      this.cdRef.detectChanges();
     }
   }
 
@@ -345,6 +353,8 @@ export class TicketDetailPageComponent implements OnInit {
     } catch (error) {
       this.loggerService.LogError(error, 'TicketDetail.decline');
       this.toast.error((error as any)?.message ?? String(error), 'Error');
+    } finally {
+      this.cdRef.detectChanges();
     }
   }
 
@@ -365,6 +375,8 @@ export class TicketDetailPageComponent implements OnInit {
     } catch (error) {
       this.loggerService.LogError(error, 'TicketDetail.submitKarigarLink');
       this.toast.error((error as any)?.message ?? String(error), 'Error');
+    } finally {
+      this.cdRef.detectChanges();
     }
   }
 
@@ -385,6 +397,8 @@ export class TicketDetailPageComponent implements OnInit {
     } catch (error) {
       this.loggerService.LogError(error, 'TicketDetail.deleteTicket');
       this.toast.error((error as any)?.message ?? String(error), 'Error');
+    } finally {
+      this.cdRef.detectChanges();
     }
   }
 
@@ -427,6 +441,8 @@ export class TicketDetailPageComponent implements OnInit {
     } catch (error) {
       this.loggerService.LogError(error, 'TicketDetail.submitWhatsapp');
       this.toast.error((error as any)?.message ?? String(error), 'Error');
+    } finally {
+      this.cdRef.detectChanges();
     }
   }
 

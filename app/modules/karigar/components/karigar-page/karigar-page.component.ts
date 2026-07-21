@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AppDialogService } from '../../../../shared/services/AppDialog/app-dialog.service';
@@ -81,10 +81,12 @@ export class KarigarPageComponent implements OnInit {
   private readonly storeService = inject(StoreService);
   private readonly dialog = inject(AppDialogService);
   private readonly toast = inject(AppToastService);
+  private readonly cdRef = inject(ChangeDetectorRef);
 
   ngOnInit(): void {
     this.storeService.get('authData').then((auth: any) => {
       this.userType.set(auth?.type ?? 'employee');
+      this.cdRef.detectChanges();
     });
     this.loadKarigars();
     this.loadJobs();
@@ -109,6 +111,7 @@ export class KarigarPageComponent implements OnInit {
     } finally {
       this.loadingKarigars.set(false);
       this.loaderService.stop();
+      this.cdRef.detectChanges();
     }
   }
 
@@ -125,6 +128,7 @@ export class KarigarPageComponent implements OnInit {
       this.loggerService.LogError(error, 'KarigarPage.loadJobs');
     } finally {
       this.loadingJobs.set(false);
+      this.cdRef.detectChanges();
     }
   }
 
@@ -204,6 +208,8 @@ export class KarigarPageComponent implements OnInit {
     } catch (error) {
       this.loggerService.LogError(error, 'KarigarPage.deleteKarigar');
       this.toast.error((error as any)?.message ?? String(error), 'Error');
+    } finally {
+      this.cdRef.detectChanges();
     }
   }
 

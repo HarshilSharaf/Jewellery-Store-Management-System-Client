@@ -1,4 +1,5 @@
 import {
+  ChangeDetectorRef,
   Component,
   EventEmitter,
   HostListener,
@@ -55,6 +56,7 @@ export class AddProductFormComponent implements OnInit, OnDestroy {
   purities: Purity[] = [];
   isAdmin = false;
   readonly permissions = inject(PermissionsService);
+  private readonly cdRef = inject(ChangeDetectorRef);
 
   protected computedPreview: {
     metal: number;
@@ -113,6 +115,7 @@ export class AddProductFormComponent implements OnInit, OnDestroy {
       this.isAdmin = false;
     }
     this.permissions.getUserPermissions();
+    this.cdRef.detectChanges();
   }
 
   @HostListener('document:keydown.escape')
@@ -208,6 +211,8 @@ export class AddProductFormComponent implements OnInit, OnDestroy {
       this.addProductResponse.status = 500;
       this.addProductResponse.message = typeof error === 'string' ? error : error?.message ?? 'Failed to add product';
       this.isLoading = false;
+    } finally {
+      this.cdRef.detectChanges();
     }
   }
 

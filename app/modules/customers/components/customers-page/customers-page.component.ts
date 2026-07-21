@@ -177,6 +177,8 @@ export class CustomersPageComponent implements OnInit, OnDestroy {
     } catch (error) {
       this.loggerService.LogError(error, 'deleteCustomer()');
       this.toast.error(error as string, 'Error');
+    } finally {
+      this.cdref.detectChanges();
     }
   }
 

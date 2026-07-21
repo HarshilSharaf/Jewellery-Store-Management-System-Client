@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AvailableProductsComponent } from '../available-products/available-products.component';
 import { MasterCategoryService } from '../../../categories/components/master-categories/services/master-category.service';
@@ -27,6 +27,8 @@ interface StockTile {
 export class InventoryPageComponent implements OnInit {
   stockTiles: StockTile[] = [];
   stockLoaded = false;
+
+  private readonly cdRef = inject(ChangeDetectorRef);
 
   constructor(
     private masterCategoryService: MasterCategoryService,
@@ -63,6 +65,8 @@ export class InventoryPageComponent implements OnInit {
     } catch (error) {
       this.stockLoaded = true;
       this.loggerService.LogError(error, 'getTotalStockForGoldAndSilver()');
+    } finally {
+      this.cdRef.detectChanges();
     }
   }
 

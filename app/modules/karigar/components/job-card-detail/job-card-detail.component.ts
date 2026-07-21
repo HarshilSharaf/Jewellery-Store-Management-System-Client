@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -72,6 +72,7 @@ export class JobCardDetailComponent implements OnInit {
   private readonly loggerService = inject(LoggerService);
   private readonly fb = inject(FormBuilder);
   private readonly toast = inject(AppToastService);
+  private readonly cdRef = inject(ChangeDetectorRef);
 
   readonly daysOpen = computed<number>(() => {
     const j = this.job();
@@ -139,6 +140,7 @@ export class JobCardDetailComponent implements OnInit {
       this.loggerService.LogError(error, 'JobCardDetail.load');
     } finally {
       this.isLoading.set(false);
+      this.cdRef.detectChanges();
     }
   }
 
@@ -212,6 +214,8 @@ export class JobCardDetailComponent implements OnInit {
       const msg = (error as any)?.message ?? String(error);
       this.errorMessage.set(msg);
       this.loggerService.LogError(error, 'JobCardDetail.receiveJob');
+    } finally {
+      this.cdRef.detectChanges();
     }
   }
 
@@ -241,6 +245,8 @@ export class JobCardDetailComponent implements OnInit {
       const msg = (error as any)?.message ?? String(error);
       this.errorMessage.set(msg);
       this.loggerService.LogError(error, 'JobCardDetail.settleJob');
+    } finally {
+      this.cdRef.detectChanges();
     }
   }
 

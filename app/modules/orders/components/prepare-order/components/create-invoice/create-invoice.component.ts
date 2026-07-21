@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -82,6 +82,7 @@ export class CreateInvoiceComponent implements OnInit {
   private readonly storeService = inject(StoreService);
   private readonly dialog = inject(AppDialogService);
   private readonly toast = inject(AppToastService);
+  private readonly cdRef = inject(ChangeDetectorRef);
   private currentUserId: number | null = null;
   readonly oldGoldCreditAmount = computed<number>(() => Number(this.cartService.oldGoldState()?.creditAmount ?? 0));
   readonly oldGoldReceiptGuid  = computed<string | null>(() => this.cartService.oldGoldState()?.receiptGuid ?? null);
@@ -139,6 +140,8 @@ export class CreateInvoiceComponent implements OnInit {
       this.recalcAll();
     } catch (err) {
       this.loggerService.LogError(err, 'CreateInvoice.ngOnInit');
+    } finally {
+      this.cdRef.detectChanges();
     }
   }
 
@@ -290,12 +293,14 @@ export class CreateInvoiceComponent implements OnInit {
           this.loggerService.LogError(errMsg, 'saveOrder()');
           this.toast.error(errMsg, 'Error');
         }
+        this.cdRef.detectChanges();
       })
       .catch((error: any) => {
         this.saving.set(false);
         this.loaderService.stop();
         this.loggerService.LogError(error, 'saveOrder()');
         this.toast.error(typeof error === 'string' ? error : 'Failed to save invoice', 'Error');
+        this.cdRef.detectChanges();
       });
   }
 

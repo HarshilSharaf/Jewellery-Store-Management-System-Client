@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -58,6 +58,7 @@ export class IssueJobPageComponent implements OnInit {
   private readonly storeService = inject(StoreService);
   private readonly loggerService = inject(LoggerService);
   private readonly toast = inject(AppToastService);
+  private readonly cdRef = inject(ChangeDetectorRef);
 
   constructor() {
     this.form = this.fb.group({
@@ -96,6 +97,8 @@ export class IssueJobPageComponent implements OnInit {
       this.purities.set(Array.isArray(purities) ? purities : []);
     } catch (error) {
       this.loggerService.LogError(error, 'IssueJobPage.loadReferenceData');
+    } finally {
+      this.cdRef.detectChanges();
     }
   }
 
@@ -151,6 +154,8 @@ export class IssueJobPageComponent implements OnInit {
       const msg = (error as any)?.message ?? String(error);
       this.errorMessage.set(msg);
       this.loggerService.LogError(error, 'IssueJobPage.submitForm');
+    } finally {
+      this.cdRef.detectChanges();
     }
   }
 

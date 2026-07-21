@@ -1,4 +1,4 @@
-import { Component, EventEmitter, HostListener, Input, Output, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, HostListener, Input, Output, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -33,6 +33,7 @@ export class AddCustomerFormComponent {
 
   protected readonly states = INDIAN_STATES;
   protected readonly gstinPattern = GSTIN_REGEX;
+  private readonly cdRef = inject(ChangeDetectorRef);
 
   constructor(
     private formBuilder: FormBuilder,
@@ -114,6 +115,8 @@ export class AddCustomerFormComponent {
       this.addCustomerResponse.message = error as string;
       this.isLoading = false;
       this.loggerService.LogError(error, 'addCustomer()');
+    } finally {
+      this.cdRef.detectChanges();
     }
   }
 

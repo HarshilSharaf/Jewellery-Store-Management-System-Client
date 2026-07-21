@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import {
+  ChangeDetectorRef,
   Component,
   DestroyRef,
   ElementRef,
@@ -119,6 +120,7 @@ export class CartBuilderComponent implements OnInit, OnDestroy {
   private readonly savingSchemesService = inject(SavingSchemesService);
   private readonly dialog = inject(AppDialogService);
   private readonly toast = inject(AppToastService);
+  private readonly cdRef = inject(ChangeDetectorRef);
 
   readonly cartLines = signal<InvoiceProductDataModel[]>([]);
   readonly totals = signal<CartTotals>({
@@ -287,6 +289,7 @@ export class CartBuilderComponent implements OnInit, OnDestroy {
     } finally {
       this.loadingRates.set(false);
       this.recalcAll();
+      this.cdRef.detectChanges();
     }
 
     this.search.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((val) => {
@@ -512,6 +515,7 @@ export class CartBuilderComponent implements OnInit, OnDestroy {
       this.loggerService.LogError(err, 'CartBuilder.relockRate');
     } finally {
       this.loadingRates.set(false);
+      this.cdRef.detectChanges();
     }
   }
 
@@ -760,6 +764,7 @@ export class CartBuilderComponent implements OnInit, OnDestroy {
       this.toast.error('Failed to save old-gold receipt.', 'Error');
     } finally {
       this.oldGoldSaving.set(false);
+      this.cdRef.detectChanges();
     }
   }
 
@@ -795,6 +800,8 @@ export class CartBuilderComponent implements OnInit, OnDestroy {
       this.eligibleSchemes.set(eligible);
     } catch (err) {
       this.loggerService.LogError(err, 'CartBuilder.refreshEligibleSchemes');
+    } finally {
+      this.cdRef.detectChanges();
     }
   }
 

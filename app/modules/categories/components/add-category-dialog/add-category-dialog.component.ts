@@ -1,4 +1,4 @@
-import { Component, EventEmitter, HostListener, Input, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, HostListener, Input, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -31,6 +31,7 @@ export class AddCategoryDialogComponent {
   form: FormGroup;
   isLoading = false;
   response: HttpResponse = { status: 0, message: '' };
+  private readonly cdRef = inject(ChangeDetectorRef);
 
   constructor(
     private fb: FormBuilder,
@@ -110,6 +111,7 @@ export class AddCategoryDialogComponent {
       this.logger.LogError(err, `addCategory(${this.tab})`);
     } finally {
       this.isLoading = false;
+      this.cdRef.detectChanges();
     }
   }
 

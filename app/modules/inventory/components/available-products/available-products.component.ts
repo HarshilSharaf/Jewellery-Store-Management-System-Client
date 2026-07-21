@@ -139,6 +139,8 @@ export class AvailableProductsComponent implements OnInit, OnDestroy {
       this.isAdmin = auth?.type === 'admin';
     } catch {
       this.isAdmin = false;
+    } finally {
+      this.cdref.detectChanges();
     }
   }
 
@@ -147,6 +149,8 @@ export class AvailableProductsComponent implements OnInit, OnDestroy {
       this.purities = await this.puritiesService.getPurities();
     } catch (error) {
       this.loggerService.LogError(error, 'loadPurities()');
+    } finally {
+      this.cdref.detectChanges();
     }
   }
 
@@ -160,6 +164,8 @@ export class AvailableProductsComponent implements OnInit, OnDestroy {
       };
     } catch (error) {
       this.loggerService.LogError(error, 'getAllCategoriesData() From available-products component');
+    } finally {
+      this.cdref.detectChanges();
     }
   }
 

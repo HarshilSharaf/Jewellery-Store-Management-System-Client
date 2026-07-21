@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import {
+  ChangeDetectorRef,
   Component,
   DestroyRef,
   OnInit,
@@ -110,6 +111,7 @@ export class OrderDetailsComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly dialog = inject(AppDialogService);
   private readonly toast = inject(AppToastService);
+  private readonly cdRef = inject(ChangeDetectorRef);
 
   constructor(
     private route: ActivatedRoute,
@@ -140,7 +142,9 @@ export class OrderDetailsComponent implements OnInit {
     try {
       const shop = await this.shopSettingsService.get();
       this.whatsappConfigured.set(!!shop?.whatsappEnabled);
-    } catch { /* leave default */ }
+    } catch { /* leave default */ } finally {
+      this.cdRef.detectChanges();
+    }
   }
 
   private async loadWhatsappHistory(): Promise<void> {
@@ -150,6 +154,8 @@ export class OrderDetailsComponent implements OnInit {
       this.whatsappHistory.set(Array.isArray(rows) ? rows : []);
     } catch (error) {
       this.loggerService.LogError(error, 'loadWhatsappHistory');
+    } finally {
+      this.cdRef.detectChanges();
     }
   }
 
@@ -217,11 +223,13 @@ export class OrderDetailsComponent implements OnInit {
         this.loading.set(false);
         this.loaderService.stop();
         this.loggerService.LogInfo('getOrderDetails() Request Completed.');
+        this.cdRef.detectChanges();
       })
       .catch((error: any) => {
         this.loading.set(false);
         this.loaderService.stop();
         this.loggerService.LogError(error, 'getOrderDetails()');
+        this.cdRef.detectChanges();
       });
   }
 
@@ -373,6 +381,7 @@ export class OrderDetailsComponent implements OnInit {
       this.toast.error((error as any)?.message ?? String(error), 'Error');
     } finally {
       this.whatsappSending.set(false);
+      this.cdRef.detectChanges();
     }
   }
 

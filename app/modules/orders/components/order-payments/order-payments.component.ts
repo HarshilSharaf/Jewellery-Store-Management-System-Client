@@ -1,11 +1,13 @@
 import { CommonModule } from '@angular/common';
 import {
+  ChangeDetectorRef,
   Component,
   EventEmitter,
   HostListener,
   Input,
   OnInit,
   Output,
+  inject,
   signal,
 } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
@@ -51,6 +53,7 @@ export class OrderPaymentsComponent implements OnInit {
 
   recordPaymentForm: FormGroup;
   private readonly initialFormValue: unknown;
+  private readonly cdRef = inject(ChangeDetectorRef);
 
   constructor(
     private fb: FormBuilder,
@@ -156,12 +159,14 @@ export class OrderPaymentsComponent implements OnInit {
           { timer: 1600 },
         );
         this.closePanel();
+        this.cdRef.detectChanges();
       })
       .catch((error: any) => {
         this.saving.set(false);
         const msg = typeof error === 'string' ? error : error?.message ?? 'Failed to record payment';
         this.errorMessage.set(msg);
         this.loggerService.LogError(error, 'recordPayment()');
+        this.cdRef.detectChanges();
       });
   }
 

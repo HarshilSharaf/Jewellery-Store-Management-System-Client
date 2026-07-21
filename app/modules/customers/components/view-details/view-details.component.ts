@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
@@ -89,6 +89,7 @@ export class ViewDetailsComponent implements OnInit, OnDestroy {
   protected initialCustomerImageSrc: any;
 
   private readonly destroyRef = inject(DestroyRef);
+  private readonly cdRef = inject(ChangeDetectorRef);
 
   customerDetailsForm!: FormGroup;
   customerDetailsFormInitialValues: any;
@@ -159,6 +160,7 @@ export class ViewDetailsComponent implements OnInit, OnDestroy {
       this.loggerService.LogError(error, 'getCustomerRepairTickets()');
     } finally {
       this.isLoadingRepair = false;
+      this.cdRef.detectChanges();
     }
   }
 
@@ -169,6 +171,8 @@ export class ViewDetailsComponent implements OnInit, OnDestroy {
       this.whatsappHistory = Array.isArray(list) ? list.filter((r: any) => r?.sendGuid) : [];
     } catch (error) {
       this.loggerService.LogError(error, 'getCustomerWhatsappHistory()');
+    } finally {
+      this.cdRef.detectChanges();
     }
   }
 
@@ -204,6 +208,7 @@ export class ViewDetailsComponent implements OnInit, OnDestroy {
       this.loggerService.LogError(error, 'getCustomerOldGoldReceipts()');
     } finally {
       this.isLoadingOldGold = false;
+      this.cdRef.detectChanges();
     }
   }
 
@@ -218,6 +223,8 @@ export class ViewDetailsComponent implements OnInit, OnDestroy {
       this.customerSchemes = Array.isArray(list) ? list : [];
     } catch (error) {
       this.loggerService.LogError(error, 'getCustomerSchemes()');
+    } finally {
+      this.cdRef.detectChanges();
     }
   }
 
@@ -292,6 +299,8 @@ export class ViewDetailsComponent implements OnInit, OnDestroy {
       this.totalAmount = response[0]?.totalAmount ?? 0;
     } catch (error) {
       this.loggerService.LogError(error, 'getTotalAmountOfProductsBoughtForCustomer()');
+    } finally {
+      this.cdRef.detectChanges();
     }
   }
 
@@ -317,6 +326,7 @@ export class ViewDetailsComponent implements OnInit, OnDestroy {
       this.loggerService.LogError(error, 'getCustomerImage() From view-customer-details component.');
     } finally {
       this.loaderService.stop();
+      this.cdRef.detectChanges();
     }
   }
 
@@ -329,6 +339,7 @@ export class ViewDetailsComponent implements OnInit, OnDestroy {
       this.loggerService.LogError(error, 'getCustomerDetails() from view-customer-details component');
     } finally {
       this.loaderService.stop();
+      this.cdRef.detectChanges();
     }
   }
 
@@ -359,6 +370,7 @@ export class ViewDetailsComponent implements OnInit, OnDestroy {
       });
     } finally {
       this.loaderService.stop();
+      this.cdRef.detectChanges();
     }
   }
 
@@ -396,6 +408,8 @@ export class ViewDetailsComponent implements OnInit, OnDestroy {
       this.loggerService.LogError(error, 'updateCustomerDetails()');
       this.isLoading = false;
       this.dialog.fire({ icon: 'error', title: 'Update failed', text: error as string });
+    } finally {
+      this.cdRef.detectChanges();
     }
   }
 
@@ -429,6 +443,7 @@ export class ViewDetailsComponent implements OnInit, OnDestroy {
       this.loggerService.LogError(error, 'getCustomerOrders()');
     } finally {
       this.isLoadingOrders = false;
+      this.cdRef.detectChanges();
     }
   }
 

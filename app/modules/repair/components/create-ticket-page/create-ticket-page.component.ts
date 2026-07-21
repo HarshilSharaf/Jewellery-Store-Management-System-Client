@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, inject, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ViewChild, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
@@ -76,6 +76,7 @@ export class CreateTicketPageComponent implements OnInit {
   private readonly loggerService = inject(LoggerService);
   private readonly fileSystemService = inject(FileSystemService);
   private readonly toast = inject(AppToastService);
+  private readonly cdRef = inject(ChangeDetectorRef);
 
   constructor() {
     const todayIso = new Date().toISOString().slice(0, 10);
@@ -98,6 +99,7 @@ export class CreateTicketPageComponent implements OnInit {
       if (auth?.uid) {
         this.form.patchValue({ receivedByUserId: auth.uid });
       }
+      this.cdRef.detectChanges();
     });
     this.loadKarigars();
     this.loadCustomers('');
@@ -113,6 +115,8 @@ export class CreateTicketPageComponent implements OnInit {
       this.karigars.set((rows ?? []).filter((r: any) => r?.karigarGuid) as Karigar[]);
     } catch (error) {
       this.loggerService.LogError(error, 'CreateTicket.loadKarigars');
+    } finally {
+      this.cdRef.detectChanges();
     }
   }
 
@@ -130,6 +134,8 @@ export class CreateTicketPageComponent implements OnInit {
       this.customers.set(list);
     } catch (error) {
       this.loggerService.LogError(error, 'CreateTicket.loadCustomers');
+    } finally {
+      this.cdRef.detectChanges();
     }
   }
 
@@ -240,6 +246,7 @@ export class CreateTicketPageComponent implements OnInit {
       this.toast.error(msg, 'Error');
     } finally {
       this.saving.set(false);
+      this.cdRef.detectChanges();
     }
   }
 
