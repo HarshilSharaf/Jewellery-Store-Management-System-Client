@@ -26,19 +26,23 @@
 
   &--photo-karigar {
     // Photo tile on the left, karigar controls stacked on the right.
-    // Photo pads on its LEFT (outer edge), karigar pads on its RIGHT
-    // (outer edge) so the two columns sit inset from the section walls
-    // but touch each other in the middle with a soft gap.
+    // Both columns inset generously from the section walls; the row
+    // itself is centered horizontally so any leftover width sits
+    // symmetrically around them.
     grid-template-columns: minmax(0, 340px) minmax(0, 1fr);
     align-items: start;
-    gap: 16px;
+    gap: 24px;
+    max-width: 720px;
+    margin: 0 auto;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--color-border-subtle);
 
     > :first-child {
-      padding-left: 16px;
+      padding-left: 40px;
     }
 
     > :last-child {
-      padding-right: 16px;
+      padding-right: 40px;
     }
   }
 }
@@ -170,6 +174,10 @@
   }
 }
 
+.repair-create__grid--photo-karigar > :first-child > .field-label {
+  padding: 12px 0;
+}
+
 .repair-photo {
   max-width: 320px;
   margin-top: 8px;
@@ -192,9 +200,14 @@
     gap: 16px;
   }
   .repair-create__grid--photo-karigar {
+    max-width: 100%;
+    padding-bottom: 16px;
     > :first-child,
     > :last-child {
       padding: 0;
+    }
+    > :first-child > .field-label {
+      padding: 4px 0;
     }
   }
   .repair-create__checkbox-cell {
