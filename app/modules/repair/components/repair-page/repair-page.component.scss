@@ -2,6 +2,33 @@
 // status-chip variants live in the shared // Workstream S recipes block in
 // client/styles.scss. Only tuning for the table columns lives here.
 
+.filter-chips {
+  display: inline-flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.search-input {
+  position: relative;
+  min-width: 240px;
+  flex: 0 1 320px;
+
+  &__icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-fg-muted);
+    pointer-events: none;
+  }
+
+  input.hlm-input {
+    padding-left: 32px;
+    width: 100%;
+  }
+}
+
 .repair-table {
   .jobs-table__head,
   .repair-row {
