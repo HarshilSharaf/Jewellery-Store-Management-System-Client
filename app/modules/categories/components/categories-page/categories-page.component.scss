@@ -82,7 +82,7 @@
     height: 40px;
     border-radius: var(--radius-md);
     background: color-mix(in oklab, var(--color-accent) 12%, var(--color-bg-subtle));
-    color: var(--color-accent-fg);
+    color: var(--color-accent);
 
     html[data-theme="dark"] & { color: var(--color-accent); }
   }

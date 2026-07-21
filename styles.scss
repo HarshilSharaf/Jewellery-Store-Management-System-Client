@@ -503,7 +503,7 @@ small, .text-sm { font-size: var(--fs-sm); }
 
 .btn.btn-outline-primary,
 .btn.btn-outline-lightning {
-  color: var(--color-accent-fg) !important;
+  color: var(--color-accent) !important;
   border-color: var(--color-accent) !important;
   background: transparent !important;
 
@@ -564,7 +564,7 @@ html[data-theme="dark"] .btn.btn-outline-lightning {
   }
   .chip-active {
     background: var(--color-accent-subtle);
-    color: var(--color-accent-fg);
+    color: var(--color-accent);
     border-color: color-mix(in oklab, var(--color-accent) 40%, transparent);
   }
   html[data-theme="dark"] .chip-active {
@@ -580,7 +580,7 @@ html[data-theme="dark"] .btn.btn-outline-lightning {
   .purity-chip {
     @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold tabular-nums;
     background: color-mix(in oklab, var(--color-accent) 12%, var(--color-bg-subtle));
-    color: var(--color-accent-fg);
+    color: var(--color-accent);
     letter-spacing: 0.02em;
   }
   html[data-theme="dark"] .purity-chip {
@@ -708,7 +708,7 @@ html[data-theme="dark"] .btn.btn-outline-lightning {
     place-items: center;
     border-radius: 9999px;
     background: color-mix(in oklab, var(--color-accent) 12%, var(--color-bg-subtle));
-    color: var(--color-accent-fg);
+    color: var(--color-accent);
     font-weight: 600;
     overflow: hidden;
     flex-shrink: 0;
@@ -928,13 +928,10 @@ html[data-theme="dark"] .btn.btn-outline-lightning {
     }
 
     &.is-active {
-      color: var(--color-accent-fg);
+      color: var(--color-accent);
       border-bottom-color: var(--color-accent);
       font-weight: 600;
     }
-  }
-  html[data-theme="dark"] .tab-item.is-active {
-    color: var(--color-accent);
   }
 
   .section-heading {
@@ -1043,11 +1040,8 @@ html[data-theme="dark"] .btn.btn-outline-lightning {
   }
   .status-chip--redeemed {
     background: color-mix(in oklab, var(--color-accent) 15%, var(--color-panel));
-    color: var(--color-accent-fg);
-    border-color: color-mix(in oklab, var(--color-accent) 40%, transparent);
-  }
-  html[data-theme="dark"] .status-chip--redeemed {
     color: var(--color-accent);
+    border-color: color-mix(in oklab, var(--color-accent) 40%, transparent);
   }
   .status-chip--forfeited {
     background: var(--color-danger-subtle);
@@ -1064,11 +1058,8 @@ html[data-theme="dark"] .btn.btn-outline-lightning {
   }
   .status-chip--received {
     background: color-mix(in oklab, var(--color-accent) 12%, var(--color-panel));
-    color: var(--color-accent-fg);
-    border-color: color-mix(in oklab, var(--color-accent) 35%, transparent);
-  }
-  html[data-theme="dark"] .status-chip--received {
     color: var(--color-accent);
+    border-color: color-mix(in oklab, var(--color-accent) 35%, transparent);
   }
   .status-chip--settled {
     background: var(--color-success-subtle);
@@ -1207,7 +1198,7 @@ html[data-theme="dark"] .btn.btn-outline-lightning {
 
     &:hover:not(:disabled) {
       background: var(--color-accent-subtle);
-      color: var(--color-accent-fg);
+      color: var(--color-accent);
     }
 
     &:disabled {
@@ -1266,7 +1257,7 @@ html[data-theme="dark"] .btn.btn-outline-lightning {
       height: 40px;
       border-radius: var(--radius-md);
       background: color-mix(in oklab, var(--color-accent) 12%, var(--color-bg-subtle));
-      color: var(--color-accent-fg);
+      color: var(--color-accent);
       flex-shrink: 0;
     }
 
@@ -1295,12 +1286,11 @@ html[data-theme="dark"] .btn.btn-outline-lightning {
       align-items: center;
       gap: 4px;
       font-size: 12px;
-      color: var(--color-accent-fg);
+      color: var(--color-accent);
       font-weight: 500;
       align-self: flex-end;
     }
   }
-  html[data-theme="dark"] .report-tile__cta { color: var(--color-accent); }
 
   .date-range-toolbar {
     display: flex;

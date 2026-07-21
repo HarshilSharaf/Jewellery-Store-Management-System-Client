@@ -204,7 +204,7 @@
 
     &:hover {
       background: var(--color-accent-subtle);
-      color: var(--color-accent-fg);
+      color: var(--color-accent);
       border-color: color-mix(in oklab, var(--color-accent) 30%, transparent);
     }
   }

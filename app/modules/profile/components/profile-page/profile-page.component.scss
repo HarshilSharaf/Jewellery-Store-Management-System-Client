@@ -141,7 +141,7 @@
 
   &--admin {
     background: var(--color-accent-subtle);
-    color: var(--color-accent-fg);
+    color: var(--color-accent);
     border: 1px solid color-mix(in oklab, var(--color-accent) 30%, transparent);
   }
   &--manager {

@@ -264,7 +264,7 @@
     }
 
     &--view {
-      color: var(--color-accent-fg);
+      color: var(--color-accent);
 
       &:hover:not(.row-actions__btn--disabled) {
         background: var(--color-accent-subtle);
@@ -339,7 +339,7 @@
     height: 48px;
     border-radius: 50%;
     background: var(--color-accent-subtle);
-    color: var(--color-accent-fg);
+    color: var(--color-accent);
     display: flex;
     align-items: center;
     justify-content: center;
