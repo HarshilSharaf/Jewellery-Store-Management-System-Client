@@ -28,12 +28,23 @@
 .shell__content {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 32px;
   background: var(--color-bg);
+  min-width: 0;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1023px) {
+  .shell__rail {
+    display: none;
+  }
   .shell__content {
     padding: 20px;
+  }
+}
+
+@media (max-width: 639px) {
+  .shell__content {
+    padding: 16px 12px;
   }
 }

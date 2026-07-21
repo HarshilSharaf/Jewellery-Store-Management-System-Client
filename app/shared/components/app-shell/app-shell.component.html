@@ -1,11 +1,12 @@
 <div class="shell">
-  <app-top-bar class="shell__top-bar"></app-top-bar>
+  <app-top-bar class="shell__top-bar" (menuClick)="openDrawer()"></app-top-bar>
   <div class="shell__body">
     <app-rail class="shell__rail"></app-rail>
     <main class="shell__content">
       <router-outlet></router-outlet>
     </main>
   </div>
+  <app-rail-drawer [open]="drawerOpen()" (close)="closeDrawer()"></app-rail-drawer>
   <app-cart-side-bar></app-cart-side-bar>
   <app-command-palette></app-command-palette>
   <app-dialog></app-dialog>

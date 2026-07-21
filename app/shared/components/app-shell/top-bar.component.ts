@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, Component, ElementRef, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, OnInit, Output, ViewChild, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideSun, lucideMoon, lucideSearch } from '@ng-icons/lucide';
+import { lucideSun, lucideMoon, lucideSearch, lucideMenu } from '@ng-icons/lucide';
 
 import { ThemeService } from '../../services/theme.service';
 import { ShopSettingsService } from '../../services/ShopSettings/shop-settings.service';
@@ -16,7 +16,7 @@ import { AddToCartComponent } from '../navbar/add-to-cart/add-to-cart.component'
   styleUrls: ['./top-bar.component.scss'],
   standalone: true,
   imports: [CommonModule, NgIcon, RateTickerComponent, UserMenuComponent, AddToCartComponent],
-  viewProviders: [provideIcons({ lucideSun, lucideMoon, lucideSearch })],
+  viewProviders: [provideIcons({ lucideSun, lucideMoon, lucideSearch, lucideMenu })],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TopBarComponent implements OnInit {
@@ -24,7 +24,10 @@ export class TopBarComponent implements OnInit {
   private readonly shopSettings = inject(ShopSettingsService);
   private readonly palette = inject(CommandPaletteService);
 
+  @Output() readonly menuClick = new EventEmitter<void>();
+
   readonly shopName = signal('Radiance');
+  readonly shopInitial = computed(() => (this.shopName() || 'R').charAt(0).toUpperCase());
   readonly isMac = /Mac|iPhone|iPad|iPod/.test(typeof navigator !== 'undefined' ? navigator.platform : '');
   readonly commandHint = computed(() => this.isMac ? '⌘K' : 'Ctrl+K');
 
@@ -46,5 +49,9 @@ export class TopBarComponent implements OnInit {
     // The palette owns focus once open; blur the trigger so the caret does
     // not stay in the top-bar surrogate input.
     this.searchRef?.nativeElement.blur();
+  }
+
+  onMenuClick(): void {
+    this.menuClick.emit();
   }
 }

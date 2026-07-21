@@ -1,6 +1,13 @@
 <header class="top-bar">
+  <button type="button" class="top-bar__menu" (click)="onMenuClick()"
+          i18n-aria-label="@@topbar.menu.aria" aria-label="Open navigation"
+          i18n-title="@@topbar.menu.aria" title="Open navigation">
+    <ng-icon name="lucideMenu" size="18" aria-hidden="true"></ng-icon>
+  </button>
+
   <div class="top-bar__brand">
     <span class="top-bar__wordmark">{{ shopName() }}</span>
+    <span class="top-bar__wordmark top-bar__wordmark--initial" aria-hidden="true">{{ shopInitial() }}</span>
   </div>
 
   <div class="top-bar__center">
@@ -23,6 +30,14 @@
              tabindex="-1"
              aria-hidden="true">
       <kbd class="top-bar__search-kbd">{{ commandHint() }}</kbd>
+    </button>
+
+    <button type="button"
+            class="top-bar__icon-btn top-bar__search-compact"
+            (click)="openPalette()"
+            i18n-aria-label="@@topbar.palette.aria" aria-label="Open command palette"
+            i18n-title="@@topbar.palette.aria" title="Open command palette">
+      <ng-icon name="lucideSearch" size="16" aria-hidden="true"></ng-icon>
     </button>
 
     <button type="button"

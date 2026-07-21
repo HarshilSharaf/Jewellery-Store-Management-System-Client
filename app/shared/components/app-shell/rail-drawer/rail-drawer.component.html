@@ -1,0 +1,52 @@
+@if (open) {
+  <div class="rail-drawer__backdrop" (click)="onBackdropClick()" aria-hidden="true"></div>
+}
+
+<aside class="rail-drawer" [class.is-open]="open" role="dialog" aria-modal="true"
+       [attr.aria-hidden]="!open" aria-label="Primary navigation">
+  <div class="rail-drawer__head">
+    <span class="rail-drawer__brand">
+      <span class="rail-drawer__brand-mark">R</span>
+      <span class="rail-drawer__brand-name" i18n="@@rail.brand">Radiance</span>
+    </span>
+    <button type="button" class="rail-drawer__close" (click)="close.emit()"
+            i18n-aria-label="@@rail-drawer.close" aria-label="Close navigation"
+            i18n-title="@@rail-drawer.close" title="Close navigation">
+      <ng-icon name="lucideX" size="18" aria-hidden="true"></ng-icon>
+    </button>
+  </div>
+
+  <nav class="rail-drawer__nav" aria-label="Primary navigation">
+    <ul class="rail-drawer__list">
+      @for (item of primary; track item.route) {
+        <li>
+          <a class="rail-drawer__item"
+             [routerLink]="[item.route]"
+             routerLinkActive="is-active">
+            <ng-icon [name]="item.icon" size="18" aria-hidden="true"></ng-icon>
+            <span class="rail-drawer__label">{{ item.label }}</span>
+          </a>
+        </li>
+      }
+    </ul>
+
+    <ul class="rail-drawer__list rail-drawer__list--bottom">
+      @if (permissions.canEditShopSettings()) {
+        <li>
+          <a class="rail-drawer__item"
+             [routerLink]="[settings.route]"
+             routerLinkActive="is-active">
+            <ng-icon [name]="settings.icon" size="18" aria-hidden="true"></ng-icon>
+            <span class="rail-drawer__label">{{ settings.label }}</span>
+          </a>
+        </li>
+      }
+      <li>
+        <button type="button" class="rail-drawer__item" (click)="logout()">
+          <ng-icon name="lucideLogOut" size="18" aria-hidden="true"></ng-icon>
+          <span class="rail-drawer__label" i18n="@@rail.sign-out">Sign out</span>
+        </button>
+      </li>
+    </ul>
+  </nav>
+</aside>
