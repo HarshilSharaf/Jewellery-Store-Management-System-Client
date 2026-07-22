@@ -1,99 +1,88 @@
-<mat-stepper [linear]="true" class="prepare-order-stepper" [orientation]="(stepperOrientation | async)!">
-    
-    <!-- Review Products Step -->
-    <mat-step [completed]="cartItems.length > 0" errorMessage="Your cart is empty." label="Review Products">
-        <div class="container-fluid my-3">
-            <div class="row mb-3">
-                <div class="col text-center" *ngIf="cartItems.length < 1">
-                    <span class="text-danger fs-6 fw-bold">Please add some items to move to next step.</span>
-                </div>
+<section class="sell-wizard">
 
-                <div class="text-end"
-                    [ngClass]="{'col-12':cartItems.length > 0, 'col-4 col-sm-2': cartItems.length < 1}">
-                    <ng-container *ngIf="cartItems.length < 1; then disabledNextBtn else NextBtn"></ng-container>
-                    <ng-template #disabledNextBtn>
-                        <button class="btn btn-primary" disabled matStepperNext>Next
-                            <i class="fa-solid fa-circle-chevron-right"></i></button>
-                    </ng-template>
-                    <ng-template #NextBtn>
-                        <button class="btn btn-primary" matStepperNext>Next
-                            <i class="fa-solid fa-circle-chevron-right fa-beat"></i></button>
-                    </ng-template>
+  <header class="sell-wizard__head">
+    <h1 class="sell-wizard__title">Sell</h1>
+    <nav class="sell-wizard__stepper" aria-label="Prepare invoice steps">
+      <ol class="sell-wizard__list">
+        @for (step of steps; track step.key; let i = $index) {
+          <li class="sell-wizard__item"
+              [class.is-active]="i === activeStep()"
+              [class.is-complete]="isCompleted(i)">
+            <button type="button"
+                    class="sell-wizard__pill"
+                    (click)="goTo(i)"
+                    [attr.aria-current]="i === activeStep() ? 'step' : null">
+              <span class="sell-wizard__number" aria-hidden="true">
+                @if (isCompleted(i)) {
+                  <ng-icon name="lucideCheck"></ng-icon>
+                } @else {
+                  {{ i + 1 }}
+                }
+              </span>
+              <span class="sell-wizard__label">{{ step.label }}</span>
+            </button>
+            @if (i < steps.length - 1) {
+              <span class="sell-wizard__sep" aria-hidden="true"></span>
+            }
+          </li>
+        }
+      </ol>
+    </nav>
+  </header>
 
-                </div>
-            </div>
-            <div class="row">
-                <div class="col">
-                    <app-cart-items></app-cart-items>
-                </div>
-            </div>
-        </div>
-    </mat-step>
+  <div class="sell-wizard__body">
+    @switch (steps[activeStep()].key) {
 
+      @case ('customer') {
+        <app-select-customer
+          [selectedId]="selectedCustomer()?.id ?? null"
+          (emitSelectedCustomerData)="setCustomer($event)">
+        </app-select-customer>
+        <footer class="sell-wizard__foot">
+          @if (!canAdvanceFromCustomer()) {
+            <span class="sell-wizard__hint">Pick a customer to continue.</span>
+          }
+          <div class="sell-wizard__foot-spacer"></div>
+          <button type="button" class="hlm-btn hlm-btn-primary"
+                  [disabled]="!canAdvanceFromCustomer()" (click)="next()">
+            Continue
+            <ng-icon name="lucideChevronRight" aria-hidden="true"></ng-icon>
+          </button>
+        </footer>
+      }
 
-    <!-- Select Customer Step -->
-    <mat-step  [completed]="selectedCustomerData && selectedCustomerData.id !== null " errorMessage="Please Select Customer!">
+      @case ('items') {
+        <app-cart-builder [selectedCustomer]="selectedCustomer()"></app-cart-builder>
+        <footer class="sell-wizard__foot">
+          <button type="button" class="hlm-btn hlm-btn-ghost" (click)="prev()">
+            <ng-icon name="lucideChevronLeft" aria-hidden="true"></ng-icon>
+            Back
+          </button>
+          @if (!canAdvanceFromItems()) {
+            <span class="sell-wizard__hint">Add at least one item to continue.</span>
+          }
+          <div class="sell-wizard__foot-spacer"></div>
+          <button type="button" class="hlm-btn hlm-btn-primary"
+                  [disabled]="!canAdvanceFromItems()" (click)="next()">
+            Review invoice
+            <ng-icon name="lucideChevronRight" aria-hidden="true"></ng-icon>
+          </button>
+        </footer>
+      }
 
-        <!-- Lazy load select customer component to avoid redundant api calls -->
-        <!------------ Note: Lazy Loading in mat-step can be achieved ---------->
-        <!--------------by wraping components inside ng-template tag  ---------->
+      @case ('review') {
+        <app-create-invoice
+          [selectedCustomersInfo]="selectedCustomer()"
+          [selectedProductsData]="{ lengthOfData: cartItems().length, selectedProducts: cartItems() }">
+        </app-create-invoice>
+        <footer class="sell-wizard__foot">
+          <button type="button" class="hlm-btn hlm-btn-ghost" (click)="prev()">
+            <ng-icon name="lucideChevronLeft" aria-hidden="true"></ng-icon>
+            Back to items
+          </button>
+        </footer>
+      }
+    }
+  </div>
 
-        <ng-template matStepLabel>Select Customer</ng-template>
-        <ng-template matStepContent>
-            <div class="container-fluid">
-
-                <div class="row mb-3">
-                    <div class="col text-center" *ngIf="!selectedCustomerData">
-                        <span class="text-danger fs-6 fw-bold">Please select a customer to move to next step.</span>
-                    </div>
-                
-                    <div class="text-end"
-                        [ngClass]="{'col-12':selectedCustomerData && selectedCustomerData.id !== null, 'col-4 col-sm-2':selectedCustomerData && selectedCustomerData.id == null}">
-                        <ng-container
-                            *ngIf="!selectedCustomerData; then disabledNextBtn else NextBtn"></ng-container>
-                        <ng-template #disabledNextBtn>
-                            <button class="btn btn-primary" disabled matStepperNext>Next
-                                <i class="fa-solid fa-circle-chevron-right"></i></button>
-                        </ng-template>
-                        <ng-template #NextBtn>
-                            <button class="btn btn-primary" matStepperNext>Next
-                                <i class="fa-solid fa-circle-chevron-right fa-beat"></i></button>
-                        </ng-template>
-                
-                    </div>
-                </div>
-
-            
-                <app-select-customer (emitSelectedCustomerData)="setCustomerData($event)"></app-select-customer>
-            </div>
-        </ng-template>
-      
-    </mat-step>
-
-
-    <mat-step [stepControl]="thirdFormGroup" >
-        <ng-template matStepLabel>Prepare Invoice</ng-template>
-        <ng-template matStepContent>
-            <div class="container-fluid">
-                <!-- Note: Here cartItems is an array so any change in it won't be detected by changeDetector
-                                            So if we pass it as an object the changes will be detected -->
-                <!-- The issued mentioned in following link -->
-                <!-- https://stackoverflow.com/a/43223700/18480147 -->
-            
-                <app-create-invoice [selectedCustomersInfo]="selectedCustomerData"
-                    [selectedProductsData]="{lengthOfData:cartItems.length , selectedProducts:cartItems}"></app-create-invoice>
-            
-                <!-- The solution to this issue is mentioned in following link. -->
-                <!-- https://stackoverflow.com/a/44294538/18480147 -->
-            
-            </div>
-        </ng-template>
-    </mat-step>
-    <mat-step>
-        <ng-template matStepLabel>Done</ng-template>
-        <p>You are now done.</p>
-        <div>
-            <button mat-button matStepperPrevious>Back</button>
-        </div>
-    </mat-step>
-</mat-stepper>
+</section>

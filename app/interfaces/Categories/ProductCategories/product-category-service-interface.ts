@@ -1,31 +1,29 @@
-import { Observable } from "rxjs";
-
 /**
  * Represents an interface for a product category service that provides operations related to product categories.
  */
 export interface ProductCategoryServiceInterface {
     /**
-     * Retrieves the top product categories as an Observable.
-     * 
+     * Retrieves the top product categories as a Promise.
+     *
      * @param {number} numberOfCategories - The number of top categories to retrieve.
-     * @returns {Observable<unknown>} An Observable that emits the top product categories.
+     * @returns {Promise<unknown>} A Promise that resolves with the top product categories.
      */
-    getTopProductCategories(numberOfCategories: number): Observable<unknown>;
-  
+    getTopProductCategories(numberOfCategories: number): Promise<unknown>;
+
     /**
-     * Retrieves all product categories as an Observable.
-     * 
-     * @returns {Observable<unknown>} An Observable that emits the list of product categories.
+     * Retrieves all product categories as a Promise.
+     *
+     * @returns {Promise<unknown>} A Promise that resolves with the list of product categories.
      */
-    getProductCategories(): Observable<unknown>;
-  
+    getProductCategories(): Promise<unknown>;
+
     /**
      * Adds a new product category with the specified name and description.
-     * 
+     *
      * @param {string} name - The name of the new product category.
      * @param {string} description - The description of the new product category.
-     * @returns {Observable<unknown>} An Observable that emits the result of the add operation.
+     * @returns {Promise<unknown>} A Promise that resolves with the result of the add operation.
      */
-    addProductCategory(name: string, description: string): Observable<unknown>;
+    addProductCategory(name: string, description: string): Promise<unknown>;
   }
   

@@ -1,0 +1,62 @@
+@if (open) {
+  <div class="modal-overlay" (click)="onOverlayClick($event)" role="presentation">
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="karigar-form-title">
+      <header class="modal-header">
+        <div>
+          <h2 class="modal-title" id="karigar-form-title">{{ editing ? 'Edit karigar' : 'Add karigar' }}</h2>
+          <p class="modal-subtitle">Goldsmith / job-work party</p>
+        </div>
+        <button type="button" class="icon-btn" (click)="requestClose()" aria-label="Close" [disabled]="saving()">
+          <ng-icon name="lucideX" size="18" aria-hidden="true"></ng-icon>
+        </button>
+      </header>
+
+      <form [formGroup]="form" class="modal-content" (ngSubmit)="submitForm()" novalidate>
+        <section class="form-section">
+          <p class="form-section__title">Identity</p>
+          <div class="form-grid">
+            <div class="form-grid__full">
+              <label class="field-label" for="k-name">Name <span class="req">*</span></label>
+              <input class="hlm-input" id="k-name" formControlName="name"
+                     [class.is-invalid]="form.get('name')?.touched && form.get('name')?.errors?.['required']" />
+              @if (form.get('name')?.touched && form.get('name')?.errors?.['required']) {
+                <div class="field-error">Name is required</div>
+              }
+            </div>
+            <div>
+              <label class="field-label" for="k-phone">Phone</label>
+              <input class="hlm-input tabular-nums" id="k-phone" formControlName="phone" />
+            </div>
+            <div class="form-grid__full">
+              <label class="field-label" for="k-address">Address</label>
+              <textarea class="hlm-input" id="k-address" formControlName="address" rows="2"></textarea>
+            </div>
+            <div class="form-grid__full">
+              <label class="field-label" for="k-remarks">Remarks</label>
+              <textarea class="hlm-input" id="k-remarks" formControlName="remarks" rows="2"
+                        placeholder="e.g. specialty, rates, references"></textarea>
+            </div>
+          </div>
+        </section>
+
+        @if (errorMessage()) {
+          <div class="form-response form-response--error">{{ errorMessage() }}</div>
+        }
+      </form>
+
+      <footer class="modal-actions">
+        <button type="button" class="hlm-btn hlm-btn-ghost" (click)="clearForm()" [disabled]="saving()">Clear</button>
+        <button type="button" class="hlm-btn hlm-btn-primary" (click)="submitForm()"
+                [disabled]="!form.valid || saving()">
+          @if (saving()) {
+            <ng-icon name="lucideLoader" class="animate-spin" size="14" aria-hidden="true"></ng-icon>
+            <span>Saving…</span>
+          } @else {
+            <ng-icon name="lucideHammer" size="14" aria-hidden="true"></ng-icon>
+            <span>{{ editing ? 'Save changes' : 'Add karigar' }}</span>
+          }
+        </button>
+      </footer>
+    </div>
+  </div>
+}

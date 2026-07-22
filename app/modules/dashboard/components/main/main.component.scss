@@ -1,0 +1,380 @@
+:host {
+  display: block;
+}
+
+.dash {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 24px;
+}
+
+// ---------------- Row 1: header ----------------
+.dash__head {
+  grid-column: span 12;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.dash__title {
+  margin: 0;
+  font-size: 2.25rem;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--color-fg);
+  font-weight: 400;
+}
+
+.dash__date {
+  color: var(--color-fg-muted);
+  font-size: 13px;
+  padding-bottom: 4px;
+}
+
+// ---------------- Row layout ----------------
+.dash__row {
+  display: contents;
+}
+
+.dash__row--primary > .card--revenue { grid-column: span 8; }
+.dash__row--primary > .card--rate    { grid-column: span 4; }
+
+.dash__row--halves > .card { grid-column: span 6; }
+
+.dash__row--thirds > .kpi-card { grid-column: span 4; }
+
+@media (max-width: 1180px) {
+  .dash__row--primary > .card--revenue,
+  .dash__row--primary > .card--rate,
+  .dash__row--halves > .card { grid-column: span 12; }
+  .dash__row--thirds > .kpi-card { grid-column: span 6; }
+}
+
+@media (max-width: 720px) {
+  .dash__row--thirds > .kpi-card { grid-column: span 12; }
+  .dash__head { flex-direction: column; align-items: start; gap: 4px; }
+}
+
+// Ultra-wide: chart card grows more, rate card and KPI tiles hold at
+// sensible widths so nothing looks like a lonely billboard.
+@media (min-width: 1800px) {
+  .dash__row--primary > .card--revenue { grid-column: span 9; }
+  .dash__row--primary > .card--rate    { grid-column: span 3; }
+}
+@media (min-width: 2400px) {
+  .dash__row--primary > .card--revenue { grid-column: span 10; }
+  .dash__row--primary > .card--rate    { grid-column: span 2; }
+}
+
+// ---------------- Card chrome ----------------
+.card {
+  background: var(--color-panel);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: var(--shadow-sm);
+  min-height: 200px;
+}
+
+.card__head {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 16px;
+
+  &--split {
+    align-items: center;
+  }
+}
+
+.card__eyebrow {
+  margin: 0 0 6px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-fg-muted);
+}
+
+.card__value {
+  margin: 0;
+  font-size: 2rem;
+  line-height: 1.05;
+  color: var(--color-fg);
+  letter-spacing: -0.02em;
+  font-weight: 400;
+
+  .unit {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    color: var(--color-fg-muted);
+    margin-left: 4px;
+    letter-spacing: 0;
+  }
+}
+
+.card__sub {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--color-fg-muted);
+}
+
+.card__delta {
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+  gap: 4px;
+  text-align: right;
+}
+
+.card__foot {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 12px;
+  margin-top: auto;
+}
+
+// ---------------- Delta pill ----------------
+.delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--color-bg-subtle);
+  color: var(--color-fg-muted);
+
+  &--up {
+    background: var(--color-success-subtle);
+    color: var(--color-success-fg);
+  }
+
+  &--down {
+    background: var(--color-danger-subtle);
+    color: var(--color-danger-fg);
+  }
+}
+
+.delta__label {
+  font-size: 11px;
+  color: var(--color-fg-subtle);
+}
+
+// ---------------- Chart ----------------
+.chart-wrap {
+  position: relative;
+  height: 240px;
+  width: 100%;
+
+  canvas {
+    height: 240px !important;
+    width: 100% !important;
+  }
+}
+
+// ---------------- Lists ----------------
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.list__row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 8px;
+  border-radius: var(--radius-md);
+  transition: background-color 0.12s ease;
+
+  &--clickable {
+    cursor: pointer;
+  }
+
+  &:hover {
+    background: var(--color-bg-subtle);
+  }
+
+  &--skeleton {
+    padding: 12px 8px;
+    background: transparent;
+    &:hover { background: transparent; }
+  }
+}
+
+.list__main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.list__title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-fg);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.list__sub {
+  font-size: 12px;
+  color: var(--color-fg-muted);
+}
+
+.list__amount {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-fg);
+  text-align: right;
+}
+
+.rank {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  color: var(--color-fg-subtle);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.thumb {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-md);
+  background: color-mix(in oklab, var(--color-accent) 12%, var(--color-bg-subtle));
+  color: var(--color-accent);
+  grid-column: auto;
+}
+
+html[data-theme="dark"] .thumb {
+  color: var(--color-accent);
+}
+
+.card--list .list__row {
+  grid-template-columns: 1fr auto;
+}
+
+.card--list .list__row .rank + .thumb + .list__main {
+  min-width: 0;
+}
+
+// When the row has rank + thumb (fast movers layout), promote to 4-col
+.card--list .list__row:has(.rank) {
+  grid-template-columns: 20px 28px 1fr auto;
+}
+
+// Fallback for browsers without :has() — still readable
+.card--list .list__row .rank { align-self: center; }
+
+// ---------------- Links ----------------
+.link-muted {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--color-fg-muted);
+  text-decoration: none;
+  font-weight: 500;
+
+  &:hover {
+    color: var(--color-fg);
+  }
+}
+
+// ---------------- KPI ----------------
+.kpi-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.kpi-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-subtle);
+  color: var(--color-fg-muted);
+}
+
+.unit-small {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: var(--color-fg-muted);
+  margin-left: 4px;
+  letter-spacing: 0;
+}
+
+.kpi-delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-fg-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+// ---------------- Empty state ----------------
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 32px 12px;
+  color: var(--color-fg-subtle);
+  font-size: 12px;
+
+  ng-icon {
+    color: var(--color-fg-subtle);
+  }
+
+  &--card {
+    grid-column: 1 / -1;
+    justify-self: stretch;
+  }
+}
+
+.empty-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 12px;
+  color: var(--color-fg-muted);
+}
+
+// ---------------- Skeletons ----------------
+.sk {
+  display: block;
+  background: linear-gradient(90deg,
+    color-mix(in oklab, var(--color-fg-muted) 8%, transparent),
+    color-mix(in oklab, var(--color-fg-muted) 14%, transparent),
+    color-mix(in oklab, var(--color-fg-muted) 8%, transparent)
+  );
+  background-size: 200% 100%;
+  border-radius: var(--radius-sm);
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+.sk-line { height: 12px; width: 100%; }
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

@@ -1,6 +1,31 @@
+// Layout
 $navbar-height: 60px;
-$sidebar-width:260px;
-$sidebar-pinned-wdth:70px;
+$sidebar-width: 260px;
+$sidebar-pinned-wdth: 70px;
 
+// Pastel Color Palette
+$primary: #7C8CF8;
+$primary-light: #B8C4FF;
+$primary-lighter: #EEF0FF;
+$secondary: #F88C9C;
+$secondary-light: #FFB8C4;
+$accent: #5EC6C6;
+$accent-light: #B8FFE4;
+$warning: #F8C85C;
+$warning-light: #FFE4B8;
+$success: #6CD088;
+$success-light: #C4FFB8;
 
+$bg-color: #F8F9FC;
+$surface-color: #FFFFFF;
+$text-primary: #2D3142;
+$text-secondary: #6B7194;
+$border-color: #E8EAF0;
 
+// Component-specific
+$navbar-bg-color: #FFFFFF;
+$navbar-color: #6B7194;
+$sidebar-bg-color: #FFFFFF;
+$sidebar-color: #2D3142;
+$sidebar-icon-color: #7C8CF8;
+$sidebar-active-bg: #EEF0FF;

@@ -1,134 +1,106 @@
-<div class="card">
+<div class="payments-block">
+  <div class="payments-block__head">
+    <span class="payments-block__title">Payments</span>
+    @if (!isCancelled && !isPaymentDone) {
+      <button type="button" class="hlm-btn hlm-btn-primary" (click)="openPanel()">
+        <ng-icon name="lucideIndianRupee" aria-hidden="true"></ng-icon>
+        Record payment
+      </button>
+    }
+  </div>
 
-    <div class="card-body">
-        <div class="card-header">
-            <div class="row">
-                <div class="col">
-                    <h5>Payments</h5>
-                </div>
+  @if (_paymentsData.length === 0) {
+    <p class="payments-block__empty">No payments recorded yet.</p>
+  } @else {
+    <ul class="payments-list">
+      @for (payment of _paymentsData; track payment.paymentGuid ?? $index; let i = $index) {
+        <li class="payments-list__row">
+          <span class="payments-list__index">{{ i + 1 }}</span>
+          <span class="payments-list__mode">{{ paymentModeLabel(payment.paymentType) }}</span>
+          <span class="payments-list__amount tabular-nums">&#8377;{{ formatMoney(payment.amount) }}</span>
+          <span class="payments-list__date tabular-nums">{{ payment.receivedOn | date:'d MMM yyyy' }}</span>
+          <span class="payments-list__ref">
+            @if (payment.refNumber) { Ref {{ payment.refNumber }} }
+            @if (payment.remarks) { <em>{{ payment.remarks }}</em> }
+          </span>
+        </li>
+      }
+    </ul>
+  }
+</div>
 
-                <div class="col text-end">
-                    <button class="text-end btn btn-success" [ngClass]="{disabled: isPaymentDone}" data-bs-toggle="modal"
-                        data-bs-target="#paymentModal">
-                        <i class="fa-solid fa-indian-rupee-sign"></i>
-                        Record Payment
-                    </button>
-                </div>
+@if (open) {
+  <div class="payments-panel-backdrop" (click)="closePanel()" role="presentation"></div>
+  <aside class="payments-panel" role="dialog" aria-modal="true" aria-labelledby="payments-panel-title">
+    <header class="payments-panel__head">
+      <div>
+        <h3 id="payments-panel-title" class="payments-panel__title">Record payment</h3>
+        @if (invoiceNumber) { <div class="payments-panel__sub">Against {{ invoiceNumber }}</div> }
+      </div>
+      <button type="button" class="icon-btn" (click)="closePanel()" aria-label="Close panel">
+        <ng-icon name="lucideX" aria-hidden="true"></ng-icon>
+      </button>
+    </header>
 
-            </div>
-    
+    <div class="payments-panel__body">
+      <div class="payments-summary">
+        <div>
+          <span class="payments-summary__label">Grand total</span>
+          <span class="payments-summary__value tabular-nums">&#8377;{{ formatMoney(grandTotal) }}</span>
+        </div>
+        <div>
+          <span class="payments-summary__label">Paid so far</span>
+          <span class="payments-summary__value tabular-nums">&#8377;{{ formatMoney(totalPaid()) }}</span>
+        </div>
+        <div>
+          <span class="payments-summary__label">Outstanding</span>
+          <span class="payments-summary__value payments-summary__value--accent tabular-nums">&#8377;{{ formatMoney(outstanding()) }}</span>
+        </div>
+      </div>
+
+      <form class="payments-form" [formGroup]="recordPaymentForm" (ngSubmit)="recordPayment()">
+
+        <label class="field-label">Amount</label>
+        <div class="amount-input">
+          <span class="amount-input__prefix">&#8377;</span>
+          <input class="hlm-input amount-input__field tabular-nums" type="number" min="1"
+                 formControlName="amount" placeholder="0.00" step="0.01">
         </div>
 
-        <!-- Payment Modal -->
-        <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="paymentModalLabel">Record a Payment</h5>
-                        <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form class="form" [formGroup]="recordPaymentForm">
-                            <div class="form-group">
-                                <label class="form-label">Enter Amount:</label>
-                                <input class="form-control" min="1" type="number" placeholder="Enter Amount" formControlName="amount">
-                            </div>
-
-                            <div class="form-group">
-                                <label class="form-label">Select Payment Type:</label>
-                                <select class="form-select" formControlName="paymentType">
-                                    <option value="cash" selected>Cash</option>
-                                    <option value="cheque">Cheque</option>
-                                    <option value="online">Online</option>
-                                </select>   
-                                <!-- <input class="form-control" type="number" placeholder="Enter Amount" formControlName="paymentType"> -->
-                            </div>
-
-                            <div class="form-group mt-2">
-                                <label class="form-label">Select Payment Date:</label>
-                                <input class="form-control" type="date" formControlName="paymentDate">
-                            </div>
-
-                            
-                            <div class="form-group">
-                                <label class="form-label">Remarks:</label>
-                                <textarea class="form-control" placeholder="Add Remarks" formControlName="remarks"></textarea>
-                            </div>
-                        </form>
-
-                        <ng-container *ngIf ="recordPaymentResponse.status!=0 || recordPaymentResponse.message!=''">
-            
-                            <hr>
-                            <div class="row">
-                                <div class="col text-center">
-                                    <span [ngClass]="{'text-danger': recordPaymentResponse.status !=200, 'text-success': recordPaymentResponse.status==200 }"
-                                        style="font-weight: bold;">{{recordPaymentResponse.message}}</span>
-                                </div>
-                            </div>
-                        </ng-container>
-
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" (click)="clearAndCloseForm()" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary" (click)="recordPayment()">Save changes</button>
-                    </div>
-                </div>
-            </div>
+        <label class="field-label">Mode</label>
+        <div class="radio-pill-row" role="radiogroup" aria-label="Payment mode">
+          <button type="button" class="radio-pill" [class.is-active]="currentMode() === 'cash'"
+                  (click)="setMode('cash')" role="radio" [attr.aria-checked]="currentMode() === 'cash'">Cash</button>
+          <button type="button" class="radio-pill" [class.is-active]="currentMode() === 'cheque'"
+                  (click)="setMode('cheque')" role="radio" [attr.aria-checked]="currentMode() === 'cheque'">Cheque</button>
+          <button type="button" class="radio-pill" [class.is-active]="currentMode() === 'online'"
+                  (click)="setMode('online')" role="radio" [attr.aria-checked]="currentMode() === 'online'">Online</button>
         </div>
 
+        <label class="field-label">Reference #</label>
+        <input class="hlm-input" type="text" formControlName="refNumber"
+               [placeholder]="currentMode() === 'cash' ? 'Not required for cash' : 'UPI txn / cheque no'">
 
+        <label class="field-label">Date</label>
+        <input class="hlm-input tabular-nums" type="date" formControlName="paymentDate">
 
-        <div class="table-responsive mt-2 rounded border border-dark">
-            <table class="table table-bordered"
-            [ngClass]="{'table-striped': !_isLoading, 'table-hover': !_isLoading }">
-                <thead class="table-danger">
-                    <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Payment Method</th>
-                        <th scope="col">Paid Amount</th>
-                        <th scope="col">Recieved On Date</th>
-                        <th scope="col">Remarks</th>
-                    </tr>
-                </thead>
+        <label class="field-label">Remarks (optional)</label>
+        <textarea class="hlm-input payments-form__remarks" rows="2" formControlName="remarks"
+                  placeholder="Anything to note about this payment"></textarea>
 
-                <tbody>
-
-                    <ng-container *ngIf="_isLoading">
-                        <tr *ngFor="let row of [0, 1, 2, 3, 4]" class="text-center">
-                            <td *ngFor="let cell of [0, 1, 2, 3, 4]">
-                                <app-skeleton-loader [count]="1" [shapeOfLoader]="'circle'"
-                                [theme]="{height: '20px', width: '80%', 'border-radius': '0'}" />
-                            </td>
-                        </tr>
-                    </ng-container>
-
-                    <ng-container *ngIf="!_isLoading">
-                        <tr *ngFor="let payment of _paymentsData;index as i">
-                            <td>
-                                {{i+1}}
-                            </td>
-                    
-                            <td>
-                                {{payment.paymentType | titlecase}}
-                            </td>
-                    
-                            <td>
-                                &#8377;{{payment.amount}}
-                            </td>
-                    
-                            <td>
-                                {{payment.receivedOn | date:'medium'}}
-                            </td>
-                    
-                            <td>
-                                {{payment.remarks}}
-                            </td>
-                        </tr>
-                    </ng-container>
-                </tbody>
-
-            </table>
-        </div>
+        @if (errorMessage()) {
+          <p class="payments-form__error">{{ errorMessage() }}</p>
+        }
+      </form>
     </div>
 
-</div>
+    <footer class="payments-panel__foot">
+      <button type="button" class="hlm-btn hlm-btn-ghost" (click)="closePanel()">Cancel</button>
+      <button type="button" class="hlm-btn hlm-btn-primary" (click)="recordPayment()"
+              [disabled]="recordPaymentForm.invalid || saving()">
+        <ng-icon name="lucideCheck" aria-hidden="true"></ng-icon>
+        {{ saving() ? 'Saving…' : 'Save payment' }}
+      </button>
+    </footer>
+  </aside>
+}

@@ -1,0 +1,42 @@
+<div class="simple-paginator">
+  <label class="simple-paginator__size">
+    <span>Items per page</span>
+    <select class="hlm-input simple-paginator__select"
+      [value]="pageSize"
+      (change)="onPageSizeChange($event)"
+      aria-label="Items per page">
+      @for (opt of pageSizeOptions; track opt) {
+        <option [value]="opt">{{ opt }}</option>
+      }
+    </select>
+  </label>
+
+  <span class="simple-paginator__range tabular-nums">{{ rangeLabel }}</span>
+
+  <div class="simple-paginator__controls">
+    <button type="button" class="simple-paginator__btn"
+      (click)="goTo(0)"
+      [disabled]="pageIndex === 0"
+      aria-label="First page">
+      <ng-icon name="lucideChevronsLeft" aria-hidden="true"></ng-icon>
+    </button>
+    <button type="button" class="simple-paginator__btn"
+      (click)="goTo(pageIndex - 1)"
+      [disabled]="pageIndex === 0"
+      aria-label="Previous page">
+      <ng-icon name="lucideChevronLeft" aria-hidden="true"></ng-icon>
+    </button>
+    <button type="button" class="simple-paginator__btn"
+      (click)="goTo(pageIndex + 1)"
+      [disabled]="pageIndex >= totalPages - 1"
+      aria-label="Next page">
+      <ng-icon name="lucideChevronRight" aria-hidden="true"></ng-icon>
+    </button>
+    <button type="button" class="simple-paginator__btn"
+      (click)="goTo(totalPages - 1)"
+      [disabled]="pageIndex >= totalPages - 1"
+      aria-label="Last page">
+      <ng-icon name="lucideChevronsRight" aria-hidden="true"></ng-icon>
+    </button>
+  </div>
+</div>

@@ -1,0 +1,123 @@
+<div class="page-title">
+  <div class="page-title__group">
+    <h1 class="page-title__heading">Repair</h1>
+    @if (totalTickets() > 0) {
+      <span class="page-title__count">({{ totalTickets() }} ticket{{ totalTickets() === 1 ? '' : 's' }})</span>
+    }
+  </div>
+  <div class="page-title__actions">
+    <button type="button" class="hlm-btn hlm-btn-primary" (click)="openCreateTicket()">
+      <ng-icon name="lucidePlus" size="16" aria-hidden="true"></ng-icon>
+      <span>New ticket</span>
+    </button>
+  </div>
+</div>
+
+<div class="list-toolbar jobs-toolbar">
+  <div class="filter-chips">
+    @for (opt of statusOptions; track opt.value) {
+      <button type="button" class="chip chip-toggle"
+              [class.chip-active]="isStatusActive(opt.value)"
+              (click)="toggleStatus(opt.value)">{{ opt.label }}</button>
+    }
+    <div class="search-input">
+      <ng-icon name="lucideSearch" size="14" aria-hidden="true" class="search-input__icon"></ng-icon>
+      <input type="search" class="hlm-input" placeholder="Search customer or ticket…"
+             [value]="searchQuery()"
+             (input)="onSearchInput($any($event.target).value)" />
+    </div>
+    <div class="repair-date-range">
+      <ng-icon name="lucideCalendar" size="12" aria-hidden="true"></ng-icon>
+      <input type="date" class="hlm-input hlm-input--sm"
+             [value]="dateFrom()"
+             (change)="onDateFromChange($any($event.target).value)"
+             aria-label="From date" />
+      <span class="repair-date-range__sep">→</span>
+      <input type="date" class="hlm-input hlm-input--sm"
+             [value]="dateTo()"
+             (change)="onDateToChange($any($event.target).value)"
+             aria-label="To date" />
+    </div>
+    @if (hasFilters()) {
+      <button type="button" class="chip chip-toggle" (click)="clearFilters()">Clear</button>
+    }
+  </div>
+</div>
+
+<section class="jobs-table repair-table">
+  <div class="jobs-table__head">
+    <span class="col-ticket">Ticket</span>
+    <span class="col-customer">Customer</span>
+    <span class="col-date">Received</span>
+    <span class="col-days">Days open</span>
+    <span class="col-status">Status</span>
+    <span class="col-return">Est. return</span>
+    <span class="col-actions"></span>
+  </div>
+
+  @if (loading() && tickets().length === 0) {
+    <div class="loading-inline">
+      <ng-icon name="lucideLoader" class="animate-spin" size="20" aria-hidden="true"></ng-icon>
+      <span>Loading tickets…</span>
+    </div>
+  }
+
+  @for (t of tickets(); track t.ticketGuid) {
+    <div class="data-row jobs-row repair-row" role="button" tabindex="0"
+         (click)="goToTicket(t)"
+         (keyup.enter)="goToTicket(t)">
+      <span class="col-ticket tabular-nums">{{ t.ticketNumber }}</span>
+      <span class="col-customer">
+        <span class="avatar avatar--sm">{{ initialsFor(t.customerName) }}</span>
+        <span class="repair-row__cust-name">{{ t.customerName || '—' }}</span>
+      </span>
+      <span class="col-date tabular-nums">{{ t.receivedAt | date: 'd MMM yyyy' }}</span>
+      <span class="col-days tabular-nums">{{ daysOpen(t) }}</span>
+      <span class="col-status">
+        <span [class]="statusClass(t.status)">{{ statusLabel(t.status) }}</span>
+      </span>
+      <span class="col-return tabular-nums">{{ t.estimatedReturnDate ? (t.estimatedReturnDate | date: 'd MMM yyyy') : '—' }}</span>
+      <span class="col-actions">
+        <button type="button" class="icon-btn" (click)="goToTicket(t); $event.stopPropagation()" title="View" aria-label="View ticket">
+          <ng-icon name="lucideEye" size="14" aria-hidden="true"></ng-icon>
+        </button>
+        @if (canMarkReady(t)) {
+          <button type="button" class="icon-btn" (click)="markReady(t, $event)" title="Mark ready" aria-label="Mark ready">
+            <ng-icon name="lucideCircleCheck" size="14" aria-hidden="true"></ng-icon>
+          </button>
+        }
+        @if (userType() === 'admin') {
+          <button type="button" class="icon-btn icon-btn--danger" (click)="deleteTicket(t, $event)" title="Delete" aria-label="Delete ticket">
+            <ng-icon name="lucideTrash2" size="14" aria-hidden="true"></ng-icon>
+          </button>
+        }
+      </span>
+    </div>
+  }
+
+  @if (showEmpty()) {
+    <div class="empty-state">
+      <ng-icon name="lucideWrench" size="32" aria-hidden="true"></ng-icon>
+      <p class="empty-state__title">No repair tickets yet</p>
+      <p class="empty-state__sub">Log the first item that walks in for repair — chains, clasps, resizing, stone re-sets.</p>
+      <button type="button" class="hlm-btn hlm-btn-primary" (click)="openCreateTicket()">
+        <ng-icon name="lucidePlus" size="14" aria-hidden="true"></ng-icon>
+        <span>New ticket</span>
+      </button>
+    </div>
+  }
+  @if (showNoResults()) {
+    <div class="empty-state">
+      <ng-icon name="lucideSearch" size="32" aria-hidden="true"></ng-icon>
+      <p class="empty-state__title">No tickets match the current filters</p>
+      <button type="button" class="hlm-btn hlm-btn-ghost" (click)="clearFilters()">Clear filters</button>
+    </div>
+  }
+</section>
+
+<app-create-ticket-page
+  [open]="showCreateTicket()"
+  [navigateOnCreate]="false"
+  (closed)="onCreateTicketClosed()"
+  (created)="onTicketCreated($event)">
+</app-create-ticket-page>

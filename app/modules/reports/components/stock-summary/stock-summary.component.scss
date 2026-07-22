@@ -1,0 +1,60 @@
+.report-page {
+  padding: 24px 32px;
+
+  @media (max-width: 1023px) { padding: 20px 16px; }
+  @media (max-width: 639px)  { padding: 16px 12px; }
+
+  .report-scroll {
+    margin-top: 12px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .ds-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+  }
+
+  .report-scroll .ds-table {
+    min-width: 620px;
+    margin-top: 0;
+  }
+
+  .ds-table th,
+  .ds-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--color-border-subtle);
+    text-align: left;
+    font-size: 13px;
+  }
+
+  .ds-table th {
+    color: var(--color-fg-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    font-size: 11px;
+  }
+
+  .ds-table .right {
+    text-align: right;
+  }
+
+  .purity-chip__code {
+    margin-left: 8px;
+    color: var(--color-fg-subtle);
+    font-size: 11px;
+  }
+}
+
+.purity-chip {
+  &--silver {
+    background: color-mix(in oklab, oklch(80% 0.02 250) 25%, var(--color-bg-subtle));
+    color: oklch(38% 0.02 250);
+  }
+  &--platinum {
+    background: color-mix(in oklab, oklch(85% 0.02 300) 20%, var(--color-bg-subtle));
+    color: oklch(35% 0.05 300);
+  }
+}

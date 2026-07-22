@@ -1,0 +1,235 @@
+// Component-scoped tweaks for the create-ticket modal form. Shared
+// .modal-* / .form-section chrome lives in styles.scss.
+
+.repair-create__form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+// Per-section layouts. Packed to keep the modal short — 3 rows in most
+// sections, fields on the same row where semantically related.
+.repair-create__grid {
+  display: grid;
+  gap: 16px;
+  align-items: start;
+
+  &--party {
+    // Customer picker wide, Received date narrow.
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  }
+
+  &--triple {
+    // Weight | Est. charge | Est. return date — three narrow numeric fields.
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  &--photo-karigar {
+    // Photo tile on the left, karigar controls stacked on the right.
+    // Both columns inset from the section walls; the row centers
+    // inside the .modal-content column. Karigar cell gets a much
+    // larger fixed track so the dropdown reads long karigar names.
+    grid-template-columns: 220px minmax(360px, 1fr);
+    align-items: start;
+    gap: 32px;
+    padding-bottom: 24px;
+
+    > :first-child {
+      padding-left: 24px;
+    }
+
+    > :last-child {
+      padding-right: 24px;
+    }
+  }
+}
+
+// Divider matching the .form-section border-bottom (the line under
+// "Party"). Spans the full modal-content inner width — same left/right
+// edges as .form-section, not stretched to the modal walls.
+.repair-create__row-divider {
+  height: 0;
+  border-top: 1px solid var(--color-border-subtle);
+  margin: 4px 0 20px;
+}
+
+.repair-create__karigar-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+
+  // Chromium user-agent stylesheet sizes <select> to intrinsic content
+  // width in some flex/grid contexts even under Tailwind's w-full. Force
+  // full-column width so the dropdown fills the karigar column.
+  select.hlm-input {
+    width: 100%;
+    min-width: 0;
+    display: block;
+  }
+}
+
+.repair-create__stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.repair-create__col--wide { min-width: 0; }
+
+.repair-create__checkbox-cell {
+  display: flex;
+  align-items: center;
+  min-height: 68px;
+}
+
+.repair-create__checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+
+  input[type="checkbox"] {
+    margin-top: 4px;
+    accent-color: var(--color-accent);
+    flex-shrink: 0;
+  }
+
+  span {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+}
+
+.repair-create__checkbox-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-fg);
+}
+
+.field-hint--inline {
+  display: inline;
+  font-weight: 400;
+  margin-left: 4px;
+}
+
+.section-heading__optional {
+  font-weight: 400;
+  color: var(--color-fg-muted);
+  font-size: 12px;
+  margin-left: 4px;
+}
+
+.repair-customer-picker {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--color-panel, var(--color-bg));
+  cursor: text;
+
+  .hlm-input--flush {
+    border: none;
+    outline: none;
+    background: transparent;
+    flex: 1;
+    padding: 8px 0;
+    box-shadow: none;
+    min-width: 0;
+
+    &:focus {
+      box-shadow: none;
+      outline: none;
+    }
+  }
+}
+
+.repair-customer-dropdown {
+  margin-top: 4px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--color-panel, var(--color-bg));
+  max-height: 240px;
+  overflow-y: auto;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+
+  &__row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--color-border-subtle);
+    cursor: pointer;
+    text-align: left;
+
+    &:hover {
+      background: var(--color-accent-subtle);
+    }
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  &__name {
+    font-weight: 500;
+    color: var(--color-fg);
+  }
+
+  &__phone {
+    color: var(--color-fg-muted);
+    font-size: 12px;
+  }
+}
+
+.repair-create__grid--photo-karigar > :first-child > .field-label {
+  padding: 12px 0;
+}
+
+.repair-photo {
+  max-width: 320px;
+  margin-top: 8px;
+}
+
+.field-hint {
+  font-size: 11px;
+  color: var(--color-fg-muted);
+  margin-top: 4px;
+}
+
+// Below 640px collapse every multi-column grid to a single column so the
+// modal remains usable on phones.
+@media (max-width: 640px) {
+  .repair-create__grid,
+  .repair-create__grid--party,
+  .repair-create__grid--triple,
+  .repair-create__grid--photo-karigar {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .repair-create__grid--photo-karigar {
+    max-width: 100%;
+    padding-bottom: 16px;
+    > :first-child,
+    > :last-child {
+      padding: 0;
+    }
+    > :first-child > .field-label {
+      padding: 4px 0;
+    }
+  }
+  .repair-create__row-divider {
+    margin: 4px 0 16px;
+  }
+  .repair-create__checkbox-cell {
+    min-height: 0;
+  }
+}

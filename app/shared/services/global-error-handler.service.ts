@@ -1,21 +1,18 @@
-import { ErrorHandler, Injectable } from '@angular/core';
+import { ErrorHandler, Injectable, inject } from '@angular/core';
 import { LoggerService } from '../../../../Backend/Shared/logger.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { AppToastService } from './AppToast/app-toast.service';
 
 @Injectable()
 export class GlobalErrorHandlerService implements ErrorHandler {
-  constructor(
-    private loggerService: LoggerService,
-    private snackBar: MatSnackBar
-  ) {}
+  private readonly toast = inject(AppToastService);
+
+  constructor(private loggerService: LoggerService) {}
 
   handleError(error: any): void {
-    this.snackBar.open(
-      'An unexpected error occurred. Please check logs for more detais.',
-      'Dismiss',
-      {
-        duration: 1000
-      }
+    this.toast.error(
+      'An unexpected error occurred. Please check logs for more details.',
+      undefined,
+      { position: 'bottom-end', timer: 3000 }
     );
     this.loggerService.LogError(
       `An unexpected error occured: { ${error} }`,

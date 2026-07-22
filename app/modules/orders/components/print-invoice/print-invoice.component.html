@@ -1,138 +1,383 @@
-<div class="main-body-container container-fluid">
-   <div class="sub-container pt-2">
-    <div class="mt-5 page " size="A4">
-        <div class="p-5">
-            <section class="top-content bb d-flex justify-content-between">
-                <div class="logo">
-                    <img src="./assets/img/logo.png" alt="" class="img-fluid">
-                </div>
-                <div class="top-left">
-                    <div class="graphic-path">
-                        <p>Purchase Invoice</p>
-                    </div>
-                    <div class="position-relative">
-                        <p>Order No. <span>XXXX</span></p>
-                    </div>
-                </div>
-            </section>
+<div class="invoice-shell" [attr.data-variant]="variant()">
 
-            <section class="store-user mt-5">
-                <div class="col">
-                    <div class="row bb pb-3 row">
-                        <div class="col">
-                            <p>Store Details,</p>
-                            <h2>Jewellery Store</h2>
-                            <p class="address"> 777 Brockton Avenue, <br> Abington MA 2351, <br>Vestavia Hills AL </p>
-                            <div class="txn mt-2">GSTIN: XXXXXXX</div>
-                        </div>
-                        <div class="col text-end" *ngIf="_InvoiceData.customer_details">
-                            <p>Customer Details,</p>
-                            <h2>{{_InvoiceData.customer_details.firstName + ' ' + _InvoiceData.customer_details.lastName }}</h2>
-                            <p class="address"> 777 Brockton Avenue, <br> Abington MA 2351, <br>Vestavia Hills AL </p>
-                            <div class="txn mt-2">TXN: XXXXXXX</div>
-                        </div>
-                    </div>
-                    <div class="row extra-info pt-3" *ngIf="_InvoiceData.payments">
-                        <div class="col-7">
-                            <p>Payment Method: <span>{{_InvoiceData.payments[0].paymentType | titlecase}} </span></p>
-                        </div>
-                        <div class="col-5">
-                            <p>Order Date: <span>{{_InvoiceData.orderDate | date}}</span></p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section class="product-area mt-4">
-                <table class="table table-hover table-bordered">
-                    <thead>
-                        <tr>
-                            <td>Product Description</td>
-                            <td>Product Weight(In gms)</td>
-                            <td>Price</td>
-                            <td>Labour</td>
-                            <td>CGST(In %)</td>
-                            <td>SGST(In %)</td>
-                            <td>Discount</td>
-                            <td>Final Amount</td>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngFor="let product of _InvoiceData?.invoice_products">
-                            <td>
-                                {{product.masterCategory
-                                +'-'+product.subCategory
-                                +'-'+ product.productCategory
-                                }}
-                            </td>
-                            <td>
-                                {{product.productWeight}}
-                            </td>
-                            <td>
-                                {{product.price}}
-                            </td>
-                            <td>
-                                {{product.labour}}
-                            </td>
-                            <td>
-                                {{product.CGST}}
-                            </td>
-                            <td>
-                                {{product.SGST}}
-                            </td>
-                            <td>
-                                {{product.discount}}
-                            </td>
-                            <td>
-                                {{product.finalAmount}}
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </section>
-
-            <section class="balance-info">
-                <div class="row">
-                    <div class="col-8">
-      
-                    </div>
-                    <div class="col-4">
-                        <table class="table border-0 table-hover">
-                            <tr>
-                                <td>Sub Total:</td>
-                                <td>&#8377; {{_InvoiceData.totalAmountWithoutGstAndDiscount}}</td>
-                            </tr>
-                            <tr>
-                                <td>Total Labour:</td>
-                                <td>&#8377; {{_InvoiceData.totalLabour}}</td>
-                            </tr>
-                            <tr>
-                                <td>Total Tax:</td>
-                                <td>&#8377; {{_InvoiceData.totalGst}}</td>
-                            </tr>
-                            <tr>
-                                <td>Total Discount:</td>
-                                <td class="text-danger"> &minus; &#8377; {{_InvoiceData.totalDiscount}}</td>
-                            </tr>
-                            <tfoot>
-                                <tr>
-                                    <td>Total:</td>
-                                    <td>&#8377; {{_InvoiceData.totalAmountWithGst}}</td>
-                                </tr>
-                            </tfoot>
-                        </table>
-
-                        <!-- Signature -->
-                        <div class="col-12 mt-2">
-                            <div class="box">
-                            </div>
-                            <p class="text-center m-0 mt-1"> Owner's Signature </p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </div>
+  @if (showToolbar) {
+    <div class="print-toolbar no-print">
+      <div class="print-toolbar__variant" role="group" aria-label="Invoice variant">
+        <button type="button"
+                class="variant-btn"
+                [class.is-active]="variant() === 'A4'"
+                (click)="setVariant('A4')">A4</button>
+        <button type="button"
+                class="variant-btn"
+                [class.is-active]="variant() === '80mm'"
+                (click)="setVariant('80mm')">80mm</button>
+      </div>
+      <button type="button" class="print-btn" (click)="print()">Print</button>
     </div>
-   </div>
+  }
 
+  @if (_invoice) {
+
+    @if (variant() === 'A4') {
+      <div class="page page--a4">
+        <header class="a4-head">
+          <div class="a4-head__shop">
+            <div class="shop-name font-serif">{{ shopSettings()?.shopName ?? 'Shop' }}</div>
+            <div class="shop-line">
+              {{ shopSettings()?.addressLine1 ?? '' }}<ng-container *ngIf="shopSettings()?.addressLine2">, {{ shopSettings()?.addressLine2 }}</ng-container>
+            </div>
+            <div class="shop-line">
+              {{ shopSettings()?.city }}, {{ shopSettings()?.state }} {{ shopSettings()?.pincode }}
+            </div>
+            <div class="shop-line">
+              @if (shopSettings()?.phone) { Ph: {{ shopSettings()?.phone }}<span class="sep">|</span> }
+              @if (shopSettings()?.email) { {{ shopSettings()?.email }} }
+            </div>
+            <div class="shop-line">
+              GSTIN: <strong>{{ shopSettings()?.gstin ?? '—' }}</strong>
+              @if (shopSettings()?.pan) { <span class="sep">|</span> PAN: {{ shopSettings()?.pan }} }
+              <span class="sep">|</span> State: {{ shopSettings()?.state ?? '' }} ({{ shopSettings()?.stateCode ?? '' }})
+            </div>
+          </div>
+          <div class="a4-head__meta">
+            <div class="doc-title font-serif">{{ invoiceTitle() }}</div>
+            <table class="meta-table tabular-nums">
+              <tr>
+                <td>Invoice #</td>
+                <td>{{ _invoice.invoiceNumber ?? _invoice.orderId ?? '—' }}</td>
+              </tr>
+              <tr>
+                <td>Date</td>
+                <td>{{ _invoice.orderDate | date:'dd MMM yyyy' }}</td>
+              </tr>
+              <tr>
+                <td>Time</td>
+                <td>{{ _invoice.orderDate | date:'HH:mm' }}</td>
+              </tr>
+              @if (_invoice.hsn) {
+                <tr><td>HSN</td><td>{{ _invoice.hsn }}</td></tr>
+              }
+            </table>
+          </div>
+        </header>
+
+        <section class="a4-parties">
+          <div class="party">
+            <div class="party__label">Bill To</div>
+            <div class="party__name">
+              {{ _invoice.customer_details?.firstName ?? '' }} {{ _invoice.customer_details?.lastName ?? '' }}
+            </div>
+            @if (_invoice.customer_details?.phoneNumber) {
+              <div class="party__line">Ph: {{ _invoice.customer_details?.phoneNumber }}</div>
+            }
+            @if (_invoice.customer_details?.address) {
+              <div class="party__line">{{ _invoice.customer_details?.address }}</div>
+            }
+            @if (_invoice.customer_details?.city || _invoice.customer_details?.state) {
+              <div class="party__line">
+                {{ _invoice.customer_details?.city }}<ng-container *ngIf="_invoice.customer_details?.state">, {{ _invoice.customer_details?.state }}</ng-container>
+                <ng-container *ngIf="_invoice.customer_details?.stateCode"> ({{ _invoice.customer_details?.stateCode }})</ng-container>
+              </div>
+            }
+            @if (_invoice.customer_details?.gstin) {
+              <div class="party__line">GSTIN: <strong>{{ _invoice.customer_details?.gstin }}</strong></div>
+            }
+            @if (_invoice.customer_details?.pan) {
+              <div class="party__line">PAN: {{ _invoice.customer_details?.pan }}</div>
+            }
+          </div>
+          <div class="party party--right">
+            <div class="party__label">Place of supply</div>
+            <div class="party__name">
+              {{ _invoice.placeOfSupply ?? (_invoice.customer_details?.state ?? '—') }}
+              @if (placeOfSupplyStateCode()) { <span class="party__pos">({{ placeOfSupplyStateCode() }})</span> }
+            </div>
+            <div class="party__line party__line--muted">
+              @if (isIntraState()) { Intra-state supply · CGST + SGST }
+              @else { Inter-state supply · IGST }
+            </div>
+          </div>
+        </section>
+
+        <section class="a4-lines">
+          <table class="lines-table tabular-nums">
+            <thead>
+              <tr>
+                <th class="col-sn">#</th>
+                <th class="col-desc">Description</th>
+                <th class="col-hsn">HSN</th>
+                <th class="col-wt">Gross (g)</th>
+                <th class="col-wt">Net (g)</th>
+                <th class="col-rate">Rate/g</th>
+                <th class="col-money">Metal</th>
+                <th class="col-money">Making</th>
+                <th class="col-money">Wastage</th>
+                <th class="col-money">Stone</th>
+                <th class="col-money">Disc.</th>
+                <th class="col-money">Taxable</th>
+                @if (isIntraState()) {
+                  <th class="col-tax">CGST</th>
+                  <th class="col-tax">SGST</th>
+                } @else {
+                  <th class="col-tax">IGST</th>
+                }
+                <th class="col-total">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (line of lineItems; track line.productGuid ?? $index) {
+                <tr>
+                  <td class="col-sn">{{ $index + 1 }}</td>
+                  <td class="col-desc">
+                    <div class="line-title">{{ descriptionOf(line) }}</div>
+                    <div class="line-meta">
+                      <span class="chip chip--purity">{{ purityChip(line) }}</span>
+                      @if (line.sku) { <span class="chip">SKU {{ line.sku }}</span> }
+                      @if (line.huid) { <span class="chip">HUID {{ line.huid }}</span> }
+                    </div>
+                  </td>
+                  <td class="col-hsn">{{ line.hsnCode ?? _invoice.hsn ?? '—' }}</td>
+                  <td class="col-wt">{{ qty(line.grossWeight) }}</td>
+                  <td class="col-wt">{{ qty(line.netWeight) }}</td>
+                  <td class="col-rate">{{ money(line.ratePerGram) }}</td>
+                  <td class="col-money">{{ money(line.metalValue) }}</td>
+                  <td class="col-money">{{ money(line.makingCharge) }}</td>
+                  <td class="col-money">{{ money(line.wastageCharge) }}</td>
+                  <td class="col-money">{{ money(line.stoneCharge) }}</td>
+                  <td class="col-money">{{ money(line.discountAmount) }}</td>
+                  <td class="col-money">{{ money(line.taxableAmount) }}</td>
+                  @if (isIntraState()) {
+                    <td class="col-tax">
+                      <div class="tax-rate">{{ cgstRate(line) | number:'1.0-2' }}%</div>
+                      <div>{{ money(line.cgst) }}</div>
+                    </td>
+                    <td class="col-tax">
+                      <div class="tax-rate">{{ sgstRate(line) | number:'1.0-2' }}%</div>
+                      <div>{{ money(line.sgst) }}</div>
+                    </td>
+                  } @else {
+                    <td class="col-tax">
+                      <div class="tax-rate">{{ igstRate(line) | number:'1.0-2' }}%</div>
+                      <div>{{ money(line.igst) }}</div>
+                    </td>
+                  }
+                  <td class="col-total">{{ money(line.lineTotal) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </section>
+
+        <section class="a4-tail">
+          <div class="a4-tail__left">
+            <div class="amount-words">
+              <div class="amount-words__label">Amount in words</div>
+              <div class="amount-words__value">{{ amountInWords() }}</div>
+            </div>
+
+            @if (_invoice.oldGoldCreditAmount && _invoice.oldGoldCreditAmount > 0) {
+              <div class="callout callout--credit">
+                Old-gold credit applied: &#8377; {{ money(_invoice.oldGoldCreditAmount) }}
+              </div>
+            }
+
+            @if (shopSettings()) {
+              <div class="pay-block">
+                <div class="pay-block__title">Payment</div>
+                <div class="pay-block__row">Terms: Payment due on receipt.</div>
+              </div>
+            }
+
+            <div class="terms">
+              <div class="terms__title">Terms &amp; conditions</div>
+              <ol>
+                <li>Goods once sold will only be exchanged, not refunded. Exchange within 7 days with original bill.</li>
+                <li>Making charges and wastage are not refundable on exchange.</li>
+                <li>All disputes subject to the jurisdiction of local courts.</li>
+                <li>HUID marked pieces carry BIS hallmark; report defects within 24 hours.</li>
+              </ol>
+            </div>
+          </div>
+
+          <div class="a4-tail__right">
+            <table class="totals-table tabular-nums">
+              <tr>
+                <td>Subtotal (taxable)</td>
+                <td>&#8377; {{ money(_invoice.subTotalTaxable) }}</td>
+              </tr>
+              <tr>
+                <td>Making</td>
+                <td>&#8377; {{ money(_invoice.totalMakingCharge) }}</td>
+              </tr>
+              <tr>
+                <td>Wastage</td>
+                <td>&#8377; {{ money(_invoice.totalWastageCharge) }}</td>
+              </tr>
+              <tr>
+                <td>Stone</td>
+                <td>&#8377; {{ money(_invoice.totalStoneCharge) }}</td>
+              </tr>
+              @if (isIntraState()) {
+                <tr>
+                  <td>CGST</td>
+                  <td>&#8377; {{ money(_invoice.totalCgst) }}</td>
+                </tr>
+                <tr>
+                  <td>SGST</td>
+                  <td>&#8377; {{ money(_invoice.totalSgst) }}</td>
+                </tr>
+              } @else {
+                <tr>
+                  <td>IGST</td>
+                  <td>&#8377; {{ money(_invoice.totalIgst) }}</td>
+                </tr>
+              }
+              @if (_invoice.totalDiscount && _invoice.totalDiscount > 0) {
+                <tr>
+                  <td>Discount</td>
+                  <td class="minus">&minus; &#8377; {{ money(_invoice.totalDiscount) }}</td>
+                </tr>
+              }
+              @if (_invoice.oldGoldCreditAmount && _invoice.oldGoldCreditAmount > 0) {
+                <tr>
+                  <td>Old gold credit</td>
+                  <td class="minus">&minus; &#8377; {{ money(_invoice.oldGoldCreditAmount) }}</td>
+                </tr>
+              }
+              @if (_invoice.roundOffAmount) {
+                <tr>
+                  <td>Round off</td>
+                  <td>&#8377; {{ money(_invoice.roundOffAmount) }}</td>
+                </tr>
+              }
+              <tr class="grand">
+                <td>Grand total</td>
+                <td class="font-serif">&#8377; {{ money(_invoice.grandTotal) }}</td>
+              </tr>
+            </table>
+
+            @if (_invoice.isEinvoice) {
+              <div class="einvoice-block">
+                <div class="qr-box" aria-label="e-Invoice QR placeholder">
+                  <div class="qr-box__label">e-Invoice QR</div>
+                  @if (_invoice.irn) { <div class="qr-box__irn">IRN {{ _invoice.irn }}</div> }
+                </div>
+              </div>
+            }
+
+            <div class="signature-block">
+              <div class="signature-line"></div>
+              <div class="signature-caption">For {{ shopSettings()?.shopName ?? 'the shop' }}</div>
+              <div class="signature-role">Authorised Signatory</div>
+            </div>
+          </div>
+        </section>
+      </div>
+    }
+
+    @if (variant() === '80mm') {
+      <div class="page page--thermal">
+        <div class="th-head">
+          <div class="th-shop">{{ shopSettings()?.shopName ?? 'Shop' }}</div>
+          <div class="th-line">{{ shopSettings()?.addressLine1 ?? '' }}</div>
+          <div class="th-line">{{ shopSettings()?.city ?? '' }} {{ shopSettings()?.state ?? '' }} {{ shopSettings()?.pincode ?? '' }}</div>
+          <div class="th-line">
+            @if (shopSettings()?.phone) { Ph {{ shopSettings()?.phone }} }
+          </div>
+          <div class="th-line">GSTIN {{ shopSettings()?.gstin ?? '—' }}</div>
+        </div>
+
+        <div class="th-title">{{ invoiceTitle() }}</div>
+
+        <div class="th-meta tabular-nums">
+          <div><span>Invoice #</span><span>{{ _invoice.invoiceNumber ?? _invoice.orderId ?? '—' }}</span></div>
+          <div><span>Date</span><span>{{ _invoice.orderDate | date:'dd MMM yyyy, HH:mm' }}</span></div>
+          @if (_invoice.hsn) { <div><span>HSN</span><span>{{ _invoice.hsn }}</span></div> }
+        </div>
+
+        <div class="th-cust">
+          <div class="th-cust__name">
+            {{ _invoice.customer_details?.firstName ?? '' }} {{ _invoice.customer_details?.lastName ?? '' }}
+          </div>
+          @if (_invoice.customer_details?.phoneNumber) { <div>Ph {{ _invoice.customer_details?.phoneNumber }}</div> }
+          @if (_invoice.customer_details?.gstin) { <div>GSTIN {{ _invoice.customer_details?.gstin }}</div> }
+          @if (_invoice.customer_details?.city) { <div>{{ _invoice.customer_details?.city }}<ng-container *ngIf="_invoice.customer_details?.state">, {{ _invoice.customer_details?.state }}</ng-container></div> }
+          <div class="th-line th-line--muted">
+            Place of supply: {{ _invoice.placeOfSupply ?? (_invoice.customer_details?.state ?? '—') }}
+            <ng-container *ngIf="placeOfSupplyStateCode()"> ({{ placeOfSupplyStateCode() }})</ng-container>
+          </div>
+        </div>
+
+        <div class="th-divider"></div>
+
+        @for (line of lineItems; track $index) {
+          <div class="th-line-item tabular-nums">
+            <div class="th-line-title">{{ descriptionOf(line) }}</div>
+            <div class="th-line-meta">
+              {{ purityChip(line) }}
+              @if (line.sku) { · SKU {{ line.sku }} }
+              @if (line.huid) { · HUID {{ line.huid }} }
+            </div>
+            <div class="th-line-row">
+              <span>Net {{ qty(line.netWeight) }}g &#64; &#8377;{{ money(line.ratePerGram) }}</span>
+              <span>{{ money(line.metalValue) }}</span>
+            </div>
+            @if (line.makingCharge && line.makingCharge > 0) {
+              <div class="th-line-row"><span>Making</span><span>{{ money(line.makingCharge) }}</span></div>
+            }
+            @if (line.wastageCharge && line.wastageCharge > 0) {
+              <div class="th-line-row"><span>Wastage</span><span>{{ money(line.wastageCharge) }}</span></div>
+            }
+            @if (line.stoneCharge && line.stoneCharge > 0) {
+              <div class="th-line-row"><span>Stone</span><span>{{ money(line.stoneCharge) }}</span></div>
+            }
+            @if (line.discountAmount && line.discountAmount > 0) {
+              <div class="th-line-row"><span>Discount</span><span class="minus">&minus; {{ money(line.discountAmount) }}</span></div>
+            }
+            <div class="th-line-row"><span>Taxable</span><span>{{ money(line.taxableAmount) }}</span></div>
+            @if (isIntraState()) {
+              <div class="th-line-row"><span>CGST {{ cgstRate(line) | number:'1.0-2' }}%</span><span>{{ money(line.cgst) }}</span></div>
+              <div class="th-line-row"><span>SGST {{ sgstRate(line) | number:'1.0-2' }}%</span><span>{{ money(line.sgst) }}</span></div>
+            } @else {
+              <div class="th-line-row"><span>IGST {{ igstRate(line) | number:'1.0-2' }}%</span><span>{{ money(line.igst) }}</span></div>
+            }
+            <div class="th-line-row th-line-row--bold"><span>Line total</span><span>{{ money(line.lineTotal) }}</span></div>
+          </div>
+        }
+
+        <div class="th-divider"></div>
+
+        <div class="th-totals tabular-nums">
+          <div><span>Subtotal</span><span>{{ money(_invoice.subTotalTaxable) }}</span></div>
+          @if (isIntraState()) {
+            <div><span>CGST</span><span>{{ money(_invoice.totalCgst) }}</span></div>
+            <div><span>SGST</span><span>{{ money(_invoice.totalSgst) }}</span></div>
+          } @else {
+            <div><span>IGST</span><span>{{ money(_invoice.totalIgst) }}</span></div>
+          }
+          @if (_invoice.totalDiscount && _invoice.totalDiscount > 0) {
+            <div><span>Discount</span><span class="minus">&minus; {{ money(_invoice.totalDiscount) }}</span></div>
+          }
+          @if (_invoice.oldGoldCreditAmount && _invoice.oldGoldCreditAmount > 0) {
+            <div><span>Old gold</span><span class="minus">&minus; {{ money(_invoice.oldGoldCreditAmount) }}</span></div>
+          }
+          @if (_invoice.roundOffAmount) {
+            <div><span>Round off</span><span>{{ money(_invoice.roundOffAmount) }}</span></div>
+          }
+          <div class="th-totals__grand"><span>Grand total</span><span>&#8377; {{ money(_invoice.grandTotal) }}</span></div>
+        </div>
+
+        <div class="th-words">{{ amountInWords() }}</div>
+
+        @if (_invoice.isEinvoice) {
+          <div class="th-qr" aria-label="e-Invoice QR placeholder">
+            <div class="th-qr__box">QR</div>
+            @if (_invoice.irn) { <div class="th-qr__irn">IRN {{ _invoice.irn }}</div> }
+          </div>
+        }
+
+        <div class="th-thanks">Thank you for shopping</div>
+      </div>
+    }
+  }
 </div>

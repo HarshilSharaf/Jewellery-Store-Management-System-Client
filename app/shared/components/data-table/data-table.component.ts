@@ -1,105 +1,121 @@
 import {
-  AfterViewChecked,
-  AfterViewInit,
   ChangeDetectorRef,
   Component,
   EventEmitter,
   Input,
-  OnInit,
+  OnDestroy,
   Output,
-  ViewChild,
+  effect,
+  inject,
 } from '@angular/core';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
-import Swal from 'sweetalert2';
+import { CommonModule } from '@angular/common';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import {
+  lucideSquareArrowOutUpRight,
+  lucideBan,
+  lucideChevronsLeft,
+  lucideChevronLeft,
+  lucideChevronRight,
+  lucideChevronsRight,
+  lucideChevronUp,
+  lucideChevronDown,
+  lucideChevronsUpDown,
+  lucideInbox,
+  lucideSearch,
+  lucideShoppingCart,
+} from '@ng-icons/lucide';
 import { ColumnSchema } from '../../models/columnsSchema';
-import { Router } from '@angular/router';
 import { CartService } from '../../services/cart.service';
+import { SkeletonLoaderComponent } from '../skeleton-loader/skeleton-loader.component';
+
+type SortDirection = 'asc' | 'desc' | '';
 
 @Component({
   selector: 'app-data-table',
   templateUrl: './data-table.component.html',
   styleUrls: ['./data-table.component.scss'],
+  standalone: true,
+  imports: [CommonModule, NgIcon, SkeletonLoaderComponent],
+  viewProviders: [
+    provideIcons({
+      lucideSquareArrowOutUpRight,
+      lucideBan,
+      lucideChevronsLeft,
+      lucideChevronLeft,
+      lucideChevronRight,
+      lucideChevronsRight,
+      lucideChevronUp,
+      lucideChevronDown,
+      lucideChevronsUpDown,
+      lucideInbox,
+      lucideSearch,
+      lucideShoppingCart,
+    }),
+  ],
 })
-export class DataTableComponent<T> implements OnInit,AfterViewInit {
-  public _tableData: MatTableDataSource<T> = new MatTableDataSource();
+export class DataTableComponent<T extends Record<string, any>> implements OnDestroy {
+  private cdr = inject(ChangeDetectorRef);
+  private cartService = inject(CartService);
+
+  private _rawData: T[] = [];
+  public _tableData: T[] = [];
   public _totalRecords = 0;
-  private _paginator:any
-
-// ----------------------The paginator and sort needed to be set in following manner -----------------
-// ----------------------as it was undefined when set as usual---------------------------------------
-// ----------------------Find More Info On the following link: --------------------------------------
-// --------------------- https://stackoverflow.com/a/62021629/18480147 ------------------------------
-
-  @ViewChild(MatPaginator, { static: false })
-  set paginator(value: MatPaginator) {
-    if (this._tableData) {
-      value._intl.getRangeLabel = this.getRangeDisplayText;
-      this.currentPage = value.pageIndex + 1;
-      this.totalNumberOfPages = value.getNumberOfPages();
-      this._paginator = value
-      this.cdr.detectChanges()
-    }
-  }
-
-  @ViewChild(MatSort, { static: false })
-  set sort(value: MatSort) {
-    if (this._tableData) {
-      this._tableData.sort = value;
-    }
-  }
 
   @Output() refreshDataSource = new EventEmitter<boolean>();
   @Output() searchQuery = new EventEmitter<string>();
   @Output() viewDetails = new EventEmitter<T>();
   @Output() deleteItem = new EventEmitter<T>();
-  @Output() pageChangeEvent = new EventEmitter<T>();
+  @Output() pageChangeEvent = new EventEmitter<any>();
 
   @Input() set tableData(data: T[]) {
-    this._tableData = new MatTableDataSource<T>(data);
+    this._rawData = data ?? [];
+    this.applySort();
   }
 
   @Input() set totalRecords(records: number) {
-    this._totalRecords = records;
+    this._totalRecords = records ?? 0;
+    this.totalNumberOfPages = Math.max(1, Math.ceil(this._totalRecords / this.pageSize));
   }
+
   @Input() sortByColumn: string = '';
   @Input() entityText: string = '';
-
   @Input() showAddToCartButton: boolean = false;
-  // @Input() goToViewDetailsFn: ((item: T) => void) | undefined;
-  // @Input() openDeletePopUpForItemFn: ((item: T) => void) | undefined;
-
   @Input() COLUMNS_SCHEMA: ColumnSchema[] = [];
   @Input() tableColumns: string[] = this.COLUMNS_SCHEMA.map((col) => col.key);
 
-  currentPage: number = 0;
-  totalNumberOfPages: number = 0;
+  pageSize: number = 5;
+  readonly pageSizeOptions: number[] = [5, 10, 20];
+  pageIndex: number = 0;
+  currentPage: number = 1;
+  totalNumberOfPages: number = 1;
   showLoader: boolean = false;
-  currentSearchTerm = ''
+  currentSearchTerm = '';
   disableButtonForProducts: string[] = [];
+  activeSort: string = '';
+  sortDirection: SortDirection = '';
+
+  private filterTimer: ReturnType<typeof setTimeout> | null = null;
 
   protected _isLoading = false;
-  @Input() set isLoading(value: boolean)
-  {
+  @Input() set isLoading(value: boolean) {
     this._isLoading = value;
   }
 
-
-  constructor(
-    private cdr: ChangeDetectorRef,
-    private cartService: CartService
-  ) {}
-
-  ngAfterViewInit(): void {
-    // set value of paginator after complete initialization
-    // as it was not updating the paginator pageIndex value to 0 when 
-    // search string is not empty
-    this._tableData.paginator = this._paginator
+  constructor() {
+    effect(() => {
+      const items = this.cartService.getProducts()();
+      this.disableButtonForProducts = [];
+      items.forEach((element: any) => {
+        this.disableButtonForProducts.push(element.productGuid);
+      });
+    });
   }
 
-  ngOnInit(): void {
-    this.getCartItems();
+  ngOnDestroy(): void {
+    if (this.filterTimer) {
+      clearTimeout(this.filterTimer);
+      this.filterTimer = null;
+    }
   }
 
   startLoader() {
@@ -111,15 +127,18 @@ export class DataTableComponent<T> implements OnInit,AfterViewInit {
   }
 
   filterChanged(event: Event) {
-    setTimeout(() => {
-      const filterValue = (event.target as HTMLInputElement).value;
-      if(!this.isOnlyWhitespace(filterValue) && this.currentSearchTerm != filterValue || filterValue == '' )
-      {
-        this.currentSearchTerm = filterValue
-        this.searchQuery.emit(filterValue)
-        this._paginator.pageIndex = 0
+    if (this.filterTimer) {
+      clearTimeout(this.filterTimer);
+    }
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.filterTimer = setTimeout(() => {
+      if ((!this.isOnlyWhitespace(filterValue) && this.currentSearchTerm != filterValue) || filterValue == '') {
+        this.currentSearchTerm = filterValue;
+        this.searchQuery.emit(filterValue);
+        this.pageIndex = 0;
+        this.currentPage = 1;
       }
-    }, 500); //delay sending request to server for 500ms
+    }, 300);
   }
 
   isOnlyWhitespace(str: string): boolean {
@@ -134,37 +153,100 @@ export class DataTableComponent<T> implements OnInit,AfterViewInit {
     this.deleteItem.emit(item);
   }
 
-  onPageChange(event: any) {
-    this.currentPage = event.pageIndex + 1;
-    event.searchQuery = this.currentSearchTerm
-    this.pageChangeEvent.emit(event);
-  }
-
-  getCartItems() {
-    this.cartService.getProducts().subscribe((data) => {
-      //empty the current array to enable buttons which are removed from carts
-      this.disableButtonForProducts = [];
-      data.forEach((element: any) => {
-        this.disableButtonForProducts.push(element.productGuid);
-      });
-    });
-  }
-
   addToCart(product: any) {
     this.cartService.addToCart(product);
   }
 
-  getRangeDisplayText = (page: number, pageSize: number, length: number) => {
-    const initialText = `Displaying ${this.entityText}`; // Customize this line
-    if (length == 0 || pageSize == 0) {
+  onSort(column: ColumnSchema) {
+    if (column.key === 'actions' || column.key === 'image') {
+      return;
+    }
+    if (this.activeSort !== column.key) {
+      this.activeSort = column.key;
+      this.sortDirection = 'asc';
+    } else if (this.sortDirection === 'asc') {
+      this.sortDirection = 'desc';
+    } else if (this.sortDirection === 'desc') {
+      this.sortDirection = '';
+      this.activeSort = '';
+    } else {
+      this.sortDirection = 'asc';
+    }
+    this.applySort();
+  }
+
+  sortIcon(column: ColumnSchema): string {
+    if (this.activeSort !== column.key) {
+      return 'lucideChevronsUpDown';
+    }
+    return this.sortDirection === 'asc' ? 'lucideChevronUp' : 'lucideChevronDown';
+  }
+
+  private applySort() {
+    if (!this.activeSort || !this.sortDirection) {
+      this._tableData = [...this._rawData];
+      this.cdr.markForCheck();
+      return;
+    }
+    const key = this.activeSort;
+    const dir = this.sortDirection === 'asc' ? 1 : -1;
+    this._tableData = [...this._rawData].sort((a, b) => {
+      const av = a?.[key];
+      const bv = b?.[key];
+      if (av == null && bv == null) return 0;
+      if (av == null) return -1 * dir;
+      if (bv == null) return 1 * dir;
+      if (typeof av === 'number' && typeof bv === 'number') {
+        return (av - bv) * dir;
+      }
+      return String(av).localeCompare(String(bv), undefined, { numeric: true, sensitivity: 'base' }) * dir;
+    });
+    this.cdr.markForCheck();
+  }
+
+  changePageSize(event: Event) {
+    const value = Number((event.target as HTMLSelectElement).value);
+    this.pageSize = value;
+    this.pageIndex = 0;
+    this.currentPage = 1;
+    this.totalNumberOfPages = Math.max(1, Math.ceil(this._totalRecords / this.pageSize));
+    this.emitPageChange();
+  }
+
+  goToPage(newIndex: number) {
+    const max = Math.max(0, this.totalNumberOfPages - 1);
+    const clamped = Math.min(Math.max(0, newIndex), max);
+    if (clamped === this.pageIndex) return;
+    this.pageIndex = clamped;
+    this.currentPage = clamped + 1;
+    this.emitPageChange();
+  }
+
+  private emitPageChange() {
+    this.pageChangeEvent.emit({
+      pageIndex: this.pageIndex,
+      pageSize: this.pageSize,
+      length: this._totalRecords,
+      searchQuery: this.currentSearchTerm,
+    });
+  }
+
+  hasData(): boolean {
+    return this._tableData != null && this._tableData.length > 0;
+  }
+
+  getRangeDisplayText(): string {
+    const initialText = `Displaying ${this.entityText}`;
+    const length = this._totalRecords;
+    if (length === 0 || this.pageSize === 0) {
       return `${initialText} 0 of ${length}`;
     }
-    length = Math.max(length, 0);
-    const startIndex = page * pageSize;
-    const endIndex =
-      startIndex < length
-        ? Math.min(startIndex + pageSize, length)
-        : startIndex + pageSize;
-    return `${initialText} (${startIndex + 1} to ${endIndex}) of ${length}`; // Customize this line
-  };
+    const startIndex = this.pageIndex * this.pageSize;
+    const endIndex = startIndex < length ? Math.min(startIndex + this.pageSize, length) : startIndex + this.pageSize;
+    return `${initialText} (${startIndex + 1} to ${endIndex}) of ${length}`;
+  }
+
+  skeletonRows(): number[] {
+    return Array.from({ length: this.pageSize }, (_, i) => i);
+  }
 }

@@ -1,45 +1,41 @@
-import { AfterViewInit, Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
-import { NgbOffcanvas } from '@ng-bootstrap/ng-bootstrap';
+import { Component, HostListener, OnInit, effect } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideX } from '@ng-icons/lucide';
+
 import { CartSideBarService } from '../../services/cart-side-bar.service';
+import { CartItemsComponent } from '../cart-items/cart-items.component';
 
 @Component({
   selector: 'app-cart-side-bar',
   templateUrl: './cart-side-bar.component.html',
-  styleUrls: ['./cart-side-bar.component.scss']
+  styleUrls: ['./cart-side-bar.component.scss'],
+  standalone: true,
+  imports: [CartItemsComponent, RouterLink, NgIcon],
+  viewProviders: [provideIcons({ lucideX })],
 })
-export class CartSideBarComponent implements OnInit, AfterViewInit {
-  @ViewChild('cartSideBar') cartSideBar!: any
+export class CartSideBarComponent implements OnInit {
+  isOpen = false;
 
-  constructor(private cartSidebarservice: CartSideBarService, public offcanvasService: NgbOffcanvas) { }
-
-  ngOnInit(): void {
+  constructor(private cartSidebarService: CartSideBarService) {
+    effect(() => {
+      this.isOpen = this.cartSidebarService.toggleSideBar();
+    });
   }
 
-  toggle(content: TemplateRef<any>, status: boolean) {
+  ngOnInit(): void {}
 
-    // this condition will prevent the cart menu from opening abruptly when changing the routes
-    if (this.offcanvasService.hasOpenOffcanvas() && !status) {
-      this.offcanvasService.dismiss()
-    }
-
-    if (!this.offcanvasService.hasOpenOffcanvas() && status) {
-      this.offcanvasService.open(content, { position: 'end' }).result.then((closeReason) => {
-        //set the value to false when the offcanvas is closed
-        this.cartSidebarservice.toggleSideBar.next(false)
-      },
-        (dismissReason) => {
-          //set the value to false when the offcanvas is dismissed (when clicked on backdrop)
-          this.cartSidebarservice.toggleSideBar.next(false)
-        }
-      )
-    }
+  close(): void {
+    this.isOpen = false;
+    this.cartSidebarService.toggleSideBar.set(false);
   }
 
-  ngAfterViewInit(): void {
-    this.cartSidebarservice.getCartSideBarStatus().subscribe((status) => {
-      this.toggle(this.cartSideBar, status)
-    })
+  onBackdropClick(): void {
+    this.close();
   }
 
-
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (this.isOpen) this.close();
+  }
 }

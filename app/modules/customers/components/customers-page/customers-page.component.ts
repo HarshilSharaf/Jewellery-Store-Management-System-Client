@@ -1,181 +1,232 @@
-import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+
 import { NgxUiLoaderService } from 'ngx-ui-loader';
-import { catchError, debounceTime, distinctUntilChanged } from 'rxjs';
-import { ColumnSchema } from '../../../../shared/models/columnsSchema';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import {
+  lucidePlus,
+  lucideSearch,
+  lucideUsers,
+  lucideUserPlus,
+  lucidePhone,
+  lucideMail,
+  lucideMapPin,
+  lucidePencil,
+  lucideTrash2,
+  lucideExternalLink,
+  lucideLoader,
+  lucideDownload,
+  lucideUpload,
+} from '@ng-icons/lucide';
+import { MigrationService } from '../../../../shared/services/Migration/migration.service';
 import { CustomerDetails } from '../../models/customerDetails';
 import { CustomerDataService } from '../../services/customer-data.service';
 import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
-import Swal from 'sweetalert2';
+import { AppDialogService } from '../../../../shared/services/AppDialog/app-dialog.service';
+import { AppToastService } from '../../../../shared/services/AppToast/app-toast.service';
 import { ActivatedRoute, Router } from '@angular/router';
+import { AddCustomerFormComponent } from '../add-customer-form/add-customer-form.component';
+import { PermissionsService } from '../../../../shared/services/Auth/permissions.service';
+import {
+  SimplePaginatorComponent,
+  SimplePageEvent,
+} from '../../../../shared/components/simple-paginator/simple-paginator.component';
 
 @Component({
   selector: 'app-customers-page',
   templateUrl: './customers-page.component.html',
-  styleUrls: ['./customers-page.component.scss']
+  styleUrls: ['./customers-page.component.scss'],
+  standalone: true,
+  imports: [CommonModule, AddCustomerFormComponent, SimplePaginatorComponent, NgIcon],
+  viewProviders: [
+    provideIcons({
+      lucidePlus,
+      lucideSearch,
+      lucideUsers,
+      lucideUserPlus,
+      lucidePhone,
+      lucideMail,
+      lucideMapPin,
+      lucidePencil,
+      lucideTrash2,
+      lucideExternalLink,
+      lucideLoader,
+      lucideDownload,
+      lucideUpload,
+    }),
+  ],
 })
-export class CustomersPageComponent implements OnInit, AfterViewInit, OnDestroy {
+export class CustomersPageComponent implements OnInit, OnDestroy {
+  customerData: CustomerDetails[] = [];
 
-  customerData: CustomerDetails[] = []
-  tableColumns = ["id",
-    "customerName",
-    "phoneNumber",
-    "gender",
-    "email",
-    "actions"]
-
-  displayNameForColumns: ColumnSchema[] =
-    [
-      {
-        key: "id",
-        type: "text",
-        label: "Id"
-      },
-      {
-        key: "customerName",
-        type: "text",
-        label: "Name"
-      },
-      {
-        key: "phoneNumber",
-        type: "text",
-        label: "Phone No."
-      },
-      {
-        key: "gender",
-        type: "text",
-        label: "Gender"
-      },
-      {
-        key: "email",
-        type: "email",
-        label: "Email"
-      },
-      {
-        key: "actions",
-        type: "text",
-        label: "Actions"
-      },
-    ]
-
-  private getCustomerDataSubscription: any
-  private itemsPerPage = 5
-  public totalRecords = 0
-  private currentSearchQuery= ''
+  protected pageSize = 10;
+  protected pageIndex = 0;
+  protected totalRecords = 0;
+  protected searchQuery = '';
   protected isLoading = false;
+
+  protected showAddCustomerForm = false;
+  protected exportingCsv = false;
+  readonly permissions = inject(PermissionsService);
+  private readonly migrationService = inject(MigrationService);
+  private readonly dialog = inject(AppDialogService);
+  private readonly toast = inject(AppToastService);
+
+  private debounceTimer: any;
 
   constructor(
     private customerService: CustomerDataService,
-    private modalService: NgbModal,
     private cdref: ChangeDetectorRef,
     private router: Router,
     private route: ActivatedRoute,
     private loggerService: LoggerService,
-    private loaderService: NgxUiLoaderService
+    private loaderService: NgxUiLoaderService,
   ) {}
 
-  ngAfterViewInit() {
-    this.getAllCustomersData();
-    this.cdref.detectChanges()
-  }
   ngOnInit(): void {
+    this.permissions.getUserPermissions();
+    this.getAllCustomersData();
   }
 
-  open(content: any) {
-    this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' }).result.then(
-      (result) => {
-        console.log(`Closed with: ${result}`);
-      }
-    );
+  openAddCustomerDialog(): void {
+    this.showAddCustomerForm = true;
   }
 
-  getAllCustomersData(itemsPerPage = this.itemsPerPage, pageNumber = 1,  searchQuery:string = '') {
-    this.loggerService.LogInfo("getAllCustomersData() Request Started From customers-page component.")
-    this.loaderService.start()
-    this.isLoading = true;
-    this.getCustomerDataSubscription = this.customerService.getAllCustomers(false, itemsPerPage, pageNumber, searchQuery)
-    .pipe(
-      debounceTime(300), // Delay for 300 milliseconds
-      distinctUntilChanged(), 
-    )
-    .subscribe({
-        next: (response:any) => {
-          {
-            this.totalRecords = response[0].totalRecords
-            const responseData:CustomerDetails[] = response.slice(1)
-            responseData.forEach((element) => {
-              element.customerName = element.firstName + ' ' + element.lastName
-            });
-            this.customerData = responseData;
-            this.isLoading = false;
-            this.loaderService.stop()
-            this.loggerService.LogInfo("getAllCustomersData() Request Completed From customers-page component.")
-          }
-        },
-        error: (error:any)=>{
-          this.isLoading = false;
-          this.loaderService.stop()
-          this.loggerService.LogError(error, "getAllCustomersData() From customers-page component")
-        }
-
-      })
+  onAddCustomerClosed(): void {
+    this.showAddCustomerForm = false;
+    this.getAllCustomersData();
   }
 
-  handlePageChange(event:any) {
-    // set itemsPerPage to current value else it will not be reflected in searchQuery
-    this.itemsPerPage = event.pageSize
-    this.getAllCustomersData(event.pageSize, event.pageIndex + 1, event.searchQuery)
+  onSearchInput(value: string): void {
+    this.searchQuery = value;
+    if (this.debounceTimer) {
+      clearTimeout(this.debounceTimer);
+    }
+    this.debounceTimer = setTimeout(() => {
+      this.pageIndex = 0;
+      this.getAllCustomersData();
+    }, 250);
   }
 
-  handleSearchQuery(searchQuery: string) {
-    this.currentSearchQuery = searchQuery
-    this.getAllCustomersData(this.itemsPerPage, 1, this.currentSearchQuery)
+  onPageChange(event: SimplePageEvent): void {
+    this.pageIndex = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this.getAllCustomersData();
   }
 
-  goToViewDetails(customerData: CustomerDetails) {
-    this.router.navigate([`view-customer-details/${customerData.customerGuid}`] ,{relativeTo:this.route}); 
+  async getAllCustomersData(): Promise<void> {
+    try {
+      this.loggerService.LogInfo('getAllCustomersData() Request Started From customers-page component.');
+      this.isLoading = true;
+      this.loaderService.start();
+
+      const response: any = await this.customerService.getAllCustomers(
+        false,
+        this.pageSize,
+        this.pageIndex + 1,
+        this.searchQuery,
+      );
+      this.totalRecords = response[0]?.totalRecords ?? 0;
+      const rows: CustomerDetails[] = response.slice(1);
+      rows.forEach((r) => {
+        r.customerName = `${r.firstName ?? ''} ${r.lastName ?? ''}`.trim();
+      });
+      this.customerData = rows;
+    } catch (error) {
+      this.loggerService.LogError(error, 'getAllCustomersData() From customers-page component');
+    } finally {
+      this.isLoading = false;
+      this.loaderService.stop();
+      this.cdref.detectChanges();
+    }
   }
 
-  openDeletePopUpForItem(customerData: CustomerDetails) {
-    Swal.fire({
-      title: `Are you sure you want to delete ${customerData.customerName}?`,
-      text: "You won't be able to revert this!",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, delete it!'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.loggerService.LogInfo("deleteCustomer() Request Started.")
-        this.customerService.deleteCustomer(customerData.customerGuid as string).subscribe({
-          next: (data) => {
-            this.getAllCustomersData()
-            Swal.fire(
-              'Deleted!',
-              "Customer Deleted SuccessFully.",
-              'success'
-            )
-            this.loggerService.LogInfo("deleteCustomer() Request Completed.")
-          },
-          error: (error) => {
-            this.loggerService.LogError(error, "deleteCustomer()")
-            Swal.fire(
-              'Error!',
-              error,
-              'error'
-            )
-          }
-        })
-
-
-      }
-    })
+  goToViewDetails(customer: CustomerDetails): void {
+    const guid = customer?.customerGuid;
+    if (!guid || typeof guid !== 'string' || guid.trim() === '') {
+      this.loggerService.LogError(
+        `goToViewDetails: missing customerGuid on customer id=${customer?.id ?? 'unknown'}`,
+        'customers-page.goToViewDetails',
+      );
+      this.toast.warning('Customer link is missing — please refresh the list.');
+      return;
+    }
+    this.router.navigate([`view-customer-details/${guid}`], { relativeTo: this.route });
   }
 
-
-  ngOnDestroy() {
-    this.getCustomerDataSubscription.unsubscribe();
+  onRowClick(event: MouseEvent, customer: CustomerDetails): void {
+    const target = event.target as HTMLElement;
+    if (target.closest('.data-row-actions')) {
+      return;
+    }
+    this.goToViewDetails(customer);
   }
 
+  async openDeletePopUpForItem(event: MouseEvent, customer: CustomerDetails): Promise<void> {
+    event.stopPropagation();
+    const confirmed = await this.dialog.danger(`Delete ${customer.customerName}?`, "You won't be able to revert this.", { confirmButtonText: 'Yes, delete' });
+
+    if (!confirmed) return;
+
+    try {
+      this.loggerService.LogInfo('deleteCustomer() Request Started.');
+      await this.customerService.deleteCustomer(customer.customerGuid as string);
+      this.getAllCustomersData();
+      this.toast.success('Customer removed.', 'Deleted');
+      this.loggerService.LogInfo('deleteCustomer() Request Completed.');
+    } catch (error) {
+      this.loggerService.LogError(error, 'deleteCustomer()');
+      this.toast.error(error as string, 'Error');
+    } finally {
+      this.cdref.detectChanges();
+    }
+  }
+
+  initialsFor(customer: CustomerDetails): string {
+    const first = (customer.firstName || '').trim();
+    const last = (customer.lastName || '').trim();
+    return `${first[0] ?? ''}${last[0] ?? ''}`.toUpperCase() || '?';
+  }
+
+  hasCustomers(): boolean {
+    return this.customerData.length > 0;
+  }
+
+  showEmptyState(): boolean {
+    return !this.isLoading && !this.hasCustomers() && !this.searchQuery;
+  }
+
+  showNoResults(): boolean {
+    return !this.isLoading && !this.hasCustomers() && !!this.searchQuery;
+  }
+
+  clearSearch(): void {
+    this.searchQuery = '';
+    this.pageIndex = 0;
+    this.getAllCustomersData();
+  }
+
+  async exportCustomersCsv(): Promise<void> {
+    if (this.exportingCsv) { return; }
+    this.exportingCsv = true;
+    try {
+      await this.migrationService.triggerExportCustomers();
+    } catch (error) {
+      this.loggerService.LogError(error, 'exportCustomersCsv()');
+      this.toast.error('Unable to export customers.', 'Export failed');
+    } finally {
+      this.exportingCsv = false;
+      this.cdref.detectChanges();
+    }
+  }
+
+  openMigrationImport(): void {
+    this.router.navigate(['/settings'], { queryParams: { tab: 'migration' } });
+  }
+
+  ngOnDestroy(): void {
+    if (this.debounceTimer) {
+      clearTimeout(this.debounceTimer);
+    }
+  }
 }

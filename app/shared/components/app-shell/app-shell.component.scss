@@ -1,0 +1,50 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: var(--color-bg);
+  color: var(--color-fg);
+}
+
+.shell__top-bar {
+  flex-shrink: 0;
+}
+
+.shell__body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.shell__rail {
+  flex-shrink: 0;
+}
+
+.shell__content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 32px;
+  background: var(--color-bg);
+  min-width: 0;
+}
+
+@media (max-width: 1023px) {
+  .shell__rail {
+    display: none;
+  }
+  .shell__content {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 639px) {
+  .shell__content {
+    padding: 16px 12px;
+  }
+}

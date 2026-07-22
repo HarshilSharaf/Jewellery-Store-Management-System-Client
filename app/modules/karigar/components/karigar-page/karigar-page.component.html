@@ -1,0 +1,203 @@
+<div class="page-title">
+  <div class="page-title__group">
+    <h1 class="page-title__heading">Karigar</h1>
+    @if (activeTab() === 'karigars' && totalKarigars() > 0) {
+      <span class="page-title__count">({{ totalKarigars() }} people)</span>
+    }
+    @if (activeTab() === 'jobs' && totalJobs() > 0) {
+      <span class="page-title__count">({{ totalJobs() }} job{{ totalJobs() === 1 ? '' : 's' }})</span>
+    }
+  </div>
+  <div class="page-title__actions">
+    @if (activeTab() === 'karigars') {
+      <button type="button" class="hlm-btn hlm-btn-primary" (click)="openAdd()">
+        <ng-icon name="lucidePlus" size="16" aria-hidden="true"></ng-icon>
+        <span>Add karigar</span>
+      </button>
+    } @else {
+      <button type="button" class="hlm-btn hlm-btn-primary" (click)="openIssue()">
+        <ng-icon name="lucidePlus" size="16" aria-hidden="true"></ng-icon>
+        <span>Issue new job</span>
+      </button>
+    }
+  </div>
+</div>
+
+<div class="tabs-strip" role="tablist">
+  <button type="button" class="tab-item" role="tab"
+          [class.is-active]="activeTab() === 'karigars'"
+          (click)="selectTab('karigars')">Karigars</button>
+  <button type="button" class="tab-item" role="tab"
+          [class.is-active]="activeTab() === 'jobs'"
+          (click)="selectTab('jobs')">Job cards</button>
+</div>
+
+@if (activeTab() === 'karigars') {
+  <div class="list-toolbar">
+    <div class="search-input">
+      <ng-icon name="lucideSearch" size="14" aria-hidden="true" class="search-input__icon"></ng-icon>
+      <input type="search" class="hlm-input" placeholder="Search karigar or phone…"
+             [value]="searchKarigars()"
+             (input)="onSearchInput($any($event.target).value)" />
+    </div>
+  </div>
+
+  @if (loadingKarigars() && karigars().length === 0) {
+    <div class="loading-inline">
+      <ng-icon name="lucideLoader" class="animate-spin" size="20" aria-hidden="true"></ng-icon>
+      <span>Loading karigars…</span>
+    </div>
+  }
+
+  <div class="karigar-grid">
+    @for (k of karigars(); track k.karigarGuid) {
+      <article class="karigar-card" (click)="goToKarigar(k)" role="button" tabindex="0"
+               (keyup.enter)="goToKarigar(k)">
+        <header class="karigar-card__head">
+          <span class="avatar avatar--md">{{ initialsFor(k) }}</span>
+          <div class="karigar-card__meta">
+            <span class="karigar-card__name">{{ k.name }}</span>
+            @if (k.phone) {
+              <span class="karigar-card__sub tabular-nums">
+                <ng-icon name="lucidePhone" size="11" aria-hidden="true"></ng-icon>
+                {{ k.phone }}
+              </span>
+            }
+          </div>
+          <div class="karigar-card__actions">
+            <button type="button" class="icon-btn" (click)="openEdit(k, $event)" title="Edit karigar" aria-label="Edit">
+              <ng-icon name="lucidePencil" size="14" aria-hidden="true"></ng-icon>
+            </button>
+            @if (userType() === 'admin') {
+              <button type="button" class="icon-btn icon-btn--danger" (click)="deleteKarigar(k, $event)" title="Delete karigar" aria-label="Delete">
+                <ng-icon name="lucideTrash2" size="14" aria-hidden="true"></ng-icon>
+              </button>
+            }
+          </div>
+        </header>
+        <div class="karigar-card__body">
+          @if (k.address) {
+            <p class="karigar-card__address">{{ k.address }}</p>
+          }
+          @if (k.remarks) {
+            <p class="karigar-card__remarks">{{ k.remarks }}</p>
+          }
+        </div>
+        <footer class="karigar-card__foot">
+          <span class="karigar-card__stat">
+            <span class="karigar-card__stat-label">Active</span>
+            <span class="karigar-card__stat-value tabular-nums">{{ k.openJobs ?? 0 }}</span>
+          </span>
+          <span class="karigar-card__stat">
+            <span class="karigar-card__stat-label">Total jobs</span>
+            <span class="karigar-card__stat-value tabular-nums">{{ k.totalJobs ?? 0 }}</span>
+          </span>
+        </footer>
+      </article>
+    }
+  </div>
+
+  @if (showEmptyKarigars()) {
+    <div class="empty-state">
+      <ng-icon name="lucideHammer" size="32" aria-hidden="true"></ng-icon>
+      <p class="empty-state__title">No karigars yet</p>
+      <p class="empty-state__sub">Add goldsmiths you regularly issue jobs to. Ledger tracking starts on the first job card.</p>
+      <button type="button" class="hlm-btn hlm-btn-primary" (click)="openAdd()">
+        <ng-icon name="lucidePlus" size="14" aria-hidden="true"></ng-icon>
+        <span>Add your first karigar</span>
+      </button>
+    </div>
+  }
+  @if (showNoKarigarResults()) {
+    <div class="empty-state">
+      <ng-icon name="lucideSearch" size="32" aria-hidden="true"></ng-icon>
+      <p class="empty-state__title">No karigar matches "{{ searchKarigars() }}"</p>
+    </div>
+  }
+} @else {
+  <div class="list-toolbar jobs-toolbar">
+    <div class="filter-chips">
+      @for (opt of statusOptions; track opt.value) {
+        <button type="button" class="chip chip-toggle"
+                [class.chip-active]="isStatusActive(opt.value)"
+                (click)="toggleStatus(opt.value)">{{ opt.label }}</button>
+      }
+      <select class="hlm-input jobs-toolbar__select"
+              [value]="karigarFilter() ?? ''"
+              (change)="onKarigarFilterChange($any($event.target).value)">
+        <option value="">All karigars</option>
+        @for (k of karigars(); track k.karigarGuid) {
+          <option [value]="k.karigarGuid">{{ k.name }}</option>
+        }
+      </select>
+      @if (statusFilter() || karigarFilter()) {
+        <button type="button" class="chip chip-toggle" (click)="clearJobFilters()">Clear</button>
+      }
+    </div>
+  </div>
+
+  <section class="jobs-table">
+    <div class="jobs-table__head">
+      <span class="col-job">Job</span>
+      <span class="col-karigar">Karigar</span>
+      <span class="col-date">Issued</span>
+      <span class="col-weight">Gross (g)</span>
+      <span class="col-status">Status</span>
+      <span class="col-days">Days open</span>
+      <span class="col-return">Expected return</span>
+    </div>
+
+    @if (loadingJobs() && jobs().length === 0) {
+      <div class="loading-inline">
+        <ng-icon name="lucideLoader" class="animate-spin" size="20" aria-hidden="true"></ng-icon>
+        <span>Loading jobs…</span>
+      </div>
+    }
+
+    @for (j of jobs(); track j.jobGuid) {
+      <div class="data-row jobs-row" role="button" tabindex="0"
+           (click)="goToJob(j)"
+           (keyup.enter)="goToJob(j)">
+        <span class="col-job tabular-nums">{{ jobShort(j.jobGuid) }}</span>
+        <span class="col-karigar">{{ j.karigarName }}</span>
+        <span class="col-date tabular-nums">{{ j.issueDate | date: 'd MMM yyyy' }}</span>
+        <span class="col-weight tabular-nums money">{{ j.issuedGrossWeight }}</span>
+        <span class="col-status">
+          <span [class]="statusClass(j.status)">{{ j.status }}</span>
+        </span>
+        <span class="col-days tabular-nums">
+          @if (j.status === 'issued' || j.status === 'received') {
+            {{ daysSince(j.issueDate) }}
+          } @else { — }
+        </span>
+        <span class="col-return tabular-nums">{{ j.expectedReturnDate ? (j.expectedReturnDate | date: 'd MMM yyyy') : '—' }}</span>
+      </div>
+    }
+
+    @if (showEmptyJobs()) {
+      <div class="empty-state">
+        <ng-icon name="lucideHammer" size="32" aria-hidden="true"></ng-icon>
+        <p class="empty-state__title">No jobs on file yet</p>
+        <p class="empty-state__sub">Issue your first job card to begin tracking gold outstanding.</p>
+        <button type="button" class="hlm-btn hlm-btn-primary" (click)="openIssue()">
+          <ng-icon name="lucidePlus" size="14" aria-hidden="true"></ng-icon>
+          <span>Issue new job</span>
+        </button>
+      </div>
+    }
+    @if (showNoJobResults()) {
+      <div class="empty-state">
+        <ng-icon name="lucideSearch" size="32" aria-hidden="true"></ng-icon>
+        <p class="empty-state__title">No jobs match the current filters</p>
+        <button type="button" class="hlm-btn hlm-btn-ghost" (click)="clearJobFilters()">Clear filters</button>
+      </div>
+    }
+  </section>
+}
+
+<app-karigar-form
+  [open]="formOpen()"
+  [editing]="editing()"
+  (closed)="onFormClosed()"
+  (saved)="onFormSaved()">
+</app-karigar-form>

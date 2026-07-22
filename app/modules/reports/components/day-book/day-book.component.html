@@ -1,0 +1,106 @@
+<section class="report-page">
+
+  <header class="page-title">
+    <div class="page-title__group">
+      <a class="icon-btn" routerLink="/reports" title="Back to Reports" aria-label="Back">
+        <ng-icon name="lucideArrowLeft" size="16" aria-hidden="true"></ng-icon>
+      </a>
+      <h1 class="page-title__heading">Day book</h1>
+      <span class="page-title__count">{{ rows().length }} days</span>
+    </div>
+  </header>
+
+  <div class="date-range-toolbar">
+    <div class="date-range-toolbar__group">
+      <label class="field-label">From</label>
+      <input type="date" class="hlm-input tabular-nums"
+             [value]="dateFrom()"
+             (input)="onDateFromChange($any($event.target).value)">
+    </div>
+    <div class="date-range-toolbar__group">
+      <label class="field-label">To</label>
+      <input type="date" class="hlm-input tabular-nums"
+             [value]="dateTo()"
+             (input)="onDateToChange($any($event.target).value)">
+    </div>
+    <button type="button" class="hlm-btn hlm-btn-ghost" (click)="refresh()" [disabled]="loading()">
+      <ng-icon name="lucideRefreshCw" size="14" aria-hidden="true"></ng-icon>
+      {{ loading() ? 'Loading...' : 'Refresh' }}
+    </button>
+    <button type="button" class="hlm-btn hlm-btn-ghost export-btn" (click)="exportCSV()" [disabled]="!rows().length">
+      <ng-icon name="lucideDownload" size="14" aria-hidden="true"></ng-icon>
+      Export CSV
+    </button>
+    <button type="button" class="hlm-btn hlm-btn-ghost export-btn" (click)="exportTallyXml()" [disabled]="!rows().length">
+      <ng-icon name="lucideDownload" size="14" aria-hidden="true"></ng-icon>
+      Tally XML
+    </button>
+  </div>
+  <details class="tally-setup">
+    <summary>Tally Prime setup — one time before first import</summary>
+    <div class="tally-setup__body">
+      <p class="tally-setup__lead">Create these masters in your Tally company, then import the XML via <strong>Gateway of Tally → Import Data → Vouchers</strong>.</p>
+      <ul class="tally-setup__list">
+        <li><span class="tally-setup__label">Ledgers</span> Cash, Bank Account, UPI Suspense, Card Suspense, Online Suspense, Sundry Debtors, Cash Sales, Sales — Jewellery, CGST &#64; 1.5%, SGST &#64; 1.5%, IGST &#64; 3%</li>
+        <li><span class="tally-setup__label">Stock Group</span> Jewellery</li>
+        <li><span class="tally-setup__label">Stock Item</span> Jewellery — Composite (under Jewellery group)</li>
+      </ul>
+    </div>
+  </details>
+
+  @if (!loading() && rows().length === 0) {
+    <div class="report-empty">
+      <ng-icon name="lucideChartLine" size="32" aria-hidden="true"></ng-icon>
+      <p>No entries in this date range.</p>
+    </div>
+  } @else {
+    <div class="report-scroll">
+    <table class="ds-table tabular-nums">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th class="right">Cash</th>
+          <th class="right">Cheque</th>
+          <th class="right">UPI</th>
+          <th class="right">Card</th>
+          <th class="right">Online</th>
+          <th class="right">Total</th>
+          <th class="right">Invoices</th>
+          <th class="right">Taxable</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (r of rows(); track r.txDate) {
+          <tr>
+            <td>{{ r.txDate }}</td>
+            <td class="right money">{{ formatINR(r.cash) }}</td>
+            <td class="right money">{{ formatINR(r.cheque) }}</td>
+            <td class="right money">{{ formatINR(r.upi) }}</td>
+            <td class="right money">{{ formatINR(r.card) }}</td>
+            <td class="right money">{{ formatINR(r.online) }}</td>
+            <td class="right money">{{ formatINR(r.total) }}</td>
+            <td class="right">{{ r.invoiceCount }}</td>
+            <td class="right money">{{ formatINR(r.totalTaxableValue) }}</td>
+          </tr>
+        }
+      </tbody>
+      @if (rows().length) {
+        <tfoot>
+          <tr class="data-total-row">
+            <td>Totals</td>
+            <td class="right money">{{ formatINR(totals().cash) }}</td>
+            <td class="right money">{{ formatINR(totals().cheque) }}</td>
+            <td class="right money">{{ formatINR(totals().upi) }}</td>
+            <td class="right money">{{ formatINR(totals().card) }}</td>
+            <td class="right money">{{ formatINR(totals().online) }}</td>
+            <td class="right money">{{ formatINR(totals().total) }}</td>
+            <td class="right">{{ totals().invoiceCount }}</td>
+            <td class="right money">{{ formatINR(totals().totalTaxableValue) }}</td>
+          </tr>
+        </tfoot>
+      }
+    </table>
+    </div>
+  }
+
+</section>

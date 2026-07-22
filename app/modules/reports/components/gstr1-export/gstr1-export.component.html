@@ -1,0 +1,107 @@
+<section class="report-page">
+
+  <header class="page-title">
+    <div class="page-title__group">
+      <a class="icon-btn" routerLink="/reports" title="Back to Reports" aria-label="Back">
+        <ng-icon name="lucideArrowLeft" size="16" aria-hidden="true"></ng-icon>
+      </a>
+      <h1 class="page-title__heading">GSTR-1 export</h1>
+      <span class="page-title__count">{{ rows().length }} invoices • {{ hsnSummary().length }} HSN rows</span>
+    </div>
+  </header>
+
+  <p class="report-caption">Ready for CA upload. Structure follows the standard GSTR-1 shape (b2b, b2cs, hsn). Your CA can massage the JSON to the current GST portal template if the schema shifts.</p>
+
+  <div class="date-range-toolbar">
+    <div class="date-range-toolbar__group">
+      <label class="field-label">Month</label>
+      <input type="month" class="hlm-input tabular-nums" [value]="monthYear()" (input)="onMonthChange($any($event.target).value)">
+    </div>
+    <button type="button" class="hlm-btn hlm-btn-ghost" (click)="refresh()" [disabled]="loading()">
+      <ng-icon name="lucideRefreshCw" size="14" aria-hidden="true"></ng-icon>
+      {{ loading() ? 'Loading...' : 'Refresh' }}
+    </button>
+    <button type="button" class="hlm-btn hlm-btn-primary export-btn" (click)="exportJSON()" [disabled]="!rows().length && !hsnSummary().length">
+      <ng-icon name="lucideDownload" size="14" aria-hidden="true"></ng-icon>
+      Export JSON
+    </button>
+  </div>
+
+  @if (!loading() && !rows().length && !hsnSummary().length) {
+    <div class="report-empty">
+      <ng-icon name="lucideFileJson" size="32" aria-hidden="true"></ng-icon>
+      <p>No invoices in this month.</p>
+    </div>
+  } @else {
+    <div class="panel-subhead">
+      <h3>Invoice rows</h3>
+    </div>
+    <div class="report-scroll">
+      <table class="ds-table tabular-nums">
+        <thead>
+          <tr>
+            <th>Invoice</th>
+            <th>Date</th>
+            <th>Type</th>
+            <th>Customer GSTIN</th>
+            <th>PoS</th>
+            <th>HSN</th>
+            <th class="right">Taxable</th>
+            <th class="right">CGST</th>
+            <th class="right">SGST</th>
+            <th class="right">IGST</th>
+            <th class="right">Invoice value</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (r of rows(); track r.invoiceNumber) {
+            <tr>
+              <td>{{ r.invoiceNumber }}</td>
+              <td>{{ r.invoiceDate }}</td>
+              <td>{{ r.invoiceType }}</td>
+              <td>{{ r.customerGstin || '—' }}</td>
+              <td>{{ r.invoicePlaceOfSupply || r.placeOfSupply }}</td>
+              <td>{{ r.hsnCode }}</td>
+              <td class="right money">{{ formatINR(r.taxableValue) }}</td>
+              <td class="right money">{{ formatINR(r.cgstAmount) }}</td>
+              <td class="right money">{{ formatINR(r.sgstAmount) }}</td>
+              <td class="right money">{{ formatINR(r.igstAmount) }}</td>
+              <td class="right money">{{ formatINR(r.invoiceValue) }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="panel-subhead">
+      <h3>HSN rollup</h3>
+    </div>
+    <table class="ds-table tabular-nums">
+      <thead>
+        <tr>
+          <th>HSN</th>
+          <th class="right">Invoices</th>
+          <th class="right">Taxable</th>
+          <th class="right">CGST</th>
+          <th class="right">SGST</th>
+          <th class="right">IGST</th>
+          <th class="right">Invoice value</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (h of hsnSummary(); track h.hsnCode) {
+          <tr>
+            <td>{{ h.hsnCode }}</td>
+            <td class="right">{{ h.invoiceCount }}</td>
+            <td class="right money">{{ formatINR(h.taxableValue) }}</td>
+            <td class="right money">{{ formatINR(h.cgstAmount) }}</td>
+            <td class="right money">{{ formatINR(h.sgstAmount) }}</td>
+            <td class="right money">{{ formatINR(h.igstAmount) }}</td>
+            <td class="right money">{{ formatINR(h.invoiceValue) }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+
+</section>

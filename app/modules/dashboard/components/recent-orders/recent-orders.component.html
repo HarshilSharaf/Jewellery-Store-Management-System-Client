@@ -1,55 +1,62 @@
 <div class="card my-3">
-    <div class="card-title mb-1 p-3 d-flex ">
-        <h6>Recent Orders</h6>
+  <div class="card-title mb-1 p-3 d-flex ">
+    <h6>Recent Orders</h6>
+  </div>
+
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table"
+        [ngClass]="{'table-striped': _recentOrders.length != 0, 'table-hover': _recentOrders.length != 0 }">
+        <thead>
+          <tr class="text-center">
+            <th scope="col">Order Id</th>
+            <th scope="col">Number Of Products</th>
+            <th scope="col">Total Amount</th>
+            <th scope="col">Customer Name</th>
+            <th scope="col">Order Date</th>
+            <th scope="col">Payment Status</th>
+            <th scope="col">View Details</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          @if (_recentOrders.length == 0) {
+            @for (row of [0, 1, 2, 3, 4]; track row) {
+              <tr class="text-center">
+                @for (row of [0, 1, 2, 3, 4, 5, 6]; track row) {
+                  <td>
+                    <app-skeleton-loader [count]="1" [shapeOfLoader]="'circle'"
+                      [theme]="{height: '20px', width: '100%', 'border-radius': '0'}" />
+                    </td>
+                  }
+                </tr>
+              }
+            }
+
+            @for (order of _recentOrders; track order.orderGuid ?? $index) {
+              <tr  class="text-center">
+                <th scope="row">{{order.id}}</th>
+                <td>{{order.totalLineItems ?? order.total_products}}</td>
+                <td> &#8377; {{order.grandTotal ?? order.totalAmountWithGst}}</td>
+                <td>{{((order.customerDetails?.firstName ?? order.customer_details?.firstName ?? '') + ' ' + (order.customerDetails?.lastName ?? order.customer_details?.lastName ?? '')) | titlecase}}</td>
+                <td>{{order.createdAt | date:'fullDate'}}</td>
+                <td>
+                  @if (order.isPaymentDone==true) {
+                    <span class="badge rounded-pill bg-success">Done</span>
+                  }
+                  @if (order.isPaymentDone==false) {
+                    <span class="badge rounded-pill bg-warning">Pending</span>
+                  }
+                </td>
+                <td>
+                  <button type="button" class="btn btn-primary" (click)="goToViewDetails(order.invoiceGuid)">
+                    <ng-icon name="lucideSquareArrowOutUpRight" aria-hidden="true"></ng-icon>
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
     </div>
-
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table"
-                [ngClass]="{'table-striped': _recentOrders.length != 0, 'table-hover': _recentOrders.length != 0 }">
-                <thead>
-                    <tr class="text-center">
-                        <th scope="col">Order Id</th>
-                        <th scope="col">Number Of Products</th>
-                        <th scope="col">Total Amount</th>
-                        <th scope="col">Customer Name</th>
-                        <th scope="col">Order Date</th>
-                        <th scope="col">Payment Status</th>
-                        <th scope="col">View Details</th>
-                    </tr>
-                </thead>
-                <tbody>
-
-                    <ng-container *ngIf="_recentOrders.length == 0">
-                        <tr *ngFor="let row of [0, 1, 2, 3, 4]" class="text-center">
-                            <td *ngFor="let row of [0, 1, 2, 3, 4, 5, 6]">
-                                <app-skeleton-loader [count]="1" [shapeOfLoader]="'circle'"
-                                [theme]="{height: '20px', width: '100%', 'border-radius': '0'}" />
-                            </td>
-                        </tr>
-                    </ng-container>
-
-                    <tr *ngFor="let order of _recentOrders"  class="text-center">
-                        <th scope="row">{{order.id}}</th>
-                        <td>{{order.total_products}}</td>
-                        <td> &#8377; {{order.totalAmountWithGst}}</td>
-                        <td>{{(order.customer_details.firstName + ' ' + order.customer_details.lastName) | titlecase}}</td>
-                        <td>{{order.createdAt | date:'fullDate'}}</td>
-                        <td>
-                    
-                            <span class="badge rounded-pill bg-success" *ngIf="order.isPaymentDone==true">Done</span>
-                    
-                            <span class="badge rounded-pill bg-warning" *ngIf="order.isPaymentDone==false">Pending</span>
-                    
-                        </td>
-                        <td>
-                            <button type="button" class="btn btn-primary" (click)="goToViewDetails(order.invoiceGuid)">
-                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
+  </div>

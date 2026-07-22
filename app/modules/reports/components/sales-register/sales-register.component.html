@@ -1,0 +1,146 @@
+<section class="report-page">
+
+  <header class="page-title">
+    <div class="page-title__group">
+      <a class="icon-btn" routerLink="/reports" title="Back to Reports" aria-label="Back">
+        <ng-icon name="lucideArrowLeft" size="16" aria-hidden="true"></ng-icon>
+      </a>
+      <h1 class="page-title__heading">Sales register</h1>
+      <span class="page-title__count">{{ rows().length }} invoices</span>
+    </div>
+  </header>
+
+  <div class="date-range-toolbar">
+    <div class="date-range-toolbar__group">
+      <label class="field-label">From</label>
+      <input type="date" class="hlm-input tabular-nums" [value]="dateFrom()" (input)="onDateFromChange($any($event.target).value)">
+    </div>
+    <div class="date-range-toolbar__group">
+      <label class="field-label">To</label>
+      <input type="date" class="hlm-input tabular-nums" [value]="dateTo()" (input)="onDateToChange($any($event.target).value)">
+    </div>
+
+    <div class="date-range-toolbar__group customer-picker">
+      <label class="field-label">Customer</label>
+      <div class="customer-picker__inner">
+        <input class="hlm-input"
+               placeholder="Search customer (min 2 chars)"
+               [value]="customerSearch()"
+               (input)="onCustomerSearchInput($any($event.target).value)"
+               (focus)="showCustomerList.set(true)">
+        @if (customerGuid()) {
+          <button type="button" class="icon-btn" (click)="clearCustomer()" title="Clear customer" aria-label="Clear">
+            <ng-icon name="lucideArrowLeft" size="14" aria-hidden="true"></ng-icon>
+          </button>
+        }
+        @if (showCustomerList() && customerOptions().length) {
+          <ul class="customer-picker__list">
+            @for (opt of customerOptions(); track opt.customerGuid) {
+              <li>
+                <button type="button" (click)="selectCustomer(opt)">{{ opt.displayName }}</button>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    </div>
+
+    <div class="radio-pills status-pills" role="tablist" aria-label="Status filter">
+      @for (opt of statusOptions; track opt.id) {
+        <button type="button"
+                class="radio-pill"
+                role="tab"
+                [class.is-active]="statusFilter() === opt.id"
+                [attr.aria-selected]="statusFilter() === opt.id"
+                (click)="setStatus(opt.id)">
+          {{ opt.label }}
+        </button>
+      }
+    </div>
+
+    <button type="button" class="hlm-btn hlm-btn-ghost" (click)="refresh()" [disabled]="loading()">
+      <ng-icon name="lucideRefreshCw" size="14" aria-hidden="true"></ng-icon>
+      {{ loading() ? 'Loading...' : 'Refresh' }}
+    </button>
+    <button type="button" class="hlm-btn hlm-btn-ghost export-btn" (click)="exportCSV()" [disabled]="!rows().length">
+      <ng-icon name="lucideDownload" size="14" aria-hidden="true"></ng-icon>
+      Export CSV
+    </button>
+    <button type="button" class="hlm-btn hlm-btn-ghost export-btn" (click)="exportTallyXml()" [disabled]="!rows().length">
+      <ng-icon name="lucideDownload" size="14" aria-hidden="true"></ng-icon>
+      Tally XML
+    </button>
+  </div>
+  <details class="tally-setup">
+    <summary>Tally Prime setup — one time before first import</summary>
+    <div class="tally-setup__body">
+      <p class="tally-setup__lead">Create these masters in your Tally company, then import the XML via <strong>Gateway of Tally → Import Data → Vouchers</strong>.</p>
+      <ul class="tally-setup__list">
+        <li><span class="tally-setup__label">Ledgers</span> Cash, Bank Account, UPI Suspense, Card Suspense, Online Suspense, Sundry Debtors, Cash Sales, Sales — Jewellery, CGST &#64; 1.5%, SGST &#64; 1.5%, IGST &#64; 3%</li>
+        <li><span class="tally-setup__label">Stock Group</span> Jewellery</li>
+        <li><span class="tally-setup__label">Stock Item</span> Jewellery — Composite (under Jewellery group)</li>
+      </ul>
+    </div>
+  </details>
+
+  @if (!loading() && rows().length === 0) {
+    <div class="report-empty">
+      <ng-icon name="lucideReceiptText" size="32" aria-hidden="true"></ng-icon>
+      <p>No invoices in this window.</p>
+    </div>
+  } @else {
+    <div class="report-scroll">
+      <table class="ds-table tabular-nums">
+        <thead>
+          <tr>
+            <th>Invoice</th>
+            <th>Date</th>
+            <th>Customer</th>
+            <th>GSTIN</th>
+            <th>Place of supply</th>
+            <th class="right">Taxable</th>
+            <th class="right">CGST</th>
+            <th class="right">SGST</th>
+            <th class="right">IGST</th>
+            <th class="right">Old-gold credit</th>
+            <th class="right">Grand total</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (r of rows(); track r.invoiceGuid) {
+            <tr>
+              <td>{{ r.invoiceNumber }}</td>
+              <td>{{ r.invoiceDate }}</td>
+              <td>{{ r.customerName }}</td>
+              <td>{{ r.customerGstin || '—' }}</td>
+              <td>{{ r.placeOfSupply || '—' }}</td>
+              <td class="right money">{{ formatINR(r.subTotalTaxable) }}</td>
+              <td class="right money">{{ formatINR(r.cgstAmount) }}</td>
+              <td class="right money">{{ formatINR(r.sgstAmount) }}</td>
+              <td class="right money">{{ formatINR(r.igstAmount) }}</td>
+              <td class="right money">{{ formatINR(r.oldGoldCredit) }}</td>
+              <td class="right money">{{ formatINR(r.grandTotal) }}</td>
+              <td><span [class]="statusClass(r.status)">{{ r.status }}</span></td>
+            </tr>
+          }
+        </tbody>
+        @if (rows().length) {
+          <tfoot>
+            <tr class="data-total-row">
+              <td colspan="5">Totals</td>
+              <td class="right money">{{ formatINR(totals().subTotalTaxable) }}</td>
+              <td class="right money">{{ formatINR(totals().cgstAmount) }}</td>
+              <td class="right money">{{ formatINR(totals().sgstAmount) }}</td>
+              <td class="right money">{{ formatINR(totals().igstAmount) }}</td>
+              <td class="right money">{{ formatINR(totals().oldGoldCredit) }}</td>
+              <td class="right money">{{ formatINR(totals().grandTotal) }}</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        }
+      </table>
+    </div>
+  }
+
+</section>

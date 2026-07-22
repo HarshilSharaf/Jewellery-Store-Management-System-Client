@@ -1,51 +1,32 @@
-<ng-container *ngIf="cartItems.length > 0;else cartEmpty">
-    <div class="row mb-4 border border-3 border-info p-3 rounded" *ngFor="let item of cartItems">
-
-        <div class="col-3 align-self-center">
-            <img [src]="item.image" class="border border-2 rounded" width="50" height="50">
+@if (cartItems().length > 0) {
+  <ul class="cart-items">
+    @for (item of cartItems(); track item.productGuid ?? $index) {
+      <li class="cart-items__row">
+        <div class="cart-items__thumb">
+          @if (item.image) { <img [src]="item.image" alt="" loading="lazy"> }
         </div>
-
-        <div class="col align-self-center">
-            <div class="row">
-                <h6>
-
-                    {{item.subCategory}} {{item.masterCategory}}
-
-                </h6>
-
-            </div>
-            <div class="row">
-                <div class="col">
-                    <small class="text-muted">
-                        {{item.productCategory}}
-                    </small>
-                </div>
-
-                <div class="col">
-                    <small class="text-muted">
-                        Wt: {{item.productWeight}}
-                    </small>
-                </div>
-
-
-            </div>
+        <div class="cart-items__body">
+          <div class="cart-items__top">
+            <span class="cart-items__sku">{{ item.sku }}</span>
+            @if (item.huid) { <span class="purity-chip">HUID {{ item.huid }}</span> }
+          </div>
+          <div class="cart-items__meta">
+            <span class="purity-chip">{{ item.purityCode }}</span>
+            <span class="cart-items__dot">·</span>
+            <span class="tabular-nums">Net {{ item.netWeight }}g</span>
+          </div>
         </div>
-
-        <div class="col-2 align-self-center text-center">
-            <button class="btn btn-danger" (click)="removeItem(item)">
-                <i class="fa-solid fa-circle-minus "></i>
-            </button>
-        </div>
-
-    </div>
-</ng-container>
-
-<ng-template #cartEmpty>
-    <div class="row my-5 text-center">
-
-        <div class="maxImage">
-            <img src="./assets/img/cart-empty.png" style="object-fit: contain">
-        </div>
-
-    </div>
-</ng-template>
+        <button type="button" class="icon-btn icon-btn--danger" (click)="removeItem(item)"
+                [attr.aria-label]="'Remove ' + item.sku">
+          <ng-icon name="lucideCircleMinus" aria-hidden="true"></ng-icon>
+        </button>
+      </li>
+    }
+  </ul>
+} @else {
+  <div class="cart-items__empty">
+    <img src="./assets/img/cart-empty.png" alt="" class="cart-items__empty-img">
+    <p class="cart-items__empty-title">Cart is empty</p>
+    <p class="cart-items__empty-sub">Head to Sell to build an invoice.</p>
+  </div>
+}

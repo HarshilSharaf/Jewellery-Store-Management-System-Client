@@ -1,0 +1,76 @@
+.edit-form {
+  padding: 0 24px 20px;
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 20px;
+  }
+}
+
+.preview-callout {
+  margin-top: 8px;
+  padding: 14px 16px;
+  background: color-mix(in oklab, var(--color-accent) 8%, var(--color-bg-subtle));
+  border: 1px solid color-mix(in oklab, var(--color-accent) 25%, transparent);
+  border-radius: var(--radius-md);
+
+  &__title {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--color-accent);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+
+    > div {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      font-size: 13px;
+      color: var(--color-fg);
+    }
+  }
+
+  &__label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-fg-muted);
+    font-weight: 600;
+  }
+
+  &__total {
+    border-left: 1px solid var(--color-border);
+    padding-left: 12px;
+    font-weight: 600;
+  }
+}
+
+html[data-theme="dark"] .preview-callout__title { color: var(--color-accent); }
+
+.animate-spin { animation: spin 0.9s linear infinite; }
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 720px) {
+  .preview-callout__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .preview-callout__total {
+    grid-column: 1 / -1;
+    border-left: 0;
+    border-top: 1px solid var(--color-border);
+    padding: 8px 0 0;
+  }
+}

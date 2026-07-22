@@ -1,119 +1,160 @@
-<div class="card mb-4">
-    <div class="card-header">Product Details</div>
-    <div class="card-body">
-        <form *ngIf="productDetailsForm" [formGroup]="productDetailsForm"
-            (ngSubmit)="updateProductDetails()">
-            
-            <!-- Form Row-->
-            <div class="row gx-3 mb-3">
-                <!-- Form Group (Master Category)-->
-                <div class="col-md-4">
-                    <label class="small mb-1" for="masterCategory">Master Category</label>
-                    <select name="masterCategoryId" class="form-select" formControlName="masterCategoryId">
-                        <option *ngFor="let masterCategoryName of allCategoriesData.masterCategories"
-                            [ngValue]="masterCategoryName.id">
-                            {{masterCategoryName.masterCategoryName}}
-                        </option>
-                    </select>
-                    <!-- Master Category Validation Message -->
-                    <div class="row">
-                        <div class="col text-center">
-                            <span class="text-danger text-bold"
-                                *ngIf="(productDetailsForm.get('masterCategory')?.touched || productDetailsForm.valid) && productDetailsForm.get('masterCategory')?.errors?.['required']">
-                                Master Category is required
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            
-                <!-- Form Group (Sub Category)-->
-                <div class="col-md-4">
-                    <label class="small mb-1" for="subCategory">Sub Category</label>
-                    <select name="subCategoryId" class="form-select" formControlName="subCategoryId">
-                        <option *ngFor="let subCategoryName of allCategoriesData.subCategories" [ngValue]="subCategoryName.id">
-                            {{subCategoryName.subCategoryName}}
-                        </option>
-                    </select>
-                    <!-- Sub Category Validation Message -->
-                    <div class="row">
-                        <div class="col text-center">
-                            <span class="text-danger text-bold"
-                                *ngIf="(productDetailsForm.get('subCategory')?.touched || productDetailsForm.valid) && productDetailsForm.get('subCategory')?.errors?.['required']">
-                                Sub Category is required
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            
-                <!-- Form Group (Product Category)-->
-                <div class="col-md-4">
-                    <label class="small mb-1" for="productCategory">Product Category</label>
-                    <select name="productCategoryId" class="form-select" formControlName="productCategoryId">
-                        <option *ngFor="let productCategoryName of allCategoriesData.productCategories"
-                            [ngValue]="productCategoryName.id">
-                            {{productCategoryName.productCategoryName}}
-                        </option>
-                    </select>
-                    <!-- Product Category Validation Message -->
-                    <div class="row">
-                        <div class="col text-center">
-                            <span class="text-danger text-bold"
-                                *ngIf="(productDetailsForm.get('productCategory')?.touched || productDetailsForm.valid) && productDetailsForm.get('productCategory')?.errors?.['required']">
-                                Product Category is required
-                            </span>
-                        </div>
-                    </div>
-                </div>
+@if (productDetailsForm) {
+  <form [formGroup]="productDetailsForm" (ngSubmit)="updateProductDetails()" novalidate class="edit-form">
+    <section class="form-section">
+      <p class="form-section__title" i18n="@@customer.section.identity">Identity</p>
+      <div class="form-grid">
+        <div>
+          <label class="field-label" for="edit-sku" i18n="@@product.sku">SKU</label>
+          <input class="hlm-input tabular-nums" id="edit-sku" formControlName="sku" />
+        </div>
+        <div>
+          <label class="field-label" for="edit-huid" i18n="@@product.huid">HUID</label>
+          <input class="hlm-input tabular-nums" id="edit-huid" formControlName="huid" maxlength="6" />
+        </div>
+        <div class="form-grid__full">
+          <label class="field-label" for="edit-desc" i18n="@@product.description">Description</label>
+          <textarea class="hlm-input" id="edit-desc" formControlName="productDescription" rows="2"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <p class="form-section__title" i18n="@@product.section.category">Category</p>
+      <div class="form-grid--3">
+        <div>
+          <label class="field-label" for="edit-master" i18n="@@product.master">Master</label>
+          <select class="hlm-input" id="edit-master" formControlName="masterCategoryId">
+            @for (m of allCategoriesData.masterCategories; track m.id) {
+              <option [ngValue]="m.id">{{ m.masterCategoryName }}</option>
+            }
+          </select>
+        </div>
+        <div>
+          <label class="field-label" for="edit-sub" i18n="@@product.sub">Sub</label>
+          <select class="hlm-input" id="edit-sub" formControlName="subCategoryId">
+            @for (s of allCategoriesData.subCategories; track s.id) {
+              <option [ngValue]="s.id">{{ s.subCategoryName }}</option>
+            }
+          </select>
+        </div>
+        <div>
+          <label class="field-label" for="edit-pc" i18n="@@product.product-category">Product</label>
+          <select class="hlm-input" id="edit-pc" formControlName="productCategoryId">
+            @for (pc of allCategoriesData.productCategories; track pc.id) {
+              <option [ngValue]="pc.id">{{ pc.productCategoryName }}</option>
+            }
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <p class="form-section__title" i18n="@@product.section.metal-weight">Metal & weight</p>
+      <div class="form-grid--3">
+        <div>
+          <label class="field-label" for="edit-purity" i18n="@@product.purity">Purity</label>
+          <select class="hlm-input" id="edit-purity" formControlName="purityCode">
+            @for (p of purities; track p.code) {
+              <option [ngValue]="p.code">{{ p.label }} {{ p.metalType }} - {{ p.fineness }}</option>
+            }
+          </select>
+        </div>
+        <div>
+          <label class="field-label" for="edit-hsn" i18n="@@product.hsn">HSN</label>
+          <input class="hlm-input tabular-nums" id="edit-hsn" formControlName="hsnCode" />
+        </div>
+        <div></div>
+        <div>
+          <label class="field-label" for="edit-gross" i18n="@@product.gross-weight.short">Gross wt (g)</label>
+          <input class="hlm-input tabular-nums" id="edit-gross" type="number" step="0.001" formControlName="grossWeight" (change)="onGrossOrNetChange()" />
+        </div>
+        <div>
+          <label class="field-label" for="edit-net" i18n="@@product.net-weight.short">Net wt (g)</label>
+          <input class="hlm-input tabular-nums" id="edit-net" type="number" step="0.001" formControlName="netWeight" (change)="onGrossOrNetChange()" />
+        </div>
+        <div>
+          <label class="field-label" for="edit-stone" i18n="@@product.stone-weight">Stone wt (g)</label>
+          <input class="hlm-input tabular-nums" id="edit-stone" type="number" step="0.001" formControlName="stoneWeight" />
+        </div>
+        <div class="form-grid__full">
+          <label class="field-label" for="edit-stone-charges" i18n="@@product.stone-charges">Stone charges (INR)</label>
+          <input class="hlm-input tabular-nums" id="edit-stone-charges" type="number" step="0.01" formControlName="stoneCharges" />
+        </div>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <p class="form-section__title" i18n="@@product.section.making-wastage">Making & wastage</p>
+      <div class="form-grid--3">
+        <div class="form-grid__full">
+          <label class="field-label" i18n="@@product.making-mode">Making mode</label>
+          <div class="radio-pills">
+            <label class="radio-pill" [class.is-active]="productDetailsForm.value.makingMode === 'flat'">
+              <input type="radio" formControlName="makingMode" value="flat"> <span i18n="@@product.making-mode.flat">Flat</span>
+            </label>
+            <label class="radio-pill" [class.is-active]="productDetailsForm.value.makingMode === 'perGram'">
+              <input type="radio" formControlName="makingMode" value="perGram"> <span i18n="@@product.making-mode.per-gram">Per gram</span>
+            </label>
+            <label class="radio-pill" [class.is-active]="productDetailsForm.value.makingMode === 'percent'">
+              <input type="radio" formControlName="makingMode" value="percent"> <span i18n="@@product.making-mode.percent">Percent</span>
+            </label>
+          </div>
+        </div>
+        <div>
+          <label class="field-label" for="edit-making-value" i18n="@@product.making-value">Making value</label>
+          <input class="hlm-input tabular-nums" id="edit-making-value" type="number" step="0.01" formControlName="makingValue" />
+        </div>
+        <div>
+          <label class="field-label" for="edit-wastage" i18n="@@product.wastage-percent">Wastage %</label>
+          <input class="hlm-input tabular-nums" id="edit-wastage" type="number" step="0.01" formControlName="wastagePercent" />
+        </div>
+        <div></div>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <p class="form-section__title" i18n="@@product.section.pricing">Pricing</p>
+      <div class="form-grid">
+        @if (permissions.costsVisible()) {
+          <div>
+            <label class="field-label" for="edit-cost" i18n="@@product.cost-price">Cost price (INR)</label>
+            <input class="hlm-input tabular-nums" id="edit-cost" type="number" step="0.01" formControlName="costPrice" />
+            <div class="field-help" i18n="@@product.cost-price.help">Admin only</div>
+          </div>
+        }
+        <div>
+          <label class="field-label" for="edit-tag" i18n="@@product.tag-price">Tag price (INR)</label>
+          <input class="hlm-input tabular-nums" id="edit-tag" type="number" step="0.01" formControlName="tagPrice" />
+        </div>
+        @if (computedPreview) {
+          <div class="form-grid__full preview-callout">
+            <span class="preview-callout__title">Computed at today's rate</span>
+            <div class="preview-callout__grid">
+              <div><span class="preview-callout__label">Metal</span><span class="tabular-nums">{{ formatINR(computedPreview.metal) }}</span></div>
+              <div><span class="preview-callout__label">Making</span><span class="tabular-nums">{{ formatINR(computedPreview.making) }}</span></div>
+              <div><span class="preview-callout__label">Wastage</span><span class="tabular-nums">{{ formatINR(computedPreview.wastage) }}</span></div>
+              <div><span class="preview-callout__label">Stones</span><span class="tabular-nums">{{ formatINR(computedPreview.stones) }}</span></div>
+              <div class="preview-callout__total"><span class="preview-callout__label">Approx. floor</span><span class="tabular-nums">{{ formatINR(computedPreview.total) }}</span></div>
             </div>
+          </div>
+        }
+      </div>
+    </section>
 
-            <!-- Form Row -->
-            <div class="row gx-3 mb-3">
-                <!-- Form Group (Product Description)-->
-                <div class="col-md-6">
-                    <label class="small mb-1" for="Description">Product Description</label>
-                    <textarea class="form-control" name="productDescription" formControlName="productDescription"
-                        placeholder="Enter Description" style="height: 100px"></textarea>
-
-                </div>
-                <!-- Form Group (ProductWeight)-->
-                <div class="col-md-6">
-                    <label class="small mb-1" for="productWeight">Product Weight</label>
-                    <input type="text" name="productWeight" class="form-control" id="productWeight" formControlName="productWeight">
-                    <div class="row">
-                        <div class="col text-center">
-                            <span class="text-danger text-bold"
-                                *ngIf="(productDetailsForm.get('productWeight')?.touched || productDetailsForm.valid) && productDetailsForm.get('productWeight')?.errors?.['required']">
-                                Product Weight Cannot be empty
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Save changes button-->
-            <div class="row text-center">
-                <div class="col">
-
-                    <button class="btn btn-primary mx-4" [ngClass]="{'disabled': !productDetailsForm.dirty ||
-                        !productDetailsForm.valid}" type="submit">
-
-                        <div *ngIf="isLoading">
-                            <i class="fa fa-spinner fa-spin"></i>
-                        </div>
-                        <div *ngIf="!isLoading">
-                            <i class="fa-solid fa-floppy-disk"></i> Save changes
-
-                        </div>
-                    </button>
-
-                    <button class="btn btn-danger mx-4 mt-xs-2 mt-md-0"
-                        [ngClass]="{'disabled': !productDetailsForm.dirty}"
-                        type="button" (click)="resetForm()">
-                        <i class="fa-solid fa-rotate-left"></i> Reset
-                    </button>
-                </div>
-            </div>
-
-        </form>
+    <div class="edit-form__actions">
+      <button type="button" class="hlm-btn hlm-btn-ghost" (click)="resetForm()" [disabled]="!productDetailsForm.dirty">
+        <ng-icon name="lucideRotateCcw" size="14" aria-hidden="true"></ng-icon>
+        <span i18n="@@buttons.reset">Reset</span>
+      </button>
+      <button type="submit" class="hlm-btn hlm-btn-primary" [disabled]="!productDetailsForm.dirty || !productDetailsForm.valid || isLoading">
+        @if (isLoading) {
+          <ng-icon name="lucideLoader" size="14" aria-hidden="true" class="animate-spin"></ng-icon>
+          <span i18n="@@buttons.saving">Saving...</span>
+        } @else {
+          <ng-icon name="lucideSave" size="14" aria-hidden="true"></ng-icon>
+          <span i18n="@@buttons.save-changes">Save changes</span>
+        }
+      </button>
     </div>
-</div>
+  </form>
+}

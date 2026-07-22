@@ -1,0 +1,40 @@
+<div class="preview-shell">
+
+  <header class="preview-topbar no-print">
+    <button type="button" class="icon-btn" (click)="goBack()" aria-label="Back">
+      <ng-icon name="lucideArrowLeft" aria-hidden="true"></ng-icon>
+    </button>
+    <div class="preview-topbar__title font-serif">Invoice preview</div>
+    <div class="preview-topbar__spacer"></div>
+    <div class="radio-pill-row" role="group" aria-label="Print variant">
+      <button type="button" class="radio-pill" [class.is-active]="variant() === 'A4'"
+              (click)="setVariant('A4')">A4</button>
+      <button type="button" class="radio-pill" [class.is-active]="variant() === '80mm'"
+              (click)="setVariant('80mm')">80mm</button>
+    </div>
+    <button type="button" class="hlm-btn hlm-btn-primary" (click)="print()">
+      <ng-icon name="lucidePrinter" aria-hidden="true"></ng-icon>
+      <span>Print</span>
+    </button>
+  </header>
+
+  @if (loading()) {
+    <div class="preview-status no-print">Loading invoice…</div>
+  } @else if (invoice()) {
+    <div class="preview-canvas" [attr.data-variant]="variant()">
+      <div class="preview-page">
+        <app-print-invoice
+          [InvoiceData]="invoice()"
+          [showToolbar]="false"
+          [variantInput]="variant()">
+        </app-print-invoice>
+      </div>
+    </div>
+  } @else {
+    <div class="preview-status no-print">
+      No invoice data.
+      <button type="button" class="hlm-btn hlm-btn-ghost" (click)="goBack()">Return</button>
+    </div>
+  }
+
+</div>

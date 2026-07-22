@@ -1,0 +1,114 @@
+@if (open) {
+  <div class="modal-overlay" (click)="onOverlayClick($event)" role="presentation">
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="enroll-scheme-title">
+      <header class="modal-header">
+        <div>
+          <h2 class="modal-title" id="enroll-scheme-title">Enrol a saving scheme</h2>
+          <p class="modal-subtitle">Golden Harvest style monthly plan</p>
+        </div>
+        <button type="button" class="icon-btn" (click)="requestClose()" aria-label="Close" [disabled]="saving()">
+          <ng-icon name="lucideX" size="18" aria-hidden="true"></ng-icon>
+        </button>
+      </header>
+
+      <form [formGroup]="form" class="modal-content" (ngSubmit)="submitForm()" novalidate>
+
+        <section class="form-section">
+          <p class="form-section__title">Customer</p>
+          @if (presetCustomer) {
+            <div class="picked-customer">
+              <span class="avatar avatar--sm">{{ (presetCustomer.firstName?.[0] ?? '') + (presetCustomer.lastName?.[0] ?? '') }}</span>
+              <div>
+                <div class="picked-customer__name">{{ presetCustomer.customerName }}</div>
+                <div class="picked-customer__meta tabular-nums">{{ presetCustomer.phoneNumber }}</div>
+              </div>
+            </div>
+          } @else {
+            <div class="customer-picker">
+              <div class="customer-picker__field">
+                <ng-icon name="lucideSearch" class="customer-picker__icon" aria-hidden="true"></ng-icon>
+                <input
+                  class="hlm-input"
+                  type="search"
+                  placeholder="Search by name or phone"
+                  [value]="customerSearch()"
+                  (input)="onCustomerSearch($any($event.target).value)"
+                  autocomplete="off" />
+              </div>
+              @if (showResults() && customerResults().length > 0) {
+                <ul class="customer-picker__list">
+                  @for (c of customerResults(); track c.customerGuid) {
+                    <li class="customer-picker__item" (click)="pickCustomer(c)">
+                      <span class="avatar avatar--sm">{{ (c.firstName?.[0] ?? '') + (c.lastName?.[0] ?? '') }}</span>
+                      <span>
+                        <span class="customer-picker__name">{{ c.customerName }}</span>
+                        <span class="customer-picker__meta tabular-nums">{{ c.phoneNumber }} @if (c.city) { &nbsp;•&nbsp;{{ c.city }} }</span>
+                      </span>
+                    </li>
+                  }
+                </ul>
+              }
+              @if (selectedCustomer()) {
+                <div class="picked-customer">
+                  <span class="avatar avatar--sm">{{ (selectedCustomer()?.firstName?.[0] ?? '') + (selectedCustomer()?.lastName?.[0] ?? '') }}</span>
+                  <div>
+                    <div class="picked-customer__name">{{ selectedCustomer()?.customerName }}</div>
+                    <div class="picked-customer__meta tabular-nums">{{ selectedCustomer()?.phoneNumber }}</div>
+                  </div>
+                  <button type="button" class="icon-btn" (click)="clearCustomer()" aria-label="Clear customer">
+                    <ng-icon name="lucideX" size="14" aria-hidden="true"></ng-icon>
+                  </button>
+                </div>
+              }
+            </div>
+          }
+        </section>
+
+        <section class="form-section">
+          <p class="form-section__title">Plan</p>
+          <div class="form-grid">
+            <div>
+              <label class="field-label" for="planName">Plan name</label>
+              <input class="hlm-input" id="planName" formControlName="planName" />
+            </div>
+            <div>
+              <label class="field-label" for="monthlyAmount">Monthly amount</label>
+              <div class="amount-input">
+                <span class="amount-input__prefix">&#8377;</span>
+                <input class="hlm-input amount-input__field tabular-nums"
+                  id="monthlyAmount" type="number" min="1" step="1" formControlName="monthlyAmount" />
+              </div>
+            </div>
+            <div>
+              <label class="field-label" for="tenureMonths">Tenure (months)</label>
+              <input class="hlm-input tabular-nums" id="tenureMonths" type="number" min="1" step="1" formControlName="tenureMonths" />
+            </div>
+            <div>
+              <label class="field-label" for="bonusInstallments">Bonus installments</label>
+              <input class="hlm-input tabular-nums" id="bonusInstallments" type="number" min="0" step="1" formControlName="bonusInstallments" />
+              <div class="field-help">Shop's contribution on top of customer's installments.</div>
+            </div>
+          </div>
+        </section>
+
+        @if (errorMessage()) {
+          <div class="form-response form-response--error">{{ errorMessage() }}</div>
+        }
+      </form>
+
+      <footer class="modal-actions">
+        <button type="button" class="hlm-btn hlm-btn-ghost" (click)="clearForm()" [disabled]="saving()">Clear</button>
+        <button type="button" class="hlm-btn hlm-btn-primary" (click)="submitForm()"
+                [disabled]="!form.valid || !selectedCustomer() || saving()">
+          @if (saving()) {
+            <ng-icon name="lucideLoader" class="animate-spin" size="14" aria-hidden="true"></ng-icon>
+            <span>Saving…</span>
+          } @else {
+            <ng-icon name="lucidePiggyBank" size="14" aria-hidden="true"></ng-icon>
+            <span>Enrol scheme</span>
+          }
+        </button>
+      </footer>
+    </div>
+  </div>
+}

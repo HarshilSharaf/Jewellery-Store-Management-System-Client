@@ -1,0 +1,321 @@
+.books-shell {
+  display: block;
+  width: 100%;
+}
+
+.books-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+
+  &__search {
+    position: relative;
+    flex: 1 1 320px;
+    min-width: 240px;
+    max-width: 460px;
+  }
+
+  &__search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-fg-muted);
+    pointer-events: none;
+    display: inline-flex;
+  }
+
+  &__search-input {
+    padding-left: 36px;
+  }
+
+  &__dates {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--color-fg-muted);
+    flex-wrap: wrap;
+  }
+
+  &__dates-icon {
+    display: inline-flex;
+    color: var(--color-fg-muted);
+    margin-right: 2px;
+  }
+
+  &__date {
+    width: 150px;
+    padding: 8px 10px;
+    font-variant-numeric: tabular-nums;
+    color-scheme: light;
+  }
+
+  html[data-theme="dark"] &__date { color-scheme: dark; }
+
+  &__dash {
+    color: var(--color-fg-subtle);
+  }
+
+  &__status {
+    margin-left: auto;
+  }
+}
+
+.books-table-wrap {
+  background: var(--color-panel);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.books-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  color: var(--color-fg);
+
+  thead {
+    background: var(--color-bg-subtle);
+    th {
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--color-fg-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--color-border-subtle);
+    }
+    th.col-amount { text-align: right; }
+    th.col-items { text-align: right; }
+    th.col-actions { width: 130px; }
+    th.col-status { width: 120px; }
+  }
+
+  tbody {
+    tr.books-row {
+      height: 44px;
+      cursor: pointer;
+      outline: none;
+      transition: background 0.12s ease;
+
+      td {
+        padding: 10px 14px;
+        border-bottom: 1px solid var(--color-border-subtle);
+        vertical-align: middle;
+      }
+
+      &:hover, &:focus-visible {
+        background: var(--color-bg-subtle);
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--color-accent);
+        outline-offset: -2px;
+      }
+
+      &:last-child td { border-bottom: 0; }
+
+      &.is-cancelled {
+        .books-row__invoice, .books-row__customer, .money {
+          color: var(--color-fg-muted);
+        }
+      }
+    }
+
+    tr.is-skeleton td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--color-border-subtle);
+    }
+  }
+
+  .col-amount { text-align: right; font-variant-numeric: tabular-nums; }
+  .col-items { text-align: right; }
+  .col-invoice { font-weight: 500; }
+}
+
+.books-row__invoice {
+  font-size: 14px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-fg);
+}
+
+.books-row__customer {
+  font-size: 14px;
+  color: var(--color-fg);
+}
+
+.books-row__muted {
+  font-size: 13px;
+  color: var(--color-fg-muted);
+}
+
+.books-row__actions {
+  display: inline-flex;
+  gap: 4px;
+  justify-content: flex-end;
+
+  .icon-btn:disabled {
+    opacity: 0.4;
+    pointer-events: none;
+  }
+}
+
+.books-skeleton-line {
+  height: 14px;
+  background: var(--color-bg-subtle);
+  border-radius: 4px;
+  animation: books-skeleton-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes books-skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.books-empty-row td {
+  padding: 40px 20px;
+}
+
+.books-empty {
+  text-align: center;
+  color: var(--color-fg-muted);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+
+  &__icon {
+    color: var(--color-fg-subtle);
+    display: inline-flex;
+    font-size: 32px;
+  }
+
+  &__title {
+    margin: 0;
+    color: var(--color-fg);
+    font-weight: 500;
+  }
+}
+
+.books-pagination {
+  margin-top: 12px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+@media (max-width: 1023px) {
+  .books-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .books-table {
+    min-width: 720px;
+  }
+}
+
+@media (max-width: 767px) {
+  .books-toolbar {
+    gap: 10px;
+
+    &__search {
+      flex: 1 1 100%;
+      max-width: none;
+    }
+
+    &__dates {
+      flex-wrap: wrap;
+    }
+
+    &__date {
+      width: 130px;
+      flex: 1 1 130px;
+    }
+
+    &__status {
+      margin-left: 0;
+      width: 100%;
+
+      .radio-pill-row {
+        flex-wrap: wrap;
+      }
+    }
+  }
+
+  // Card-view fallback: repaint every row as a stacked card.
+  .books-table-wrap {
+    overflow: visible;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+  .books-table {
+    display: block;
+    min-width: 0;
+
+    thead { display: none; }
+
+    tbody, tr { display: block; }
+
+    tbody tr.books-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 12px 14px;
+      height: auto;
+      min-height: 0;
+      background: var(--color-panel);
+      border: 1px solid var(--color-border-subtle);
+      border-radius: var(--radius-md);
+      margin-bottom: 8px;
+
+      td {
+        padding: 0;
+        border-bottom: 0;
+        display: block;
+      }
+
+      // Row 1: invoice # + actions
+      .col-invoice {
+        order: 1;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      // Row 2: customer + amount
+      .col-customer {
+        order: 2;
+      }
+      .col-amount {
+        order: 2;
+        text-align: right;
+        font-weight: 500;
+      }
+      // Meta line
+      .col-date, .col-items, .col-status {
+        order: 3;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--color-fg-muted);
+        font-size: 12px;
+      }
+      .col-actions {
+        order: 4;
+        display: flex;
+        justify-content: flex-end;
+      }
+      .books-row__actions {
+        opacity: 1 !important;
+      }
+    }
+  }
+
+  .books-empty-row td {
+    display: block;
+    padding: 20px 12px;
+  }
+}

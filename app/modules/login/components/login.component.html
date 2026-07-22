@@ -1,60 +1,100 @@
-<ng-particles [id]="id" [options]="particlesOptions"></ng-particles>
-<div class="container py-0 main-container  my-5 animate__animated animate__zoomIn" id="login-main-container">
-    <div class="row">
-      <!-- <ngb-alert [dismissible]="false" [type]="'danger'" [ngClass] = "alertClasses">{{errorMessage}}</ngb-alert> -->
-    </div>
-    
-    <div class="row h-100">
-        <div class="col form-container d-flex align-items-center justify-content-center">
-            <div class="container inner-container">
-                <div class="row animate__animated animate__slideInLeft" id="welcome-msg">
-                    <h2 style="float: left;">Welcome Back!</h2>
-                </div>
-                <div class="row animate__animated animate__slideInRight">
-                    <p style="color: rgb(67, 67, 67);">Enter your login credentials to start using the app.</p>
-                </div>
-                <div class="row">
-                    <div class="col">
-                        <form class="form-inline">
-                            <div class="animate__animated  animate__lightSpeedInLeft">
-                                <div class="row form-group ">
-                                    <label class="col-4 align-self-center" for="Username"><b>Username</b></label>
-                                    <input type="email" class="form-control col" name="username" id="Username"
-                                        aria-describedby="usernameHelp" placeholder="Enter Username"
-                                        [(ngModel)]="credentials.username">
-                                </div>
-                                <div class="row my-3 form-group">
-                                    <label for="password" class="col-4 align-self-center"><b>Password</b></label>
-                                    <input type="password" name="password" class="form-control col" id="password"
-                                        placeholder="Enter Password" [(ngModel)]="credentials.password">
-                                </div>
-                                <div class="row">
-                                    <div class="col ">
-                                        <a href="" style="float: right;"><b>Forgot Password?</b></a>
-                                    </div>
-    
-                                </div>
-                            </div>
+<div class="login-page">
+  <button type="button"
+          class="theme-toggle inline-grid place-items-center rounded-full border border-border bg-panel text-fg hover:bg-panel-hover transition-colors active:scale-95"
+          (click)="toggleTheme()"
+          [attr.aria-label]="themeService.isDark() ? 'Switch to light theme' : 'Switch to dark theme'">
+    <ng-icon [name]="themeService.isDark() ? 'lucideSun' : 'lucideMoon'" size="18" aria-hidden="true"></ng-icon>
+  </button>
 
-                            <hr />
-                            <div class="row animate__animated  animate__lightSpeedInRight">
-                                <button type="submit" (click)="login($event)" class="btn btn-primary">Log in</button>
-                            </div>
-                            <!-- <div class="row">
-                                <button type="submit" (click)="checkLogin($event)" class="btn btn-primary">Check  Login</button>
-                            </div> -->
-                            
-                        </form>
-                    </div>
+  <div class="login-shell">
+    <aside class="brand-side">
+      <div class="brand-mark">
+        <span class="brand-monogram" aria-hidden="true">R</span>
+        <div class="brand-wordmark">
+          <span class="brand-primary">Radiance</span>
+          <span class="brand-secondary">Jewellers</span>
+        </div>
+      </div>
 
-                </div>
+      <div class="brand-hero">
+        <p class="hero-eyebrow" i18n="@@login.hero.eyebrow">Modern POS for jewellers</p>
+        <h1 class="hero-title" i18n="@@login.hero.title">
+          Bills that clear the counter <em>faster</em>.
+        </h1>
+        <p class="hero-body" i18n="@@login.hero.body">
+          Warm, keyboard-first, offline-ready.
+          Built for shops that price by purity, not by department.
+        </p>
+      </div>
 
+      <div class="brand-foot">
+        <span class="dot" aria-hidden="true"></span>
+        <span i18n="@@login.local-first">Local-first &middot; No cloud lock-in</span>
+      </div>
+    </aside>
+
+    <section class="form-side" aria-labelledby="loginTitle">
+      <div class="form-shell">
+        <header class="form-head">
+          <h2 id="loginTitle" class="form-title" i18n="@@login.sign-in">Sign in</h2>
+          <p class="form-sub" i18n="@@login.sub">Use your shop account to continue.</p>
+        </header>
+
+        @if (showError) {
+          <div class="notice notice-danger" role="alert">
+            <ng-icon name="lucideCircleAlert" size="18" aria-hidden="true"></ng-icon>
+            <span>{{ errorMessage }}</span>
+          </div>
+        }
+
+        <form [formGroup]="form" (ngSubmit)="login($event)" novalidate>
+          <div class="field">
+            <label for="username" i18n="@@login.username">Username</label>
+            <div class="control">
+              <input id="username"
+                     type="text"
+                     autocomplete="username"
+                     i18n-placeholder="@@login.username.placeholder"
+                     placeholder="e.g. shop.admin"
+                     formControlName="username"
+                     class="hlm-input"
+                     [class.is-invalid]="form.controls.username.invalid && form.controls.username.touched">
             </div>
-        </div>
+          </div>
 
-        <div class="col p-0 company-logo-column">
-            <app-company-logo></app-company-logo>
-        </div>
+          <div class="field">
+            <div class="field-head">
+              <label for="password" i18n="@@login.password">Password</label>
+              <a href="#" class="link-muted" (click)="$event.preventDefault()" i18n="@@login.forgot">Forgot?</a>
+            </div>
+            <div class="control">
+              <input id="password"
+                     type="password"
+                     autocomplete="current-password"
+                     i18n-placeholder="@@login.password.placeholder"
+                     placeholder="Enter your password"
+                     formControlName="password"
+                     class="hlm-input"
+                     [class.is-invalid]="form.controls.password.invalid && form.controls.password.touched">
+            </div>
+          </div>
 
-    </div>
+          <button type="submit"
+                  class="hlm-btn hlm-btn-primary w-full mt-2"
+                  [disabled]="submitting">
+            @if (submitting) {
+              <span i18n="@@login.signing-in">Signing in...</span>
+            } @else {
+              <span i18n="@@login.sign-in">Sign in</span>
+              <ng-icon name="lucideArrowRight" size="16" aria-hidden="true" class="btn-arrow"></ng-icon>
+            }
+          </button>
+        </form>
+
+        <p class="form-legal">
+          <span i18n="@@login.device-only">You are signed in only on this device.</span>
+        </p>
+      </div>
+    </section>
+  </div>
 </div>

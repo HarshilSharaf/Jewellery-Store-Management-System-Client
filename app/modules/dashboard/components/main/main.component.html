@@ -1,27 +1,202 @@
-<div class="main-container">
-  <app-page-header [pageName]="'Dashboard'"></app-page-header>
+<div class="dash">
+  <!-- Row 1: title + date -->
+  <header class="dash__head">
+    <h1 class="dash__title font-serif" i18n="@@dashboard.title">Today</h1>
+    <span class="dash__date tabular-nums">{{ today }}</span>
+  </header>
 
-  <div class="row">
-    <ng-container *ngFor="let cardData of cards">
-      <div class="col">
-      <app-info-card [cardData]="cardData" ></app-info-card>
-    </div>
-    </ng-container>
-  </div>
+  <!-- Row 2: revenue chart (col-span-8) + lock-rate card (col-span-4) -->
+  <section class="dash__row dash__row--primary">
+    <article class="card card--revenue">
+      <header class="card__head">
+        <div>
+          <p class="card__eyebrow" i18n="@@dashboard.revenue">Revenue</p>
+          <p class="card__value font-serif tabular-nums">{{ formatINR(revenueTotal) }}</p>
+        </div>
+        <div class="card__delta">
+          @if (revenueDelta !== null) {
+            <span class="delta tabular-nums" [class.delta--up]="revenueDelta >= 0" [class.delta--down]="revenueDelta < 0">
+              <ng-icon [name]="revenueDelta >= 0 ? 'lucideTrendingUp' : 'lucideTrendingDown'" size="14" aria-hidden="true"></ng-icon>
+              {{ revenueDelta | number:'1.0-1' }}%
+            </span>
+            <span class="delta__label" i18n="@@dashboard.vs-prev">vs previous period</span>
+          }
+        </div>
+      </header>
 
-  <div class="row">
-    <div class="col-12 col-xl-6 mb-4">
-        <app-bar-chart [monthlySalesAndLabour]="monthlySalesAndLabour"></app-bar-chart>
-    </div>
-    <div class="col-12 col-xl-6 mb-4 align-items-stretch">
-      <app-pie-chart [topSellingProducts]="topSellingProducts"></app-pie-chart>
-    </div>
-  </div>
+      <div class="chart-wrap">
+        @if (monthlySales.length) {
+          <canvas #revenueChart></canvas>
+        } @else {
+          <div class="empty-state">
+            <ng-icon name="lucideChartLine" size="24" aria-hidden="true"></ng-icon>
+            <span i18n="@@dashboard.no-revenue">No revenue on file yet</span>
+          </div>
+        }
+      </div>
+    </article>
 
-  <div class="row">
-    <div class="col">
-      <app-recent-orders [recentOrders]="recentOrders"></app-recent-orders>
-    </div>
-  </div>
+    <article class="card card--rate">
+      <header class="card__head">
+        <div>
+          <p class="card__eyebrow" i18n="@@rate.lock-today">Lock today's rate</p>
+          <p class="card__value font-serif tabular-nums">
+            @if (ratesLoaded && rate22k !== null) {
+              &#8377;{{ rate22k | number:'1.0-0' }}<span class="unit">/g</span>
+            } @else if (ratesLoaded) {
+              --
+            } @else {
+              &nbsp;
+            }
+          </p>
+          <p class="card__sub">22K &middot; 916 fineness</p>
+        </div>
+      </header>
+      <footer class="card__foot">
+        <button type="button" class="hlm-btn hlm-btn-primary" (click)="goToLockRate()">
+          <ng-icon name="lucideLock" size="14" aria-hidden="true"></ng-icon>
+          <span i18n="@@rate.lock">Lock rate</span>
+        </button>
+        @if (ratesLoaded && rate22k === null) {
+          <p class="empty-inline">
+            <ng-icon name="lucideInbox" size="14" aria-hidden="true"></ng-icon>
+            <span i18n="@@rate.no-rate-today">No rate on file for today</span>
+          </p>
+        }
+      </footer>
+    </article>
+  </section>
 
+  <!-- Row 3: recent invoices (col-span-6) + fast movers (col-span-6) -->
+  <section class="dash__row dash__row--halves">
+    <article class="card card--list">
+      <header class="card__head card__head--split">
+        <div>
+          <p class="card__eyebrow" i18n="@@dashboard.recent-invoices">Recent invoices</p>
+        </div>
+        <a class="link-muted" routerLink="/orders">
+          <span i18n="@@common.view-all">View all</span>
+          <ng-icon name="lucideArrowRight" size="12" aria-hidden="true"></ng-icon>
+        </a>
+      </header>
+      <ul class="list">
+        @for (o of recentOrders; track trackByOrder(0, o)) {
+          <li class="list__row list__row--clickable"
+              [routerLink]="['/orders/view-order-details', o.invoiceGuid]">
+            <div class="list__main">
+              <span class="list__title tabular-nums">{{ o.invoiceNumber ?? '#' + o.id }}</span>
+              <span class="list__sub">{{ customerName(o) }}</span>
+            </div>
+            <span class="list__amount tabular-nums">{{ formatINR(o.grandTotal ?? o.totalAmountWithGst) }}</span>
+          </li>
+        }
+        @if (recentOrdersLoaded && !recentOrders.length) {
+          <li class="empty-state empty-state--card">
+            <ng-icon name="lucideInbox" size="24" aria-hidden="true"></ng-icon>
+            <span i18n="@@orders.empty">No invoices yet</span>
+          </li>
+        }
+        @if (!recentOrdersLoaded) {
+          @for (i of [0,1,2,3,4]; track i) {
+            <li class="list__row list__row--skeleton" aria-hidden="true">
+              <span class="sk sk-line"></span>
+            </li>
+          }
+        }
+      </ul>
+    </article>
+
+    <article class="card card--list">
+      <header class="card__head card__head--split">
+        <div>
+          <p class="card__eyebrow" i18n="@@dashboard.fast-movers">Fast movers</p>
+          <p class="card__sub" i18n="@@dashboard.fast-movers.sub">Top product categories</p>
+        </div>
+      </header>
+      <ul class="list">
+        @for (m of fastMovers; track trackByMover(0, m); let idx = $index) {
+          <li class="list__row">
+            <span class="rank tabular-nums">{{ idx + 1 }}</span>
+            <div class="thumb" aria-hidden="true">
+              <ng-icon name="lucideGem" size="14"></ng-icon>
+            </div>
+            <div class="list__main">
+              <span class="list__title">{{ m.productCategoryName | titlecase }}</span>
+              <span class="list__sub tabular-nums">{{ m.total_weight }}<span i18n="@@units.grams-moved">g moved</span></span>
+            </div>
+            <span class="list__amount tabular-nums">{{ m.percentage | number:'1.0-1' }}%</span>
+          </li>
+        }
+        @if (fastMoversLoaded && !fastMovers.length) {
+          <li class="empty-state empty-state--card">
+            <ng-icon name="lucideInbox" size="24" aria-hidden="true"></ng-icon>
+            <span i18n="@@dashboard.analytics-soon">Analytics coming soon</span>
+          </li>
+        }
+        @if (!fastMoversLoaded) {
+          @for (i of [0,1,2,3,4]; track i) {
+            <li class="list__row list__row--skeleton" aria-hidden="true">
+              <span class="sk sk-line"></span>
+            </li>
+          }
+        }
+      </ul>
+    </article>
+  </section>
+
+  <!-- Row 4: three KPI tiles (col-span-4 each) -->
+  <section class="dash__row dash__row--thirds">
+    <article class="kpi-card">
+      <div class="kpi-row">
+        <p class="kpi-label" i18n="@@dashboard.total-customers">Total customers</p>
+        <span class="kpi-icon" aria-hidden="true">
+          <ng-icon name="lucideUsers" size="16"></ng-icon>
+        </span>
+      </div>
+      <p class="kpi-value">{{ totalCustomers !== null ? formatNumber(totalCustomers) : '--' }}</p>
+      @if (customersDelta !== null) {
+        <p class="kpi-delta" [class.kpi-delta-up]="customersDelta >= 0" [class.kpi-delta-down]="customersDelta < 0">
+          <ng-icon [name]="customersDelta >= 0 ? 'lucideTrendingUp' : 'lucideTrendingDown'" size="12" aria-hidden="true"></ng-icon>
+          <span>{{ customersDelta | number:'1.0-1' }}% vs previous period</span>
+        </p>
+      }
+    </article>
+
+    <article class="kpi-card">
+      <div class="kpi-row">
+        <p class="kpi-label" i18n="@@dashboard.stock-grams">Stock (grams)</p>
+        <span class="kpi-icon" aria-hidden="true">
+          <ng-icon name="lucidePackage" size="16"></ng-icon>
+        </span>
+      </div>
+      <p class="kpi-value">{{ totalStockGrams !== null ? formatNumber(totalStockGrams) : '--' }}<span class="unit-small">g</span></p>
+      @if (stockDelta !== null) {
+        <p class="kpi-delta" [class.kpi-delta-up]="stockDelta >= 0" [class.kpi-delta-down]="stockDelta < 0">
+          <ng-icon [name]="stockDelta >= 0 ? 'lucideTrendingUp' : 'lucideTrendingDown'" size="12" aria-hidden="true"></ng-icon>
+          <span>{{ stockDelta | number:'1.0-1' }}% vs previous period</span>
+        </p>
+      }
+    </article>
+
+    <article class="kpi-card">
+      <div class="kpi-row">
+        <p class="kpi-label" i18n="@@dashboard.pending-payments">Pending payments</p>
+        <span class="kpi-icon" aria-hidden="true">
+          <ng-icon name="lucideWallet" size="16"></ng-icon>
+        </span>
+      </div>
+      <p class="kpi-value">
+        @if (pendingLoaded) {
+          {{ formatINR(pendingAmount ?? 0) }}
+        } @else {
+          --
+        }
+      </p>
+      @if (pendingLoaded) {
+        <p class="kpi-delta">
+          <span>{{ pendingCount ?? 0 }} open invoice{{ (pendingCount ?? 0) === 1 ? '' : 's' }}</span>
+        </p>
+      }
+    </article>
+  </section>
 </div>

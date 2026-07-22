@@ -1,0 +1,347 @@
+:host {
+  display: block;
+}
+
+.repair-detail {
+  display: block;
+}
+
+// Consolidated header: title row (back / number / primary action / overflow)
+// plus a muted meta strip beneath.
+.repair-head {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-border-subtle);
+
+  &__row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+
+    &--meta {
+      color: var(--color-fg-muted);
+      font-size: 12px;
+      padding-left: 44px;
+    }
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1.75rem;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    font-weight: 400;
+    color: var(--color-fg);
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    @media (max-width: 767px) { font-size: 1.35rem; }
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+  }
+
+  &__advance {
+    gap: 6px;
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+
+  &__meta-item {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  &__dot {
+    color: var(--color-fg-subtle);
+  }
+
+  // Overflow menu — hand-rolled dropdown anchored to the ellipsis button.
+  &__menu {
+    position: relative;
+  }
+
+  &__menu-list {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    min-width: 200px;
+    background: var(--color-panel);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    padding: 4px;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  &__menu-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    background: transparent;
+    border: 0;
+    border-radius: var(--radius-sm, 4px);
+    color: var(--color-fg);
+    font-size: 13px;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.12s ease, color 0.12s ease;
+
+    &:hover, &:focus-visible {
+      background: var(--color-bg-subtle);
+      outline: none;
+    }
+
+    ng-icon {
+      color: var(--color-fg-subtle);
+      flex-shrink: 0;
+    }
+
+    &--danger {
+      color: var(--color-danger-fg);
+
+      &:hover, &:focus-visible {
+        background: var(--color-danger-subtle);
+      }
+      ng-icon { color: var(--color-danger-fg); }
+    }
+  }
+}
+
+// Main column stacks its detail-sections with breathing room.
+.repair-detail__main {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+// Party block: avatar + name + phone, optional email/received-by underneath.
+.repair-party {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  &__name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-fg);
+    line-height: 1.3;
+  }
+
+  &__contact {
+    font-size: 13px;
+    color: var(--color-fg);
+  }
+
+  &__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--color-fg-muted);
+    margin-top: 2px;
+  }
+}
+
+// Item block: photo left, description + field grid + notes right.
+.repair-item {
+  display: grid;
+  grid-template-columns: minmax(0, 240px) minmax(0, 1fr);
+  gap: 20px;
+
+  @media (max-width: 720px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  &__photo {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border-subtle);
+    background: var(--color-bg-subtle);
+    display: block;
+
+    &--empty {
+      display: grid;
+      place-items: center;
+      color: var(--color-fg-subtle);
+    }
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-width: 0;
+  }
+
+  &__desc {
+    margin: 0;
+    font-size: 14px;
+    color: var(--color-fg);
+    line-height: 1.55;
+  }
+
+  &__notes {
+    margin: 0;
+    font-size: 12px;
+    color: var(--color-fg-muted);
+    font-style: italic;
+    padding: 10px 14px;
+    background: var(--color-bg-subtle);
+    border-left: 2px solid var(--color-border-subtle);
+    border-radius: 4px;
+    line-height: 1.55;
+  }
+}
+
+// Karigar link row inside the karigar detail-section.
+.repair-karigar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  &__name {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--color-fg);
+  }
+
+  &__phone {
+    font-size: 12px;
+    color: var(--color-fg-muted);
+  }
+}
+
+// Right sidebar — mirrors customer view: side-row for compact KPI pair +
+// full-width KPI card + quick actions list underneath.
+.side-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.kpi-card--compact {
+  padding: 16px;
+}
+
+.kpi-value--sm {
+  font-size: 1.5rem;
+}
+
+.side-actions {
+  background: var(--color-panel);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  &__title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-fg-muted);
+    margin: 4px 8px 8px;
+  }
+}
+
+.side-action {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-md);
+  color: var(--color-fg);
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.12s ease;
+
+  &:hover, &:focus-visible {
+    background: var(--color-bg-subtle);
+    outline: none;
+  }
+
+  > span:first-of-type {
+    flex: 1 1 auto;
+  }
+
+  ng-icon {
+    color: var(--color-fg-subtle);
+    flex-shrink: 0;
+  }
+
+  &__badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: var(--radius-full);
+    background: var(--color-bg-subtle);
+    color: var(--color-fg-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+}
+
+// Local: status-advance/karigar/whatsapp slide-in panel form uses radio
+// pills; keep the small-form group intact.
+.radio-pill-group {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.radio-pill-group .radio-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  cursor: pointer;
+  text-transform: capitalize;
+
+  input { display: none; }
+
+  &.is-active {
+    background: var(--color-accent-subtle);
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+}
+
+.field-hint {
+  font-size: 11px;
+  color: var(--color-fg-muted);
+  margin-top: 4px;
+}

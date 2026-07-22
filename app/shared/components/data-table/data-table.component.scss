@@ -1,176 +1,395 @@
-table {
-    width: 100%;
+// -------------------------------------------------------------------------
+// Hand-rolled data table (Workstream F). Replaces mat-table/mat-paginator/
+// mat-sort. Tokens from client/styles.scss; layout via native table.
+// -------------------------------------------------------------------------
+
+:host {
+  display: block;
+  --data-table-row-height: 36px;
+}
+
+.data-table-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  margin: 0 0.5rem 1rem;
+  background: var(--color-panel);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  flex-wrap: wrap;
+
+  &__filter {
+    position: relative;
+    flex: 0 1 320px;
+    min-width: 200px;
   }
-  
-  .has-search .form-control {
+
+  &__filter-icon {
+    position: absolute;
+    top: 50%;
+    left: 12px;
+    transform: translateY(-50%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-fg-subtle);
+    font-size: 16px;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  &__filter-input {
     padding-left: 2.375rem;
   }
-  
-  .has-search .form-control-feedback {
-    position: absolute;
-    z-index: 2;
-    display: block;
-    width: 1.1rem;
-    height: 1.1rem;
-    line-height: 1.1rem;
-    text-align: center;
-    pointer-events: none;
-    color: #aaa;
-    margin-left: 10px;
-    margin-right: 0px;
-  }
-  
-  .has-search {
-    input {
-      border-color: #56ab24;
-      border-radius: 10px;
-      border-width: 2.2px;
-    }
-  }
-    .dataTable {
-      mat-table {
-        border-radius: 10px;
-        overflow-x: auto;
-      }
-  
-  
-      mat-header-cell {
-        color: #000000;
-        font-weight: bold;
-        font-size: 0.9rem;
-        flex-direction: column;
-        justify-content: center;
-      }
-  
-      ::ng-deep .mat-sort-header-arrow {
-        color: #56ab24;
-      }
-  
-      ::ng-deep .mat-paginator-range-label,
-      .mat-paginator-page-size-label,
-      .mat-select-value-text {
-        font-family: "Poppins", "Roboto", sans-serif !important;
-      }
-  
-      // Make Striped rows on odd place
-      mat-row:nth-child(odd) {
-        background: rgba(0, 0, 0, 0.025);
-      }
-  
-      mat-row {
-        padding-top: 10px;
-        padding-bottom: 10px;
-      }
-  
-      mat-row:hover {
-        cursor: pointer;
-      }
-  
-      mat-row,
-      mat-header-row {
-        min-width: 800px;
-      }
-  
-      mat-cell {
-        text-align: center;
-        justify-content: center;
-        text-overflow: ellipsis;
-        // overflow-x: wrap;
-      }
 
-      .totalAmountWithGst::before {
-        content: '₹\00a0';
-      }
-    }
-  
-  .loadingTable{
-
-    mat-header-cell {
-      color: #000000;
-      font-weight: bold;
-      font-size: 0.9rem;
-      flex-direction: column;
-      justify-content: center;
-    }
-
-    mat-cell {
-      text-align: center;
-      justify-content: center;
-    }
-  }
-
-  .hideMatTable { display: none; }
-  
-  .dataTableContainer {
-    padding-left: 0.2rem !important;
-    padding-right: 0.2rem !important;
-  }
-  
-  .loader-container {
+  &__paginator {
+    flex: 1 1 auto;
+    min-width: 280px;
     display: flex;
-    justify-content: center;
+    justify-content: flex-end;
     align-items: center;
-    background: white;
-    border-radius: 0px 0px 10px 10px;
+    gap: 0.75rem;
+    flex-wrap: wrap;
   }
-  
-  .mat-table-header-row-if-loader {
-    border-radius: 10px 10px 0px 0px;
-  }
-  
-  @media only screen and (max-width: 321px) {
-    .mat-paginator-range-label {
-      font-size: 1px !important;
-    }
-  
-    ::ng-deep .mat-paginator {
-      .mat-paginator-container {
-        justify-content: center;
-        margin-top: 5px;
-      }
-  //  change order of items in container having buttons
-      // override material paginator page switch
-      // .mat-paginator-range-label {
-      //     order: 2;
-      // }
-  
-      // .mat-paginator-navigation-previous {
-      //     order: 1;
-      // }
-      // .mat-paginator-navigation-next {
-      //     order: 3;
-      // }
-      .mat-paginator-page-size {
-        order: 1;
-      }
-    }
-  }
-  
+}
 
-  .cancelledAt{
-    color: red;
-    font-weight: bold;
+.data-table-paginator {
+  &__page-size {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-fg-muted);
+    font-size: var(--fs-xs);
   }
 
+  &__page-size-select {
+    width: auto;
+    padding: 0.35rem 1.75rem 0.35rem 0.6rem;
+    background-image: none;
+    font-size: var(--fs-sm);
+  }
 
-  @media only screen and (min-width: 321px) and (max-width:768px) {
-    .mat-paginator-range-label {
-      font-size: 1px !important;
+  &__range {
+    color: var(--color-fg-muted);
+    font-size: var(--fs-sm);
+  }
+
+  &__controls {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  &__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--color-border);
+    background: var(--color-panel);
+    color: var(--color-fg-muted);
+    border-radius: var(--radius-md);
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+
+    &:hover:not(:disabled) {
+      background: var(--color-bg-subtle);
+      color: var(--color-fg);
+      border-color: var(--color-border-strong);
     }
-  
-    ::ng-deep .mat-paginator {
-      .mat-paginator-container {
-        justify-content: center;
-        margin-top: 5px;
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 3px var(--color-focus-ring);
+    }
+  }
+}
+
+// -------------------------------------------------------------------------
+// Table
+// -------------------------------------------------------------------------
+.data-table-container {
+  padding: 0 0.5rem;
+}
+
+.data-table-scroll {
+  position: relative;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  background: var(--color-panel);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: var(--fs-base);
+  color: var(--color-fg);
+
+  &__header-cell {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-size: var(--fs-xs);
+    font-weight: var(--fw-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: var(--color-fg-muted);
+    background: var(--color-bg-subtle);
+    border-bottom: 1px solid var(--color-border);
+    white-space: nowrap;
+    user-select: none;
+
+    &--sortable {
+      cursor: pointer;
+
+      &:hover {
+        color: var(--color-fg);
       }
-  
-      .mat-paginator-range-label {
-  
-        font-size: 0.7rem;
-      }
-  
-      .mat-paginator-page-size {
-        order: 1;
+    }
+
+    &--actions {
+      text-align: center;
+    }
+  }
+
+  &__header-inner {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  &__sort-icon {
+    display: inline-flex;
+    font-size: 14px;
+    color: var(--color-fg-subtle);
+  }
+
+  &__row {
+    transition: background 0.15s ease;
+
+    &:nth-child(odd) {
+      background: color-mix(in oklab, var(--color-bg-subtle) 45%, transparent);
+    }
+
+    &:hover {
+      background: var(--color-panel-hover);
+      cursor: pointer;
+    }
+
+    &--cancelled .data-table__cell {
+      color: color-mix(in oklab, var(--color-danger) 60%, var(--color-fg));
+    }
+
+    &--skeleton:hover {
+      background: transparent;
+      cursor: default;
+    }
+  }
+
+  &__cell {
+    padding: 0.65rem 1rem;
+    min-height: var(--data-table-row-height);
+    border-bottom: 1px solid var(--color-border-subtle);
+    color: var(--color-fg);
+    text-align: left;
+    vertical-align: middle;
+    font-size: var(--fs-base);
+
+    &.actions {
+      text-align: center;
+    }
+
+    &.cancelledAt {
+      color: color-mix(in oklab, var(--color-danger) 70%, var(--color-fg));
+      font-weight: var(--fw-semibold);
+    }
+
+    &.totalAmountWithGst,
+    &.grandTotal {
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum" 1;
+
+      &::before {
+        content: '\20B9\00a0';
       }
     }
   }
+
+  &__thumb {
+    max-width: 60px;
+    max-height: 60px;
+    border-radius: var(--radius-sm);
+    object-fit: cover;
+  }
+}
+
+// -------------------------------------------------------------------------
+// Row action buttons
+// -------------------------------------------------------------------------
+.row-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  justify-content: center;
+
+  &__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    background: transparent;
+    color: var(--color-fg-muted);
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 3px var(--color-focus-ring);
+    }
+
+    &--view {
+      color: var(--color-accent);
+
+      &:hover:not(.row-actions__btn--disabled) {
+        background: var(--color-accent-subtle);
+        border-color: color-mix(in oklab, var(--color-accent) 35%, transparent);
+      }
+    }
+
+    &--delete {
+      color: var(--color-danger-fg);
+
+      &:hover:not(.row-actions__btn--disabled) {
+        background: var(--color-danger-subtle);
+        border-color: color-mix(in oklab, var(--color-danger) 35%, transparent);
+      }
+    }
+
+    &--add {
+      color: var(--color-success-fg);
+
+      &:hover:not(.row-actions__btn--disabled) {
+        background: var(--color-success-subtle);
+        border-color: color-mix(in oklab, var(--color-success) 35%, transparent);
+      }
+    }
+
+    &--disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+  }
+}
+
+// -------------------------------------------------------------------------
+// Status pills (payment, etc.)
+// -------------------------------------------------------------------------
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.6rem;
+  border-radius: var(--radius-full);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  text-transform: capitalize;
+
+  &--success {
+    background: var(--color-success-subtle);
+    color: var(--color-success-fg);
+  }
+
+  &--warning {
+    background: var(--color-warning-subtle);
+    color: var(--color-warning-fg);
+  }
+}
+
+// -------------------------------------------------------------------------
+// Empty state
+// -------------------------------------------------------------------------
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1rem;
+  width: 100%;
+  color: var(--color-fg-muted);
+  text-align: center;
+
+  &__icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--color-accent-subtle);
+    color: var(--color-accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    margin-bottom: 0.75rem;
+  }
+
+  &__title {
+    font-size: var(--fs-md);
+    font-weight: var(--fw-semibold);
+    color: var(--color-fg);
+    margin-bottom: 0.25rem;
+  }
+
+  &__hint {
+    font-size: var(--fs-sm);
+    color: var(--color-fg-muted);
+  }
+}
+
+.loader-container {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in oklab, var(--color-panel) 60%, transparent);
+  border-radius: var(--radius-lg);
+
+  &__spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid var(--color-border);
+    border-top-color: var(--color-accent);
+    border-radius: 50%;
+    animation: data-table-spin 0.8s linear infinite;
+  }
+}
+
+@keyframes data-table-spin {
+  to { transform: rotate(360deg); }
+}
+
+// Touch/dense density adjustment - controlled by CSS variable so consumers
+// can bump if needed.
+@media (pointer: coarse) {
+  :host {
+    --data-table-row-height: 44px;
+  }
+  .data-table__cell {
+    padding: 0.85rem 1rem;
+  }
+}

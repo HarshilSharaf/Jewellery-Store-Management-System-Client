@@ -1,19 +1,27 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { signal } from '@angular/core';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CartSideBarService {
 
-  toggleSideBar = new BehaviorSubject<boolean>(false)
+  toggleSideBar = signal<boolean>(false)
   constructor() { }
 
   toggleCartSideBar() {
-    this.toggleSideBar.next(true)
+    this.toggleSideBar.update(open => !open);
+  }
+
+  openCartSideBar() {
+    this.toggleSideBar.set(true);
+  }
+
+  closeCartSideBar() {
+    this.toggleSideBar.set(false);
   }
 
   getCartSideBarStatus() {
-    return this.toggleSideBar.asObservable()
+    return this.toggleSideBar.asReadonly()
   }
 }

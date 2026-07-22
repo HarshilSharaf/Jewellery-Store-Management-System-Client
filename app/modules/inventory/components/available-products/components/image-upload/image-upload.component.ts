@@ -1,9 +1,15 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideCloudUpload } from '@ng-icons/lucide';
+
 
 @Component({
   selector: 'app-image-upload',
   templateUrl: './image-upload.component.html',
-  styleUrls: ['./image-upload.component.scss']
+  styleUrls: ['./image-upload.component.scss'],
+  standalone: true,
+  imports: [NgIcon],
+  viewProviders: [provideIcons({ lucideCloudUpload })],
 })
 export class ImageUploadComponent implements OnInit {
 

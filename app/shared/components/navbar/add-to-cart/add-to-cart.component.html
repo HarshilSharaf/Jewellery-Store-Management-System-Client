@@ -1,4 +1,11 @@
-<button type="button" matBadge="{{totalItems}}" matBadgeColor="warn"
-    class="btn btn-primary position-relative bg-transparent" (click)="openCartDetails()">
-    <i class="fa-solid fa-bag-shopping fa-xl text-white" [ngClass]="{'fa-shake': animateCartIcon}"></i>
+<button type="button"
+    class="cart-btn"
+    [class.cart-btn--shake]="animateCartIcon"
+    (click)="openCartDetails()"
+    aria-label="Open cart">
+    <ng-icon name="lucideShoppingBag" class="cart-btn__icon" aria-hidden="true"></ng-icon>
+    @if (totalItems > 0) {
+      <span class="cart-btn__badge tabular-nums" aria-hidden="true">{{ totalItems }}</span>
+    }
+    <span class="visually-hidden">{{ totalItems }} items in cart</span>
 </button>

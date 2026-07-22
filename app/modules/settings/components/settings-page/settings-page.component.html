@@ -1,116 +1,1120 @@
-<div class="container-fluid settings-container d-flex justify-content-center align-items-center" style="height: 100vh">
-  <div class="card p-3">
-    <div class="alert alert-danger" *ngIf="errorMessageAfterReLaunch" role="alert">
-      {{errorMessageAfterReLaunch | titlecase}}
+<div class="settings-shell">
+
+  @if (dbErrorMessageAfterReLaunch) {
+    <div class="alert-banner alert-banner--danger" role="alert">
+      {{ dbErrorMessageAfterReLaunch | titlecase }}
     </div>
-    <div class="card-header align-items-center">
-      <span class="container">
-        <h1>
-          <a class="goBack" *ngIf="!errorMessageAfterReLaunch" (click)="goBack()">
-            <i class="fa-solid fa-arrow-left text-success"></i>
-          </a>
-          Settings
-        </h1>
-      </span>
- 
-    </div>
-    <div class="card-body">
+  }
 
-      <h3 class="text-warning text-center mb-3" *ngIf="isDefaultSettings"> Default Settings Are Set! </h3>
+  <header class="settings-topbar">
+    <h1 class="settings-title" i18n="@@settings.title">Settings</h1>
+    <span class="page-title__count">{{ tabs.length }} sections</span>
+    <div class="settings-topbar__spacer"></div>
+    @if (!dbErrorMessageAfterReLaunch) {
+      <button type="button" class="hlm-btn hlm-btn-ghost" (click)="goBack()">
+        <ng-icon name="lucideArrowLeft" size="16" aria-hidden="true"></ng-icon>
+        <span i18n="@@buttons.back">Back</span>
+      </button>
+    }
+  </header>
 
-      <form [formGroup]="settingsForm" *ngIf="settingsForm" (ngSubmit)="saveSettings()"  novalidate>
-        <!-- Database name input -->
-        <div class="row my-2 align-items-center">
+  <nav class="tabs-strip" role="tablist" aria-label="Settings sections">
+    @for (t of tabs; track t.id) {
+      @if (isTabVisible(t.id)) {
+        <button type="button"
+                role="tab"
+                class="tab-item"
+                [attr.aria-selected]="activeTab() === t.id"
+                [class.is-active]="activeTab() === t.id"
+                (click)="setTab(t.id)">
+          {{ t.label }}
+        </button>
+      }
+    }
+  </nav>
 
-          <div class="col-4">
-            <label for="dbname" class="h5">Database:</label>
-          </div>
-          <div class="col">
-            <input type="text" class="form-control" id="dbname" formControlName="dbname">
-          </div>
+  <section class="settings-panel">
 
-        </div>
+    @if (activeTab() === 'shop') {
+      <div class="panel-head">
+        <h2 class="panel-title" i18n="@@settings.tab.shop">Shop identity</h2>
+        <p class="panel-sub" i18n="@@settings.shop.sub">Appears on every invoice, receipt, and export.</p>
+      </div>
 
-        <div class="row text-center">
-          <span class="text-danger text-bold"
-            *ngIf="settingsForm.get('dbname')?.invalid && settingsForm.get('dbname')?.touched">
-            {{ getErrorMessage('dbname') }}
-          </span>
-        </div>
+      @if (shopForm) {
+        <form [formGroup]="shopForm" (ngSubmit)="saveShopSettings()">
 
+          <div class="form-section">
+            <h3 class="section-heading">Identity</h3>
+            <div class="field-grid">
+              <div class="form-grid__full">
+                <label class="field-label" for="shopName">Shop name</label>
+                <input id="shopName" class="hlm-input" formControlName="shopName" [class.is-invalid]="!!getShopFieldError('shopName')">
+                @if (getShopFieldError('shopName')) { <span class="field-error">{{ getShopFieldError('shopName') }}</span> }
+              </div>
 
-        <!-- Port input -->
+              <div>
+                <label class="field-label" for="phone">Phone</label>
+                <input id="phone" class="hlm-input" formControlName="phone" [class.is-invalid]="!!getShopFieldError('phone')">
+                @if (getShopFieldError('phone')) { <span class="field-error">{{ getShopFieldError('phone') }}</span> }
+              </div>
 
-        <div class="row my-2 align-items-center">
-          <div class="col-4">
-            <label for="port" class="h5">Port:</label>
-          </div>
-          <div class="col">
-            <input type="number" class="form-control" id="port" formControlName="port">
-          </div>
-        </div>
-
-        <div class="row text-center">
-          <span class="text-danger text-bold"
-            *ngIf="settingsForm.get('port')?.invalid && settingsForm.get('port')?.touched">
-            {{ getErrorMessage('port') }}
-          </span>
-        </div>
-
-        <!-- Username input -->
-        <div class="row my-2 align-items-center">
-          <div class="col-4">
-            <label for="username" class="h5">Username:</label>
-          </div>
-          <div class="col">
-            <input type="text" class="form-control" id="username" formControlName="username">
-
-          </div>
-        </div>
-
-        <div class="row text-center">
-          <span class="text-danger text-bold"
-            *ngIf="settingsForm.get('username')?.invalid && settingsForm.get('username')?.touched">
-            {{ getErrorMessage('username') }}
-          </span>
-        </div>
-
-        <!-- Password input -->
-        <div class="row my-2 align-items-center">
-          <div class="col-4">
-            <label for="password" class="h5">Password:</label>
-          </div>
-          <div class="col">
-            <input type="password" class="form-control" id="password" formControlName="password">
+              <div>
+                <label class="field-label" for="email">Email</label>
+                <input id="email" class="hlm-input" formControlName="email" [class.is-invalid]="!!getShopFieldError('email')">
+                @if (getShopFieldError('email')) { <span class="field-error">{{ getShopFieldError('email') }}</span> }
+              </div>
+            </div>
           </div>
 
+          <div class="form-section">
+            <h3 class="section-heading">Location</h3>
+            <div class="field-grid">
+              <div class="form-grid__full">
+                <label class="field-label" for="addressLine1">Address line 1</label>
+                <input id="addressLine1" class="hlm-input" formControlName="addressLine1" [class.is-invalid]="!!getShopFieldError('addressLine1')">
+                @if (getShopFieldError('addressLine1')) { <span class="field-error">{{ getShopFieldError('addressLine1') }}</span> }
+              </div>
+              <div class="form-grid__full">
+                <label class="field-label" for="addressLine2">Address line 2</label>
+                <input id="addressLine2" class="hlm-input" formControlName="addressLine2">
+              </div>
+              <div>
+                <label class="field-label" for="city">City</label>
+                <input id="city" class="hlm-input" formControlName="city" [class.is-invalid]="!!getShopFieldError('city')">
+                @if (getShopFieldError('city')) { <span class="field-error">{{ getShopFieldError('city') }}</span> }
+              </div>
+              <div>
+                <label class="field-label" for="pincode">Pincode</label>
+                <input id="pincode" class="hlm-input tabular-nums" formControlName="pincode" [class.is-invalid]="!!getShopFieldError('pincode')" maxlength="6">
+                @if (getShopFieldError('pincode')) { <span class="field-error">{{ getShopFieldError('pincode') }}</span> }
+              </div>
+              <div>
+                <label class="field-label" for="state">State</label>
+                <select id="state" class="hlm-input" formControlName="state" [class.is-invalid]="!!getShopFieldError('state')">
+                  <option value="">Select state</option>
+                  @for (s of indianStates; track s.code) {
+                    <option [value]="s.name">{{ s.name }} ({{ s.code }})</option>
+                  }
+                </select>
+                @if (getShopFieldError('state')) { <span class="field-error">{{ getShopFieldError('state') }}</span> }
+              </div>
+              <div>
+                <label class="field-label" for="stateCode">State code</label>
+                <input id="stateCode" class="hlm-input tabular-nums" formControlName="stateCode" readonly>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3 class="section-heading">Tax details</h3>
+            <div class="field-grid">
+              <div>
+                <label class="field-label" for="gstin">GSTIN</label>
+                <input id="gstin" class="hlm-input tabular-nums" formControlName="gstin" [class.is-invalid]="!!getShopFieldError('gstin')" maxlength="15" style="text-transform: uppercase;">
+                @if (getShopFieldError('gstin')) { <span class="field-error">{{ getShopFieldError('gstin') }}</span> }
+              </div>
+              <div>
+                <label class="field-label" for="pan">PAN</label>
+                <input id="pan" class="hlm-input" formControlName="pan" maxlength="10" style="text-transform: uppercase;">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3 class="section-heading">Branding</h3>
+            <div class="field-grid">
+              <div class="form-grid__full">
+                <label class="field-label">Shop logo</label>
+                <div class="logo-row">
+                  <div class="logo-preview">
+                    @if (shopLogoPath) {
+                      <span class="logo-name">{{ shopLogoPath }}</span>
+                    } @else {
+                      <span class="logo-empty">No logo uploaded</span>
+                    }
+                  </div>
+                  <label class="hlm-btn hlm-btn-ghost">
+                    Choose file
+                    <input type="file" accept="image/*" (change)="onShopLogoSelected($event)" hidden>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="hlm-btn hlm-btn-primary" [disabled]="shopSaving() || !shopForm.dirty || !shopForm.valid">
+              {{ shopSaving() ? 'Saving...' : 'Save shop identity' }}
+            </button>
+          </div>
+        </form>
+      }
+    }
+
+    @if (activeTab() === 'tax') {
+      <div class="panel-head">
+        <h2 class="panel-title">Tax &amp; invoice</h2>
+        <p class="panel-sub">Invoice series and GST slabs applied to every line item.</p>
+      </div>
+
+      @if (invoiceForm) {
+        <form [formGroup]="invoiceForm">
+          <div class="form-section">
+            <h3 class="section-heading">Invoice series</h3>
+            <div class="field-grid">
+              <div>
+                <label class="field-label" for="invoicePrefix">Invoice prefix</label>
+                <input id="invoicePrefix" class="hlm-input" formControlName="invoicePrefix">
+                <span class="field-help">Example: RAD/2026/ &rarr; next invoice will be RAD/2026/00042</span>
+              </div>
+              <div>
+                <label class="field-label" for="currentInvoiceCounter">Current counter</label>
+                <input id="currentInvoiceCounter" class="hlm-input tabular-nums" formControlName="currentInvoiceCounter">
+                <span class="field-help">Read-only. Use reset below to change.</span>
+              </div>
+              <div>
+                <label class="field-label" for="invoiceStartFrom">Reset counter to</label>
+                <input id="invoiceStartFrom" type="number" class="hlm-input tabular-nums" formControlName="invoiceStartFrom" min="1">
+              </div>
+              <div style="align-self: end;">
+                <button type="button" class="hlm-btn hlm-btn-primary" (click)="resetInvoiceCounter()" [disabled]="invoiceCounterSaving()">
+                  {{ invoiceCounterSaving() ? 'Resetting...' : 'Reset counter' }}
+                </button>
+              </div>
+              <div class="form-grid__full">
+                <label class="inline-check">
+                  <input type="checkbox" formControlName="roundOffEnabled"> Round grand total to nearest rupee
+                </label>
+              </div>
+            </div>
+          </div>
+        </form>
+      }
+
+      <div class="panel-subhead">
+        <h3>GST slabs</h3>
+        <p class="panel-sub">Applied per HSN code on the cart. Composite supplies use HSN 7113 (3% GST) — jewellery-with-services falls under Rule 8, treated as one composite line.</p>
+      </div>
+      <table class="ds-table tabular-nums">
+        <thead>
+          <tr>
+            <th>HSN</th><th>Name</th><th class="right">CGST %</th><th class="right">SGST %</th><th class="right">IGST %</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (slab of taxSlabs(); track slab.hsnCode) {
+            <tr>
+              <td>{{ slab.hsnCode }}</td>
+              <td>{{ slab.name ?? '—' }}</td>
+              <td class="right">{{ slab.cgstRate }}</td>
+              <td class="right">{{ slab.sgstRate }}</td>
+              <td class="right">{{ slab.igstRate }}</td>
+            </tr>
+          } @empty {
+            <tr><td colspan="5" class="empty">No tax slabs loaded.</td></tr>
+          }
+        </tbody>
+      </table>
+    }
+
+    @if (activeTab() === 'rates') {
+      <div class="panel-head">
+        <h2 class="panel-title" i18n="@@settings.tab.rates">Metal rates</h2>
+        <p class="panel-sub">Set morning (AM) and evening (PM) rates per gram for each purity. Cart bills lock in the AM rate at open.</p>
+      </div>
+
+      <div class="rates-controls">
+        <div class="field">
+          <label class="field-label">Effective date</label>
+          <input type="date" class="hlm-input tabular-nums" [value]="ratesEffectiveDate()" (input)="ratesEffectiveDate.set($any($event.target).value)">
+        </div>
+        <button type="button" class="hlm-btn hlm-btn-ghost" (click)="copyAmToPm()">
+          <ng-icon name="lucideCopy" size="14" aria-hidden="true"></ng-icon>
+          Copy all AM &rarr; PM
+        </button>
+      </div>
+
+      <div class="rates-grid">
+        @for (r of rateEditors(); track r.purityCode) {
+          <div class="rate-row">
+            <div class="rate-row__purity">
+              <span class="purity-badge" [ngClass]="purityChipClass(r.purityLabel, r.purityCode)">{{ r.purityLabel }}</span>
+              <small>{{ r.purityCode }}</small>
+            </div>
+            <div class="rate-input">
+              <label>AM &#8377;/g</label>
+              <input type="number" class="hlm-input tabular-nums" [value]="r.am ?? ''" (input)="updateRateAm(r.purityCode, $any($event.target).value)" step="1">
+            </div>
+            <div class="rate-input">
+              <label>PM &#8377;/g</label>
+              <input type="number" class="hlm-input tabular-nums" [value]="r.pm ?? ''" (input)="updateRatePm(r.purityCode, $any($event.target).value)" step="1">
+            </div>
+            <button type="button" class="rate-copy-btn" (click)="copyPurityAmToPm(r.purityCode)" [title]="'Copy AM to PM for ' + r.purityLabel" aria-label="Copy AM to PM">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
+                <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
+              </svg>
+            </button>
+          </div>
+        } @empty {
+          <div class="empty-note">No purities loaded. Run the seed script.</div>
+        }
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="hlm-btn hlm-btn-primary" (click)="saveRates()" [disabled]="ratesSaving()">
+          {{ ratesSaving() ? 'Saving...' : 'Save rates' }}
+        </button>
+      </div>
+
+      <div class="panel-subhead">
+        <h3>Recent rates (last 30 days)</h3>
+      </div>
+      <table class="ds-table tabular-nums">
+        <thead>
+          <tr>
+            <th class="clickable" (click)="toggleHistorySort()">
+              Date {{ rateHistorySort() === 'asc' ? '↑' : '↓' }}
+            </th>
+            <th>Session</th>
+            <th>Purity</th>
+            <th class="right">Rate &#8377;/g</th>
+            <th>Source</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of sortedHistory(); track row.id ?? row.effectiveDate + row.session + row.purityCode) {
+            <tr>
+              <td>{{ row.effectiveDate }}</td>
+              <td>{{ row.session }}</td>
+              <td>{{ row.purityLabel ?? row.purityCode }}</td>
+              <td class="right">{{ row.ratePerGram }}</td>
+              <td>{{ row.source }}</td>
+            </tr>
+          } @empty {
+            <tr><td colspan="5" class="empty">No historical rates yet.</td></tr>
+          }
+        </tbody>
+      </table>
+    }
+
+    @if (activeTab() === 'print') {
+      <div class="panel-head">
+        <h2 class="panel-title">Print &amp; hardware</h2>
+        <p class="panel-sub">Choose the default invoice variant and configure your thermal printer.</p>
+      </div>
+
+      @if (printForm) {
+        <form [formGroup]="printForm" (ngSubmit)="savePrintSettings()">
+          <div class="form-section">
+            <h3 class="section-heading">Printing</h3>
+            <div class="field-grid">
+              <div>
+                <label class="field-label" for="defaultVariant">Default print variant</label>
+                <select id="defaultVariant" class="hlm-input" formControlName="defaultVariant">
+                  <option value="A4">A4 GST invoice</option>
+                  <option value="80mm">80mm thermal receipt</option>
+                </select>
+              </div>
+              <div>
+                <label class="field-label" for="thermalPrinterName">Thermal printer name</label>
+                <input id="thermalPrinterName" class="hlm-input" formControlName="thermalPrinterName" placeholder="e.g. TVS RP 3160 Gold">
+                <span class="field-help">Exact OS printer name. Leave blank to use the default printer.</span>
+              </div>
+              <div class="form-actions">
+                <button type="button" class="hlm-btn hlm-btn-ghost" (click)="testPrint()">Test print</button>
+                <button type="submit" class="hlm-btn hlm-btn-primary">Save preferences</button>
+              </div>
+            </div>
+          </div>
+        </form>
+      }
+
+      <div class="panel-subhead"><h3>Hardware</h3></div>
+      <div class="phase2-grid">
+
+        <div class="phase2-card">
+          <div class="phase2-card__title">
+            <ng-icon name="lucideScanBarcode" size="16" aria-hidden="true"></ng-icon>
+            Barcode / HUID scanner
+          </div>
+          <div class="phase2-card__note">
+            USB keyboard-wedge scanners work out of the box. When enabled, scans typed at &gt;120 wpm are captured and routed
+            into the cart's product picker regardless of focus.
+          </div>
+          <label class="inline-check">
+            <input type="checkbox" [checked]="scannerEnabled()" (change)="toggleScannerEnabled()">
+            Enable scanner input on cart
+          </label>
+
+          <div class="hw-form">
+            <label class="field-label" for="scanTest">Scan test</label>
+            <input id="scanTest" class="hlm-input tabular-nums" data-accept-scan="1"
+                   placeholder="Focus this field and scan a barcode, or click Simulate"
+                   [value]="scanTestBuffer()"
+                   (input)="onScanTestInput($any($event.target).value)">
+            <div class="hw-form__actions">
+              <button type="button" class="hlm-btn hlm-btn-ghost" (click)="simulateScan()">Simulate scan</button>
+              <button type="button" class="hlm-btn hlm-btn-ghost" (click)="clearScanTestBuffer()">Clear</button>
+            </div>
+            @if (scannerService.lastScan()) {
+              <span class="scan-badge tabular-nums">Last: {{ scannerService.lastScan() }}</span>
+            }
+          </div>
         </div>
 
-        <div class="row mb-2 text-center">
-          <span class="text-danger text-bold"
-            *ngIf="settingsForm.get('password')?.invalid && settingsForm.get('password')?.touched">
-            {{ getErrorMessage('password') }}
-          </span>
+        <div class="phase2-card">
+          <div class="phase2-card__title">
+            <ng-icon name="lucideScale" size="16" aria-hidden="true"></ng-icon>
+            Weighing scale
+          </div>
+
+          @if (!scaleService.available()) {
+            <div class="phase2-card__note">
+              <ng-icon name="lucideCircleAlert" size="14" aria-hidden="true"></ng-icon>
+              <span>
+                Serial-port bindings unavailable on this machine. Install MySQL/Windows build tools then relaunch, or use an
+                HID keyboard-wedge scale (press <kbd>Alt</kbd>+<kbd>W</kbd> on a weight input).
+              </span>
+            </div>
+          } @else {
+            <div class="phase2-card__note">
+              RS-232 via <code>serialport</code>. Choose the COM port your scale is on, pick a baud rate, and connect.
+              Live readings feed the "Weigh" button next to each cart net-weight input.
+            </div>
+
+            <div class="hw-form">
+              <label class="field-label" for="scalePort">Serial port</label>
+              <div class="hw-form__row">
+                <select id="scalePort" class="hlm-input" [value]="scaleService.selectedPort() ?? ''"
+                        (change)="onScalePortChange($any($event.target).value)">
+                  <option value="">Select a port</option>
+                  @for (p of scaleService.availablePorts(); track p.path) {
+                    <option [value]="p.path">
+                      {{ p.path }}{{ p.manufacturer ? ' — ' + p.manufacturer : '' }}
+                    </option>
+                  }
+                </select>
+                <button type="button" class="hlm-btn hlm-btn-ghost" (click)="refreshScalePorts()" title="Rescan ports" aria-label="Rescan">
+                  <ng-icon name="lucideRefreshCw" size="14" aria-hidden="true"></ng-icon>
+                </button>
+              </div>
+
+              <label class="field-label" for="scaleBaud">Baud rate</label>
+              <select id="scaleBaud" class="hlm-input tabular-nums" [value]="scaleService.selectedBaud()"
+                      (change)="onScaleBaudChange($any($event.target).value)">
+                @for (b of baudRateOptions; track b) {
+                  <option [value]="b">{{ b }}</option>
+                }
+              </select>
+
+              <div class="hw-form__actions">
+                @if (!scaleService.isConnected()) {
+                  <button type="button" class="hlm-btn hlm-btn-primary"
+                          (click)="connectScale()"
+                          [disabled]="scaleService.connecting() || !scaleService.selectedPort()">
+                    <ng-icon name="lucidePlug" size="14" aria-hidden="true"></ng-icon>
+                    {{ scaleService.connecting() ? 'Connecting…' : 'Connect' }}
+                  </button>
+                } @else {
+                  <button type="button" class="hlm-btn hlm-btn-ghost" (click)="disconnectScale()">
+                    <ng-icon name="lucidePlugZap" size="14" aria-hidden="true"></ng-icon>
+                    Disconnect
+                  </button>
+                }
+                <button type="button" class="hlm-btn hlm-btn-ghost" (click)="testScaleReading()"
+                        [disabled]="!scaleService.isConnected()">
+                  Test reading
+                </button>
+              </div>
+
+              @let reading = scaleService.currentReading();
+              <div class="scale-live">
+                @if (!scaleService.isConnected()) {
+                  <span class="scale-live__label">Current</span>
+                  <span class="scale-live__value muted">—</span>
+                } @else if (reading) {
+                  <span class="scale-live__label">Current</span>
+                  <span class="scale-live__value tabular-nums">{{ reading.grams.toFixed(3) }} g</span>
+                  @if (reading.stable) {
+                    <span class="stable-indicator">
+                      <ng-icon name="lucideCircleCheck" size="12" aria-hidden="true"></ng-icon>
+                      Stable
+                    </span>
+                  } @else {
+                    <span class="stable-indicator stable-indicator--unstable">
+                      <ng-icon name="lucideCircleAlert" size="12" aria-hidden="true"></ng-icon>
+                      Waiting
+                    </span>
+                  }
+                } @else {
+                  <span class="scale-live__label">Current</span>
+                  <span class="scale-live__value muted">Awaiting first reading…</span>
+                }
+              </div>
+
+              @if (scaleTestResult()) {
+                <p class="scan-badge tabular-nums">Test: {{ scaleTestResult() }}</p>
+              }
+              @if (scaleService.lastError()) {
+                <p class="scan-badge scan-badge--warn">{{ scaleService.lastError() }}</p>
+              }
+            </div>
+          }
         </div>
+      </div>
+    }
 
+    @if (activeTab() === 'backup' && isTabVisible('backup')) {
+      <div class="panel-head">
+        <h2 class="panel-title">Backup</h2>
+        <p class="panel-sub">Encrypted mysqldump archive. Store off-machine.</p>
+      </div>
 
-        <div class="text-center">
-          <button type="submit mx-4" [ngClass]="{'disabled': !settingsForm.dirty || !settingsForm.valid}"
-            class="btn btn-primary">
-            <i class="fa-solid fa-floppy-disk"></i>
-            Save</button>
-        
-          <button class="btn btn-danger mx-4 mt-xs-2 mt-md-0" [ngClass]="{'disabled': !settingsForm.dirty}" type="button"
-            (click)="resetForm()">
-            <i class="fa-solid fa-rotate-left"></i> Reset
+      @if (backupPrereqWarning()) {
+        <div class="alert-banner alert-banner--warning">
+          <ng-icon name="lucideTriangleAlert" size="14" aria-hidden="true"></ng-icon>
+          {{ backupPrereqWarning() }}
+        </div>
+      }
+
+      @if (backupForm) {
+        <form [formGroup]="backupForm" (ngSubmit)="createBackupArchive()">
+          <div class="form-section">
+            <h3 class="section-heading">Create encrypted backup</h3>
+            <p class="panel-sub">AES-256-GCM. Keep the passphrase somewhere safe — losing it means the archive is unrecoverable.</p>
+            <div class="field-grid">
+              <div>
+                <label class="field-label" for="bpPass">Passphrase</label>
+                <div class="input-with-toggle">
+                  <input id="bpPass" class="hlm-input" [type]="showPassphrase() ? 'text' : 'password'" formControlName="passphrase" autocomplete="new-password">
+                  <button type="button" class="icon-btn" (click)="togglePassphraseVisibility()" [attr.aria-label]="showPassphrase() ? 'Hide passphrase' : 'Show passphrase'">
+                    <ng-icon [name]="showPassphrase() ? 'lucideEyeOff' : 'lucideEye'" size="14" aria-hidden="true"></ng-icon>
+                  </button>
+                </div>
+                @if (backupForm.get('passphrase')?.touched && backupForm.get('passphrase')?.invalid) {
+                  <span class="field-error">Passphrase must be at least 8 characters.</span>
+                }
+              </div>
+              <div>
+                <label class="field-label" for="bpPassC">Confirm passphrase</label>
+                <div class="input-with-toggle">
+                  <input id="bpPassC" class="hlm-input" [type]="showConfirmPassphrase() ? 'text' : 'password'" formControlName="confirmPassphrase" autocomplete="new-password">
+                  <button type="button" class="icon-btn" (click)="toggleConfirmPassphraseVisibility()" [attr.aria-label]="showConfirmPassphrase() ? 'Hide' : 'Show'">
+                    <ng-icon [name]="showConfirmPassphrase() ? 'lucideEyeOff' : 'lucideEye'" size="14" aria-hidden="true"></ng-icon>
+                  </button>
+                </div>
+                @if (backupForm.hasError('passphraseMismatch') && backupForm.get('confirmPassphrase')?.touched) {
+                  <span class="field-error">Passphrases do not match.</span>
+                }
+              </div>
+              <div class="form-grid__full">
+                <label class="field-label" for="bpDir">Target directory</label>
+                <div class="input-with-toggle">
+                  <input id="bpDir" class="hlm-input" formControlName="targetDir" placeholder="Leave blank to use the default backup folder">
+                  <button type="button" class="icon-btn" (click)="chooseBackupDirectory()" aria-label="Choose folder" title="Choose folder">
+                    <ng-icon name="lucideFolder" size="14" aria-hidden="true"></ng-icon>
+                  </button>
+                </div>
+                <span class="field-help">If left blank, uses the shop's configured backup directory or the app's user-data folder.</span>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="hlm-btn hlm-btn-primary"
+                      [disabled]="backupBusy() || !backupForm.valid || backupForm.hasError('passphraseMismatch')">
+                {{ backupBusy() ? backupProgress() : 'Create backup' }}
+              </button>
+            </div>
+          </div>
+        </form>
+      }
+
+      <div class="form-section">
+        <div class="panel-subhead" style="display: flex; align-items: center; justify-content: space-between;">
+          <h3 class="section-heading">Existing backups</h3>
+          <button type="button" class="hlm-btn hlm-btn-ghost" (click)="loadBackups()">
+            <ng-icon name="lucideRefreshCw" size="14" aria-hidden="true"></ng-icon>
+            Refresh
           </button>
+        </div>
+        <table class="ds-table">
+          <thead>
+            <tr>
+              <th></th>
+              <th>File</th>
+              <th>Size</th>
+              <th>Created</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (b of backupList(); track b.path) {
+              <tr [class.is-selected]="selectedBackup()?.path === b.path">
+                <td>
+                  <input type="radio" name="backup-selection"
+                         [checked]="selectedBackup()?.path === b.path"
+                         (change)="selectBackup(b)"
+                         [attr.aria-label]="'Select ' + b.filename">
+                </td>
+                <td class="tabular-nums">{{ b.filename }}</td>
+                <td class="tabular-nums">{{ formatBytes(b.sizeBytes) }}</td>
+                <td class="tabular-nums">{{ formatDateTime(b.createdAt) }}</td>
+                <td>
+                  <button type="button" class="icon-btn icon-btn--danger"
+                          (click)="deleteBackupArchive(b)"
+                          [disabled]="!permissions.canBackup()"
+                          title="Delete backup" aria-label="Delete">
+                    <ng-icon name="lucideTrash2" size="14" aria-hidden="true"></ng-icon>
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr><td colspan="5" class="empty">No backups yet. Create one above.</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
 
-          <button class="btn btn-warning mx-1" type="button" (click)="resetToDefault()" [ngClass]="{'disabled': isDefaultSettings }">
-            <img class="icon" src="./assets/img/reset.png">
-            Reset To Default</button>
+      @if (restoreForm) {
+        <form [formGroup]="restoreForm" (ngSubmit)="restoreBackupArchive()">
+          <div class="form-section">
+            <h3 class="section-heading">Restore from backup</h3>
+            <p class="panel-sub">Select an archive above, enter its passphrase, then confirm the restore. This overwrites the current database.</p>
+            <div class="field-grid">
+              <div>
+                <label class="field-label" for="rpPass">Passphrase</label>
+                <div class="input-with-toggle">
+                  <input id="rpPass" class="hlm-input" [type]="showRestorePassphrase() ? 'text' : 'password'" formControlName="passphrase" autocomplete="off">
+                  <button type="button" class="icon-btn" (click)="toggleRestorePassphraseVisibility()" [attr.aria-label]="showRestorePassphrase() ? 'Hide' : 'Show'">
+                    <ng-icon [name]="showRestorePassphrase() ? 'lucideEyeOff' : 'lucideEye'" size="14" aria-hidden="true"></ng-icon>
+                  </button>
+                </div>
+              </div>
+              <div style="align-self: end;">
+                <button type="submit" class="hlm-btn hlm-btn-primary"
+                        [disabled]="backupBusy() || !restoreForm.valid || !selectedBackup()">
+                  {{ backupBusy() ? backupProgress() : 'Restore backup' }}
+                </button>
+              </div>
+              @if (selectedBackup()) {
+                <div class="form-grid__full">
+                  <span class="field-help">Selected: <b>{{ selectedBackup()?.filename }}</b></span>
+                </div>
+              }
+            </div>
+          </div>
+        </form>
+      }
+    }
+
+    @if (activeTab() === 'users' && isTabVisible('users')) {
+      <div class="panel-head">
+        <h2 class="panel-title">Users &amp; permissions</h2>
+        <p class="panel-sub">Add cashiers and managers. Full RBAC (route guards + proc-level checks) is Phase 2.</p>
+      </div>
+
+      <div class="form-section">
+        <h3 class="section-heading">Existing users</h3>
+        <table class="ds-table">
+          <thead>
+            <tr><th>User</th><th>Email</th><th>Role</th></tr>
+          </thead>
+          <tbody>
+            @for (u of usersList(); track u.id) {
+              <tr>
+                <td>{{ u.userName }}</td>
+                <td>{{ u.email }}</td>
+                <td><span class="chip">{{ u.role }}</span></td>
+              </tr>
+            } @empty {
+              <tr><td colspan="3" class="empty">No users.</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (newUserForm) {
+        <form [formGroup]="newUserForm" (ngSubmit)="addUserStub()">
+          <div class="form-section">
+            <h3 class="section-heading">Add user</h3>
+            <div class="field-grid">
+              <div>
+                <label class="field-label" for="newUserName">User name</label>
+                <input id="newUserName" class="hlm-input" formControlName="userName">
+              </div>
+              <div>
+                <label class="field-label" for="newUserEmail">Email</label>
+                <input id="newUserEmail" class="hlm-input" formControlName="email">
+              </div>
+              <div>
+                <label class="field-label" for="newUserRole">Role</label>
+                <select id="newUserRole" class="hlm-input" formControlName="role">
+                  <option value="admin">Admin</option>
+                  <option value="cashier">Cashier</option>
+                  <option value="manager">Manager</option>
+                </select>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="hlm-btn hlm-btn-primary">Add user</button>
+              </div>
+            </div>
+          </div>
+        </form>
+      }
+    }
+
+    @if (activeTab() === 'migration') {
+      <div class="panel-head">
+        <h2 class="panel-title">Migration</h2>
+        <p class="panel-sub">Import from CSV and export to CSV / Tally XML. Anti-lock-in tools for Marg / DevLogic / Ornate switchers.</p>
+      </div>
+
+      <div class="form-section">
+        <h3 class="section-heading">Export current data</h3>
+        <p class="import-caption">Quick download of everything currently in the database as CSV.</p>
+        <div class="form-actions">
+          <button type="button" class="hlm-btn hlm-btn-ghost" (click)="exportCustomersNow()">
+            <ng-icon name="lucideDownload" size="14" aria-hidden="true"></ng-icon>
+            Export customers CSV
+          </button>
+          <button type="button" class="hlm-btn hlm-btn-ghost" (click)="exportProductsNow()">
+            <ng-icon name="lucideDownload" size="14" aria-hidden="true"></ng-icon>
+            Export products CSV
+          </button>
+          <button type="button" class="hlm-btn hlm-btn-ghost" (click)="exportRatesNow()">
+            <ng-icon name="lucideDownload" size="14" aria-hidden="true"></ng-icon>
+            Export metal rates CSV
+          </button>
+        </div>
+      </div>
+
+      @for (entity of migrationEntities; track entity) {
+        <div class="import-section form-section">
+          <h3 class="section-heading">
+            Import
+            @if (entity === 'customers') { customers }
+            @if (entity === 'products')  { products }
+            @if (entity === 'rates')     { metal rates }
+          </h3>
+          <p class="import-caption">
+            @if (entity === 'customers') { Dedupe key: <b>phone number</b>. Purity + making mode auto-normalised. }
+            @if (entity === 'products')  { Dedupe key: <b>SKU</b>. Purity: 22K/916/gold-22k all map to 916. Making mode: $/PG/% recognised. }
+            @if (entity === 'rates')     { Dedupe key: <b>(effectiveDate, session, purity)</b>. Session must be AM or PM. }
+          </p>
+
+          @if (!getMigration(entity).rows.length) {
+            <label class="import-dropzone">
+              <ng-icon name="lucideUpload" size="20" aria-hidden="true"></ng-icon>
+              <span>Choose CSV file to import</span>
+              <input type="file" accept=".csv,text/csv" hidden
+                     (change)="onMigrationFileSelected(entity, $event)">
+            </label>
+          } @else {
+            <div class="import-preview">
+              <div class="import-preview__head">
+                <span><b>{{ getMigration(entity).fileName }}</b> · {{ getMigration(entity).rows.length }} rows</span>
+                <button type="button" class="hlm-btn hlm-btn-ghost" (click)="resetMigrationState(entity)">Choose different file</button>
+              </div>
+
+              <div class="mapping-header">
+                <p class="import-caption">Map each source column to a target field. Blank = ignore this column.</p>
+              </div>
+
+              <div class="import-preview__scroll">
+                <table class="import-preview-table tabular-nums">
+                  <thead>
+                    <tr>
+                      @for (h of getMigration(entity).headers; track h) {
+                        <th>
+                          <div class="mapping-col">
+                            <span class="mapping-col__source">{{ h }}</span>
+                            <select class="hlm-input mapping-select"
+                                    [value]="reverseMappingLookup(entity, h)"
+                                    (change)="setMappingFromSource(entity, h, $any($event.target).value)">
+                              <option value="">— ignore —</option>
+                              @for (f of fieldDefsFor(entity); track f.key) {
+                                @if (!(entity === 'products' && f.key === 'costPrice' && costsHidden())) {
+                                  <option [value]="f.key">{{ f.label }}</option>
+                                }
+                              }
+                            </select>
+                          </div>
+                        </th>
+                      }
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (r of previewRows(entity); let i = $index; track i) {
+                      <tr [class.import-row--error]="isRowIssue(entity, i)">
+                        @for (h of getMigration(entity).headers; track h) {
+                          <td>{{ r[h] }}</td>
+                        }
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+
+              @if (getMigration(entity).issues.length) {
+                <p class="field-error">{{ getMigration(entity).issues.length }} row(s) flagged with issues.</p>
+              }
+
+              <div class="import-strategy">
+                <span class="field-label">On duplicate:</span>
+                <label class="radio-inline">
+                  <input type="radio" name="dup-{{ entity }}"
+                         [checked]="getMigration(entity).duplicateStrategy === 'skip'"
+                         (change)="setDuplicateStrategy(entity, 'skip')">
+                  Skip
+                </label>
+                <label class="radio-inline">
+                  <input type="radio" name="dup-{{ entity }}"
+                         [checked]="getMigration(entity).duplicateStrategy === 'update'"
+                         (change)="setDuplicateStrategy(entity, 'update')">
+                  Update existing
+                </label>
+                <label class="radio-inline">
+                  <input type="radio" name="dup-{{ entity }}"
+                         [checked]="getMigration(entity).duplicateStrategy === 'abort'"
+                         (change)="setDuplicateStrategy(entity, 'abort')">
+                  Abort on first duplicate
+                </label>
+              </div>
+
+              <div class="form-actions">
+                <button type="button" class="hlm-btn hlm-btn-primary"
+                        [disabled]="getMigration(entity).importing"
+                        (click)="runImport(entity)">
+                  {{ getMigration(entity).importing ? 'Importing...' : 'Import ' + getMigration(entity).rows.length + ' rows' }}
+                </button>
+              </div>
+
+              @if (getMigration(entity).importing || getMigration(entity).result) {
+                <div class="import-progress" aria-hidden="true">
+                  <div class="import-progress__bar" [style.width.%]="progressPercent(entity)"></div>
+                </div>
+              }
+
+              @if (getMigration(entity).result; as res) {
+                <div class="import-result">
+                  <div class="import-result__row">
+                    <span class="chip chip--success">Imported: {{ res.imported }}</span>
+                    <span class="chip">Updated: {{ res.updated }}</span>
+                    <span class="chip">Skipped: {{ res.skipped }}</span>
+                    <span class="chip chip--danger" [class.chip--muted]="!res.failed">Failed: {{ res.failed }}</span>
+                    @if (res.aborted) { <span class="chip chip--danger">Aborted</span> }
+                  </div>
+                  @if (res.failedRows.length) {
+                    <button type="button" class="hlm-btn hlm-btn-ghost" (click)="downloadFailedRows(entity)">
+                      <ng-icon name="lucideDownload" size="14" aria-hidden="true"></ng-icon>
+                      Download failed rows
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+    }
+
+    @if (activeTab() === 'whatsapp') {
+      <div class="panel-head">
+        <h2 class="panel-title">WhatsApp bill send</h2>
+        <p class="panel-sub">Meta Cloud API config. Approved templates only.</p>
+      </div>
+
+      <div class="whatsapp-verification-banner">
+        WhatsApp bill send requires an approved Meta Business account. Start verification at
+        <a href="https://business.facebook.com" target="_blank" rel="noopener">business.facebook.com</a> —
+        typical lead time 2–6 weeks.
+      </div>
+
+      @if (whatsappForm) {
+        <form [formGroup]="whatsappForm" (ngSubmit)="saveWhatsappSettings()">
+          <div class="form-section whatsapp-config">
+            <h3 class="section-heading">Configuration</h3>
+
+            <label class="whatsapp-config__toggle">
+              <input type="checkbox" formControlName="whatsappEnabled">
+              <span>Enable WhatsApp send flow</span>
+            </label>
+
+            <div class="field-grid">
+              <div class="form-grid__full">
+                <label class="field-label">Phone Number ID</label>
+                <input class="hlm-input tabular-nums" formControlName="whatsappPhoneNumberId"
+                       placeholder="e.g. 1234567890123456">
+              </div>
+              <div class="form-grid__full">
+                <label class="field-label">Business Account ID</label>
+                <input class="hlm-input tabular-nums" formControlName="whatsappBusinessAccountId"
+                       placeholder="e.g. 9876543210987654">
+              </div>
+              <div class="form-grid__full">
+                <label class="field-label">API Token</label>
+                <div style="display:flex; gap:6px; align-items:center;">
+                  <input class="hlm-input tabular-nums"
+                         [type]="showWhatsappToken() ? 'text' : 'password'"
+                         formControlName="whatsappApiToken"
+                         placeholder="Bearer token from Meta Business">
+                  <button type="button" class="icon-btn" (click)="toggleWhatsappTokenVisibility()"
+                          [attr.aria-label]="showWhatsappToken() ? 'Hide token' : 'Show token'">
+                    <ng-icon [name]="showWhatsappToken() ? 'lucideEyeOff' : 'lucideEye'" aria-hidden="true"></ng-icon>
+                  </button>
+                </div>
+                <p class="field-help" style="font-size:11px; color: var(--color-fg-muted); margin-top:4px;">
+                  Keep this secret. Token grants full send rights on your Meta Business Account.
+                </p>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="hlm-btn hlm-btn-primary" [disabled]="whatsappSaving()">
+                {{ whatsappSaving() ? 'Saving…' : 'Save' }}
+              </button>
+              <button type="button" class="hlm-btn hlm-btn-ghost" (click)="sendWhatsappTestMessage()"
+                      [disabled]="whatsappTestBusy()">
+                {{ whatsappTestBusy() ? 'Testing…' : 'Send test message' }}
+              </button>
+              @if (whatsappTestResult()) {
+                <span class="import-caption" style="margin-left:8px;">{{ whatsappTestResult() }}</span>
+              }
+            </div>
+          </div>
+        </form>
+      }
+
+      <div class="form-section">
+        <h3 class="section-heading">Expected templates</h3>
+        <p class="import-caption">
+          Set these up (and get them approved) inside Meta Business Manager before enabling.
+        </p>
+        <table class="whatsapp-templates-table">
+          <thead>
+            <tr><th>Template name</th><th>When it fires</th></tr>
+          </thead>
+          <tbody>
+            @for (tpl of whatsappTemplates; track tpl.name) {
+              <tr>
+                <td class="tabular-nums">{{ tpl.name }}</td>
+                <td>{{ tpl.description }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+        <p class="import-caption">Awaiting Meta approval — set up in Meta Business Manager before enabling.</p>
+      </div>
+    }
+
+    @if (activeTab() === 'whatsapp-activity') {
+      <div class="panel-head">
+        <h2 class="panel-title">WhatsApp activity</h2>
+        <p class="panel-sub">All template sends logged by the app. Queued rows will re-attempt sending on the next request.</p>
+      </div>
+
+      <div class="list-toolbar">
+        <div class="filter-chips">
+          @for (s of whatsappStatusOptions; track s) {
+            <button type="button" class="chip chip-toggle"
+                    [class.chip-active]="isWhatsappStatusActive(s)"
+                    (click)="toggleWhatsappActivityStatus(s)">{{ s }}</button>
+          }
+          <input type="date" class="hlm-input hlm-input--sm"
+                 [value]="whatsappActivityDateFrom()"
+                 (change)="onWhatsappDateFromChange($any($event.target).value)"
+                 aria-label="From date" />
+          <input type="date" class="hlm-input hlm-input--sm"
+                 [value]="whatsappActivityDateTo()"
+                 (change)="onWhatsappDateToChange($any($event.target).value)"
+                 aria-label="To date" />
+          <button type="button" class="chip chip-toggle" (click)="clearWhatsappFilters()">Clear</button>
+          <button type="button" class="hlm-btn hlm-btn-ghost" (click)="loadWhatsappActivity()">
+            <ng-icon name="lucideRefreshCw" size="14" aria-hidden="true"></ng-icon>
+            <span>Refresh</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="whatsapp-activity-table">
+        <div class="whatsapp-activity-table__head">
+          <span>Send</span>
+          <span>Phone</span>
+          <span>Template</span>
+          <span>Status</span>
+          <span>Sent at</span>
+          <span>Error / invoice</span>
+          <span>Invoice</span>
         </div>
 
-      </form>
-    </div>
-  </div>
+        @if (whatsappActivityLoading() && whatsappActivity().length === 0) {
+          <div class="loading-inline">
+            <ng-icon name="lucideRefreshCw" class="animate-spin" size="20" aria-hidden="true"></ng-icon>
+            <span>Loading…</span>
+          </div>
+        }
+
+        @for (row of whatsappActivity(); track row.sendGuid) {
+          <div class="data-row">
+            <span class="tabular-nums">{{ whatsappShortGuid(row.sendGuid) }}</span>
+            <span class="tabular-nums">{{ row.phoneNumber }}</span>
+            <span>{{ row.templateName }}</span>
+            <span><span [class]="whatsappStatusClass(row.status)">{{ row.status }}</span></span>
+            <span class="tabular-nums">{{ (row.sentAt ?? row.queuedAt) | date:'d MMM yyyy, h:mm a' }}</span>
+            <span class="import-caption">{{ row.errorMessage || row.invoiceNumber || '' }}</span>
+            <span>
+              @if (row.invoiceGuid) {
+                <a [routerLink]="['/orders/view-order-details', row.invoiceGuid]" class="hlm-btn hlm-btn-ghost">Open</a>
+              }
+            </span>
+          </div>
+        }
+
+        @if (!whatsappActivityLoading() && whatsappActivity().length === 0) {
+          <p class="import-caption" style="padding: 20px; text-align:center;">No send-log rows match the current filters.</p>
+        }
+      </div>
+    }
+
+    @if (activeTab() === 'appearance') {
+      <div class="panel-head">
+        <h2 class="panel-title" i18n="@@settings.appearance.title">Appearance</h2>
+        <p class="panel-sub" i18n="@@settings.appearance.sub">Choose a typography preset. Applies live across the whole app; save to make it stick across relaunches.</p>
+      </div>
+
+      <div class="form-section">
+        <h3 class="section-heading" i18n="@@settings.appearance.typography-heading">Typography</h3>
+
+        @for (preset of typographyPresets; track preset.id) {
+          <label class="typography-choice"
+                 [class.is-active]="isTypographyPresetActive(preset.id)">
+            <input type="radio" name="typography-preset"
+                   class="typography-choice__radio"
+                   [value]="preset.id"
+                   [checked]="isTypographyPresetActive(preset.id)"
+                   (change)="onTypographyPresetSelect(preset.id)">
+            <span class="typography-choice__body">
+              <span class="typography-choice__label">{{ preset.label }}</span>
+              <span class="typography-choice__desc">{{ preset.description }}</span>
+
+              <span class="typography-preview"
+                    [style.--preview-display]="preset.vars['--font-family-display']"
+                    [style.--preview-body]="preset.vars['--font-family-body']"
+                    [style.--preview-devanagari]="preset.vars['--font-family-devanagari']"
+                    [style.--preview-base]="preset.vars['--font-size-base']"
+                    [style.--preview-scale]="preset.vars['--font-size-scale']">
+                <span class="typography-preview__display">{{ preset.previewSample.display }}</span>
+                <span class="typography-preview__body">{{ preset.previewSample.body }}</span>
+                <span class="typography-preview__devanagari">{{ preset.previewSample.devanagari }}</span>
+                <span class="typography-preview__caption" i18n="@@settings.appearance.preview-caption">Grand total</span>
+              </span>
+            </span>
+          </label>
+        }
+
+        <div class="form-actions">
+          <button type="button" class="hlm-btn hlm-btn-ghost"
+                  [disabled]="!typographyDirty() || typographySaving()"
+                  (click)="cancelTypographyPreset()"
+                  i18n="@@settings.appearance.cancel">
+            Cancel
+          </button>
+          <button type="button" class="hlm-btn hlm-btn-primary"
+                  [disabled]="!typographyDirty() || typographySaving()"
+                  (click)="saveTypographyPreset()"
+                  i18n="@@settings.appearance.save">
+            Save &amp; apply
+          </button>
+        </div>
+      </div>
+    }
+
+    @if (activeTab() === 'language') {
+      <div class="panel-head">
+        <h2 class="panel-title" i18n="@@settings.language.title">Language</h2>
+        <p class="panel-sub" i18n="@@settings.language.sub">Choose the language for the app interface. Changes take effect after restart.</p>
+      </div>
+
+      <div class="form-section">
+        <h3 class="section-heading" i18n="@@settings.language.current">Current language</h3>
+        <p class="panel-sub tabular-nums">{{ activeLocale() }}</p>
+      </div>
+
+      <div class="form-section">
+        <h3 class="section-heading" i18n="@@settings.language.requested">Requested language</h3>
+        <div class="field-grid">
+          @for (loc of availableLocales; track loc.code) {
+            <label class="radio-inline">
+              <input type="radio" name="app-locale"
+                     [value]="loc.code"
+                     [checked]="requestedLocale() === loc.code"
+                     (change)="onLocaleSelect(loc.code)">
+              {{ loc.label }}
+            </label>
+          }
+        </div>
+        <p class="field-help" i18n="@@settings.language.restart-note">Language packs: English (default), Hindi, Gujarati, Marathi. Close and relaunch the app after saving to activate a different language bundle.</p>
+
+        <div class="form-actions">
+          <button type="button" class="hlm-btn hlm-btn-primary"
+                  [disabled]="!localeDirty()"
+                  (click)="saveLocalePreference()"
+                  i18n="@@settings.language.save">
+            Save preference
+          </button>
+        </div>
+
+        @if (localeSaved()) {
+          <div class="alert-banner alert-banner--warning" style="margin-top: 1rem;" i18n="@@settings.language.saved-toast">
+            Preference saved. Please close and reopen the app to apply the new language.
+          </div>
+        }
+      </div>
+    }
+
+    @if (activeTab() === 'database') {
+      <div class="panel-head">
+        <h2 class="panel-title">Database</h2>
+        <p class="panel-sub">MySQL connection settings. Changing these relaunches the app.</p>
+      </div>
+
+      @if (isDefaultDbSettings) {
+        <div class="alert-banner alert-banner--warning">Default database settings are active.</div>
+      }
+
+      @if (dbForm) {
+        <form [formGroup]="dbForm" (ngSubmit)="saveDbSettings()">
+          <div class="form-section">
+            <h3 class="section-heading">Connection</h3>
+            <div class="field-grid">
+              <div>
+                <label class="field-label" for="dbname">Database</label>
+                <input id="dbname" class="hlm-input" formControlName="dbname">
+              </div>
+              <div>
+                <label class="field-label" for="dbport">Port</label>
+                <input id="dbport" type="number" class="hlm-input tabular-nums" formControlName="port">
+              </div>
+              <div>
+                <label class="field-label" for="dbuser">Username</label>
+                <input id="dbuser" class="hlm-input" formControlName="username">
+              </div>
+              <div>
+                <label class="field-label" for="dbpass">Password</label>
+                <input id="dbpass" type="password" class="hlm-input" formControlName="password">
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="hlm-btn hlm-btn-primary" [disabled]="!dbForm.dirty || !dbForm.valid">Save &amp; relaunch</button>
+                <button type="button" class="hlm-btn hlm-btn-ghost" (click)="resetDbForm()" [disabled]="!dbForm.dirty">Reset</button>
+                <button type="button" class="hlm-btn hlm-btn-ghost" (click)="resetDbToDefault()" [disabled]="isDefaultDbSettings">Reset to default</button>
+              </div>
+            </div>
+          </div>
+        </form>
+      }
+    }
+
+  </section>
+
 </div>

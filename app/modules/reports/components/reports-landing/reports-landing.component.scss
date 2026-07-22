@@ -1,0 +1,42 @@
+.reports-landing {
+  padding: 24px 32px;
+
+  @media (max-width: 1023px) { padding: 20px 16px; }
+  @media (max-width: 639px)  { padding: 16px 12px; }
+
+  &__lede {
+    color: var(--color-fg-muted);
+    font-size: 13px;
+    margin: 0 0 24px;
+    max-width: 60ch;
+  }
+}
+
+.reports-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+
+  > .report-tile {
+    grid-column: span 6;
+  }
+}
+
+@media (max-width: 639px) {
+  .reports-grid > .report-tile {
+    grid-column: span 12;
+  }
+}
+
+@media (min-width: 900px) {
+  .reports-grid > .report-tile {
+    grid-column: span 4;
+  }
+}
+
+// Ultra-wide: 4 tiles per row so they don't stretch to canvas widths.
+@media (min-width: 1600px) {
+  .reports-grid > .report-tile {
+    grid-column: span 3;
+  }
+}

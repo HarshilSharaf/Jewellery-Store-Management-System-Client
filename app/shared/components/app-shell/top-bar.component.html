@@ -1,0 +1,55 @@
+<header class="top-bar">
+  <button type="button" class="top-bar__menu" (click)="onMenuClick()"
+          i18n-aria-label="@@topbar.menu.aria" aria-label="Open navigation"
+          i18n-title="@@topbar.menu.aria" title="Open navigation">
+    <ng-icon name="lucideMenu" size="18" aria-hidden="true"></ng-icon>
+  </button>
+
+  <div class="top-bar__brand">
+    <span class="top-bar__wordmark">{{ shopName() }}</span>
+    <span class="top-bar__wordmark top-bar__wordmark--initial" aria-hidden="true">{{ shopInitial() }}</span>
+  </div>
+
+  <div class="top-bar__center">
+    <app-rate-ticker></app-rate-ticker>
+  </div>
+
+  <div class="top-bar__right">
+    <button type="button"
+            class="top-bar__search top-bar__search--btn"
+            (click)="openPalette()"
+            (focus)="openPalette()"
+            i18n-aria-label="@@topbar.palette.aria" aria-label="Open command palette">
+      <ng-icon name="lucideSearch" size="14" class="top-bar__search-icon" aria-hidden="true"></ng-icon>
+      <input #searchInput
+             type="text"
+             class="top-bar__search-input"
+             i18n-placeholder="@@topbar.search.placeholder"
+             placeholder="Search or run command"
+             readonly
+             tabindex="-1"
+             aria-hidden="true">
+      <kbd class="top-bar__search-kbd">{{ commandHint() }}</kbd>
+    </button>
+
+    <button type="button"
+            class="top-bar__icon-btn top-bar__search-compact"
+            (click)="openPalette()"
+            i18n-aria-label="@@topbar.palette.aria" aria-label="Open command palette"
+            i18n-title="@@topbar.palette.aria" title="Open command palette">
+      <ng-icon name="lucideSearch" size="16" aria-hidden="true"></ng-icon>
+    </button>
+
+    <button type="button"
+            class="top-bar__icon-btn"
+            (click)="toggleTheme()"
+            [attr.aria-label]="themeService.isDark() ? 'Switch to light theme' : 'Switch to dark theme'"
+            [attr.title]="themeService.isDark() ? 'Switch to light theme' : 'Switch to dark theme'">
+      <ng-icon [name]="themeService.isDark() ? 'lucideSun' : 'lucideMoon'" size="16" aria-hidden="true"></ng-icon>
+    </button>
+
+    <app-add-to-cart></app-add-to-cart>
+
+    <app-user-menu></app-user-menu>
+  </div>
+</header>

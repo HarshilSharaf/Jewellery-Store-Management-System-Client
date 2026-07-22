@@ -1,15 +1,222 @@
-.btn-success {
-  background-color: #32CD32;
-  border-color: #32CD32;
-  color: white;
+:host {
+  display: block;
 }
 
-.btn-success {
-    i {
-        font-weight: bold;
-    }
-    span{
-        margin-left: 2px;
-        font-weight: 500;
-    }
+.search-input {
+  position: relative;
+  flex: 0 1 320px;
+  min-width: 220px;
+
+  .hlm-input {
+    padding-left: 36px;
+  }
+
+  &__icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-fg-muted);
+    pointer-events: none;
+  }
+}
+
+.people-table {
+  background: var(--color-panel);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+
+  &__head,
+  .people-row {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 2fr) 84px;
+    align-items: center;
+    gap: 16px;
+    padding: 0 16px;
+  }
+
+  &__head {
+    background: var(--color-bg-subtle);
+    padding-top: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--color-border-subtle);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+    color: var(--color-fg-muted);
+  }
+
+  &__loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 48px 16px;
+    color: var(--color-fg-muted);
+    font-size: 13px;
+  }
+}
+
+.people-row {
+  border-bottom: 1px solid var(--color-border-subtle);
+  cursor: pointer;
+  transition: background-color 0.12s ease;
+  min-height: 56px;
+
+  &:last-child {
+    border-bottom: 0;
+  }
+
+  &:hover {
+    background: var(--color-bg-subtle);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: -2px;
+  }
+}
+
+.col-name {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.name-block {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+
+  &__name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-fg);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__sub {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: var(--color-fg-muted);
+
+    ng-icon { color: var(--color-fg-subtle); }
+  }
+}
+
+.col-city,
+.col-remarks {
+  min-width: 0;
+}
+
+.cell-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--color-fg);
+}
+
+.cell-text-muted {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--color-fg-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.cell-icon {
+  color: var(--color-fg-subtle);
+  flex-shrink: 0;
+}
+
+.cell-empty {
+  color: var(--color-fg-subtle);
+}
+
+.col-actions {
+  display: flex;
+  gap: 4px;
+  justify-content: end;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+
+.people-row:hover .col-actions,
+.people-row:focus-within .col-actions {
+  opacity: 1;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 64px 24px;
+  text-align: center;
+
+  ng-icon { color: var(--color-fg-subtle); }
+
+  &__title {
+    margin: 6px 0 0;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--color-fg);
+  }
+
+  &__sub {
+    margin: 0 0 12px;
+    color: var(--color-fg-muted);
+    font-size: 13px;
+    max-width: 320px;
+  }
+}
+
+.animate-spin {
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 767px) {
+  .people-table {
+    background: transparent;
+    border: 0;
+    overflow: visible;
+  }
+  .people-table__head { display: none; }
+
+  .people-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "name actions"
+      "city city"
+      "remarks remarks";
+    padding: 12px 14px;
+    row-gap: 4px;
+    background: var(--color-panel);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-md);
+    margin-bottom: 8px;
+
+    .col-name { grid-area: name; }
+    .col-city { grid-area: city; }
+    .col-remarks { grid-area: remarks; }
+    .col-actions { grid-area: actions; opacity: 1; }
+  }
 }

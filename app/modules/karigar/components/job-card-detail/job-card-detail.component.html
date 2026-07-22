@@ -1,0 +1,297 @@
+@if (job(); as j) {
+  <header class="view-header">
+    <div class="view-header__left">
+      <button type="button" class="icon-btn" (click)="goBack()" title="Back" aria-label="Back">
+        <ng-icon name="lucideArrowLeft" size="18" aria-hidden="true"></ng-icon>
+      </button>
+      <div class="view-header__meta">
+        <h1 class="view-header__name font-serif">Job card <span class="tabular-nums">#{{ jobShort(j.jobGuid) }}</span></h1>
+        <div class="view-header__sub">
+          <button type="button" class="link-btn" (click)="goToKarigar()">{{ j.karigarName }}</button>
+          <span class="dot">·</span>
+          <span class="tabular-nums">Issued {{ j.issueDate | date: 'd MMM yyyy' }}</span>
+          <span [class]="statusClass(j.status)">{{ j.status }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="view-header__actions">
+      @if (j.status === 'issued') {
+        <button type="button" class="hlm-btn hlm-btn-primary" (click)="openReceive()">
+          <ng-icon name="lucidePackage" size="14" aria-hidden="true"></ng-icon>
+          <span>Receive job</span>
+        </button>
+      }
+      @if (j.status === 'received') {
+        <button type="button" class="hlm-btn hlm-btn-primary" (click)="openSettle()">
+          <ng-icon name="lucideIndianRupee" size="14" aria-hidden="true"></ng-icon>
+          <span>Settle job</span>
+        </button>
+      }
+    </div>
+  </header>
+
+  <div class="detail-shell">
+    <main class="detail-main">
+      <section class="form-section">
+        <p class="form-section__title">Issued</p>
+        <div class="detail-grid">
+          <div>
+            <span class="detail-field__label">Gross weight (g)</span>
+            <span class="detail-field__value tabular-nums">{{ j.issuedGrossWeight | number: '1.3-3' }}</span>
+          </div>
+          <div>
+            <span class="detail-field__label">Purity</span>
+            <span class="detail-field__value">{{ j.issuedPurityCode || '—' }}</span>
+          </div>
+          @if (j.expectedReturnDate) {
+            <div>
+              <span class="detail-field__label">Expected return</span>
+              <span class="detail-field__value">{{ j.expectedReturnDate | date: 'd MMM yyyy' }}</span>
+            </div>
+          }
+          <div class="detail-grid__full">
+            <span class="detail-field__label">Description</span>
+            <span class="detail-field__value" [class.is-empty]="!j.description">{{ j.description || 'No description' }}</span>
+          </div>
+        </div>
+        @if (stones().length > 0) {
+          <div class="stones-view">
+            <p class="stones-view__title">Stones issued</p>
+            <ul class="stones-view__list">
+              @for (s of stones(); track $index) {
+                <li>
+                  <span class="stones-view__type">{{ s.stoneType }}</span>
+                  <span class="tabular-nums">{{ s.weight }} · &#8377;{{ s.value }}</span>
+                </li>
+              }
+            </ul>
+          </div>
+        }
+      </section>
+
+      <section class="form-section">
+        <p class="form-section__title">Received</p>
+        @if (j.status === 'issued') {
+          <p class="empty-inline">Job is still with the karigar. Use "Receive job" once it's back.</p>
+        } @else {
+          <div class="detail-grid">
+            <div>
+              <span class="detail-field__label">Received date</span>
+              <span class="detail-field__value">{{ j.receivedDate ? (j.receivedDate | date: 'd MMM yyyy') : '—' }}</span>
+            </div>
+            <div>
+              <span class="detail-field__label">Received gross (g)</span>
+              <span class="detail-field__value tabular-nums">{{ (j.receivedGrossWeight ?? 0) | number: '1.3-3' }}</span>
+            </div>
+            <div>
+              <span class="detail-field__label">Received net (g)</span>
+              <span class="detail-field__value tabular-nums">{{ (j.receivedNetWeight ?? 0) | number: '1.3-3' }}</span>
+            </div>
+            <div>
+              <span class="detail-field__label">Stone weight (g)</span>
+              <span class="detail-field__value tabular-nums">{{ (j.receivedStoneWeight ?? 0) | number: '1.3-3' }}</span>
+            </div>
+            <div>
+              <span class="detail-field__label">Wastage % allowed</span>
+              <span class="detail-field__value tabular-nums">{{ (j.wastagePercentAllowed ?? 0) | number: '1.2-2' }}%</span>
+            </div>
+            <div>
+              <span class="detail-field__label">Wastage g actual</span>
+              <span class="detail-field__value tabular-nums">{{ (j.wastageGramsActual ?? 0) | number: '1.3-3' }}</span>
+            </div>
+            <div>
+              <span class="detail-field__label">Making charge</span>
+              <span class="detail-field__value tabular-nums">&#8377;{{ (j.makingCharge ?? 0) | number: '1.0-2' }}</span>
+            </div>
+          </div>
+        }
+      </section>
+
+      <section class="form-section">
+        <p class="form-section__title">Settlement</p>
+        @if (j.status !== 'settled') {
+          <p class="empty-inline">Making charge is not yet settled with the karigar.</p>
+        } @else {
+          <div class="detail-grid">
+            <div>
+              <span class="detail-field__label">Amount</span>
+              <span class="detail-field__value tabular-nums">&#8377;{{ (j.settlementAmount ?? 0) | number: '1.0-2' }}</span>
+            </div>
+            <div>
+              <span class="detail-field__label">Mode</span>
+              <span class="detail-field__value">{{ j.settlementPaymentMode || '—' }}</span>
+            </div>
+            <div>
+              <span class="detail-field__label">Reference #</span>
+              <span class="detail-field__value tabular-nums">{{ j.settlementRefNumber || '—' }}</span>
+            </div>
+            <div>
+              <span class="detail-field__label">Settled at</span>
+              <span class="detail-field__value">{{ j.settledAt ? (j.settledAt | date: 'd MMM yyyy') : '—' }}</span>
+            </div>
+          </div>
+        }
+      </section>
+
+      @if (ledger().length > 0) {
+        <section class="form-section">
+          <p class="form-section__title">Ledger entries</p>
+          <div class="ledger-table">
+            <div class="ledger-table__head">
+              <span>Date</span>
+              <span>Type</span>
+              <span>Direction</span>
+              <span>Weight</span>
+              <span>Amount</span>
+              <span>Notes</span>
+            </div>
+            @for (l of ledger(); track l.ledgerGuid) {
+              <div class="ledger-table__row">
+                <span class="tabular-nums">{{ l.txnDate | date: 'd MMM yyyy' }}</span>
+                <span>{{ l.entryType }}</span>
+                <span [class.is-credit]="l.direction === 'credit'"
+                      [class.is-debit]="l.direction === 'debit'">
+                  {{ l.direction }}
+                </span>
+                <span class="tabular-nums">{{ (l.weightGrams ?? 0) | number: '1.2-3' }}</span>
+                <span class="tabular-nums">
+                  @if (l.amount && +l.amount !== 0) { &#8377;{{ +l.amount | number: '1.0-2' }} } @else { — }
+                </span>
+                <span>{{ l.notes || '' }}</span>
+              </div>
+            }
+          </div>
+        </section>
+      }
+    </main>
+
+    <aside class="detail-side">
+      @if (j.status === 'received' || j.status === 'settled') {
+        <div class="kpi-card">
+          <p class="kpi-label">Wastage %</p>
+          <p class="kpi-value money-lg tabular-nums">{{ (j.wastagePercentAllowed ?? 0) | number: '1.2-2' }}%</p>
+          <p class="kpi-delta tabular-nums">Actual {{ (j.wastageGramsActual ?? 0) | number: '1.3-3' }} g</p>
+        </div>
+      }
+      <div class="side-row">
+        <div class="kpi-card kpi-card--compact">
+          <p class="kpi-label">Days open</p>
+          <p class="kpi-value kpi-value--sm tabular-nums">{{ daysOpen() }}</p>
+        </div>
+        <div class="kpi-card kpi-card--compact">
+          <p class="kpi-label">Amount due</p>
+          <p class="kpi-value kpi-value--sm tabular-nums">&#8377;{{ amountDue() | number: '1.0-0' }}</p>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  @if (panelMode() === 'receive') {
+    <div class="payments-panel-backdrop" (click)="closePanel()" role="presentation"></div>
+    <aside class="payments-panel" role="dialog" aria-modal="true" aria-labelledby="receive-title">
+      <header class="payments-panel__head">
+        <div>
+          <h3 id="receive-title" class="payments-panel__title">Receive job</h3>
+          <div class="payments-panel__sub tabular-nums">Job #{{ jobShort(j.jobGuid) }}</div>
+        </div>
+        <button type="button" class="icon-btn" (click)="closePanel()" aria-label="Close">
+          <ng-icon name="lucideX" aria-hidden="true"></ng-icon>
+        </button>
+      </header>
+      <div class="payments-panel__body">
+        <form [formGroup]="receiveForm" (ngSubmit)="receiveJob()">
+          <label class="field-label">Received date</label>
+          <input class="hlm-input tabular-nums" type="date" formControlName="receivedDate" />
+
+          <label class="field-label">Received gross (g)</label>
+          <input class="hlm-input tabular-nums" type="number" step="0.001" min="0" formControlName="receivedGrossWeight" />
+
+          <label class="field-label">Received net (g)</label>
+          <input class="hlm-input tabular-nums" type="number" step="0.001" min="0" formControlName="receivedNetWeight" />
+
+          <label class="field-label">Stone weight (g)</label>
+          <input class="hlm-input tabular-nums" type="number" step="0.001" min="0" formControlName="receivedStoneWeight" />
+
+          <label class="field-label">Wastage % allowed</label>
+          <input class="hlm-input tabular-nums" type="number" step="0.01" min="0" formControlName="wastagePercentAllowed" />
+
+          <label class="field-label">Wastage grams actual</label>
+          <input class="hlm-input tabular-nums" type="number" step="0.001" min="0" formControlName="wastageGramsActual" />
+
+          <label class="field-label">Making charge (₹)</label>
+          <input class="hlm-input tabular-nums" type="number" step="1" min="0" formControlName="makingCharge" />
+
+          <label class="field-label">Remarks</label>
+          <textarea class="hlm-input" rows="2" formControlName="remarks"></textarea>
+
+          @if (errorMessage()) {
+            <p class="payments-form__error">{{ errorMessage() }}</p>
+          }
+        </form>
+      </div>
+      <footer class="payments-panel__foot">
+        <button type="button" class="hlm-btn hlm-btn-ghost" (click)="closePanel()">Cancel</button>
+        <button type="button" class="hlm-btn hlm-btn-primary" (click)="receiveJob()"
+                [disabled]="receiveForm.invalid || saving()">
+          <ng-icon name="lucideCheck" aria-hidden="true"></ng-icon>
+          {{ saving() ? 'Saving…' : 'Save receive' }}
+        </button>
+      </footer>
+    </aside>
+  }
+
+  @if (panelMode() === 'settle') {
+    <div class="payments-panel-backdrop" (click)="closePanel()" role="presentation"></div>
+    <aside class="payments-panel" role="dialog" aria-modal="true" aria-labelledby="settle-title">
+      <header class="payments-panel__head">
+        <div>
+          <h3 id="settle-title" class="payments-panel__title">Settle job</h3>
+          <div class="payments-panel__sub tabular-nums">Making charge on file: &#8377;{{ (j.makingCharge ?? 0) | number: '1.0-2' }}</div>
+        </div>
+        <button type="button" class="icon-btn" (click)="closePanel()" aria-label="Close">
+          <ng-icon name="lucideX" aria-hidden="true"></ng-icon>
+        </button>
+      </header>
+      <div class="payments-panel__body">
+        <form [formGroup]="settleForm" (ngSubmit)="settleJob()">
+          <label class="field-label">Amount</label>
+          <div class="amount-input">
+            <span class="amount-input__prefix">&#8377;</span>
+            <input class="hlm-input amount-input__field tabular-nums" type="number" step="0.01" min="0"
+                   formControlName="settlementAmount" />
+          </div>
+
+          <label class="field-label">Mode</label>
+          <div class="radio-pill-row" role="radiogroup" aria-label="Payment mode">
+            @for (m of modes; track m) {
+              <button type="button" class="radio-pill"
+                      [class.is-active]="currentMode() === m"
+                      (click)="setMode(m)">{{ m }}</button>
+            }
+          </div>
+
+          <label class="field-label">Reference #</label>
+          <input class="hlm-input" type="text" formControlName="refNumber"
+                 [placeholder]="currentMode() === 'cash' ? 'Not required for cash' : 'UPI txn / cheque no'" />
+
+          @if (errorMessage()) {
+            <p class="payments-form__error">{{ errorMessage() }}</p>
+          }
+        </form>
+      </div>
+      <footer class="payments-panel__foot">
+        <button type="button" class="hlm-btn hlm-btn-ghost" (click)="closePanel()">Cancel</button>
+        <button type="button" class="hlm-btn hlm-btn-primary" (click)="settleJob()"
+                [disabled]="settleForm.invalid || saving()">
+          <ng-icon name="lucideCheck" aria-hidden="true"></ng-icon>
+          {{ saving() ? 'Saving…' : 'Save settlement' }}
+        </button>
+      </footer>
+    </aside>
+  }
+} @else {
+  <div class="loading-state">
+    <ng-icon name="lucideLoader" class="animate-spin" size="24" aria-hidden="true"></ng-icon>
+    <span>Loading job…</span>
+  </div>
+}

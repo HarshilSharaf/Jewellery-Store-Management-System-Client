@@ -1,0 +1,211 @@
+<ng-container *ngIf="palette.isOpen()">
+  <div class="cp-backdrop" (click)="onBackdropClick()"></div>
+
+  <div class="cp-panel"
+       role="dialog"
+       aria-modal="true"
+       aria-label="Command palette"
+       (click)="$event.stopPropagation()">
+
+    <div *ngIf="stack().length" class="cp-breadcrumb">
+      <button type="button" class="cp-back-btn" (click)="onBackClick()" aria-label="Back">
+        <ng-icon name="lucideChevronLeft" size="14" aria-hidden="true"></ng-icon>
+      </button>
+      <span class="cp-crumbs">
+        <ng-container *ngFor="let c of breadcrumbs(); let last = last">
+          <span [class.cp-crumb--current]="last">{{ c }}</span>
+          <span *ngIf="!last" class="cp-crumb-sep">/</span>
+        </ng-container>
+      </span>
+    </div>
+
+    <div class="cp-search-row">
+      <ng-icon name="lucideSearch" size="16" class="cp-row-icon" aria-hidden="true"></ng-icon>
+      <input #searchInput
+             type="text"
+             class="cp-search-input"
+             [placeholder]="currentSub() ? subPlaceholder : (rootPlaceholder + '  ' + commandHint)"
+             [value]="query()"
+             (input)="onSearchChange($any($event.target).value)"
+             (keydown)="onSearchKeydown($event)"
+             autocomplete="off"
+             spellcheck="false"
+             i18n-aria-label="@@palette.input.aria" aria-label="Command palette input">
+      <button type="button" class="cp-close-btn" (click)="onCloseClick()"
+              i18n-aria-label="@@buttons.close" aria-label="Close">
+        <ng-icon name="lucideX" size="14" aria-hidden="true"></ng-icon>
+      </button>
+    </div>
+
+    <!-- Root -->
+    <div *ngIf="!currentSub()" class="cp-body">
+      <ng-container *ngIf="flatRows().length; else emptyTpl">
+        <div *ngFor="let group of groups()" class="cp-section">
+          <div class="cp-section-header">{{ group.section }}</div>
+          <div *ngFor="let row of group.rows"
+               class="cp-row"
+               [class.is-active]="isActive(row)"
+               (mouseenter)="onRowHover(flatRows().indexOf(row))"
+               (click)="onRowClick(row.action)">
+            <ng-icon *ngIf="row.action.icon"
+                     [name]="row.action.icon"
+                     size="16"
+                     class="cp-row-icon"
+                     aria-hidden="true"></ng-icon>
+            <span class="cp-row-label">{{ row.action.label }}</span>
+            <span *ngIf="row.action.shortcut" class="cp-row-hint">{{ row.action.shortcut }}</span>
+            <ng-icon *ngIf="!row.action.shortcut && (row.action.kind === 'sub' || row.action.kind === 'nav' || row.action.kind === 'recent')"
+                     name="lucideArrowRight"
+                     size="14"
+                     class="cp-row-icon cp-row-hint-icon"
+                     aria-hidden="true"></ng-icon>
+          </div>
+        </div>
+      </ng-container>
+      <ng-template #emptyTpl>
+        <div class="cp-empty">No matches for &ldquo;{{ query() }}&rdquo;</div>
+      </ng-template>
+    </div>
+
+    <!-- Sub: Add customer -->
+    <div *ngIf="currentSub() === 'add-customer'" class="cp-body cp-body--form">
+      <div class="cp-form-row">
+        <label class="cp-form-label" i18n="@@customer.first-name">First name</label>
+        <input type="text"
+               class="cp-form-input"
+               [value]="customerForm().firstName"
+               (input)="onCustomerFieldChange('firstName', $any($event.target).value)">
+      </div>
+      <div class="cp-form-row">
+        <label class="cp-form-label" i18n="@@customer.last-name">Last name</label>
+        <input type="text"
+               class="cp-form-input"
+               [value]="customerForm().lastName"
+               (input)="onCustomerFieldChange('lastName', $any($event.target).value)">
+      </div>
+      <div class="cp-form-row">
+        <label class="cp-form-label" i18n="@@customer.phone">Phone</label>
+        <input type="tel"
+               class="cp-form-input"
+               [value]="customerForm().phoneNumber"
+               (input)="onCustomerFieldChange('phoneNumber', $any($event.target).value)"
+               (keydown.enter)="onSubmitCustomer()">
+      </div>
+      <div class="cp-form-actions">
+        <button type="button"
+                class="cp-btn cp-btn--primary"
+                [disabled]="submitting()"
+                (click)="onSubmitCustomer()">
+          <ng-container *ngIf="submitting(); else addCustLabel" i18n="@@buttons.saving">Saving...</ng-container>
+          <ng-template #addCustLabel><span i18n="@@customer.add">Add customer</span></ng-template>
+        </button>
+      </div>
+    </div>
+
+    <!-- Sub: Enroll scheme -->
+    <div *ngIf="currentSub() === 'enroll-scheme'" class="cp-body cp-body--form">
+      <div class="cp-form-row">
+        <label class="cp-form-label" i18n="@@customer.label">Customer</label>
+        <input type="text"
+               class="cp-form-input"
+               i18n-placeholder="@@palette.customer-picker.placeholder"
+               placeholder="Type name or phone..."
+               [value]="customerPicker()"
+               (input)="onCustomerPickerInput($any($event.target).value)"
+               autocomplete="off">
+      </div>
+      <div *ngIf="customerMatches().length" class="cp-sub-list">
+        <div *ngFor="let c of customerMatches()"
+             class="cp-row"
+             (click)="pickCustomer(c)">
+          <ng-icon name="lucideUser" size="14" class="cp-row-icon" aria-hidden="true"></ng-icon>
+          <span class="cp-row-label">{{ (c.firstName ?? '') + ' ' + (c.lastName ?? '') }}</span>
+          <span class="cp-row-hint">{{ c.phoneNumber }}</span>
+        </div>
+      </div>
+      <div *ngIf="pickedCustomer()" class="cp-picked">
+        Selected: {{ pickedCustomer()?.firstName }} {{ pickedCustomer()?.lastName }}
+      </div>
+      <div class="cp-form-row">
+        <label class="cp-form-label" i18n="@@scheme.plan-name">Plan name</label>
+        <input type="text"
+               class="cp-form-input"
+               [value]="schemeForm().planName"
+               (input)="onSchemeFieldChange('planName', $any($event.target).value)">
+      </div>
+      <div class="cp-form-row">
+        <label class="cp-form-label" i18n="@@scheme.monthly-amount">Monthly amount</label>
+        <input type="number"
+               min="1"
+               class="cp-form-input"
+               [value]="schemeForm().monthlyAmount"
+               (input)="onSchemeFieldChange('monthlyAmount', $any($event.target).value)">
+      </div>
+      <div class="cp-form-row">
+        <label class="cp-form-label" i18n="@@scheme.tenure">Tenure (months)</label>
+        <input type="number"
+               min="1"
+               class="cp-form-input"
+               [value]="schemeForm().tenureMonths"
+               (input)="onSchemeFieldChange('tenureMonths', $any($event.target).value)"
+               (keydown.enter)="onSubmitScheme()">
+      </div>
+      <div class="cp-form-actions">
+        <button type="button"
+                class="cp-btn cp-btn--primary"
+                [disabled]="submitting() || !pickedCustomer()"
+                (click)="onSubmitScheme()">
+          <ng-container *ngIf="submitting(); else enrollLabel" i18n="@@buttons.saving">Saving...</ng-container>
+          <ng-template #enrollLabel><span i18n="@@scheme.enroll">Enroll scheme</span></ng-template>
+        </button>
+      </div>
+    </div>
+
+    <!-- Sub: Lock rate -->
+    <div *ngIf="currentSub() === 'lock-rate'" class="cp-body cp-body--form">
+      <div class="cp-form-row">
+        <label class="cp-form-label" i18n="@@product.purity">Purity</label>
+        <select class="cp-form-input"
+                [value]="rateForm().purityCode"
+                (change)="onRateFormChange('purityCode', $any($event.target).value)">
+          <option *ngFor="let p of puritiesList()" [value]="p.code">
+            {{ p.label }} ({{ p.code }})
+          </option>
+        </select>
+      </div>
+      <div class="cp-form-row">
+        <label class="cp-form-label" i18n="@@rate.per-gram">Rate per gram</label>
+        <input type="number"
+               step="0.01"
+               min="0"
+               class="cp-form-input"
+               [value]="rateForm().ratePerGram"
+               (input)="onRateFormChange('ratePerGram', $any($event.target).value)"
+               (keydown.enter)="onSubmitRate()">
+      </div>
+      <div class="cp-form-actions">
+        <button type="button"
+                class="cp-btn cp-btn--primary"
+                [disabled]="submitting()"
+                (click)="onSubmitRate()">
+          <ng-container *ngIf="submitting(); else lockRateLabel" i18n="@@buttons.saving">Saving...</ng-container>
+          <ng-template #lockRateLabel><span i18n="@@rate.lock-today">Lock today's rate</span></ng-template>
+        </button>
+      </div>
+    </div>
+
+    <div class="cp-footer">
+      <span *ngIf="!currentSub()" i18n="@@palette.footer.root">
+        <ng-icon name="lucideCornerDownLeft" size="12" aria-hidden="true"></ng-icon>
+        &nbsp;to select &middot; &uarr;&darr; to navigate &middot; Esc to close
+      </span>
+      <span *ngIf="currentSub()" i18n="@@palette.footer.sub">
+        Esc to go back &middot; Enter to submit
+      </span>
+      <span class="cp-footer-brand">
+        <ng-icon name="lucideCommand" size="12" aria-hidden="true"></ng-icon>
+        &nbsp;K
+      </span>
+    </div>
+  </div>
+</ng-container>

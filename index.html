@@ -2,18 +2,37 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Frontend</title>
+  <title>Jewellery Store Management</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
-  <link rel="preconnect" href="https://fonts.gstatic.com">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <style>
-   app-select-customer span.ngb-highlight {
-	background-color: yellow;
-}
-  </style>
+
+  <script>
+    (function () {
+      try {
+        var stored = localStorage.getItem('jsms.theme');
+        var theme = stored === 'dark' || stored === 'light'
+          ? stored
+          : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) { /* localStorage may be blocked in strict Electron ctx; default to light */ }
+
+      try {
+        var allowed = { 'editorial': 1, 'modern_sans': 1, 'traditional_devanagari': 1, 'compact': 1 };
+        var typo = localStorage.getItem('jsms.typography.preset');
+        if (!typo || !allowed[typo]) { typo = 'editorial'; }
+        document.documentElement.dataset.typographyPreset = typo;
+      } catch (e) {
+        document.documentElement.dataset.typographyPreset = 'editorial';
+      }
+    })();
+  </script>
+
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/Inter-Variable-Latin.woff2" crossorigin>
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/Hind-400-Devanagari.woff2" crossorigin>
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/InstrumentSerif-400.woff2" crossorigin>
+
   <script type="text/javascript" src="assets/splashscreens/splashscreen.js"></script>
 </head>
 <body>

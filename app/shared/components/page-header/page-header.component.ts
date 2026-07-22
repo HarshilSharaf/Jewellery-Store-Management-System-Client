@@ -1,12 +1,19 @@
 import { Location } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideArrowLeft } from '@ng-icons/lucide';
+
 
 @Component({
   selector: 'app-page-header',
   templateUrl: './page-header.component.html',
-  styleUrls: ['./page-header.component.scss']
+  styleUrls: ['./page-header.component.scss'],
+  standalone: true,
+  imports: [NgIcon],
+  viewProviders: [provideIcons({ lucideArrowLeft })],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class PageHeaderComponent implements OnInit {
+export class PageHeaderComponent {
 
   _pageName: string = '';
 
@@ -15,8 +22,6 @@ export class PageHeaderComponent implements OnInit {
   }
 
   constructor(private location: Location) {}
-
-  ngOnInit(): void {}
 
   goBack() {
     this.location.back();

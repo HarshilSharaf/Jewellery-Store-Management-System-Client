@@ -1,0 +1,128 @@
+<header class="view-header">
+  <div class="view-header__left">
+    <button type="button" class="icon-btn" (click)="goBack()" title="Back" aria-label="Back">
+      <ng-icon name="lucideArrowLeft" size="18" aria-hidden="true"></ng-icon>
+    </button>
+    <div class="view-header__meta">
+      <h1 class="view-header__name font-serif">Issue karigar job</h1>
+      <p class="view-header__hint">Give gold to a goldsmith, capture issue-side details.</p>
+    </div>
+  </div>
+</header>
+
+<form class="issue-form" [formGroup]="form" (ngSubmit)="submitForm()" novalidate>
+  <section class="form-section">
+    <p class="form-section__title">Party</p>
+    <div class="form-grid">
+      <div>
+        <label class="field-label" for="karigar">Karigar <span class="req">*</span></label>
+        <select class="hlm-input" id="karigar" formControlName="karigarGuid">
+          <option value="">Select karigar</option>
+          @for (k of karigars(); track k.karigarGuid) {
+            <option [value]="k.karigarGuid">{{ k.name }}{{ k.phone ? ' — ' + k.phone : '' }}</option>
+          }
+        </select>
+      </div>
+      <div>
+        <label class="field-label" for="issueDate">Issue date <span class="req">*</span></label>
+        <input class="hlm-input tabular-nums" id="issueDate" type="date" formControlName="issueDate" />
+      </div>
+    </div>
+  </section>
+
+  <section class="form-section">
+    <p class="form-section__title">Issued gold</p>
+    <div class="form-grid">
+      <div>
+        <label class="field-label" for="grossWeight">Gross weight (g) <span class="req">*</span></label>
+        <div class="weight-input">
+          <input class="hlm-input tabular-nums" id="grossWeight" type="number" step="0.001" min="0"
+                 formControlName="issuedGrossWeight" placeholder="0.000" />
+          <button type="button" class="icon-btn weight-input__scale"
+                  disabled title="Weight from scale (Workstream L)">
+            <ng-icon name="lucideScale" size="14" aria-hidden="true"></ng-icon>
+          </button>
+        </div>
+        <div class="field-help">Scale integration lands with Workstream L.</div>
+      </div>
+      <div>
+        <label class="field-label" for="purity">Purity <span class="req">*</span></label>
+        <select class="hlm-input" id="purity" formControlName="issuedPurityCode">
+          @for (p of purities(); track p.code) {
+            <option [value]="p.code">{{ p.label }} ({{ p.code }})</option>
+          }
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <section class="form-section">
+    <div class="section-head">
+      <p class="form-section__title" style="margin-bottom: 0;">Issued stones</p>
+      <button type="button" class="hlm-btn hlm-btn-ghost" (click)="addStone()">
+        <ng-icon name="lucidePlus" size="14" aria-hidden="true"></ng-icon>
+        <span>Add stone</span>
+      </button>
+    </div>
+
+    @if (stonesArray.length === 0) {
+      <p class="empty-inline">No stones issued. Add rows if you're sending polki, cz, or diamonds along.</p>
+    } @else {
+      <div class="stones" formArrayName="stones">
+        @for (ctrl of stonesArray.controls; track $index; let i = $index) {
+          <div class="stones__row" [formGroupName]="i">
+            <div>
+              <label class="field-label">Stone type</label>
+              <input class="hlm-input" formControlName="stoneType" placeholder="e.g. polki, cz" />
+            </div>
+            <div>
+              <label class="field-label">Weight (ct/g)</label>
+              <input class="hlm-input tabular-nums" type="number" step="0.001" min="0" formControlName="weight" />
+            </div>
+            <div>
+              <label class="field-label">Value (₹)</label>
+              <input class="hlm-input tabular-nums" type="number" step="1" min="0" formControlName="value" />
+            </div>
+            <div class="stones__remove">
+              <button type="button" class="icon-btn icon-btn--danger" (click)="removeStone(i)" aria-label="Remove stone">
+                <ng-icon name="lucideTrash2" size="14" aria-hidden="true"></ng-icon>
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </section>
+
+  <section class="form-section">
+    <p class="form-section__title">Description &amp; expected return</p>
+    <div class="form-grid">
+      <div class="form-grid__full">
+        <label class="field-label" for="description">Description</label>
+        <textarea class="hlm-input" id="description" formControlName="description" rows="3"
+                  placeholder="What is the karigar making? e.g. Two 22k bangles, size 2-4"></textarea>
+      </div>
+      <div>
+        <label class="field-label" for="return">Expected return</label>
+        <input class="hlm-input tabular-nums" id="return" type="date" formControlName="expectedReturnDate" />
+      </div>
+    </div>
+  </section>
+
+  @if (errorMessage()) {
+    <div class="form-response form-response--error">{{ errorMessage() }}</div>
+  }
+
+  <footer class="issue-form__actions">
+    <button type="button" class="hlm-btn hlm-btn-ghost" (click)="goBack()" [disabled]="saving()">Cancel</button>
+    <button type="submit" class="hlm-btn hlm-btn-primary" [disabled]="!form.valid || saving()">
+      @if (saving()) {
+        <ng-icon name="lucideLoader" class="animate-spin" size="14" aria-hidden="true"></ng-icon>
+        <span>Issuing…</span>
+      } @else {
+        <ng-icon name="lucideCheck" size="14" aria-hidden="true"></ng-icon>
+        <span>Issue job card</span>
+      }
+    </button>
+  </footer>
+</form>

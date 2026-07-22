@@ -1,138 +1,180 @@
-<!-- Create Paginator and Filter Input For Data Table -->
+<div class="data-table-toolbar">
+  <div class="data-table-toolbar__filter">
+    <ng-icon name="lucideSearch" class="data-table-toolbar__filter-icon" aria-hidden="true"></ng-icon>
+    <input type="text"
+      class="hlm-input data-table-toolbar__filter-input"
+      (keyup)="filterChanged($event)"
+      id="filter"
+      aria-label="Filter rows"
+      placeholder="Filter">
+  </div>
 
-<div class="row mx-1">
-    <div class="card col">
+  <div class="data-table-toolbar__paginator">
+    <label class="data-table-paginator__page-size">
+      <span class="data-table-paginator__page-size-label">Items per page</span>
+      <select class="hlm-input data-table-paginator__page-size-select"
+        [value]="pageSize"
+        (change)="changePageSize($event)"
+        aria-label="Items per page">
+        @for (opt of pageSizeOptions; track opt) {
+          <option [value]="opt">{{ opt }}</option>
+        }
+      </select>
+    </label>
 
-        <div class="card-body row align-items-center">
-            <div class=" col-sm-3 col-md-3 col-lg-2">
-                <div class="form-group has-feedback has-search">
-                    <span class="fa fa-search form-control-feedback my-2"></span>
-                    <input type="text" class="form-control" (keyup)="filterChanged($event)" id="filter"
-                        aria-describedby="filter" placeholder="Filter">
-                </div>
+    <span class="data-table-paginator__range tabular-nums">{{ getRangeDisplayText() }}</span>
 
-            </div>
-
-            <div class="col-sm-3 col-md-4 col-lg-2 mt-3 mt-sm-0 text-center">
-                <small> Showing Page <b style="color: red;">{{currentPage}} </b> of {{totalNumberOfPages}}</small>
-            </div>
-
-            <div class="col-sm-6 col-md-5 col-lg-8">
-                <mat-paginator #paginator [pageSizeOptions]="[5, 10, 20]"
-                [length]="_totalRecords"
-                (page)="onPageChange($event)" showFirstLastButtons>
-                </mat-paginator>
-
-            </div>
-        </div>
-
+    <div class="data-table-paginator__controls">
+      <button type="button"
+        class="data-table-paginator__btn"
+        (click)="goToPage(0)"
+        [disabled]="pageIndex === 0"
+        aria-label="First page">
+        <ng-icon name="lucideChevronsLeft" aria-hidden="true"></ng-icon>
+      </button>
+      <button type="button"
+        class="data-table-paginator__btn"
+        (click)="goToPage(pageIndex - 1)"
+        [disabled]="pageIndex === 0"
+        aria-label="Previous page">
+        <ng-icon name="lucideChevronLeft" aria-hidden="true"></ng-icon>
+      </button>
+      <button type="button"
+        class="data-table-paginator__btn"
+        (click)="goToPage(pageIndex + 1)"
+        [disabled]="pageIndex >= totalNumberOfPages - 1"
+        aria-label="Next page">
+        <ng-icon name="lucideChevronRight" aria-hidden="true"></ng-icon>
+      </button>
+      <button type="button"
+        class="data-table-paginator__btn"
+        (click)="goToPage(totalNumberOfPages - 1)"
+        [disabled]="pageIndex >= totalNumberOfPages - 1"
+        aria-label="Last page">
+        <ng-icon name="lucideChevronsRight" aria-hidden="true"></ng-icon>
+      </button>
     </div>
-
+  </div>
 </div>
 
-
-<!-- Populate Data Table -->
-
-<div class="row my-3 dataTableContainer">
-    <div class="col">
-        <mat-table matSort *ngIf="!_isLoading" [matSortActive]="sortByColumn"  class="dataTable" matSortDirection="asc" [dataSource]="_tableData" [ngClass]="{'mat-table-header-row-if-loader' : showLoader}">
-
-            <ng-container *ngFor="let column of COLUMNS_SCHEMA;" matColumnDef="{{column.key}}">
-
-                <ng-container *ngIf="column.key=='image'">
-                    <!-- Dont add the sort feature for the Image column -->
-                    <mat-header-cell *matHeaderCellDef> {{column.label}}</mat-header-cell>
-
-                    <mat-cell *matCellDef="let element">
-                        <img class="img-fluid img-thumbnail" [src]="element.image" height="80" width="80">
-                    </mat-cell>
-                </ng-container>
-
-                <!-- Add Action Buttons if the column is for action -->
-                <ng-container *ngIf="column.key=='actions'">
-                    <!-- Dont add the sort feature for the Actions column -->
-                    <mat-header-cell *matHeaderCellDef> {{column.label}}</mat-header-cell>
-
-                    <mat-cell *matCellDef="let element">
-
-                        <ng-container *ngIf="showAddToCartButton">
-                            <button class="btn btn-success" [ngClass]="{disabled: disableButtonForProducts.includes(element.productGuid)}" (click)="addToCart(element)">
-                                <i class="fa-solid fa-cart-plus fa-lg"></i>
-                            </button>
-                        </ng-container>
-
-                        <button type="button" class="btn btn-primary" (click)="goToViewDetails(element)"
-                            [ngClass]="{disabled: element.cancelledAt!=null}">
-                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+<div class="data-table-container">
+  <div class="data-table-scroll">
+    <table class="data-table" role="table">
+      <thead>
+        <tr>
+          @for (column of COLUMNS_SCHEMA; track column.key) {
+            <th scope="col"
+              class="data-table__header-cell"
+              [class.data-table__header-cell--sortable]="column.key !== 'actions' && column.key !== 'image'"
+              [class.data-table__header-cell--actions]="column.key === 'actions'"
+              (click)="onSort(column)">
+              <span class="data-table__header-inner">
+                <span>{{ column.label }}</span>
+                @if (column.key !== 'actions' && column.key !== 'image') {
+                  <ng-icon [name]="sortIcon(column)" class="data-table__sort-icon" aria-hidden="true"></ng-icon>
+                }
+              </span>
+            </th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @if (!_isLoading && hasData()) {
+          @for (element of _tableData; track element) {
+            <tr class="data-table__row"
+              [class.data-table__row--cancelled]="element['cancelledAt'] != null">
+              @for (column of COLUMNS_SCHEMA; track column.key) {
+                <td class="data-table__cell" [attr.data-column]="column.key" [ngClass]="column.key">
+                  @switch (column.key) {
+                    @case ('image') {
+                      <img class="data-table__thumb" [src]="element['image']" height="60" width="60" loading="lazy" alt="">
+                    }
+                    @case ('actions') {
+                      <div class="row-actions">
+                        @if (showAddToCartButton) {
+                          <button type="button"
+                            class="row-actions__btn row-actions__btn--add"
+                            [class.row-actions__btn--disabled]="disableButtonForProducts.includes(element['productGuid'])"
+                            (click)="addToCart(element)"
+                            aria-label="Add to cart"
+                            title="Add to cart">
+                            <ng-icon name="lucideShoppingCart" aria-hidden="true"></ng-icon>
+                          </button>
+                        }
+                        <button type="button"
+                          class="row-actions__btn row-actions__btn--view"
+                          [class.row-actions__btn--disabled]="element['cancelledAt'] != null"
+                          (click)="goToViewDetails(element)"
+                          aria-label="View details"
+                          title="View details">
+                          <ng-icon name="lucideSquareArrowOutUpRight" aria-hidden="true"></ng-icon>
                         </button>
-
-                        <span class="mx-1"></span>
-
-                        <button type="button" class="btn btn-danger" [ngClass]="{disabled: element.cancelledAt!=null}"
-                            (click)="openDeletePopUpForItem(element)">
-                            <i class="fa-solid fa-ban"></i>
+                        <button type="button"
+                          class="row-actions__btn row-actions__btn--delete"
+                          [class.row-actions__btn--disabled]="element['cancelledAt'] != null"
+                          (click)="openDeletePopUpForItem(element)"
+                          aria-label="Delete or cancel"
+                          title="Cancel or delete">
+                          <ng-icon name="lucideBan" aria-hidden="true"></ng-icon>
                         </button>
+                      </div>
+                    }
+                    @case ('paymentStatus') {
+                      @if (element[column.key] === 'done') {
+                        <span class="status-pill status-pill--success">{{ element[column.key] | titlecase }}</span>
+                      }
+                      @if (element[column.key] === 'pending') {
+                        <span class="status-pill status-pill--warning">{{ element[column.key] | titlecase }}</span>
+                      }
+                    }
+                    @default {
+                      @if (column.type === 'date') {
+                        <div>{{ element[column.key] | date }}</div>
+                      } @else {
+                        {{ element[column.key] }}
+                      }
+                    }
+                  }
+                </td>
+              }
+            </tr>
+          }
+        }
 
-                    </mat-cell>
-                </ng-container>
+        @if (_isLoading) {
+          @for (row of skeletonRows(); track row) {
+            <tr class="data-table__row data-table__row--skeleton">
+              @for (column of COLUMNS_SCHEMA; track column.key) {
+                <td class="data-table__cell" [ngClass]="column.key">
+                  @if (column.key === 'image') {
+                    <app-skeleton-loader [count]="1" [shapeOfLoader]="'circle'"
+                      [theme]="{height: '50px', width: '4rem', 'border-radius': '10px'}" />
+                  } @else {
+                    <app-skeleton-loader [count]="1" [shapeOfLoader]="'circle'"
+                      [theme]="{height: '20px', width: '7rem', 'border-radius': '0'}" />
+                  }
+                </td>
+              }
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
 
-                <ng-container *ngIf="column.key =='paymentStatus'">
-                    <mat-header-cell mat-sort-header *matHeaderCellDef> {{column.label}}</mat-header-cell>
-                    <mat-cell *matCellDef="let element" >
-                        <span class="badge rounded-pill bg-success" *ngIf="element[column.key]=='done'">{{element[column.key] | titlecase
-                            }}</span>
-                    
-                        <span class="badge rounded-pill bg-warning" *ngIf="element[column.key]=='pending'">{{element[column.key] | titlecase
-                            }}</span>
-                    </mat-cell>
-                </ng-container>
-
-                <ng-container  *ngIf="column.key!='actions' && column.key!='paymentStatus'">
-                    <mat-header-cell mat-sort-header *matHeaderCellDef> {{column.label}}</mat-header-cell>
-                    <mat-cell *matCellDef="let element" class="text-break" [ngClass]="column.key"> 
-                        <div *ngIf="column.type == 'date'; else elseBlock"> {{element[column.key] | date }} </div>
-                        <ng-template #elseBlock>{{element[column.key]}}</ng-template>
-                    </mat-cell>
-                </ng-container>
-
-            </ng-container>
-            <ng-container matColumnDef="noData">
-                <mat-footer-cell *matFooterCellDef colspan="6">
-                    No data Found.
-                    <img src="./assets/img/No-Data-Found.jpg" width="200" height="200">
-                </mat-footer-cell>
-            </ng-container>
-            <mat-header-row *matHeaderRowDef="tableColumns"></mat-header-row>
-            <mat-row *matRowDef="let row; columns: tableColumns;"></mat-row>
-            <mat-footer-row *matFooterRowDef="['noData']"
-                [ngClass]="{'hideMatTable':!((_tableData!=null && _tableData.data.length==0) || _tableData.filteredData.length < 1)}"></mat-footer-row>
-        </mat-table>
-        
-        <mat-table *ngIf="_isLoading" class="loadingTable" [dataSource]="_tableData">
-
-            <ng-container *ngFor="let column of COLUMNS_SCHEMA;" matColumnDef="{{column.key}}">
-
-                <ng-container class="text-center">
-                    <mat-header-cell *matHeaderCellDef> {{column.label}}</mat-header-cell>
-                    <mat-cell *matCellDef="let element" class="text-break" [ngClass]="column.key">
-                        <app-skeleton-loader [count]="1" *ngIf="column.key!='image'" [shapeOfLoader]="'circle'"
-                        [theme]="{height: '20px', width: '7rem', 'border-radius': '0'}" />
-
-                        <app-skeleton-loader [count]="1" *ngIf="column.key=='image'" class="text-center" [shapeOfLoader]="'circle'"
-                        [theme]="{height: '50px', width: '4rem', 'border-radius': '10px'}" />
-                    </mat-cell>
-                </ng-container>
-
-            </ng-container>
-            <mat-header-row *matHeaderRowDef="tableColumns"></mat-header-row>
-            <mat-row *matRowDef="let row; columns: tableColumns;"></mat-row>
-        </mat-table>
-
-        <!-- Show Loader While Data Is being fetched from Server -->
-        <div *ngIf="showLoader" class="loader-container">
-            <mat-progress-spinner color="primary" mode="indeterminate">
-            </mat-progress-spinner>
+    @if (!_isLoading && !hasData()) {
+      <div class="empty-state">
+        <div class="empty-state__icon" aria-hidden="true">
+          <ng-icon name="lucideInbox"></ng-icon>
         </div>
+        <div class="empty-state__title">Nothing to show yet</div>
+        <div class="empty-state__hint">Try clearing the filter or add a new entry.</div>
+      </div>
+    }
 
-    </div>
+    @if (showLoader) {
+      <div class="loader-container" role="status" aria-live="polite">
+        <div class="loader-container__spinner" aria-hidden="true"></div>
+      </div>
+    }
+  </div>
 </div>

@@ -1,16 +1,22 @@
-<ng-template #cartSideBar let-offcanvas>
-	<div class="offcanvas-header">
-		<h4 class="offcanvas-title">Cart Items</h4>
-		<button type="button" class="btn-close" aria-label="Close" (click)="offcanvas.dismiss('Cross click')"></button>
-	</div>
-	<hr>
-	<div class="offcanvas-body">
-		<div class="container">
-			<app-cart-items></app-cart-items>
-		</div>
-
-		<div class="text-end">
-			<button type="button" class="btn btn-outline-dark" (click)="offcanvas.close('Close click')">Close</button>
-		</div>
-	</div>
-</ng-template>
+@if (isOpen) {
+  <div class="cart-backdrop" (click)="onBackdropClick()" role="presentation"></div>
+}
+<aside class="cart-panel" [class.is-open]="isOpen" role="dialog" aria-labelledby="cart-panel-title" aria-modal="true">
+  <header class="cart-panel__head">
+    <h4 id="cart-panel-title" class="cart-panel__title" i18n="@@cart.title">Cart</h4>
+    <button type="button" class="icon-btn" (click)="close()"
+            i18n-aria-label="@@cart.close" aria-label="Close cart">
+      <ng-icon name="lucideX" aria-hidden="true"></ng-icon>
+    </button>
+  </header>
+  <div class="cart-panel__body">
+    <app-cart-items></app-cart-items>
+  </div>
+  <footer class="cart-panel__foot">
+    <a routerLink="/orders/prepare-order" class="hlm-btn hlm-btn-primary cart-panel__cta" (click)="close()"
+       i18n="@@cart.go-to-sell">
+      Go to Sell
+    </a>
+    <button type="button" class="hlm-btn hlm-btn-ghost" (click)="close()" i18n="@@buttons.close">Close</button>
+  </footer>
+</aside>

@@ -1,0 +1,177 @@
+// Component-scoped styles for the repair list. Row/section chrome and the
+// status-chip variants live in the shared // Workstream S recipes block in
+// client/styles.scss. Only tuning for the table columns lives here.
+
+.filter-chips {
+  display: inline-flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.search-input {
+  position: relative;
+  min-width: 240px;
+  flex: 0 1 320px;
+
+  &__icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-fg-muted);
+    pointer-events: none;
+  }
+
+  input.hlm-input {
+    padding-left: 32px;
+    width: 100%;
+  }
+}
+
+.repair-table {
+  .jobs-table__head,
+  .repair-row {
+    display: grid;
+    grid-template-columns: 160px 1.6fr 120px 90px 130px 120px 100px;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .jobs-table__head {
+    padding: 8px 12px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-fg-muted);
+    border-bottom: 1px solid var(--color-border-subtle);
+  }
+}
+
+.repair-row {
+  &__cust-name {
+    margin-left: 8px;
+    font-weight: 500;
+  }
+}
+
+.col-customer {
+  display: flex;
+  align-items: center;
+}
+
+.col-actions {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+}
+
+.repair-date-range {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--color-panel, var(--color-bg));
+  flex-shrink: 0;
+
+  ng-icon {
+    color: var(--color-fg-muted);
+    flex-shrink: 0;
+  }
+
+  &__sep {
+    color: var(--color-fg-muted);
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+
+  .hlm-input--sm {
+    width: auto;
+    height: 24px;
+    padding: 0 6px;
+    font-size: 12px;
+    border: none;
+    background: transparent;
+    flex: 0 0 auto;
+    min-width: 0;
+
+    &:focus {
+      outline: none;
+      box-shadow: none;
+    }
+  }
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 48px 24px;
+  color: var(--color-fg-muted);
+
+  &__title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-fg);
+    margin: 8px 0 0;
+  }
+
+  &__sub {
+    font-size: 12px;
+    margin: 0 0 12px;
+    max-width: 320px;
+    text-align: center;
+  }
+}
+
+.loading-inline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 24px;
+  color: var(--color-fg-muted);
+  font-size: 13px;
+}
+
+.animate-spin { animation: spin 0.9s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 1023px) {
+  .repair-table {
+    .jobs-table__head,
+    .repair-row {
+      grid-template-columns: 140px 1fr 110px 100px 84px;
+    }
+    .col-days, .col-return { display: none; }
+  }
+}
+
+@media (max-width: 767px) {
+  .repair-table .jobs-table__head { display: none; }
+  .repair-table .repair-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 14px;
+    min-height: 0;
+    background: var(--color-panel);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-md);
+    margin-bottom: 8px;
+
+    .col-ticket { font-weight: 500; }
+    .col-customer { margin-left: 0; }
+    .col-date, .col-days, .col-return {
+      display: inline-flex;
+      color: var(--color-fg-muted);
+      font-size: 12px;
+    }
+    .col-status { align-self: flex-start; }
+    .col-actions {
+      justify-content: flex-end;
+    }
+  }
+}

@@ -1,20 +1,71 @@
-<app-page-header [pageName]="'Categories'"></app-page-header>
+<div class="catalog-page">
 
-<div class="container">
-    <div class="row">
-        <div class="col">
-            <app-master-categories></app-master-categories>
-        </div>
-
-        <div class="col">
-            <app-sub-categories></app-sub-categories>
-        </div>
+  <header class="page-title">
+    <div class="page-title__group">
+      <h1 class="page-title__heading">Catalog</h1>
+      <span class="page-title__count">/ {{ currentTabMeta.heading }} &middot; {{ count() }}</span>
     </div>
+    <button type="button" class="hlm-btn hlm-btn-primary" (click)="openAdd()">
+      <ng-icon name="lucidePlus" size="16" aria-hidden="true"></ng-icon>
+      Add category
+    </button>
+  </header>
 
-    <div class="row mt-2">
-        <div class="col">
-            <app-product-categories></app-product-categories>
-        </div>
+  <nav class="tabs-strip" role="tablist" aria-label="Catalog sections">
+    @for (t of tabs; track t.id) {
+      <button type="button"
+              class="tab-item"
+              role="tab"
+              [attr.aria-selected]="tab() === t.id"
+              [class.is-active]="tab() === t.id"
+              (click)="goToTab(t.id)">
+        <ng-icon [name]="t.icon" size="16" aria-hidden="true"></ng-icon>
+        <span>{{ t.label }}</span>
+      </button>
+    }
+  </nav>
+
+  @if (isLoading()) {
+    <div class="catalog-loading">
+      <ng-icon name="lucideLoader" class="animate-spin" size="24" aria-hidden="true"></ng-icon>
+      <span>Loading categories...</span>
     </div>
+  } @else if (count() === 0) {
+    <div class="empty-state">
+      <ng-icon name="lucideTags" size="32" aria-hidden="true"></ng-icon>
+      <h2>No categories yet</h2>
+      <p>Add your first {{ currentTabMeta.heading | lowercase }} to get started.</p>
+      <button type="button" class="hlm-btn hlm-btn-primary" (click)="openAdd()">
+        <ng-icon name="lucidePlus" size="16" aria-hidden="true"></ng-icon>
+        Add category
+      </button>
+    </div>
+  } @else {
+    <div class="catalog-grid">
+      @for (c of cards(); track c.id ?? c.name) {
+        <article class="catalog-card">
+          <div class="catalog-card__icon">
+            <ng-icon [name]="currentTabMeta.icon" size="20" aria-hidden="true"></ng-icon>
+          </div>
+          <div class="catalog-card__body">
+            <div class="catalog-card__name">{{ c.name }}</div>
+            @if (c.description) {
+              <p class="catalog-card__desc">{{ c.description }}</p>
+            }
+            @if (c.createdAt) {
+              <div class="catalog-card__meta tabular-nums">Added {{ c.createdAt | date:'d MMM yyyy' }}</div>
+            }
+          </div>
+        </article>
+      }
+    </div>
+  }
 
 </div>
+
+<app-add-category-dialog
+  [open]="dialogOpen()"
+  [tab]="tab()"
+  (closed)="closeAdd()"
+  (refreshDataSource)="onAdded()">
+</app-add-category-dialog>

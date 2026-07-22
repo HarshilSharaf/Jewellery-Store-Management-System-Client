@@ -1,20 +1,16 @@
 import { Injectable } from '@angular/core';
-import { DbInventoryService } from 'Backend/Inventory/db-inventory.service';
-import { Observable } from 'rxjs';
+import { DbBridgeService } from '../../../shared/services/Db/db-bridge.service';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class InventoryService {
 
-  constructor(private dbInventoryService:DbInventoryService) { }
+  constructor(private db: DbBridgeService) { }
 
-  getTotalStock(): Observable<any> {
-    return this.dbInventoryService.getTotalStock()
+  getTotalStock(): Promise<any> {
+    return this.db.query('call get_total_stock();');
   }
 
-  getTotalStockOfMasterCategory(mid:number): Observable<any> {
-    return this.dbInventoryService.getTotalStockOfMasterCategory(mid)
+  getTotalStockOfMasterCategory(mid: number): Promise<any> {
+    return this.db.execute('call get_total_stock_of_master_category(?);', [mid]);
   }
-
 }

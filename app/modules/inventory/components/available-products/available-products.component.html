@@ -1,28 +1,309 @@
-<div class="card">
-    <div class="card-body">
-        <h5 class="card-title text-dark">Available Products</h5>
-
-        <div class="row">
-            <div class="col">
-                <app-add-product-form (refreshDataEvent)="getAllProductsData()" [allCategoriesData]="allCategoriesData"></app-add-product-form>
-            </div>
-        </div>
-
-        <div class="row mt-3">
-            <div class="col">
-                <app-data-table
-                    [COLUMNS_SCHEMA]="displayNameForColumns" [tableColumns]="tableColumns"
-                    [tableData]="allProductsData"
-                    [totalRecords]="totalRecords"
-                    (deleteItem)="openDeletePopUpForItem($event)" (viewDetails)="goToViewProductDetails($event)"
-                    [showAddToCartButton]="true" (refreshDataSource)="getAllProductsData()" 
-                    (searchQuery)="handleSearchQuery($event)"
-                    (pageChangeEvent)="handlePageChange($event)"
-                    [entityText]="'Products'"
-                    [sortByColumn]="'id'"
-                    [isLoading]="isLoading">
-                </app-data-table>
-            </div>
-        </div>
-    </div>
+<div class="page-title">
+  <div class="page-title__group">
+    <h1 class="page-title__heading" i18n="@@inventory.title">Stock</h1>
+    @if (totalRecords > 0) {
+      <span class="page-title__count">({{ totalRecords }} product{{ totalRecords === 1 ? '' : 's' }})</span>
+    }
+  </div>
+  <div class="page-title__actions">
+    <button type="button" class="hlm-btn hlm-btn-ghost" (click)="openMigrationImport()">
+      <ng-icon name="lucideUpload" size="14" aria-hidden="true"></ng-icon>
+      <span i18n="@@buttons.import-csv">Import CSV</span>
+    </button>
+    <button type="button" class="hlm-btn hlm-btn-ghost" (click)="exportProductsCsv()" [disabled]="exportingCsv">
+      <ng-icon name="lucideDownload" size="14" aria-hidden="true"></ng-icon>
+      @if (exportingCsv) {
+        <span i18n="@@buttons.exporting">Exporting...</span>
+      } @else {
+        <span i18n="@@buttons.export-csv">Export CSV</span>
+      }
+    </button>
+    <button type="button" class="hlm-btn hlm-btn-primary" (click)="openAddProductForm()">
+      <ng-icon name="lucidePlus" size="16" aria-hidden="true"></ng-icon>
+      <span i18n="@@inventory.add-product">Add product</span>
+    </button>
+  </div>
 </div>
+
+@if (stockTiles.length > 0) {
+  <div class="stock-tiles">
+    @for (tile of stockTiles; track tile.metalName) {
+      <div class="stock-tile">
+        <div class="stock-tile__icon" aria-hidden="true">
+          <ng-icon [name]="tile.icon" size="18"></ng-icon>
+        </div>
+        <div class="stock-tile__body">
+          <p class="stock-tile__label">Total {{ tile.metalName }} stock</p>
+          <p class="stock-tile__value tabular-nums">{{ formatGrams(tile.totalGrams) }}<span class="stock-tile__unit">g</span></p>
+          @if (tile.percentIncrease) {
+            <p class="stock-tile__delta tabular-nums"
+               [class.stock-tile__delta--up]="tile.percentIncrease >= 0"
+               [class.stock-tile__delta--down]="tile.percentIncrease < 0">
+              {{ tile.percentIncrease > 0 ? '+' : '' }}{{ tile.percentIncrease | number:'1.0-1' }}% vs last 6 mo
+            </p>
+          }
+        </div>
+      </div>
+    }
+  </div>
+}
+
+<div class="stock-toolbar">
+  <div class="search-input">
+    <ng-icon name="lucideSearch" size="14" aria-hidden="true" class="search-input__icon"></ng-icon>
+    <input
+      type="search"
+      class="hlm-input"
+      i18n-placeholder="@@inventory.search.placeholder"
+      placeholder="Search SKU, HUID, description..."
+      [value]="searchQuery"
+      (input)="onSearchInput($any($event.target).value)"
+      i18n-aria-label="@@inventory.search.aria"
+      aria-label="Search products" />
+  </div>
+
+  <div class="view-toggle" role="tablist" aria-label="View mode">
+    <button type="button"
+            role="tab"
+            class="view-toggle__btn"
+            [class.is-active]="viewMode === 'grid'"
+            [attr.aria-selected]="viewMode === 'grid'"
+            (click)="setViewMode('grid')"
+            title="Grid view"
+            aria-label="Grid view">
+      <ng-icon name="lucideLayoutGrid" size="15" aria-hidden="true"></ng-icon>
+    </button>
+    <button type="button"
+            role="tab"
+            class="view-toggle__btn"
+            [class.is-active]="viewMode === 'table'"
+            [attr.aria-selected]="viewMode === 'table'"
+            (click)="setViewMode('table')"
+            title="Table view"
+            aria-label="Table view">
+      <ng-icon name="lucideList" size="15" aria-hidden="true"></ng-icon>
+    </button>
+  </div>
+</div>
+
+<div class="filter-chips">
+  @for (option of purityChipOptions(); track option.code) {
+    <button type="button"
+            class="chip chip-toggle"
+            [class.chip-active]="selectedPurities.has(option.code)"
+            (click)="togglePurity(option.code)">
+      {{ option.label }} <span class="chip__meta">{{ option.metalType }}</span>
+    </button>
+  }
+  @for (m of masterCategoryList(); track m.id) {
+    <button type="button"
+            class="chip chip-toggle"
+            [class.chip-active]="selectedMasterCategories.has(m.id)"
+            (click)="toggleMasterCategory(m.id)">
+      {{ m.name }}
+    </button>
+  }
+  <button type="button"
+          class="chip chip-toggle"
+          [class.chip-active]="inStockOnly"
+          (click)="toggleInStockOnly()">
+    In stock only
+  </button>
+  <button type="button"
+          class="chip chip-toggle"
+          [class.chip-active]="huidOnly"
+          (click)="toggleHuidOnly()">
+    HUID present
+  </button>
+  @if (hasActiveFilters()) {
+    <button type="button" class="chip chip-toggle chip-clear" (click)="clearFilters()">
+      Clear all
+    </button>
+  }
+</div>
+
+@if (isLoading && allProductsData.length === 0) {
+  <div class="loader-inline">
+    <ng-icon name="lucideLoader" class="animate-spin" size="20" aria-hidden="true"></ng-icon>
+    <span>Loading stock...</span>
+  </div>
+}
+
+@if (viewMode === 'grid' && allProductsData.length > 0) {
+  <section class="grid-view">
+    @for (product of allProductsData; track product.productGuid) {
+      <article class="product-card"
+               (click)="onRowClick($event, product)"
+               role="button"
+               tabindex="0"
+               (keyup.enter)="goToViewProductDetails(product)">
+        <div class="product-card__media">
+          @if (product.image) {
+            <img [src]="product.image" [alt]="product.sku" loading="lazy" />
+          } @else {
+            <ng-icon name="lucidePackage" size="32" aria-hidden="true"></ng-icon>
+          }
+          <span class="purity-chip product-card__purity">
+            {{ purityLabel(product) }}
+            @if (purityFineness(product)) {
+              <span class="purity-chip__dot">•</span>{{ purityFineness(product) }}
+            }
+          </span>
+          @if (productSoldChip(product)) {
+            <span class="sold-chip">Sold</span>
+          }
+        </div>
+        <div class="product-card__body">
+          <div class="product-card__row">
+            <span class="product-card__sku tabular-nums">{{ product.sku }}</span>
+            @if (product.huid) {
+              <span class="product-card__huid tabular-nums">{{ product.huid }}</span>
+            }
+          </div>
+          <p class="product-card__name">{{ product.productDescription || product.subCategory || product.masterCategory || 'Untitled' }}</p>
+          <div class="product-card__price">
+            <span class="product-card__price-value tabular-nums">{{ formatINR(product.tagPrice) }}</span>
+            <span class="product-card__weight tabular-nums">{{ formatWeight(product.netWeight) }} net</span>
+          </div>
+          @if (permissions.costsVisible() && product.costPrice !== undefined && product.costPrice !== null) {
+            <p class="product-card__cost tabular-nums">Cost {{ formatINR(product.costPrice) }}</p>
+          }
+        </div>
+        <div class="product-card__actions data-row-actions">
+          <button type="button"
+                  class="icon-btn"
+                  (click)="goToViewProductDetails(product); $event.stopPropagation()"
+                  title="View details"
+                  aria-label="View details">
+            <ng-icon name="lucideExternalLink" size="15" aria-hidden="true"></ng-icon>
+          </button>
+          @if (permissions.canDeleteProduct()) {
+            <button type="button"
+                    class="icon-btn icon-btn--danger"
+                    (click)="openDeletePopUpForItem($event, product)"
+                    title="Delete product"
+                    aria-label="Delete product">
+              <ng-icon name="lucideTrash2" size="15" aria-hidden="true"></ng-icon>
+            </button>
+          }
+        </div>
+      </article>
+    }
+  </section>
+}
+
+@if (viewMode === 'table' && allProductsData.length > 0) {
+  <section class="stock-table">
+    <div class="stock-table__head">
+      <span class="col-thumb" aria-hidden="true"></span>
+      <span class="col-sku" i18n="@@product.sku">SKU</span>
+      <span class="col-huid" i18n="@@product.huid">HUID</span>
+      <span class="col-purity" i18n="@@product.purity">Purity</span>
+      <span class="col-name" i18n="@@product.product-category">Product</span>
+      <span class="col-weight" i18n="@@product.net-weight.short-noparen">Net wt</span>
+      <span class="col-price" i18n="@@product.tag-price.short">Tag price</span>
+      <span class="col-actions" aria-hidden="true"></span>
+    </div>
+    @for (product of allProductsData; track product.productGuid) {
+      <div class="stock-table__row"
+           (click)="onRowClick($event, product)"
+           role="button"
+           tabindex="0"
+           (keyup.enter)="goToViewProductDetails(product)">
+        <div class="col-thumb">
+          @if (product.image) {
+            <img [src]="product.image" [alt]="product.sku" loading="lazy" />
+          } @else {
+            <div class="thumb-placeholder">
+              <ng-icon name="lucidePackage" size="14" aria-hidden="true"></ng-icon>
+            </div>
+          }
+        </div>
+        <span class="col-sku tabular-nums">{{ product.sku }}</span>
+        <span class="col-huid">
+          @if (product.huid) {
+            <span class="chip">{{ product.huid }}</span>
+          } @else {
+            <span class="cell-empty">-</span>
+          }
+        </span>
+        <span class="col-purity">
+          <span class="purity-chip">
+            {{ purityLabel(product) }}
+            @if (purityFineness(product)) {
+              <span class="purity-chip__dot">•</span>{{ purityFineness(product) }}
+            }
+          </span>
+        </span>
+        <span class="col-name">
+          <span class="cell-title">{{ product.productDescription || product.subCategory || 'Untitled' }}</span>
+          @if (productSoldChip(product)) {
+            <span class="sold-chip sold-chip--inline">Sold</span>
+          }
+        </span>
+        <span class="col-weight tabular-nums">{{ formatWeight(product.netWeight) }}</span>
+        <span class="col-price">
+          <span class="col-price__value tabular-nums">{{ formatINR(product.tagPrice) }}</span>
+          @if (permissions.costsVisible() && product.costPrice !== undefined && product.costPrice !== null) {
+            <span class="col-price__cost tabular-nums">Cost {{ formatINR(product.costPrice) }}</span>
+          }
+        </span>
+        <div class="col-actions data-row-actions">
+          <button type="button"
+                  class="icon-btn"
+                  (click)="goToViewProductDetails(product); $event.stopPropagation()"
+                  title="View details"
+                  aria-label="View details">
+            <ng-icon name="lucideExternalLink" size="15" aria-hidden="true"></ng-icon>
+          </button>
+          @if (permissions.canDeleteProduct()) {
+            <button type="button"
+                    class="icon-btn icon-btn--danger"
+                    (click)="openDeletePopUpForItem($event, product)"
+                    title="Delete product"
+                    aria-label="Delete product">
+              <ng-icon name="lucideTrash2" size="15" aria-hidden="true"></ng-icon>
+            </button>
+          }
+        </div>
+      </div>
+    }
+  </section>
+}
+
+@if (showEmptyState()) {
+  <div class="empty-state">
+    <ng-icon name="lucidePackage" size="32" aria-hidden="true"></ng-icon>
+    <p class="empty-state__title" i18n="@@inventory.empty.title">No products yet</p>
+    <p class="empty-state__sub" i18n="@@inventory.empty.sub">Add your first product to start tracking stock.</p>
+    <button type="button" class="hlm-btn hlm-btn-primary" (click)="openAddProductForm()">
+      <ng-icon name="lucidePlus" size="14" aria-hidden="true"></ng-icon>
+      <span i18n="@@inventory.add-first">Add your first product</span>
+    </button>
+  </div>
+}
+
+@if (showFilteredEmpty()) {
+  <div class="empty-state">
+    <ng-icon name="lucideSearch" size="32" aria-hidden="true"></ng-icon>
+    <p class="empty-state__title">No products match these filters</p>
+    <button type="button" class="hlm-btn hlm-btn-ghost" (click)="clearFilters()">Clear filters</button>
+  </div>
+}
+
+@if (totalRecords > pageSize) {
+  <app-simple-paginator
+    [length]="totalRecords"
+    [pageSize]="pageSize"
+    [pageIndex]="pageIndex"
+    [pageSizeOptions]="[12, 24, 48]"
+    (page)="onPageChange($event)">
+  </app-simple-paginator>
+}
+
+<app-add-product-form
+  [open]="showAddProductForm"
+  [allCategoriesData]="allCategoriesData"
+  (closed)="onAddProductClosed()"
+  (refreshDataEvent)="getAllProductsData()">
+</app-add-product-form>

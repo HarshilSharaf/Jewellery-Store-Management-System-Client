@@ -1,149 +1,86 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { NgForm } from '@angular/forms';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
+
+import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import {
+  lucideSun,
+  lucideMoon,
+  lucideArrowRight,
+  lucideCircleAlert,
+} from '@ng-icons/lucide';
 import { AuthService } from '../../../shared/services/Auth/auth.service';
+import { ThemeService } from '../../../shared/services/theme.service';
 import { LoggerService } from '../../../../../Backend/Shared/logger.service';
-import { MoveDirection, OutMode } from "@tsparticles/engine";
-import type { Container, Engine } from "@tsparticles/engine";
-import { loadSlim } from "@tsparticles/slim";
-import { NgParticlesService } from '@tsparticles/angular';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss']
+  styleUrls: ['./login.component.scss'],
+  standalone: true,
+  imports: [FormsModule, ReactiveFormsModule, NgIcon],
+  viewProviders: [
+    provideIcons({ lucideSun, lucideMoon, lucideArrowRight, lucideCircleAlert }),
+  ],
 })
-export class LoginComponent implements OnInit,OnDestroy {
-  credentials = { username: '', password: '' };
+export class LoginComponent implements OnInit, OnDestroy {
+  private fb = inject(FormBuilder);
+  protected themeService = inject(ThemeService);
+  private readonly cdRef = inject(ChangeDetectorRef);
+
   errorMessage = '';
-  alertClasses = {'d-none':true,'mb-0':true}
-  bodyBackground = document.getElementById('body')?.style.background
+  showError = false;
+  submitting = false;
 
-  id = "tsparticles";
+  form = this.fb.nonNullable.group({
+    username: ['', [Validators.required]],
+    password: ['', [Validators.required]],
+  });
 
-  particlesOptions = {
-    // background: {
-    //     color: {
-    //         value: "blueviolet",
-    //     },
-    // },
-    fpsLimit: 120,
-    interactivity: {
-        events: {
-          // TODO: The following properties does not work after version upgrade
-          // Need to find a workaround
-            // onClick: {
-            //     enable: true,
-            //     mode: ClickMode.push,
-            // },
-            // onHover: {
-            //     enable: true,
-            //     mode: HoverMode.repulse,
-            // },
-            resize: true,
-        },
-        modes: {
-            push: {
-                quantity: 4,
-            },
-            repulse: {
-                distance: 50,
-                duration: 1.5,
-            },
-        },
-    },
-    particles: {
-        color: {
-            value: "#ffffff",
-        },
-        links: {
-            color: "#ffffff",
-            distance: 150,
-            enable: true,
-            opacity: 0.5,
-            width: 1,
-        },
-        collisions: {
-            enable: true,
-        },
-        move: {
-            direction: MoveDirection.none,
-            enable: true,
-            outModes: {
-                default: OutMode.split,
-            },
-            random: true,
-            speed: 4,
-            straight: false,
-        },
-        number: {
-            density: {
-                enable: true,
-                area: 800,
-            },
-            value: 100,
-        },
-        opacity: {
-            value: 0.8,
-        },
-        shape: {
-            type: "circle",
-        },
-        size: {
-            value: { min: 1, max: 5 },
-        },
-    },
-    detectRetina: true,
-};
+  private originalBodyBackground = '';
 
   constructor(
     private authService: AuthService,
     private router: Router,
-    private loggerService: LoggerService,
-    private readonly ngParticlesService: NgParticlesService
+    private loggerService: LoggerService
   ) {}
 
   ngOnInit(): void {
-    document.body.style.background = 'linear-gradient(to right, #00c6ff, #0072ff)';
-    this.particlesInit();
-  }
-  
-  particlesLoaded(container:Container): void {
-}
-
-  async particlesInit(): Promise<void> {
-    await this.ngParticlesService.init(async (engine) => {
-      console.log(engine);
-
-      // Starting from 1.19.0 you can add custom presets or shape here, using the current tsParticles instance (main)
-      // this loads the tsparticles package bundle, it's the easiest method for getting everything ready
-      // starting from v2 you can add only the features you need reducing the bundle size
-      //await loadFull(engine);
-      await loadSlim(engine);
-    });
+    this.originalBodyBackground = document.body.style.background;
+    document.body.style.background = 'var(--color-bg)';
   }
 
-  login(e: Event) {
+  login(e: Event): void {
     e.preventDefault();
-    this.loggerService.LogInfo("login() Request Started.")
-    this.authService.login(this.credentials.username, this.credentials.password)
+    if (this.form.invalid || this.submitting) {
+      this.form.markAllAsTouched();
+      return;
+    }
+    this.submitting = true;
+    this.showError = false;
+    const { username, password } = this.form.getRawValue();
+    this.loggerService.LogInfo('login() Request Started.');
+    this.authService.login(username, password)
       .then((response: any) => {
-        if(response.status == 200)
-        {
-          this.loggerService.LogInfo("login() Request Completed.")
-          this.router.navigate(['../dashboard'])
+        if (response.status == 200) {
+          this.loggerService.LogInfo('login() Request Completed.');
+          this.router.navigate(['../dashboard']);
         }
       }).catch((error: any) => {
-        this.errorMessage = error
-        this.alertClasses['d-none'] = false;
-        this.loggerService.LogError(error, "login()")
-      },)
+        this.errorMessage = typeof error === 'string' ? error : (error?.message ?? 'Sign-in failed.');
+        this.showError = true;
+        this.loggerService.LogError(error, 'login()');
+      }).finally(() => {
+        this.submitting = false;
+        this.cdRef.detectChanges();
+      });
+  }
 
-
+  toggleTheme(): void {
+    this.themeService.toggle();
   }
 
   ngOnDestroy(): void {
-    document.body.style.background = this.bodyBackground || ''
+    document.body.style.background = this.originalBodyBackground;
   }
-
 }

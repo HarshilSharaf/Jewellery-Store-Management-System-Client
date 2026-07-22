@@ -1,26 +1,11 @@
-import { Component, OnInit } from '@angular/core';
-import { SideBarService } from '../../../../shared/services/sidebar.service';
+import { Component } from '@angular/core';
+import { AppShellComponent } from '../../../../shared/components/app-shell/app-shell.component';
 
 @Component({
   selector: 'app-main',
   templateUrl: './main.component.html',
-  styleUrls: ['./main.component.scss']
+  styleUrls: ['./main.component.scss'],
+  standalone: true,
+  imports: [AppShellComponent],
 })
-export class MainComponent implements OnInit {
-
-  constructor(private appService: SideBarService) { }
-  getClasses() {
-    const classes = {
-      'pinned-sidebar': this.appService.getSidebarStat().isSidebarPinned,
-      'toggeled-sidebar': this.appService.getSidebarStat().isSidebarToggeled
-    }
-    return classes;
-  }
-  toggleSidebar() {
-    this.appService.toggleSidebar();
-  }
-
-  ngOnInit(): void {
-  }
-
-}
+export class MainComponent {}

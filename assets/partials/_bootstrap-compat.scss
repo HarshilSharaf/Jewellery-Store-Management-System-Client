@@ -1,0 +1,988 @@
+@use "sass:color";
+@use "variables" as *;
+
+// =============================================================================
+// Bootstrap 5 Compatibility Layer
+// =============================================================================
+// Lightweight replacement for Bootstrap CSS. Only includes classes actually
+// used across the project's 50+ Angular component templates.
+// Imported after _variables.scss so all color tokens are available.
+// =============================================================================
+
+// ---------------------------------------------------------------------------
+// Spacing scale (matches Bootstrap 5)
+// ---------------------------------------------------------------------------
+$spacers: (
+  0: 0,
+  1: 0.25rem,
+  2: 0.5rem,
+  3: 1rem,
+  4: 1.5rem,
+  5: 3rem,
+);
+
+// ---------------------------------------------------------------------------
+// Breakpoints
+// ---------------------------------------------------------------------------
+$grid-breakpoints: (
+  sm: 576px,
+  md: 768px,
+  lg: 992px,
+  xl: 1200px,
+);
+
+// ============================================================================
+// 1. GRID SYSTEM
+// ============================================================================
+
+// Fluid variant: always fills its parent, no max-width cap. This is the
+// intended default in an admin app whose available width is already
+// constrained by the sidebar + page gutters.
+.container-fluid {
+  width: 100%;
+  padding-left: 15px;
+  padding-right: 15px;
+  box-sizing: border-box;
+}
+
+// `.container` and `.container-xl` behave like `.container-fluid` inside
+// the admin shell (there is no marketing-page top-level layout here where
+// a centred narrow column would make sense). Previously they capped at
+// 1200px and centred, which after subtracting the sidebar left a very
+// narrow visible column on wide monitors and made pages look "shrunk".
+.container,
+.container-xl {
+  width: 100%;
+  max-width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 15px;
+  padding-right: 15px;
+  box-sizing: border-box;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-left: -15px;
+  margin-right: -15px;
+
+  > * {
+    padding-left: 15px;
+    padding-right: 15px;
+    box-sizing: border-box;
+  }
+}
+
+// Gutter overrides: gx-{n} sets horizontal gutters
+@each $size, $val in $spacers {
+  .gx-#{$size} {
+    margin-left: -#{$val};
+    margin-right: -#{$val};
+    > * {
+      padding-left: #{$val};
+      padding-right: #{$val};
+    }
+  }
+}
+
+// .col – equal-width auto column
+.col {
+  flex: 1 0 0%;
+  max-width: 100%;
+}
+
+// .col-auto
+.col-auto {
+  flex: 0 0 auto;
+  width: auto;
+}
+
+// Fixed-width columns: .col-1 through .col-12
+@for $i from 1 through 12 {
+  .col-#{$i} {
+    flex: 0 0 auto;
+    width: calc(100% * #{$i} / 12);
+  }
+}
+
+// Responsive columns: .col-{bp}-* and .col-{bp}
+@each $bp, $min in $grid-breakpoints {
+  @media (min-width: $min) {
+    .col-#{$bp} {
+      flex: 1 0 0%;
+      max-width: 100%;
+    }
+
+    .col-#{$bp}-auto {
+      flex: 0 0 auto;
+      width: auto;
+    }
+
+    @for $i from 1 through 12 {
+      .col-#{$bp}-#{$i} {
+        flex: 0 0 auto;
+        width: calc(100% * #{$i} / 12);
+      }
+    }
+  }
+}
+
+// ============================================================================
+// 2. SPACING UTILITIES
+// ============================================================================
+
+// BS5 direction map: property -> CSS properties
+// t=top, b=bottom, s=start(left), e=end(right), x=left+right, y=top+bottom
+$spacing-props: (
+  m: margin,
+  p: padding,
+);
+
+$spacing-dirs: (
+  t: (top),
+  b: (bottom),
+  s: (left),
+  e: (right),
+  x: (left, right),
+  y: (top, bottom),
+);
+
+// Legacy BS4 direction aliases
+$spacing-dirs-legacy: (
+  l: (left),
+  r: (right),
+);
+
+// Generate: .m-0 … .m-5, .mt-0 … .my-5,  .p-0 … .py-5
+@each $prop-abbr, $prop in $spacing-props {
+  @each $size, $value in $spacers {
+    // All sides: .m-0, .p-3, etc.
+    .#{$prop-abbr}-#{$size} {
+      #{$prop}: $value !important;
+    }
+
+    // Directional: .mt-0, .ps-3, etc.
+    @each $dir-abbr, $sides in $spacing-dirs {
+      .#{$prop-abbr}#{$dir-abbr}-#{$size} {
+        @each $side in $sides {
+          #{$prop}-#{$side}: $value !important;
+        }
+      }
+    }
+
+    // Legacy BS4 names: .ml-0, .mr-3, .pl-2, .pr-2
+    @each $dir-abbr, $sides in $spacing-dirs-legacy {
+      .#{$prop-abbr}#{$dir-abbr}-#{$size} {
+        @each $side in $sides {
+          #{$prop}-#{$side}: $value !important;
+        }
+      }
+    }
+  }
+}
+
+// .m-auto, .mx-auto, .my-auto, .ms-auto, .me-auto, .mt-auto, .mb-auto
+.m-auto  { margin: auto !important; }
+.mx-auto { margin-left: auto !important; margin-right: auto !important; }
+.my-auto { margin-top: auto !important; margin-bottom: auto !important; }
+.ms-auto { margin-left: auto !important; }
+.me-auto { margin-right: auto !important; }
+.mt-auto { margin-top: auto !important; }
+.mb-auto { margin-bottom: auto !important; }
+
+// Legacy BS4: .ml-auto, .mr-auto
+.ml-auto { margin-left: auto !important; }
+.mr-auto { margin-right: auto !important; }
+
+// ============================================================================
+// 3. DISPLAY UTILITIES
+// ============================================================================
+
+.d-none         { display: none !important; }
+.d-block        { display: block !important; }
+.d-flex         { display: flex !important; }
+.d-inline       { display: inline !important; }
+.d-inline-block { display: inline-block !important; }
+.d-inline-flex  { display: inline-flex !important; }
+
+// Responsive display: .d-{bp}-none, .d-{bp}-block, .d-{bp}-flex, etc.
+$display-values: (none, block, flex, inline, inline-block, inline-flex);
+
+@each $bp, $min in $grid-breakpoints {
+  @media (min-width: $min) {
+    @each $val in $display-values {
+      .d-#{$bp}-#{$val} {
+        display: #{$val} !important;
+      }
+    }
+  }
+}
+
+// ============================================================================
+// 4. FLEXBOX UTILITIES
+// ============================================================================
+
+.flex-column { flex-direction: column !important; }
+.flex-row    { flex-direction: row !important; }
+.flex-fill   { flex: 1 1 auto !important; }
+.flex-wrap   { flex-wrap: wrap !important; }
+
+.justify-content-start   { justify-content: flex-start !important; }
+.justify-content-center  { justify-content: center !important; }
+.justify-content-end     { justify-content: flex-end !important; }
+.justify-content-between { justify-content: space-between !important; }
+
+.align-items-start   { align-items: flex-start !important; }
+.align-items-center  { align-items: center !important; }
+.align-items-end     { align-items: flex-end !important; }
+.align-items-stretch { align-items: stretch !important; }
+
+.align-self-center { align-self: center !important; }
+.align-self-end    { align-self: flex-end !important; }
+
+// Gap utilities
+.gap-2 { gap: 0.5rem !important; }
+.gap-3 { gap: 1rem !important; }
+
+// ============================================================================
+// 5. TEXT UTILITIES
+// ============================================================================
+
+.text-center    { text-align: center !important; }
+.text-start,
+.text-left      { text-align: left !important; }
+.text-end,
+.text-right     { text-align: right !important; }
+
+.text-uppercase { text-transform: uppercase !important; }
+.text-lowercase { text-transform: lowercase !important; }
+.text-nowrap    { white-space: nowrap !important; }
+.text-break     { word-wrap: break-word !important; overflow-wrap: break-word !important; }
+
+.text-muted     { color: var(--color-fg-muted) !important; }
+.text-white     { color: #ffffff !important; }
+.text-danger    { color: var(--color-danger) !important; }
+.text-success   { color: var(--color-success) !important; }
+.text-warning   { color: var(--color-warning) !important; }
+.text-dark      { color: var(--color-fg) !important; }
+
+.text-sm        { font-size: var(--fs-sm) !important; }
+
+.text-bold,
+.font-weight-bold,
+.fw-bold        { font-weight: 700 !important; }
+
+.text-decoration-none { text-decoration: none !important; }
+
+// ============================================================================
+// 6. FORM CLASSES
+// ============================================================================
+
+// .form-control sizing & layout (base styling is in _themes.scss)
+.form-control {
+  display: block;
+  width: 100%;
+  padding: 0.45rem 0.75rem;
+  font-size: var(--fs-base);
+  line-height: 1.5;
+  background-color: var(--color-panel);
+  background-clip: padding-box;
+  appearance: none;
+  // `width: 100%` + native padding would otherwise overflow the parent by
+  // ~24px and trigger a horizontal scrollbar inside any tight container
+  // (dialogs, filter toolbars, sidebars).
+  box-sizing: border-box;
+
+  &:disabled,
+  &[readonly] {
+    background-color: var(--color-bg);
+    opacity: 1;
+  }
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-inline {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+
+  .form-control {
+    display: inline-block;
+    width: auto;
+    vertical-align: middle;
+  }
+}
+
+.form-label {
+  display: inline-block;
+  margin-bottom: 0.375rem;
+  font-weight: var(--fw-medium);
+  color: var(--color-fg);
+  font-size: var(--fs-sm);
+}
+
+.form-select {
+  display: block;
+  width: 100%;
+  padding: 0.45rem 2.25rem 0.45rem 0.75rem;
+  font-size: var(--fs-base);
+  line-height: 1.5;
+  color: var(--color-fg);
+  background-color: var(--color-panel);
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%236B7194' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 16px 12px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 8px;
+  appearance: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &:focus {
+    border-color: var(--color-accent-subtle);
+    box-shadow: 0 0 0 3px rgba(var(--color-accent), 0.1);
+    outline: none;
+  }
+}
+
+.form-check-input {
+  width: 1rem;
+  height: 1rem;
+  margin-top: 0.25rem;
+  vertical-align: top;
+  background-color: var(--color-panel);
+  border: 1px solid var(--color-border-subtle);
+  appearance: none;
+  cursor: pointer;
+
+  &[type="checkbox"] {
+    border-radius: 4px;
+  }
+
+  &[type="radio"] {
+    border-radius: 50%;
+  }
+
+  &:checked {
+    background-color: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+
+  &:focus {
+    box-shadow: 0 0 0 3px rgba(var(--color-accent), 0.1);
+    outline: none;
+  }
+}
+
+.form-check-label {
+  cursor: pointer;
+  margin-left: 0.25rem;
+}
+
+.input-group {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  width: 100%;
+
+  > .form-control,
+  > .form-select {
+    position: relative;
+    flex: 1 1 auto;
+    width: 1%;
+    min-width: 0;
+  }
+}
+
+// Search icon positioning helpers
+.has-feedback,
+.has-search {
+  position: relative;
+
+  .form-control-feedback {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 0.75rem;
+    color: var(--color-fg-muted);
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .form-control {
+    padding-right: 2.25rem;
+  }
+}
+
+// ============================================================================
+// 7. BUTTON CLASSES (layout & sizing – colors are in _themes.scss)
+// ============================================================================
+
+.btn {
+  display: inline-block;
+  padding: 0.45rem 1rem;
+  line-height: 1.5;
+  text-align: center;
+  vertical-align: middle;
+  cursor: pointer;
+  user-select: none;
+  border: 1px solid transparent;
+  text-decoration: none;
+
+  &.btn-sm {
+    padding: 0.25rem 0.65rem;
+    font-size: var(--fs-xs);
+    border-radius: 6px;
+  }
+
+  &.btn-lg {
+    padding: 0.65rem 1.5rem;
+    font-size: var(--fs-md);
+    border-radius: 10px;
+  }
+}
+
+// Colors not already in _themes.scss
+.btn-danger {
+  color: #ffffff;
+  background-color: var(--color-danger);
+  border-color: var(--color-danger);
+
+  &:hover {
+    background-color: color-mix(in oklab, var(--color-danger), black 8%);
+    border-color: color-mix(in oklab, var(--color-danger), black 8%);
+  }
+}
+
+.btn-dark {
+  color: #ffffff;
+  background-color: var(--color-fg);
+  border-color: var(--color-fg);
+
+  &:hover {
+    background-color: color-mix(in oklab, var(--color-fg), black 8%);
+    border-color: color-mix(in oklab, var(--color-fg), black 8%);
+  }
+}
+
+.btn-outline-dark {
+  color: var(--color-fg);
+  background-color: transparent;
+  border-color: var(--color-fg);
+
+  &:hover {
+    color: #ffffff;
+    background-color: var(--color-fg);
+    border-color: var(--color-fg);
+  }
+}
+
+.disabled,
+[disabled] {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+// ============================================================================
+// 8. CARD CLASSES (base card styling is in _themes.scss)
+// ============================================================================
+
+.card-body {
+  flex: 1 1 auto;
+  padding: 1.25rem;
+}
+
+.card-header {
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid var(--color-border-subtle);
+  background: none;
+}
+
+.card-footer {
+  padding: 0.85rem 1.25rem;
+}
+
+.card-title {
+  margin-bottom: 0.75rem;
+}
+
+.card-text {
+  color: var(--color-fg-muted);
+}
+
+.card-stats {
+  border-left: 3px solid var(--color-accent);
+}
+
+// ============================================================================
+// 9. TABLE CLASSES (colors in _themes.scss, layout here)
+// ============================================================================
+
+.table {
+  width: 100%;
+  margin-bottom: 1rem;
+  border-collapse: collapse;
+
+  th,
+  td {
+    padding: 0.65rem 0.85rem;
+    vertical-align: top;
+  }
+
+  thead th {
+    vertical-align: bottom;
+  }
+
+  &.table-bordered {
+    border: 1px solid var(--color-border-subtle);
+
+    th,
+    td {
+      border: 1px solid var(--color-border-subtle);
+    }
+  }
+}
+
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+// Typography helpers.
+// The `.h1..h6` classes here defer size/weight to the global scale in
+// styles.scss (fs tokens applied via h1..h6 element selectors). This
+// block just carries shared colour so anything using .h1..h6 utility
+// classes still gets the primary text tone.
+.h1, .h2, .h3, .h4, .h5, .h6 {
+  color: var(--color-fg);
+}
+
+.small {
+  font-size: var(--fs-sm);
+}
+
+// ============================================================================
+// 10. BADGE & ALERT
+// ============================================================================
+
+.badge {
+  display: inline-block;
+  padding: 0.3em 0.6em;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: 6px;
+  color: #ffffff;
+}
+
+.rounded-pill {
+  border-radius: 50rem !important;
+}
+
+// Background color utilities (for badges, etc.)
+.bg-success { background-color: var(--color-success) !important; }
+.bg-warning { background-color: var(--color-warning) !important; color: var(--color-fg) !important; }
+.bg-danger  { background-color: var(--color-danger) !important; }
+.bg-info    { background-color: var(--color-accent) !important; }
+.bg-primary { background-color: var(--color-accent) !important; }
+
+.alert {
+  position: relative;
+  padding: 0.85rem 1.25rem;
+  margin-bottom: 1rem;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-size: var(--fs-base);
+}
+
+.alert-danger {
+  color: color-mix(in oklab, var(--color-danger), black 25%);
+  background-color: rgba(var(--color-danger), 0.12);
+  border-color: rgba(var(--color-danger), 0.25);
+}
+
+.alert-success {
+  color: color-mix(in oklab, var(--color-success), black 25%);
+  background-color: rgba(var(--color-success), 0.12);
+  border-color: rgba(var(--color-success), 0.25);
+}
+
+.alert-warning {
+  color: color-mix(in oklab, var(--color-warning), black 30%);
+  background-color: rgba(var(--color-warning), 0.12);
+  border-color: rgba(var(--color-warning), 0.25);
+}
+
+// ============================================================================
+// 11. MODAL CLASSES
+// ============================================================================
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.modal-body {
+  position: relative;
+  flex: 1 1 auto;
+  padding: 1.25rem;
+  overflow-y: auto;
+}
+
+.modal-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0.85rem 1.25rem;
+  border-top: 1px solid var(--color-border-subtle);
+  gap: 0.5rem;
+}
+
+// ============================================================================
+// 12. IMAGE UTILITIES
+// ============================================================================
+
+.img-fluid {
+  max-width: 100%;
+  height: auto;
+}
+
+.img-thumbnail {
+  padding: 0.25rem;
+  background-color: var(--color-panel);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 8px;
+  max-width: 100%;
+  height: auto;
+}
+
+// ============================================================================
+// 13. SHADOW UTILITIES
+// ============================================================================
+
+.shadow    { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important; }
+.shadow-sm { box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important; }
+.shadow-lg { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important; }
+
+// ============================================================================
+// 14. BORDER UTILITIES
+// ============================================================================
+
+.rounded        { border-radius: 8px !important; }
+.rounded-circle { border-radius: 50% !important; }
+// .rounded-pill is defined above in Badge section
+
+.border        { border: 1px solid var(--color-border-subtle) !important; }
+.border-0      { border: 0 !important; }
+.border-top    { border-top: 1px solid var(--color-border-subtle) !important; }
+.border-bottom { border-bottom: 1px solid var(--color-border-subtle) !important; }
+
+// ============================================================================
+// 15. FLOAT UTILITIES
+// ============================================================================
+
+.float-right,
+.float-end   { float: right !important; }
+.float-left,
+.float-start { float: left !important; }
+
+// ============================================================================
+// 16. SIZING UTILITIES
+// ============================================================================
+
+.w-100 { width: 100% !important; }
+.w-50  { width: 50% !important; }
+.h-100 { height: 100% !important; }
+
+// ============================================================================
+// 17. OVERFLOW UTILITIES
+// ============================================================================
+
+.overflow-auto   { overflow: auto !important; }
+.overflow-hidden { overflow: hidden !important; }
+
+// ============================================================================
+// 18. POSITION UTILITIES
+// ============================================================================
+
+.position-relative { position: relative !important; }
+.position-absolute { position: absolute !important; }
+.position-fixed    { position: fixed !important; }
+
+// Bootstrap navbar positioning
+.fixed-top {
+  position: fixed !important;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 1030;
+}
+
+// -------------------------------------------------------------------------
+// Navbar base layout (was missing entirely; without this the navbar had no
+// flexbox, `<ul class="navbar-nav">` still had default disc bullets, and
+// child links stacked vertically). All the "visually broken" navbar
+// symptoms trace back to this omission.
+// -------------------------------------------------------------------------
+.navbar {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem;
+  min-height: $navbar-height;
+
+  > .container,
+  > .container-fluid,
+  > .container-xl {
+    display: flex;
+    flex-wrap: inherit;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.navbar-brand {
+  display: inline-flex;
+  align-items: center;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  margin-right: 1rem;
+  font-size: var(--fs-md);
+  font-weight: var(--fw-bold);
+  text-decoration: none;
+  white-space: nowrap;
+
+  img {
+    display: inline-block;
+    vertical-align: middle;
+  }
+}
+
+.navbar-nav {
+  display: flex;
+  flex-direction: row;
+  padding-left: 0;
+  margin: 0;
+  list-style: none;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+}
+
+.nav-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 0.75rem;
+  color: inherit;
+  text-decoration: none;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+// Navbar expand helpers
+.navbar-expand-md {
+  @media (min-width: 768px) {
+    flex-wrap: nowrap;
+  }
+}
+
+// Global list reset for structural <ul>/<ol> that carry Bootstrap
+// utility classes but should not render bullets (menu, cart items, etc.).
+ul.list-unstyled,
+ol.list-unstyled,
+.navbar-nav,
+.menu-items {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+// ============================================================================
+// 19. MISCELLANEOUS UTILITIES
+// ============================================================================
+
+// ============================================================================
+// 20. DROPDOWN
+// ============================================================================
+
+.dropdown {
+  position: relative;
+}
+
+.dropdown-toggle {
+  cursor: pointer;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1050;
+  display: none;
+  min-width: 10rem;
+  padding: 0.5rem 0;
+  margin: 0.125rem 0 0;
+  background-color: var(--color-panel);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.dropdown.show > .dropdown-menu,
+.dropdown-menu.show {
+  display: block;
+}
+
+.dropdown-header {
+  display: block;
+  padding: 0.5rem 1rem;
+  font-size: var(--fs-xs);
+  color: var(--color-fg-muted);
+  white-space: nowrap;
+  font-weight: var(--fw-semibold);
+}
+
+.dropdown-item {
+  display: block;
+  width: 100%;
+  padding: 0.4rem 1rem;
+  clear: both;
+  font-weight: var(--fw-regular);
+  color: var(--color-fg);
+  text-decoration: none;
+  white-space: nowrap;
+  background-color: transparent;
+  border: 0;
+  font-size: var(--fs-base);
+  cursor: pointer;
+
+  &:hover {
+    background-color: var(--color-bg);
+  }
+
+  i {
+    margin-right: 0.5rem;
+    width: 1rem;
+    text-align: center;
+  }
+}
+
+.dropdown-divider {
+  height: 0;
+  margin: 0.25rem 0;
+  overflow: hidden;
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+// ============================================================================
+// 21. MODAL (Bootstrap-compatible)
+// ============================================================================
+
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1055;
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  outline: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+
+  &.show {
+    // Center the .modal-dialog both axes. Previously the dialog stuck
+    // to the top of the viewport with `margin: 1.75rem auto` regardless
+    // of screen height — annoying on tall monitors.
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+  }
+}
+
+.modal-dialog {
+  position: relative;
+  width: 100%;
+  margin: 0 auto;
+  max-width: 500px;
+  max-height: calc(100vh - 3rem);
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-height: 100%;
+  pointer-events: auto;
+  background-color: var(--color-panel);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  outline: 0;
+  overflow: hidden;
+}
+
+.btn-close {
+  box-sizing: content-box;
+  width: 1em;
+  height: 1em;
+  padding: 0.25em;
+  color: var(--color-fg);
+  background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%232D3142'%3e%3cpath d='M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z'/%3e%3c/svg%3e") center/1em auto no-repeat;
+  border: 0;
+  border-radius: 4px;
+  opacity: 0.65;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.cursor-pointer { cursor: pointer !important; }
+
+// Required-field red asterisk
+.mandatory::after {
+  content: ' *';
+  color: var(--color-danger);
+  font-weight: 700;
+}
+
+// Screen-reader only (accessible hide)
+.visually-hidden,
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}

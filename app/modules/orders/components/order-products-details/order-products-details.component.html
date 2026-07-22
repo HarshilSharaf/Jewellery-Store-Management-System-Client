@@ -1,77 +1,60 @@
-<div class="card-header">
-    <h5>Product Details</h5>
-</div>
+<div class="lines-block">
+  <div class="lines-block__title">Line items</div>
 
-
-<div class="table-responsive mt-2 rounded border border-dark">
-    <table class="table table-bordered" [ngClass]="{'table-striped': !_isLoading, 'table-hover': !_isLoading }">
-        <thead class="table-danger">
+  <div class="lines-table-wrap">
+    <table class="lines-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th class="col-desc">Description</th>
+          <th>Purity</th>
+          <th>HSN</th>
+          <th class="right">Net wt (g)</th>
+          <th class="right">Rate/g</th>
+          <th class="right">Metal</th>
+          <th class="right">Making</th>
+          <th class="right">Discount</th>
+          <th class="right">Taxable</th>
+          <th class="right col-tax">Tax</th>
+          <th class="right">Line total</th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (_isLoading) {
+          @for (row of [0,1,2]; track row) {
+            <tr class="is-skeleton"><td colspan="12"><div class="skeleton-bar"></div></td></tr>
+          }
+        } @else if (_productDetails.length === 0) {
+          <tr class="empty-row"><td colspan="12">No line items on this invoice.</td></tr>
+        } @else {
+          @for (product of _productDetails; track product; let i = $index) {
             <tr>
-              <th scope="col">#</th>
-              <th scope="col">Product Type</th>
-              <th scope="col">Weight (In gms)</th>
-              <th scope="col">Price</th>
-              <th scope="col">Labour</th>
-              <th scope="col">CGST (In %)</th>
-              <th scope="col">SGST (In %)</th>
-              <th scope="col">Discount</th>
-              <th scope="col">Final Amount</th>
+              <td class="col-num">{{ i + 1 }}</td>
+              <td class="col-desc">
+                <div class="col-desc__top">
+                  <span class="col-desc__sku">{{ product.sku }}</span>
+                  @if (product.huid) {
+                    <span class="purity-chip">HUID {{ product.huid }}</span>
+                  }
+                </div>
+                <div class="col-desc__name">{{ description(product) }}</div>
+              </td>
+              <td>
+                <span class="purity-chip">{{ product.purityLabel ?? product.purityCode }}</span>
+              </td>
+              <td class="col-muted tabular-nums">{{ product.hsnCode ?? '7113' }}</td>
+              <td class="right tabular-nums">{{ wt(product.netWeight) }}</td>
+              <td class="right tabular-nums">{{ money(product.ratePerGram) }}</td>
+              <td class="right tabular-nums">{{ money(product.metalValue) }}</td>
+              <td class="right tabular-nums">{{ money(product.makingCharge) }}</td>
+              <td class="right tabular-nums">{{ money(product.discountAmount) }}</td>
+              <td class="right tabular-nums">{{ money(product.taxableAmount) }}</td>
+              <td class="right col-tax col-muted tabular-nums">{{ taxLabel(product) }}</td>
+              <td class="right tabular-nums col-total">{{ money(product.lineTotal) }}</td>
             </tr>
-          </thead>
-
-          <tbody class="table-group-divider">
-
-            <ng-container *ngIf="_isLoading">
-                <tr *ngFor="let row of [0, 1, 2, 3, 4]" class="text-center">
-                    <td *ngFor="let cell of [0, 1, 2, 3, 4, 5, 6, 7, 8]">
-                        <app-skeleton-loader [count]="1" [shapeOfLoader]="'circle'"
-                        [theme]="{height: '20px', width: '80%', 'border-radius': '0'}" />
-                    </td>
-                </tr>
-            </ng-container>
-
-            <ng-container *ngIf="!_isLoading">
-                <tr *ngFor="let product of _productDetails;index as i">
-                    <th scope="row">
-                        {{i+1}}
-                    </th>
-            
-                    <td>
-                        {{product.masterCategory
-                        +"-"+product.subCategory+
-                        "-"+product.productCategory}}
-                    </td>
-            
-                    <td>
-                        {{product.productWeight}}
-                    </td>
-            
-                    <td>
-                        &#8377;{{product.price}}
-                    </td>
-            
-                    <td>
-                        &#8377;{{product.labour}}
-                    </td>
-            
-                    <td>
-                        {{product.CGST}}
-                    </td>
-            
-                    <td>
-                        {{product.SGST}}
-                    </td>
-            
-                    <td>
-                        &#8377;{{product.discount}}
-                    </td>
-            
-                    <td>
-                        &#8377;{{product.finalAmount}}
-                    </td>
-            
-                </tr>
-            </ng-container>
-          </tbody>
+          }
+        }
+      </tbody>
     </table>
+  </div>
 </div>

@@ -1,0 +1,919 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file source-language="en-IN" target-language="hi" datatype="plaintext" original="ng2.template">
+    <body>
+      <trans-unit id="customer.add" datatype="html">
+        <source>Add customer</source>
+        <target>ग्राहक जोड़ें</target>
+      </trans-unit>
+      <trans-unit id="customer.add.sub" datatype="html">
+        <source>New profile in People</source>
+        <target>People में नई प्रोफ़ाइल</target>
+      </trans-unit>
+      <trans-unit id="buttons.close" datatype="html">
+        <source>Close</source>
+        <target>बंद करें</target>
+      </trans-unit>
+      <trans-unit id="customer.section.identity" datatype="html">
+        <source>Identity</source>
+        <target>पहचान</target>
+      </trans-unit>
+      <trans-unit id="customer.first-name" datatype="html">
+        <source>First name</source>
+        <target>पहला नाम</target>
+      </trans-unit>
+      <trans-unit id="customer.first-name.placeholder" datatype="html">
+        <source>Enter first name</source>
+        <target>पहला नाम दर्ज करें</target>
+      </trans-unit>
+      <trans-unit id="customer.first-name.required" datatype="html">
+        <source>First name is required</source>
+        <target>पहला नाम आवश्यक है</target>
+      </trans-unit>
+      <trans-unit id="customer.last-name" datatype="html">
+        <source>Last name</source>
+        <target>अंतिम नाम</target>
+      </trans-unit>
+      <trans-unit id="customer.last-name.placeholder" datatype="html">
+        <source>Enter last name</source>
+        <target>अंतिम नाम दर्ज करें</target>
+      </trans-unit>
+      <trans-unit id="customer.last-name.required" datatype="html">
+        <source>Last name is required</source>
+        <target>अंतिम नाम आवश्यक है</target>
+      </trans-unit>
+      <trans-unit id="customer.phone" datatype="html">
+        <source>Phone</source>
+        <target>फ़ोन</target>
+      </trans-unit>
+      <trans-unit id="customer.phone.placeholder" datatype="html">
+        <source>10-digit mobile</source>
+        <target>10 अंकों का मोबाइल</target>
+      </trans-unit>
+      <trans-unit id="customer.phone.required" datatype="html">
+        <source>Phone number is required</source>
+        <target>फ़ोन नंबर आवश्यक है</target>
+      </trans-unit>
+      <trans-unit id="customer.email" datatype="html">
+        <source>Email</source>
+        <target>ईमेल</target>
+      </trans-unit>
+      <trans-unit id="customer.dob" datatype="html">
+        <source>Date of birth</source>
+        <target>जन्म तिथि</target>
+      </trans-unit>
+      <trans-unit id="customer.gender" datatype="html">
+        <source>Gender</source>
+        <target>लिंग</target>
+      </trans-unit>
+      <trans-unit id="customer.gender.male" datatype="html">
+        <source>Male</source>
+        <target>पुरुष</target>
+      </trans-unit>
+      <trans-unit id="customer.gender.female" datatype="html">
+        <source>Female</source>
+        <target>महिला</target>
+      </trans-unit>
+      <trans-unit id="customer.section.location" datatype="html">
+        <source>Location</source>
+        <target>पता</target>
+      </trans-unit>
+      <trans-unit id="customer.address" datatype="html">
+        <source>Address</source>
+        <target>पता</target>
+      </trans-unit>
+      <trans-unit id="customer.address.placeholder" datatype="html">
+        <source>Building, street, area</source>
+        <target>भवन, गली, क्षेत्र</target>
+      </trans-unit>
+      <trans-unit id="customer.city" datatype="html">
+        <source>City</source>
+        <target>शहर</target>
+      </trans-unit>
+      <trans-unit id="customer.city.placeholder" datatype="html">
+        <source>e.g. Mumbai</source>
+        <target>उदा. मुंबई</target>
+      </trans-unit>
+      <trans-unit id="customer.city.required" datatype="html">
+        <source>City is required</source>
+        <target>शहर आवश्यक है</target>
+      </trans-unit>
+      <trans-unit id="customer.state" datatype="html">
+        <source>State</source>
+        <target>राज्य</target>
+      </trans-unit>
+      <trans-unit id="customer.state.select" datatype="html">
+        <source>Select state</source>
+        <target>राज्य चुनें</target>
+      </trans-unit>
+      <trans-unit id="customer.state-code" datatype="html">
+        <source>State code</source>
+        <target>राज्य कोड</target>
+      </trans-unit>
+      <trans-unit id="customer.state-code.help" datatype="html">
+        <source>Auto-filled from state</source>
+        <target>राज्य से स्वतः भरा जाता है</target>
+      </trans-unit>
+      <trans-unit id="customer.section.tax" datatype="html">
+        <source>Tax details</source>
+        <target>कर विवरण</target>
+      </trans-unit>
+      <trans-unit id="customer.gstin" datatype="html">
+        <source>GSTIN</source>
+        <target>GSTIN</target>
+      </trans-unit>
+      <trans-unit id="customer.gstin.placeholder" datatype="html">
+        <source>15-char GSTIN</source>
+        <target>15 अंकों का GSTIN</target>
+      </trans-unit>
+      <trans-unit id="customer.gstin.invalid" datatype="html">
+        <source>GSTIN format is invalid</source>
+        <target>GSTIN प्रारूप अमान्य है</target>
+      </trans-unit>
+      <trans-unit id="customer.pan" datatype="html">
+        <source>PAN</source>
+        <target>PAN</target>
+      </trans-unit>
+      <trans-unit id="customer.pan.placeholder" datatype="html">
+        <source>10-char PAN</source>
+        <target>10 अंकों का PAN</target>
+      </trans-unit>
+      <trans-unit id="customer.remarks" datatype="html">
+        <source>Remarks</source>
+        <target>टिप्पणी</target>
+      </trans-unit>
+      <trans-unit id="customer.remarks.placeholder" datatype="html">
+        <source>Internal notes about the customer</source>
+        <target>ग्राहक के बारे में आंतरिक नोट्स</target>
+      </trans-unit>
+      <trans-unit id="buttons.clear" datatype="html">
+        <source> Clear </source>
+        <target>साफ़ करें</target>
+      </trans-unit>
+      <trans-unit id="buttons.saving" datatype="html">
+        <source>Saving...</source>
+        <target>सहेज रहा है...</target>
+      </trans-unit>
+      <trans-unit id="customer.save" datatype="html">
+        <source>Save customer</source>
+        <target>ग्राहक सहेजें</target>
+      </trans-unit>
+      <trans-unit id="customers.title" datatype="html">
+        <source>People</source>
+        <target>ग्राहक</target>
+      </trans-unit>
+      <trans-unit id="buttons.import-csv" datatype="html">
+        <source>Import CSV</source>
+        <target>CSV आयात करें</target>
+      </trans-unit>
+      <trans-unit id="buttons.exporting" datatype="html">
+        <source>Exporting...</source>
+        <target>निर्यात हो रहा है...</target>
+      </trans-unit>
+      <trans-unit id="buttons.export-csv" datatype="html">
+        <source>Export CSV</source>
+        <target>CSV निर्यात करें</target>
+      </trans-unit>
+      <trans-unit id="customers.search.placeholder" datatype="html">
+        <source>Search name, phone, city...</source>
+        <target>नाम, फ़ोन, शहर खोजें...</target>
+      </trans-unit>
+      <trans-unit id="customers.search.aria" datatype="html">
+        <source>Search customers</source>
+        <target>ग्राहक खोजें</target>
+      </trans-unit>
+      <trans-unit id="customer.label" datatype="html">
+        <source>Customer</source>
+        <target>ग्राहक</target>
+      </trans-unit>
+      <trans-unit id="customers.col.notes" datatype="html">
+        <source>Notes</source>
+        <target>नोट्स</target>
+      </trans-unit>
+      <trans-unit id="customers.loading" datatype="html">
+        <source>Loading customers...</source>
+        <target>ग्राहक लोड हो रहे हैं...</target>
+      </trans-unit>
+      <trans-unit id="customers.empty.title" datatype="html">
+        <source>No customers yet</source>
+        <target>अभी तक कोई ग्राहक नहीं</target>
+      </trans-unit>
+      <trans-unit id="customers.empty.sub" datatype="html">
+        <source>Add your first customer to start tracking orders.</source>
+        <target>ऑर्डर ट्रैक करने के लिए पहला ग्राहक जोड़ें।</target>
+      </trans-unit>
+      <trans-unit id="customers.add-first" datatype="html">
+        <source>Add your first customer</source>
+        <target>अपना पहला ग्राहक जोड़ें</target>
+      </trans-unit>
+      <trans-unit id="dashboard.title" datatype="html">
+        <source>Today</source>
+        <target>आज</target>
+      </trans-unit>
+      <trans-unit id="dashboard.revenue" datatype="html">
+        <source>Revenue</source>
+        <target>राजस्व</target>
+      </trans-unit>
+      <trans-unit id="dashboard.vs-prev" datatype="html">
+        <source>vs previous period</source>
+        <target>पिछली अवधि की तुलना में</target>
+      </trans-unit>
+      <trans-unit id="dashboard.no-revenue" datatype="html">
+        <source>No revenue on file yet</source>
+        <target>अभी तक कोई राजस्व नहीं</target>
+      </trans-unit>
+      <trans-unit id="rate.lock-today" datatype="html">
+        <source>Lock today&apos;s rate</source>
+        <target>आज का भाव लॉक करें</target>
+      </trans-unit>
+      <trans-unit id="rate.lock" datatype="html">
+        <source>Lock rate</source>
+        <target>भाव लॉक करें</target>
+      </trans-unit>
+      <trans-unit id="rate.no-rate-today" datatype="html">
+        <source>No rate on file for today</source>
+        <target>आज के लिए कोई भाव नहीं</target>
+      </trans-unit>
+      <trans-unit id="dashboard.recent-invoices" datatype="html">
+        <source>Recent invoices</source>
+        <target>हाल के बिल</target>
+      </trans-unit>
+      <trans-unit id="common.view-all" datatype="html">
+        <source>View all</source>
+        <target>सभी देखें</target>
+      </trans-unit>
+      <trans-unit id="orders.empty" datatype="html">
+        <source>No invoices yet</source>
+        <target>अभी तक कोई बिल नहीं</target>
+      </trans-unit>
+      <trans-unit id="dashboard.fast-movers" datatype="html">
+        <source>Fast movers</source>
+        <target>तेज़ बिकने वाले</target>
+      </trans-unit>
+      <trans-unit id="dashboard.fast-movers.sub" datatype="html">
+        <source>Top product categories</source>
+        <target>शीर्ष उत्पाद श्रेणियां</target>
+      </trans-unit>
+      <trans-unit id="units.grams-moved" datatype="html">
+        <source>g moved</source>
+        <target>ग्राम बिका</target>
+      </trans-unit>
+      <trans-unit id="dashboard.analytics-soon" datatype="html">
+        <source>Analytics coming soon</source>
+        <target>एनालिटिक्स जल्द आ रहा है</target>
+      </trans-unit>
+      <trans-unit id="dashboard.total-customers" datatype="html">
+        <source>Total customers</source>
+        <target>कुल ग्राहक</target>
+      </trans-unit>
+      <trans-unit id="dashboard.stock-grams" datatype="html">
+        <source>Stock (grams)</source>
+        <target>स्टॉक (ग्राम)</target>
+      </trans-unit>
+      <trans-unit id="dashboard.pending-payments" datatype="html">
+        <source>Pending payments</source>
+        <target>बकाया भुगतान</target>
+      </trans-unit>
+      <trans-unit id="inventory.title" datatype="html">
+        <source>Stock</source>
+        <target>स्टॉक</target>
+      </trans-unit>
+      <trans-unit id="inventory.add-product" datatype="html">
+        <source>Add product</source>
+        <target>उत्पाद जोड़ें</target>
+      </trans-unit>
+      <trans-unit id="inventory.search.placeholder" datatype="html">
+        <source>Search SKU, HUID, description...</source>
+        <target>SKU, HUID, विवरण खोजें...</target>
+      </trans-unit>
+      <trans-unit id="inventory.search.aria" datatype="html">
+        <source>Search products</source>
+        <target>उत्पाद खोजें</target>
+      </trans-unit>
+      <trans-unit id="product.sku" datatype="html">
+        <source>SKU</source>
+        <target>SKU</target>
+      </trans-unit>
+      <trans-unit id="product.huid" datatype="html">
+        <source>HUID</source>
+        <target>HUID</target>
+      </trans-unit>
+      <trans-unit id="product.purity" datatype="html">
+        <source>Purity</source>
+        <target>शुद्धता</target>
+      </trans-unit>
+      <trans-unit id="product.product-category" datatype="html">
+        <source>Product</source>
+        <target>उत्पाद</target>
+      </trans-unit>
+      <trans-unit id="product.net-weight.short-noparen" datatype="html">
+        <source>Net wt</source>
+        <target>शुद्ध वज़न</target>
+      </trans-unit>
+      <trans-unit id="product.tag-price.short" datatype="html">
+        <source>Tag price</source>
+        <target>टैग मूल्य</target>
+      </trans-unit>
+      <trans-unit id="inventory.empty.title" datatype="html">
+        <source>No products yet</source>
+        <target>अभी तक कोई उत्पाद नहीं</target>
+      </trans-unit>
+      <trans-unit id="inventory.empty.sub" datatype="html">
+        <source>Add your first product to start tracking stock.</source>
+        <target>स्टॉक ट्रैक करने के लिए पहला उत्पाद जोड़ें।</target>
+      </trans-unit>
+      <trans-unit id="inventory.add-first" datatype="html">
+        <source>Add your first product</source>
+        <target>अपना पहला उत्पाद जोड़ें</target>
+      </trans-unit>
+      <trans-unit id="product.description" datatype="html">
+        <source>Description</source>
+        <target>विवरण</target>
+      </trans-unit>
+      <trans-unit id="product.section.category" datatype="html">
+        <source>Category</source>
+        <target>श्रेणी</target>
+      </trans-unit>
+      <trans-unit id="product.master" datatype="html">
+        <source>Master</source>
+        <target>मुख्य</target>
+      </trans-unit>
+      <trans-unit id="product.sub" datatype="html">
+        <source>Sub</source>
+        <target>उप</target>
+      </trans-unit>
+      <trans-unit id="product.section.metal-weight" datatype="html">
+        <source>Metal &amp; weight</source>
+        <target>धातु और वजन</target>
+      </trans-unit>
+      <trans-unit id="product.hsn" datatype="html">
+        <source>HSN</source>
+        <target>HSN</target>
+      </trans-unit>
+      <trans-unit id="product.gross-weight.short" datatype="html">
+        <source>Gross wt (g)</source>
+        <target>कुल वज़न (g)</target>
+      </trans-unit>
+      <trans-unit id="product.net-weight.short" datatype="html">
+        <source>Net wt (g)</source>
+        <target>शुद्ध वज़न (g)</target>
+      </trans-unit>
+      <trans-unit id="product.stone-weight" datatype="html">
+        <source>Stone wt (g)</source>
+        <target>रत्न वजन (g)</target>
+      </trans-unit>
+      <trans-unit id="product.stone-charges" datatype="html">
+        <source>Stone charges (INR)</source>
+        <target>रत्न शुल्क (INR)</target>
+      </trans-unit>
+      <trans-unit id="product.section.making-wastage" datatype="html">
+        <source>Making &amp; wastage</source>
+        <target>घड़ाई और घट</target>
+      </trans-unit>
+      <trans-unit id="product.making-mode" datatype="html">
+        <source>Making mode</source>
+        <target>घड़ाई विधि</target>
+      </trans-unit>
+      <trans-unit id="product.making-mode.flat" datatype="html">
+        <source>Flat</source>
+        <target>फ़्लैट</target>
+      </trans-unit>
+      <trans-unit id="product.making-mode.per-gram" datatype="html">
+        <source>Per gram</source>
+        <target>प्रति ग्राम</target>
+      </trans-unit>
+      <trans-unit id="product.making-mode.percent" datatype="html">
+        <source>Percent</source>
+        <target>प्रतिशत</target>
+      </trans-unit>
+      <trans-unit id="product.making-value" datatype="html">
+        <source>Making value</source>
+        <target>घड़ाई मूल्य</target>
+      </trans-unit>
+      <trans-unit id="product.wastage-percent" datatype="html">
+        <source>Wastage %</source>
+        <target>घट %</target>
+      </trans-unit>
+      <trans-unit id="product.section.pricing" datatype="html">
+        <source>Pricing</source>
+        <target>मूल्य निर्धारण</target>
+      </trans-unit>
+      <trans-unit id="product.cost-price" datatype="html">
+        <source>Cost price (INR)</source>
+        <target>लागत मूल्य (INR)</target>
+      </trans-unit>
+      <trans-unit id="product.cost-price.help" datatype="html">
+        <source>Admin only</source>
+        <target>केवल एडमिन</target>
+      </trans-unit>
+      <trans-unit id="product.tag-price" datatype="html">
+        <source>Tag price (INR)</source>
+        <target>टैग मूल्य (INR)</target>
+      </trans-unit>
+      <trans-unit id="buttons.reset" datatype="html">
+        <source>Reset</source>
+        <target>रीसेट</target>
+      </trans-unit>
+      <trans-unit id="buttons.save-changes" datatype="html">
+        <source>Save changes</source>
+        <target>बदलाव सहेजें</target>
+      </trans-unit>
+      <trans-unit id="login.hero.eyebrow" datatype="html">
+        <source>Modern POS for jewellers</source>
+        <target>जौहरियों के लिए आधुनिक POS</target>
+      </trans-unit>
+      <trans-unit id="login.hero.title" datatype="html">
+        <source> Bills that clear the counter <x id="START_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;em&gt;"/>faster<x id="CLOSE_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;/em&gt;"/>. </source>
+        <target>बिल जो काउंटर <x id="START_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;em&gt;"/>तेज़ी<x id="CLOSE_EMPHASISED_TEXT" ctype="x-em" equiv-text="&lt;/em&gt;"/> से क्लियर करते हैं।</target>
+      </trans-unit>
+      <trans-unit id="login.hero.body" datatype="html">
+        <source> Warm, keyboard-first, offline-ready. Built for shops that price by purity, not by department. </source>
+        <target>गर्म, कीबोर्ड-प्रथम, ऑफ़लाइन-तैयार। उन दुकानों के लिए बनाया गया जो शुद्धता से कीमत तय करती हैं।</target>
+      </trans-unit>
+      <trans-unit id="login.local-first" datatype="html">
+        <source>Local-first · No cloud lock-in</source>
+        <target>लोकल-प्रथम · कोई क्लाउड लॉक-इन नहीं</target>
+      </trans-unit>
+      <trans-unit id="login.sign-in" datatype="html">
+        <source>Sign in</source>
+        <target>साइन इन</target>
+      </trans-unit>
+      <trans-unit id="login.sub" datatype="html">
+        <source>Use your shop account to continue.</source>
+        <target>जारी रखने के लिए अपने शॉप खाते का उपयोग करें।</target>
+      </trans-unit>
+      <trans-unit id="login.username" datatype="html">
+        <source>Username</source>
+        <target>यूज़रनेम</target>
+      </trans-unit>
+      <trans-unit id="login.username.placeholder" datatype="html">
+        <source>e.g. shop.admin</source>
+        <target>उदा. shop.admin</target>
+      </trans-unit>
+      <trans-unit id="login.password" datatype="html">
+        <source>Password</source>
+        <target>पासवर्ड</target>
+      </trans-unit>
+      <trans-unit id="login.forgot" datatype="html">
+        <source>Forgot?</source>
+        <target>भूल गए?</target>
+      </trans-unit>
+      <trans-unit id="login.password.placeholder" datatype="html">
+        <source>Enter your password</source>
+        <target>अपना पासवर्ड दर्ज करें</target>
+      </trans-unit>
+      <trans-unit id="login.signing-in" datatype="html">
+        <source>Signing in...</source>
+        <target>साइन इन हो रहा है...</target>
+      </trans-unit>
+      <trans-unit id="login.device-only" datatype="html">
+        <source>You are signed in only on this device.</source>
+        <target>आप केवल इस डिवाइस पर साइन इन हैं।</target>
+      </trans-unit>
+      <trans-unit id="orders.title" datatype="html">
+        <source>Books</source>
+        <target>बही</target>
+      </trans-unit>
+      <trans-unit id="orders.new-invoice" datatype="html">
+        <source>New invoice</source>
+        <target>नया बिल</target>
+      </trans-unit>
+      <trans-unit id="orders.search.placeholder" datatype="html">
+        <source>Search invoice number or customer...</source>
+        <target>बिल नंबर या ग्राहक खोजें...</target>
+      </trans-unit>
+      <trans-unit id="orders.date.from" datatype="html">
+        <source>From date</source>
+        <target>से दिनांक</target>
+      </trans-unit>
+      <trans-unit id="orders.date.to" datatype="html">
+        <source>To date</source>
+        <target>तक दिनांक</target>
+      </trans-unit>
+      <trans-unit id="orders.filter.all" datatype="html">
+        <source>All</source>
+        <target>सभी</target>
+      </trans-unit>
+      <trans-unit id="orders.filter.paid" datatype="html">
+        <source>Paid</source>
+        <target>भुगतान हुआ</target>
+      </trans-unit>
+      <trans-unit id="orders.filter.unpaid" datatype="html">
+        <source>Unpaid</source>
+        <target>बकाया</target>
+      </trans-unit>
+      <trans-unit id="orders.filter.cancelled" datatype="html">
+        <source>Cancelled</source>
+        <target>रद्द</target>
+      </trans-unit>
+      <trans-unit id="orders.col.invoice-no" datatype="html">
+        <source>Invoice #</source>
+        <target>बिल #</target>
+      </trans-unit>
+      <trans-unit id="orders.col.date" datatype="html">
+        <source>Date</source>
+        <target>दिनांक</target>
+      </trans-unit>
+      <trans-unit id="orders.col.items" datatype="html">
+        <source>Items</source>
+        <target>आइटम</target>
+      </trans-unit>
+      <trans-unit id="orders.col.amount" datatype="html">
+        <source>Amount</source>
+        <target>राशि</target>
+      </trans-unit>
+      <trans-unit id="orders.col.status" datatype="html">
+        <source>Status</source>
+        <target>स्थिति</target>
+      </trans-unit>
+      <trans-unit id="common.actions" datatype="html">
+        <source>Actions</source>
+        <target>क्रियाएँ</target>
+      </trans-unit>
+      <trans-unit id="orders.create-first" datatype="html">
+        <source>Create your first invoice</source>
+        <target>अपना पहला बिल बनाएं</target>
+      </trans-unit>
+      <trans-unit id="orders.status.paid" datatype="html">
+        <source>Paid</source>
+        <target>भुगतान हुआ</target>
+      </trans-unit>
+      <trans-unit id="orders.status.unpaid" datatype="html">
+        <source>Unpaid</source>
+        <target>बकाया</target>
+      </trans-unit>
+      <trans-unit id="orders.status.cancelled" datatype="html">
+        <source>Cancelled</source>
+        <target>रद्द</target>
+      </trans-unit>
+      <trans-unit id="orders.action.view" datatype="html">
+        <source>View invoice</source>
+        <target>बिल देखें</target>
+      </trans-unit>
+      <trans-unit id="orders.action.print" datatype="html">
+        <source>Print invoice</source>
+        <target>बिल प्रिंट करें</target>
+      </trans-unit>
+      <trans-unit id="orders.action.cancel" datatype="html">
+        <source>Cancel invoice</source>
+        <target>बिल रद्द करें</target>
+      </trans-unit>
+      <trans-unit id="cart.search.placeholder" datatype="html">
+        <source>Search SKU, HUID or product name  (press / or scan)</source>
+        <target>SKU, HUID या उत्पाद नाम खोजें  (/ या स्कैन करें)</target>
+      </trans-unit>
+      <trans-unit id="buttons.add" datatype="html">
+        <source>Add</source>
+        <target>जोड़ें</target>
+      </trans-unit>
+      <trans-unit id="cart.empty.title" datatype="html">
+        <source>Cart is empty.</source>
+        <target>कार्ट खाली है।</target>
+      </trans-unit>
+      <trans-unit id="cart.empty.sub" datatype="html">
+        <source>Start typing an SKU or product name in the search box to add items, or scan a barcode.</source>
+        <target>आइटम जोड़ने के लिए SKU या उत्पाद नाम टाइप करें, या बारकोड स्कैन करें।</target>
+      </trans-unit>
+      <trans-unit id="product.net-weight" datatype="html">
+        <source>Net weight (g)</source>
+        <target>शुद्ध वजन (g)</target>
+      </trans-unit>
+      <trans-unit id="product.rate-per-gram" datatype="html">
+        <source>Rate / g (₹)</source>
+        <target>भाव / g (₹)</target>
+      </trans-unit>
+      <trans-unit id="cart.discount" datatype="html">
+        <source>Discount (₹)</source>
+        <target>छूट (₹)</target>
+      </trans-unit>
+      <trans-unit id="totals.metal" datatype="html">
+        <source>Metal</source>
+        <target>धातु</target>
+      </trans-unit>
+      <trans-unit id="totals.making" datatype="html">
+        <source>Making</source>
+        <target>घड़ाई</target>
+      </trans-unit>
+      <trans-unit id="totals.wastage" datatype="html">
+        <source>Wastage</source>
+        <target>घट</target>
+      </trans-unit>
+      <trans-unit id="totals.stone" datatype="html">
+        <source>Stone</source>
+        <target>रत्न</target>
+      </trans-unit>
+      <trans-unit id="cart.line-total" datatype="html">
+        <source>Line total</source>
+        <target>लाइन कुल</target>
+      </trans-unit>
+      <trans-unit id="cart.old-gold-exchange" datatype="html">
+        <source>Old-gold exchange</source>
+        <target>पुराने सोने का विनिमय</target>
+      </trans-unit>
+      <trans-unit id="product.gross-weight" datatype="html">
+        <source>Gross weight (g)</source>
+        <target>कुल वजन (g)</target>
+      </trans-unit>
+      <trans-unit id="old-gold.tested-purity" datatype="html">
+        <source>Tested purity</source>
+        <target>परखी हुई शुद्धता</target>
+      </trans-unit>
+      <trans-unit id="product.fineness" datatype="html">
+        <source>Fineness (0-1000)</source>
+        <target>फ़ाइननेस (0-1000)</target>
+      </trans-unit>
+      <trans-unit id="old-gold.deduction-percent" datatype="html">
+        <source>Deduction %</source>
+        <target>कटौती %</target>
+      </trans-unit>
+      <trans-unit id="old-gold.credit" datatype="html">
+        <source>Credit</source>
+        <target>क्रेडिट</target>
+      </trans-unit>
+      <trans-unit id="buttons.cancel" datatype="html">
+        <source>Cancel</source>
+        <target>रद्द करें</target>
+      </trans-unit>
+      <trans-unit id="old-gold.update-receipt" datatype="html">
+        <source>Update receipt</source>
+        <target>रसीद अपडेट करें</target>
+      </trans-unit>
+      <trans-unit id="old-gold.add-to-invoice" datatype="html">
+        <source>Add to invoice</source>
+        <target>बिल में जोड़ें</target>
+      </trans-unit>
+      <trans-unit id="cart.rate-lock" datatype="html">
+        <source>Rate lock</source>
+        <target>भाव लॉक</target>
+      </trans-unit>
+      <trans-unit id="cart.rate-refresh.title" datatype="html">
+        <source>Fetch latest rate</source>
+        <target>नवीनतम भाव लाएं</target>
+      </trans-unit>
+      <trans-unit id="cart.rate-refresh" datatype="html">
+        <source>Refresh rate</source>
+        <target>भाव रीफ़्रेश करें</target>
+      </trans-unit>
+      <trans-unit id="cart.no-rates" datatype="html">
+        <source>No metal rates on file — add today&apos;s rates in Settings.</source>
+        <target>फ़ाइल में कोई धातु भाव नहीं — सेटिंग्स में आज का भाव जोड़ें।</target>
+      </trans-unit>
+      <trans-unit id="cart.totals" datatype="html">
+        <source>Totals</source>
+        <target>कुल योग</target>
+      </trans-unit>
+      <trans-unit id="totals.metal-value" datatype="html">
+        <source>Metal value</source>
+        <target>धातु मूल्य</target>
+      </trans-unit>
+      <trans-unit id="totals.subtotal-taxable" datatype="html">
+        <source>Subtotal (taxable)</source>
+        <target>उप-योग (कर योग्य)</target>
+      </trans-unit>
+      <trans-unit id="totals.discount" datatype="html">
+        <source>Discount</source>
+        <target>छूट</target>
+      </trans-unit>
+      <trans-unit id="old-gold.edit.title" datatype="html">
+        <source>Edit old-gold receipt</source>
+        <target>पुराने सोने की रसीद संपादित करें</target>
+      </trans-unit>
+      <trans-unit id="totals.old-gold-credit" datatype="html">
+        <source>Old-gold credit</source>
+        <target>पुराने सोने का क्रेडिट</target>
+      </trans-unit>
+      <trans-unit id="cart.redeem-scheme" datatype="html">
+        <source>Redeem saving scheme</source>
+        <target>बचत योजना का उपयोग करें</target>
+      </trans-unit>
+      <trans-unit id="cart.apply-scheme" datatype="html">
+        <source> Apply scheme → </source>
+        <target>योजना लागू करें →</target>
+      </trans-unit>
+      <trans-unit id="totals.igst" datatype="html">
+        <source>IGST</source>
+        <target>IGST</target>
+      </trans-unit>
+      <trans-unit id="totals.cgst" datatype="html">
+        <source>CGST</source>
+        <target>CGST</target>
+      </trans-unit>
+      <trans-unit id="totals.sgst" datatype="html">
+        <source>SGST</source>
+        <target>SGST</target>
+      </trans-unit>
+      <trans-unit id="totals.round-off" datatype="html">
+        <source>Round-off</source>
+        <target>राउंड-ऑफ</target>
+      </trans-unit>
+      <trans-unit id="totals.grand-total" datatype="html">
+        <source>Grand total</source>
+        <target>कुल राशि</target>
+      </trans-unit>
+      <trans-unit id="totals.payable-after-scheme" datatype="html">
+        <source>Payable after scheme</source>
+        <target>योजना के बाद देय</target>
+      </trans-unit>
+      <trans-unit id="reports.title" datatype="html">
+        <source>Reports</source>
+        <target>रिपोर्ट</target>
+      </trans-unit>
+      <trans-unit id="buttons.open" datatype="html">
+        <source>Open</source>
+        <target>खोलें</target>
+      </trans-unit>
+      <trans-unit id="settings.title" datatype="html">
+        <source>Settings</source>
+        <target>सेटिंग्स</target>
+      </trans-unit>
+      <trans-unit id="buttons.back" datatype="html">
+        <source>Back</source>
+        <target>वापस</target>
+      </trans-unit>
+      <trans-unit id="settings.tab.shop" datatype="html">
+        <source>Shop identity</source>
+        <target>दुकान पहचान</target>
+      </trans-unit>
+      <trans-unit id="settings.shop.sub" datatype="html">
+        <source>Appears on every invoice, receipt, and export.</source>
+        <target>हर बिल, रसीद और निर्यात पर दिखाई देता है।</target>
+      </trans-unit>
+      <trans-unit id="settings.tab.rates" datatype="html">
+        <source>Metal rates</source>
+        <target>धातु भाव</target>
+      </trans-unit>
+      <trans-unit id="settings.language.title" datatype="html">
+        <source>Language</source>
+        <target>भाषा</target>
+      </trans-unit>
+      <trans-unit id="settings.language.sub" datatype="html">
+        <source>Choose the language for the app interface. Changes take effect after restart.</source>
+        <target>ऐप इंटरफ़ेस के लिए भाषा चुनें। परिवर्तन रीस्टार्ट के बाद प्रभावी होंगे।</target>
+      </trans-unit>
+      <trans-unit id="settings.language.current" datatype="html">
+        <source>Current language</source>
+        <target>वर्तमान भाषा</target>
+      </trans-unit>
+      <trans-unit id="settings.language.requested" datatype="html">
+        <source>Requested language</source>
+        <target>अनुरोधित भाषा</target>
+      </trans-unit>
+      <trans-unit id="settings.language.restart-note" datatype="html">
+        <source>Language packs: English (default), Hindi, Gujarati, Marathi. Close and relaunch the app after saving to activate a different language bundle.</source>
+        <target>भाषा पैक: अंग्रेज़ी (डिफ़ॉल्ट), हिंदी, गुजराती, मराठी। बचाने के बाद अलग भाषा बंडल सक्रिय करने के लिए ऐप बंद करें और फिर से लॉन्च करें।</target>
+      </trans-unit>
+      <trans-unit id="settings.language.save" datatype="html">
+        <source> Save preference </source>
+        <target>प्राथमिकता सहेजें</target>
+      </trans-unit>
+      <trans-unit id="settings.language.saved-toast" datatype="html">
+        <source> Preference saved. Please close and reopen the app to apply the new language. </source>
+        <target>प्राथमिकता सहेजी गई। नई भाषा लागू करने के लिए ऐप बंद करें और फिर से खोलें।</target>
+      </trans-unit>
+      <trans-unit id="settings.tab.tax" datatype="html">
+        <source>Tax &amp; invoice</source>
+        <target>कर और बिल</target>
+      </trans-unit>
+      <trans-unit id="settings.tab.print" datatype="html">
+        <source>Print &amp; hardware</source>
+        <target>प्रिंट और हार्डवेयर</target>
+      </trans-unit>
+      <trans-unit id="settings.tab.backup" datatype="html">
+        <source>Backup</source>
+        <target>बैकअप</target>
+      </trans-unit>
+      <trans-unit id="settings.tab.users" datatype="html">
+        <source>Users &amp; permissions</source>
+        <target>उपयोगकर्ता और अनुमतियां</target>
+      </trans-unit>
+      <trans-unit id="settings.tab.migration" datatype="html">
+        <source>Migration</source>
+        <target>माइग्रेशन</target>
+      </trans-unit>
+      <trans-unit id="settings.tab.whatsapp" datatype="html">
+        <source>WhatsApp</source>
+        <target>व्हाट्सएप</target>
+      </trans-unit>
+      <trans-unit id="settings.tab.whatsapp-activity" datatype="html">
+        <source>WhatsApp activity</source>
+        <target>व्हाट्सएप गतिविधि</target>
+      </trans-unit>
+      <trans-unit id="settings.tab.language" datatype="html">
+        <source>Language</source>
+        <target>भाषा</target>
+      </trans-unit>
+      <trans-unit id="settings.tab.database" datatype="html">
+        <source>Database</source>
+        <target>डेटाबेस</target>
+      </trans-unit>
+      <trans-unit id="rail.sign-out" datatype="html">
+        <source>Sign out</source>
+        <target>साइन आउट</target>
+      </trans-unit>
+      <trans-unit id="rail.today" datatype="html">
+        <source>Today</source>
+        <target>आज</target>
+      </trans-unit>
+      <trans-unit id="rail.sell" datatype="html">
+        <source>Sell</source>
+        <target>बिक्री</target>
+      </trans-unit>
+      <trans-unit id="rail.stock" datatype="html">
+        <source>Stock</source>
+        <target>स्टॉक</target>
+      </trans-unit>
+      <trans-unit id="rail.people" datatype="html">
+        <source>People</source>
+        <target>ग्राहक</target>
+      </trans-unit>
+      <trans-unit id="rail.schemes" datatype="html">
+        <source>Schemes</source>
+        <target>योजनाएं</target>
+      </trans-unit>
+      <trans-unit id="rail.karigar" datatype="html">
+        <source>Karigar</source>
+        <target>कारीगर</target>
+      </trans-unit>
+      <trans-unit id="rail.repair" datatype="html">
+        <source>Repair</source>
+        <target>मरम्मत</target>
+      </trans-unit>
+      <trans-unit id="rail.catalog" datatype="html">
+        <source>Catalog</source>
+        <target>कैटलॉग</target>
+      </trans-unit>
+      <trans-unit id="rail.reports" datatype="html">
+        <source>Reports</source>
+        <target>रिपोर्ट</target>
+      </trans-unit>
+      <trans-unit id="rail.settings" datatype="html">
+        <source>Settings</source>
+        <target>सेटिंग्स</target>
+      </trans-unit>
+      <trans-unit id="topbar.palette.aria" datatype="html">
+        <source>Open command palette</source>
+        <target>कमांड पैलेट खोलें</target>
+      </trans-unit>
+      <trans-unit id="topbar.search.placeholder" datatype="html">
+        <source>Search or run command</source>
+        <target>खोजें या कमांड चलाएँ</target>
+      </trans-unit>
+      <trans-unit id="cart.title" datatype="html">
+        <source>Cart</source>
+        <target>कार्ट</target>
+      </trans-unit>
+      <trans-unit id="cart.close" datatype="html">
+        <source>Close cart</source>
+        <target>कार्ट बंद करें</target>
+      </trans-unit>
+      <trans-unit id="cart.go-to-sell" datatype="html">
+        <source> Go to Sell </source>
+        <target>बिक्री पर जाएं</target>
+      </trans-unit>
+      <trans-unit id="palette.input.aria" datatype="html">
+        <source>Command palette input</source>
+        <target>कमांड पैलेट इनपुट</target>
+      </trans-unit>
+      <trans-unit id="palette.customer-picker.placeholder" datatype="html">
+        <source>Type name or phone...</source>
+        <target>नाम या फ़ोन टाइप करें...</target>
+      </trans-unit>
+      <trans-unit id="scheme.plan-name" datatype="html">
+        <source>Plan name</source>
+        <target>योजना का नाम</target>
+      </trans-unit>
+      <trans-unit id="scheme.monthly-amount" datatype="html">
+        <source>Monthly amount</source>
+        <target>मासिक राशि</target>
+      </trans-unit>
+      <trans-unit id="scheme.tenure" datatype="html">
+        <source>Tenure (months)</source>
+        <target>अवधि (महीने)</target>
+      </trans-unit>
+      <trans-unit id="scheme.enroll" datatype="html">
+        <source>Enroll scheme</source>
+        <target>योजना में नामांकन</target>
+      </trans-unit>
+      <trans-unit id="rate.per-gram" datatype="html">
+        <source>Rate per gram</source>
+        <target>प्रति ग्राम भाव</target>
+      </trans-unit>
+      <trans-unit id="palette.footer.root" datatype="html">
+        <source><x id="START_TAG_NG_ICON" ctype="x-ng_icon" equiv-text="&lt;ng-icon name=&quot;lucideCornerDownLeft&quot; size=&quot;12&quot; aria-hidden=&quot;true&quot;&gt;"/><x id="CLOSE_TAG_NG_ICON" ctype="x-ng_icon" equiv-text="&lt;/ng-icon&gt;"/>  to select · ↑↓ to navigate · Esc to close </source>
+        <target><x id="START_TAG_NG_ICON" ctype="x-ng_icon" equiv-text="&lt;ng-icon name=&quot;lucideCornerDownLeft&quot; size=&quot;12&quot; aria-hidden=&quot;true&quot;&gt;"/><x id="CLOSE_TAG_NG_ICON" ctype="x-ng_icon" equiv-text="&lt;/ng-icon&gt;"/>  चुनने के लिए · नेविगेट के लिए ↑↓ · बंद करने के लिए Esc </target>
+      </trans-unit>
+      <trans-unit id="palette.footer.sub" datatype="html">
+        <source> Esc to go back · Enter to submit </source>
+        <target>वापस जाने के लिए Esc · सबमिट करने के लिए Enter</target>
+      </trans-unit>
+      <trans-unit id="palette.placeholder.root" datatype="html">
+        <source>Search or run command...</source>
+        <target>खोजें या कमांड चलाएँ...</target>
+      </trans-unit>
+      <trans-unit id="palette.placeholder.sub" datatype="html">
+        <source>Fill in details...</source>
+        <target>विवरण भरें...</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

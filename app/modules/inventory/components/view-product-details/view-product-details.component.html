@@ -1,65 +1,228 @@
-<app-page-header [pageName]="'View Product Details'"></app-page-header>
-
-<div class="container-xl  px-4 mt-4">
-
-    <div class="row">
-        <div class="col-md-4">
-            <!-- Profile picture card-->
-
-            <div class="row">
-                <div class="col">
-                    <div class="card mb-4 mb-xl-0">
-                        <div class="card-header">Product Image</div>
-                        <div class="card-body text-center">
-                            <product-image-upload></product-image-upload>
-                            <!-- Profile picture upload button-->
-                            <div class="row">
-                                <div class="col">
-                                    <button [ngClass]="{'disabled': productCurrentImage == null || productCurrentImage == undefined || 
-                                    imageUploadComponent.imageSrc == initialProductImageSrc}"
-                                        class="btn btn-success mt-3" type="button" (click)="updateProductImage()">
-                                        <i class="fa-solid fa-pen-to-square"></i> Update
-                                    </button>
-                                </div>
-                                <div class="col">
-                                    <button class="btn btn-danger mt-3" type="button" (click)="deleteProductImage()"
-                                        [ngClass]="{'disabled': initialProductImageSrc == '' || initialProductImageSrc == null}">
-                                        <i class="fa-solid fa-trash"></i> Delete
-                                    </button>
-
-                                </div>
-                                <div class="col">
-                                    <button type="button" class="btn btn-outline-dark mt-3" (click)="clearImage()">
-                                        <i class="fa-solid fa-rotate-left"></i> Reset
-                                    </button>
-
-                                </div>
-                            </div>
-
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row my-3">
-                <div class="col">
-                    <div class="card">
-                        <div class="card-body text-center">
-                            <h6><b> Total Amount Of Products Purchased </b></h6>
-                            <p> 500000$</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+@if (productDetails) {
+  <header class="view-header">
+    <div class="view-header__left">
+      <button type="button" class="icon-btn" (click)="goBack()" title="Back to Stock" aria-label="Back">
+        <ng-icon name="lucideArrowLeft" size="18" aria-hidden="true"></ng-icon>
+      </button>
+      <div class="view-header__meta">
+        <h1 class="view-header__name font-serif" [title]="productDetails.productDescription || productDetails.subCategory || productDetails.sku">{{ productDetails.productDescription || productDetails.subCategory || productDetails.sku }}</h1>
+        <div class="view-header__sub">
+          <span class="purity-chip">
+            {{ productDetails.purityLabel || productDetails.purityCode }}
+            @if (productDetails.purityFineness) { <span class="purity-chip__dot">•</span>{{ productDetails.purityFineness }} }
+          </span>
+          <span class="sub-chip tabular-nums">SKU {{ productDetails.sku }}</span>
+          @if (productDetails.huid) {
+            <span class="sub-chip tabular-nums">HUID {{ productDetails.huid }}</span>
+          }
         </div>
-
-        <div class="col-md-8">
-            <app-product-details-form [allCategoriesData]="allCategoriesData" [isLoading]="isLoading"
-                *ngIf="productDetails && allCategoriesData" [productData]="productDetails"
-                (refreshProductDetails)="getProductDetails()"></app-product-details-form>
-        </div>
+      </div>
     </div>
+    <div class="view-header__actions">
+      <button type="button" class="icon-btn" (click)="toggleEditMode()" title="{{ editMode ? 'Cancel edit' : 'Edit product' }}" aria-label="Edit">
+        <ng-icon [name]="editMode ? 'lucideX' : 'lucidePencil'" size="16" aria-hidden="true"></ng-icon>
+      </button>
+      @if (permissions.canDeleteProduct()) {
+        <button type="button" class="icon-btn icon-btn--danger" (click)="deleteProduct()" title="Delete product" aria-label="Delete">
+          <ng-icon name="lucideTrash2" size="16" aria-hidden="true"></ng-icon>
+        </button>
+      }
+    </div>
+  </header>
 
-</div>
+  <div class="detail-shell">
+    <main class="detail-main">
+      @if (editMode && allCategoriesData) {
+        <section class="detail-section detail-section--form">
+          <p class="detail-section__title">Edit product</p>
+          <app-product-details-form
+            [allCategoriesData]="allCategoriesData"
+            [productData]="productDetails"
+            [isLoading]="isLoading"
+            (refreshProductDetails)="getProductDetails(); editMode = false;">
+          </app-product-details-form>
+        </section>
+      } @else {
+        <section class="product-hero">
+          <div class="product-hero__image">
+            @if (thumbnail) {
+              <img [src]="thumbnail" [alt]="productDetails.sku" loading="lazy" />
+            } @else {
+              <div class="product-hero__placeholder">
+                <ng-icon name="lucidePackage" size="48" aria-hidden="true"></ng-icon>
+                <span>No photo</span>
+              </div>
+            }
+          </div>
+          <div class="product-hero__meta">
+            <div class="detail-section detail-section--nobg">
+              <p class="detail-section__title">Specifications</p>
+              <div class="detail-grid">
+                <div>
+                  <span class="detail-field__label">Purity</span>
+                  <span class="detail-field__value">{{ productDetails.purityLabel || productDetails.purityCode }}
+                    @if (productDetails.purityFineness) { <span class="muted"> (fineness {{ productDetails.purityFineness }})</span> }
+                  </span>
+                </div>
+                <div>
+                  <span class="detail-field__label">Metal</span>
+                  <span class="detail-field__value">{{ (productDetails.metalType || '-') | titlecase }}</span>
+                </div>
+                <div>
+                  <span class="detail-field__label">Gross weight</span>
+                  <span class="detail-field__value tabular-nums">{{ formatWeight(productDetails.grossWeight) }}</span>
+                </div>
+                <div>
+                  <span class="detail-field__label">Net weight</span>
+                  <span class="detail-field__value tabular-nums">{{ formatWeight(productDetails.netWeight) }}</span>
+                </div>
+                <div>
+                  <span class="detail-field__label">Stone weight</span>
+                  <span class="detail-field__value tabular-nums">{{ formatWeight(productDetails.stoneWeight) }}</span>
+                </div>
+                <div>
+                  <span class="detail-field__label">Stone charges</span>
+                  <span class="detail-field__value tabular-nums">{{ formatINR(productDetails.stoneCharges) }}</span>
+                </div>
+                <div>
+                  <span class="detail-field__label">Making mode</span>
+                  <span class="detail-field__value">{{ makingModeLabel() }}</span>
+                </div>
+                <div>
+                  <span class="detail-field__label">Making value</span>
+                  <span class="detail-field__value tabular-nums">{{ makingValueLabel() }}</span>
+                </div>
+                <div>
+                  <span class="detail-field__label">Wastage</span>
+                  <span class="detail-field__value tabular-nums">{{ productDetails.wastagePercent }}%</span>
+                </div>
+                <div>
+                  <span class="detail-field__label">HSN</span>
+                  <span class="detail-field__value tabular-nums">{{ productDetails.hsnCode }}</span>
+                </div>
+                <div>
+                  <span class="detail-field__label">Master category</span>
+                  <span class="detail-field__value" [class.is-empty]="!productDetails.masterCategory">{{ productDetails.masterCategory || '-' }}</span>
+                </div>
+                <div>
+                  <span class="detail-field__label">Sub category</span>
+                  <span class="detail-field__value" [class.is-empty]="!productDetails.subCategory">{{ productDetails.subCategory || '-' }}</span>
+                </div>
+                <div>
+                  <span class="detail-field__label">Product category</span>
+                  <span class="detail-field__value" [class.is-empty]="!productDetails.productCategory">{{ productDetails.productCategory || '-' }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="detail-section">
+          <p class="detail-section__title">Pricing</p>
+          <div class="detail-grid">
+            @if (permissions.costsVisible()) {
+              <div>
+                <span class="detail-field__label">Cost price</span>
+                <span class="detail-field__value tabular-nums">{{ formatINR(productDetails.costPrice) }}</span>
+              </div>
+            }
+            <div>
+              <span class="detail-field__label">Tag price</span>
+              <span class="detail-field__value tabular-nums" style="font-size: 15px; font-weight: 600;">{{ formatINR(productDetails.tagPrice) }}</span>
+            </div>
+            @if (computedFloor !== null) {
+              <div class="detail-grid__full">
+                <span class="detail-field__label">Computed floor (metal + making + wastage + stones)</span>
+                <span class="detail-field__value tabular-nums" style="font-size: 14px;">{{ formatINR(computedFloor) }} at today's rate</span>
+              </div>
+            }
+          </div>
+        </section>
+      }
+    </main>
+
+    <aside class="detail-side">
+      <div class="kpi-card">
+        <p class="kpi-label">Status</p>
+        <div class="status-row">
+          @if (isSold()) {
+            <span class="status-chip status-chip--danger">
+              <ng-icon name="lucideCircleX" size="12" aria-hidden="true"></ng-icon>
+              Sold
+            </span>
+          } @else {
+            <span class="status-chip status-chip--success">
+              <ng-icon name="lucideCircleCheck" size="12" aria-hidden="true"></ng-icon>
+              In stock
+            </span>
+          }
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <p class="kpi-label">Tag price</p>
+        <p class="kpi-value">{{ formatINR(productDetails.tagPrice) }}</p>
+      </div>
+
+      <div class="kpi-card kpi-card--compact">
+        <p class="kpi-label">Days in stock</p>
+        <p class="kpi-value kpi-value--sm tabular-nums">
+          @if (daysInStock() !== null) {
+            {{ daysInStock() }}<span class="unit-small">d</span>
+          } @else {
+            -
+          }
+        </p>
+        @if (productDetails.createdAt) {
+          <p class="kpi-note">since {{ formatDateShort(productDetails.createdAt) }}</p>
+        }
+      </div>
+
+      <div class="quick-actions">
+        <button type="button" class="hlm-btn hlm-btn-ghost quick-actions__btn" (click)="markAsSold()" [disabled]="isSold()">
+          <ng-icon name="lucideCircleCheck" size="14" aria-hidden="true"></ng-icon>
+          <span>{{ isSold() ? 'Already sold' : 'Mark as sold' }}</span>
+        </button>
+        <button type="button" class="hlm-btn hlm-btn-ghost quick-actions__btn" (click)="printTag()">
+          <ng-icon name="lucidePrinter" size="14" aria-hidden="true"></ng-icon>
+          <span>Print tag</span>
+        </button>
+      </div>
+
+      <div class="notes-card">
+        <div class="notes-card__head">
+          <p class="notes-card__title">Photo</p>
+          <button type="button" class="icon-btn" (click)="toggleImageEditor()" title="{{ showImageEditor ? 'Close' : 'Edit photo' }}" aria-label="Edit photo">
+            <ng-icon [name]="showImageEditor ? 'lucideX' : 'lucidePencil'" size="14" aria-hidden="true"></ng-icon>
+          </button>
+        </div>
+        @if (showImageEditor) {
+          <div class="photo-editor">
+            <product-image-upload [activeColor]="'var(--color-accent)'" [baseColor]="'var(--color-border)'"></product-image-upload>
+            <div class="photo-editor__actions">
+              <button type="button" class="hlm-btn hlm-btn-ghost" (click)="clearImage()">
+                <ng-icon name="lucideRotateCcw" size="14" aria-hidden="true"></ng-icon>
+                <span>Reset</span>
+              </button>
+              @if (initialProductImageSrc) {
+                <button type="button" class="hlm-btn hlm-btn-ghost" (click)="deleteProductImage()">
+                  <ng-icon name="lucideTrash2" size="14" aria-hidden="true"></ng-icon>
+                  <span>Delete</span>
+                </button>
+              }
+              <button type="button" class="hlm-btn hlm-btn-primary" (click)="updateProductImage()">
+                <ng-icon name="lucideSave" size="14" aria-hidden="true"></ng-icon>
+                <span>Save</span>
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </aside>
+  </div>
+} @else {
+  <div class="loading-state">
+    <ng-icon name="lucideLoader" class="animate-spin" size="24" aria-hidden="true"></ng-icon>
+    <span>Loading product...</span>
+  </div>
+}

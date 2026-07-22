@@ -8,9 +8,8 @@ describe('CompanyLogoComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ CompanyLogoComponent ]
-    })
-    .compileComponents();
+      imports: [CompanyLogoComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(CompanyLogoComponent);
     component = fixture.componentInstance;

@@ -1,60 +1,66 @@
-.gold-bar-icon {
-    background: url('../../../../assets/img/gold-bars.png');
+.card.card-stats {
+  border-radius: 16px;
+  border: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    cursor: pointer;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(124, 140, 248, 0.12);
+  }
+
+  .card-body {
+    padding: 1.25rem;
+  }
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500&display=swap');
+.card-title {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0.5px;
+  color: #6B7194;
+  margin-bottom: 0.5rem;
+}
+
+.h2 {
+  font-size: var(--fs-2xl);
+  font-weight: var(--fw-bold);
+  color: #2D3142;
+}
+
+.icon-div.icon-shape {
+  // Fixed square with tinted primary background; centres the icon
+  // (image OR font-awesome) exactly. Previously the template rendered
+  // BOTH an <img> and an empty <i> which pushed the image off-centre.
+  display: inline-flex;
+  width: 3rem;
+  height: 3rem;
+  padding: 0;
+  border-radius: 14px;
+  background: #EEF0FF;
+  color: #7C8CF8;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
 
 .item-icon {
-    /* display: inline-block;
-    border-radius: 10%;
-    box-shadow: 0 0 2px #888;
-    padding: 0.5em 0.6em;
-    height: 50px;
-     */
-    display: block;
-    float: left;
-    width: 26px;
-    height: 26px;
-    //  border: 2px solid #909090;
-    border-radius: 20px;
-    //  margin-right: 7px; /*space between*/
+  display: block;
+  max-width: 60%;
+  max-height: 60%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
 }
 
-.card {
-    /* height:200px */
-    border-radius: 20px;
-    transition: transform 0.2s ease;
+// Font-awesome variant of item-icon: font-size instead of intrinsic dims.
+i.item-icon {
+  font-size: var(--fs-lg);
+  line-height: 1;
+  width: auto;
+  height: auto;
 }
 
-.card:hover {
-    cursor: pointer;
-    transform: scale(1.05);
-    box-shadow: 0 4px 6px 0 rgba(22, 22, 26, 0.18);
-
-}
-
-
-* {
-    font-family: 'Poppins', sans-serif;
-
-}
-
-.icon-div {
-    width: 3rem;
-    height: 3rem;
-}
-
-.icon-div i {
-    font-size: 1.25rem;
-    margin-right: 0px;
-    max-height: 20px;
-}
-
-.icon-shape {
-    display: inline-flex;
-    padding: 12px;
-    text-align: center;
-    border-radius: 50%;
-    align-items: center;
-    justify-content: center;
+.text-sm {
+  font-size: var(--fs-sm);
 }

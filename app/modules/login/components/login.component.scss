@@ -1,47 +1,301 @@
-/* @import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap'); */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500&display=swap');
-.main-container {
-  /* border: 1px solid black;  */
-  /* box-shadow: 20px;*/
-  border-radius: 10px; 
-  max-width: 1024px;
-  height:650px;
-  padding: 10px;
-  /* border: 1px solid #77aaff;
-  -webkit-box-shadow: 0 0 10px rgb(0,0,0); */
-  background-color: white;
+:host {
+  display: block;
+}
+
+.login-page {
+  position: relative;
+  min-height: 100vh;
+  padding: 2rem 1rem;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(1200px 600px at 15% -10%, color-mix(in oklab, var(--color-accent) 12%, transparent), transparent 60%),
+    radial-gradient(900px 500px at 110% 110%, color-mix(in oklab, var(--color-accent) 8%, transparent), transparent 60%),
+    var(--color-bg);
+}
+
+// Only positioning left here; the visual styling now comes from the
+// .hlm-btn-icon Tailwind recipe applied on the template.
+.theme-toggle {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.5rem;
+  cursor: pointer;
+}
+
+.login-shell {
+  width: 100%;
+  max-width: 960px;
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  background: var(--color-panel);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-lg);
   overflow: hidden;
-  font-family: 'Poppins', sans-serif;
-  /* font-weight: 500; */
-
-
+  min-height: 560px;
 }
 
-.form-container {
-  background-color: rgba(249,249,251,255);
-  /* width: 100%; */
+// --------------------------- Brand side ---------------------------
+.brand-side {
+  position: relative;
+  padding: 2.5rem 2.75rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 2rem;
+  background:
+    linear-gradient(180deg, color-mix(in oklab, var(--color-accent) 18%, var(--color-panel)) 0%, var(--color-panel) 60%),
+    var(--color-panel);
+  border-right: 1px solid var(--color-border-subtle);
+  color: var(--color-fg);
 }
-.form-container a{
+
+.brand-mark {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.brand-monogram {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  color: var(--color-accent-fg);
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 1.35rem;
+  letter-spacing: -0.02em;
+  box-shadow: var(--shadow-sm);
+}
+
+.brand-wordmark {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+
+  .brand-primary {
+    font-family: var(--font-serif);
+    font-size: 1.35rem;
+    font-weight: 500;
+    letter-spacing: -0.015em;
+    color: var(--color-fg);
+  }
+
+  .brand-secondary {
+    font-family: var(--font-serif);
+    font-size: 1.05rem;
+    font-style: italic;
+    color: var(--color-fg-muted);
+    letter-spacing: 0;
+    text-transform: none;
+  }
+}
+
+.brand-hero {
+  max-width: 32ch;
+}
+
+.hero-eyebrow {
+  margin: 0 0 0.75rem;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--color-accent);
+}
+
+html[data-theme="dark"] .hero-eyebrow {
+  color: var(--color-accent);
+}
+
+.hero-title {
+  margin: 0 0 1rem;
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(1.9rem, 3vw, 2.5rem);
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  color: var(--color-fg);
+
+  em {
+    font-style: italic;
+    color: var(--color-accent);
+  }
+}
+
+.hero-body {
+  margin: 0;
+  font-size: var(--fs-md);
+  line-height: var(--lh-relaxed);
+  color: var(--color-fg-muted);
+}
+
+.brand-foot {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: var(--fs-xs);
+  color: var(--color-fg-muted);
+  letter-spacing: 0.02em;
+
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: var(--radius-full);
+    background: var(--color-success);
+  }
+}
+
+// --------------------------- Form side ---------------------------
+.form-side {
+  padding: 3rem 2.5rem;
+  display: grid;
+  place-items: center;
+}
+
+.form-shell {
+  width: 100%;
+  max-width: 360px;
+}
+
+.form-head {
+  margin-bottom: 1.75rem;
+}
+
+.form-title {
+  margin: 0 0 0.25rem;
+  font-size: var(--fs-2xl);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--color-fg);
+}
+
+.form-sub {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--color-fg-muted);
+}
+
+.notice {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem 0.85rem;
+  border-radius: var(--radius-md);
+  font-size: var(--fs-sm);
+  margin-bottom: 1.25rem;
+}
+
+.notice-danger {
+  background: var(--color-danger-subtle);
+  color: var(--color-danger-fg);
+  border: 1px solid color-mix(in oklab, var(--color-danger) 20%, transparent);
+}
+
+.field {
+  margin-bottom: 1rem;
+}
+
+.field-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.4rem;
+}
+
+.field label {
+  display: block;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--color-fg-muted);
+  margin-bottom: 0.4rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.field-head label {
+  margin-bottom: 0;
+}
+
+.link-muted {
+  font-size: var(--fs-xs);
+  color: var(--color-fg-muted);
   text-decoration: none;
-  color: #fe8c00;
-}
-.inner-container {
-  /* width: 100%; */
- 
-  /* display: inline-block; */
-}
-@media only screen and (max-width: 576px) {
-  .company-logo-column {
-    display: none!important;
-  }
-  .main-container{
-    width: 95%;
-    /* margin-left: 5px!important;
-    margin-right: 5px!important; */
+  font-weight: 500;
+
+  &:hover {
+    color: var(--color-fg);
+    text-decoration: underline;
   }
 }
-@media only screen and (min-width: 576px) and (max-width:768px) {
-  .main-container{
-    width: 95%;
+
+.control {
+  position: relative;
+}
+
+// The submit button uses .hlm-btn .hlm-btn-primary Tailwind recipes.
+// Only the arrow-slide micro-interaction lives in component SCSS.
+.hlm-btn .btn-arrow {
+  transition: transform 0.15s ease;
+}
+.hlm-btn:hover:not(:disabled) .btn-arrow {
+  transform: translateX(3px);
+}
+
+.form-legal {
+  margin: 1.75rem 0 0;
+  font-size: var(--fs-xs);
+  color: var(--color-fg-subtle);
+  text-align: center;
+}
+
+// --------------------------- Devanagari sanity check -----------------
+// Dev-only visual check that Hind loads and matras don't clip.
+// Removed for production; kept commented for reference during phase 1.
+// <div class="devanagari-sample">आभूषण दुकान प्रबंधन</div>
+
+// --------------------------- Responsive ---------------------------
+@media (max-width: 860px) {
+  .login-shell {
+    grid-template-columns: 1fr;
+    max-width: 460px;
+    min-height: 0;
+  }
+
+  .brand-side {
+    padding: 2rem 2rem 1.5rem;
+    gap: 1.5rem;
+    border-right: none;
+    border-bottom: 1px solid var(--color-border-subtle);
+  }
+
+  .brand-foot {
+    display: none;
+  }
+
+  .hero-title {
+    font-size: 1.75rem;
+  }
+
+  .form-side {
+    padding: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .brand-hero {
+    display: none;
+  }
+
+  .brand-side {
+    padding: 1.25rem 1.5rem;
+  }
+
+  .form-side {
+    padding: 1.5rem;
   }
 }

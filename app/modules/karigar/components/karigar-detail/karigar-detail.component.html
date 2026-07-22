@@ -1,0 +1,160 @@
+@if (karigar(); as k) {
+  <header class="view-header">
+    <div class="view-header__left">
+      <button type="button" class="icon-btn" (click)="goBack()" title="Back" aria-label="Back">
+        <ng-icon name="lucideArrowLeft" size="18" aria-hidden="true"></ng-icon>
+      </button>
+      <div class="view-header__meta">
+        <h1 class="view-header__name font-serif" [title]="k.name">{{ k.name }}</h1>
+        <div class="view-header__sub">
+          @if (k.phone) {
+            <span class="sub-chip tabular-nums">
+              <ng-icon name="lucidePhoneCall" size="12" aria-hidden="true"></ng-icon>
+              {{ k.phone }}
+            </span>
+          }
+          @if (k.address) {
+            <span class="sub-chip">
+              <ng-icon name="lucideMapPin" size="12" aria-hidden="true"></ng-icon>
+              {{ k.address }}
+            </span>
+          }
+        </div>
+      </div>
+    </div>
+    <div class="view-header__actions">
+      <button type="button" class="hlm-btn hlm-btn-primary" (click)="openIssueForKarigar()">
+        <ng-icon name="lucidePlus" size="14" aria-hidden="true"></ng-icon>
+        <span>Issue new job</span>
+      </button>
+      <button type="button" class="icon-btn" (click)="openEdit()" title="Edit karigar" aria-label="Edit">
+        <ng-icon name="lucidePencil" size="16" aria-hidden="true"></ng-icon>
+      </button>
+      @if (isAdmin()) {
+        <button type="button" class="icon-btn icon-btn--danger" (click)="deleteKarigar()" title="Delete karigar" aria-label="Delete">
+          <ng-icon name="lucideTrash2" size="16" aria-hidden="true"></ng-icon>
+        </button>
+      }
+    </div>
+  </header>
+
+  <div class="detail-shell">
+    <main class="detail-main">
+      <section class="form-section">
+        <div class="section-head">
+          <p class="form-section__title" style="margin-bottom: 0;">Ledger</p>
+          <div class="ledger-range">
+            <label class="field-label" for="ledger-from">From</label>
+            <input class="hlm-input tabular-nums" id="ledger-from" type="date"
+                   [value]="dateFrom()"
+                   (change)="onDateFromChange($any($event.target).value)" />
+            <label class="field-label" for="ledger-to">To</label>
+            <input class="hlm-input tabular-nums" id="ledger-to" type="date"
+                   [value]="dateTo()"
+                   (change)="onDateToChange($any($event.target).value)" />
+          </div>
+        </div>
+
+        @if (ledger().length === 0) {
+          <p class="empty-inline">No ledger entries in this range.</p>
+        } @else {
+          <div class="ledger-table">
+            <div class="ledger-table__head">
+              <span class="col-date">Date</span>
+              <span class="col-type">Type</span>
+              <span class="col-dir">±</span>
+              <span class="col-weight">Weight (g)</span>
+              <span class="col-amount">Amount</span>
+              <span class="col-job">Job</span>
+              <span class="col-notes">Notes</span>
+            </div>
+            @for (l of ledger(); track l.ledgerGuid) {
+              <div class="ledger-table__row">
+                <span class="col-date tabular-nums">{{ l.txnDate | date: 'd MMM yyyy' }}</span>
+                <span class="col-type">{{ l.entryType }}</span>
+                <span class="col-dir" [class.is-credit]="l.direction === 'credit'"
+                       [class.is-debit]="l.direction === 'debit'">
+                  {{ l.direction === 'credit' ? '+' : '−' }}
+                </span>
+                <span class="col-weight tabular-nums">{{ (l.weightGrams ?? 0) | number: '1.2-3' }}</span>
+                <span class="col-amount tabular-nums">
+                  @if (l.amount && +l.amount !== 0) { &#8377;{{ +l.amount | number: '1.0-2' }} } @else { — }
+                </span>
+                <span class="col-job tabular-nums">
+                  @if (l.jobGuid) {
+                    <button type="button" class="link-btn" (click)="goToJobByGuid(l.jobGuid)">{{ jobShort(l.jobGuid) }}</button>
+                  } @else { — }
+                </span>
+                <span class="col-notes">{{ l.notes || '' }}</span>
+              </div>
+            }
+            @if (ledgerSummary(); as sum) {
+              <div class="ledger-table__foot">
+                <span>Issued <span class="tabular-nums">{{ sum.issuedGrams | number: '1.2-3' }} g</span></span>
+                <span>Received <span class="tabular-nums">{{ sum.receivedGrams | number: '1.2-3' }} g</span></span>
+                <span>Owing <span class="tabular-nums">{{ sum.netMetalOutstandingGrams | number: '1.2-3' }} g</span></span>
+                <span>Making accrued <span class="tabular-nums">&#8377;{{ sum.makingAccrued | number: '1.0-2' }}</span></span>
+                <span>Payments <span class="tabular-nums">&#8377;{{ sum.paymentsMade | number: '1.0-2' }}</span></span>
+                <span>Balance <span class="tabular-nums">&#8377;{{ sum.balanceDue | number: '1.0-2' }}</span></span>
+              </div>
+            }
+          </div>
+        }
+      </section>
+
+      <section class="form-section">
+        <p class="form-section__title">Active jobs ({{ activeJobs().length }})</p>
+        @if (activeJobs().length === 0) {
+          <p class="empty-inline">No jobs currently open with this karigar.</p>
+        } @else {
+          <ul class="active-jobs">
+            @for (j of activeJobs(); track j.jobGuid) {
+              <li class="active-jobs__row" (click)="goToJob(j)" role="button" tabindex="0"
+                  (keyup.enter)="goToJob(j)">
+                <span class="tabular-nums">{{ jobShort(j.jobGuid) }}</span>
+                <span class="tabular-nums">{{ j.issueDate | date: 'd MMM yyyy' }}</span>
+                <span class="tabular-nums money">{{ j.issuedGrossWeight }} g</span>
+                <span [class]="statusClass(j.status)">{{ j.status }}</span>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+    </main>
+
+    <aside class="detail-side">
+      <div class="kpi-card">
+        <p class="kpi-label">Gold owing (g)</p>
+        <p class="kpi-value money-lg tabular-nums">{{ netOwing() | number: '1.2-3' }}</p>
+      </div>
+      <div class="side-row">
+        <div class="kpi-card kpi-card--compact">
+          <p class="kpi-label">Active jobs</p>
+          <p class="kpi-value kpi-value--sm tabular-nums">{{ activeJobs().length }}</p>
+        </div>
+        <div class="kpi-card kpi-card--compact">
+          <p class="kpi-label">Settled this month</p>
+          <p class="kpi-value kpi-value--sm tabular-nums">&#8377;{{ settledThisMonth() | number: '1.0-0' }}</p>
+        </div>
+      </div>
+      @if (k.remarks) {
+        <div class="notes-card">
+          <p class="notes-card__title">Notes</p>
+          <p class="notes-card__body">{{ k.remarks }}</p>
+        </div>
+      }
+    </aside>
+  </div>
+
+  <app-karigar-form
+    [open]="formOpen()"
+    [editing]="k"
+    (closed)="onFormClosed()"
+    (saved)="onFormSaved()">
+  </app-karigar-form>
+} @else {
+  <div class="loading-state">
+    <ng-icon name="lucideLoader" class="animate-spin" size="24" aria-hidden="true"></ng-icon>
+    <span>Loading karigar…</span>
+  </div>
+}
