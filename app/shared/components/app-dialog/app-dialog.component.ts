@@ -135,7 +135,7 @@ export class AppDialogComponent implements AfterViewChecked {
   }
 
   @HostListener('document:keydown.escape', ['$event'])
-  onEscape(evt: KeyboardEvent): void {
+  onEscape(evt: Event): void {
     const opts = this.options();
     if (!opts || opts.disableEscape || this.busy()) return;
     evt.preventDefault();
@@ -143,10 +143,11 @@ export class AppDialogComponent implements AfterViewChecked {
   }
 
   @HostListener('document:keydown.tab', ['$event'])
-  onTab(evt: KeyboardEvent): void {
+  onTab(evt: Event): void {
     if (!this.options()) return;
     const panel = this.panelRef?.nativeElement;
     if (!panel) return;
+    const kbd = evt as KeyboardEvent;
     const focusables = Array.from(
       panel.querySelectorAll<HTMLElement>(
         'button:not([disabled]), a[href], input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
@@ -155,7 +156,7 @@ export class AppDialogComponent implements AfterViewChecked {
     if (!focusables.length) return;
     const first = focusables[0];
     const last = focusables[focusables.length - 1];
-    if (evt.shiftKey) {
+    if (kbd.shiftKey) {
       if (document.activeElement === first) {
         evt.preventDefault();
         last.focus();
