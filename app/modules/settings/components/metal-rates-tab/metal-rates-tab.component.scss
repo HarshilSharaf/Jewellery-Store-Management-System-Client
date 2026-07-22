@@ -1,0 +1,263 @@
+// Metal Rates tab. Standalone, default change detection, no signals in the
+// template. All state is plain component fields, mutated in async handlers
+// with cdRef.detectChanges() at the end of the initial load. The old
+// signals+OnPush implementation had race conditions with the initial paint.
+
+.panel-head {
+  margin-bottom: 20px;
+
+  .panel-title {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: 1.5rem;
+    margin: 0 0 0.2rem 0;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+  }
+}
+
+.panel-sub {
+  color: var(--color-fg-muted);
+  font-size: var(--fs-sm);
+  margin: 0.15rem 0;
+}
+
+.panel-subhead {
+  margin: 24px 0 12px;
+
+  h3 {
+    margin: 0;
+    font-size: var(--fs-md);
+    color: var(--color-fg);
+    font-weight: 600;
+  }
+}
+
+.rates-controls {
+  display: flex;
+  gap: 16px;
+  align-items: flex-end;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+
+  .field {
+    min-width: 200px;
+
+    .field-label {
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--color-fg-muted);
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+  }
+}
+
+button.copy-all-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 14px;
+  border: 1px solid var(--color-border) !important;
+  border-radius: var(--radius-md);
+  background: var(--color-panel);
+  color: var(--color-fg);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+
+  svg {
+    flex-shrink: 0;
+    opacity: 0.75;
+  }
+
+  &:hover {
+    background: var(--color-accent-subtle);
+    color: var(--color-accent);
+    border-color: color-mix(in oklab, var(--color-accent) 45%, transparent);
+
+    svg { opacity: 1; }
+  }
+
+  &:active {
+    background: color-mix(in oklab, var(--color-accent) 15%, var(--color-panel));
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+}
+
+.rates-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.rate-row {
+  display: grid;
+  grid-template-columns: minmax(240px, 260px) minmax(0, 1fr) minmax(0, 1fr) 40px;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--color-panel);
+  transition: border-color 0.12s ease, background 0.12s ease;
+
+  &:hover {
+    border-color: var(--color-border);
+    background: var(--color-bg-subtle);
+  }
+
+  &__purity {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  &__code {
+    color: var(--color-fg-subtle);
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 720px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.rate-input {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+
+  input {
+    width: 100%;
+    min-width: 0;
+  }
+
+  &__label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-fg-muted);
+    font-weight: 500;
+  }
+}
+
+.rate-copy-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-fg-muted);
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+
+  &:hover {
+    background: var(--color-accent-subtle);
+    color: var(--color-accent);
+    border-color: color-mix(in oklab, var(--color-accent) 30%, transparent);
+  }
+}
+
+// Purity badge — metal-accurate palette, hardcoded metal colors because
+// gold/silver/platinum are domain colors not theme tokens. Static class
+// names (purity-badge--gold, etc.) so we never touch [ngClass].
+.purity-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+
+  &--gold {
+    background: #fbe6a8;
+    color: #6b4a00;
+    border-color: #e9c877;
+  }
+  &--silver {
+    background: #e8ecf1;
+    color: #4a5568;
+    border-color: #c8d1dc;
+  }
+  &--platinum {
+    background: #ede8f3;
+    color: #514668;
+    border-color: #cfc4dc;
+  }
+}
+
+html[data-theme="dark"] .purity-badge {
+  &--gold {
+    background: color-mix(in oklab, #ffcf5c 22%, var(--color-bg-subtle));
+    color: #ffd97a;
+    border-color: color-mix(in oklab, #ffcf5c 40%, transparent);
+  }
+  &--silver {
+    background: color-mix(in oklab, #c8d1dc 18%, var(--color-bg-subtle));
+    color: #d6dde8;
+    border-color: color-mix(in oklab, #c8d1dc 35%, transparent);
+  }
+  &--platinum {
+    background: color-mix(in oklab, #cfc4dc 18%, var(--color-bg-subtle));
+    color: #ddd0ef;
+    border-color: color-mix(in oklab, #cfc4dc 35%, transparent);
+  }
+}
+
+.empty-note {
+  padding: 1rem;
+  text-align: center;
+  color: var(--color-fg-subtle);
+  font-size: var(--fs-sm);
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.6rem;
+  justify-content: flex-end;
+  margin: 0.6rem 0;
+}
+
+.ds-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-sm);
+
+  th, td {
+    text-align: left;
+    padding: 0.55rem 0.7rem;
+    border-bottom: 1px solid var(--color-border-subtle);
+  }
+  th {
+    color: var(--color-fg-muted);
+    font-weight: 600;
+    background: var(--color-bg-subtle);
+    font-size: var(--fs-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  th.right, td.right { text-align: right; }
+  th.clickable { cursor: pointer; user-select: none; }
+  td.empty { text-align: center; color: var(--color-fg-subtle); padding: 1.25rem; }
+}

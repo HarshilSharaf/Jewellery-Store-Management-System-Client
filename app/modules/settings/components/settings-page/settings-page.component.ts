@@ -5,7 +5,6 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
-  lucideCopy,
   lucideArrowLeft,
   lucideScale,
   lucideScanBarcode,
@@ -34,13 +33,11 @@ import { FileSystemService } from '../../../../../../Backend/Shared/file-system.
 
 import { SettingsModel } from '../../models/settings-model';
 import { ShopSettingsService } from '../../../../shared/services/ShopSettings/shop-settings.service';
-import { MetalRatesService } from '../../../../shared/services/MetalRates/metal-rates.service';
 import { PuritiesService } from '../../../../shared/services/Purities/purities.service';
+import { MetalRatesTabComponent } from '../metal-rates-tab/metal-rates-tab.component';
 import { BackupService } from '../../../../shared/services/Backup/backup.service';
 import { PermissionsService } from '../../../../shared/services/Auth/permissions.service';
 import { ShopSettings } from '../../../../interfaces/Shared/shop-settings';
-import { MetalRateRow, MetalRateSession, MetalRateUpsertPayload } from '../../../../interfaces/Shared/metal-rate';
-import { Purity } from '../../../../interfaces/Shared/purity';
 import { TaxSlabRow } from '../../../../interfaces/Shared/tax-slab';
 import { ListBackupsEntry } from '../../../../interfaces/Backup/backup';
 import { INDIAN_STATES, GSTIN_REGEX } from '../../../../shared/utils/indian-states';
@@ -75,13 +72,6 @@ interface MigrationEntityState {
 
 interface TabDef { id: TabId; label: string; }
 
-interface PurityRateEditor {
-  purityCode: string;
-  purityLabel: string;
-  am: number | null;
-  pm: number | null;
-}
-
 interface StubUser {
   id: number;
   userName: string;
@@ -94,9 +84,8 @@ interface StubUser {
   templateUrl: './settings-page.component.html',
   styleUrls: ['./settings-page.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, NgIcon, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, NgIcon, RouterLink, MetalRatesTabComponent],
   viewProviders: [provideIcons({
-    lucideCopy,
     lucideArrowLeft,
     lucideScale,
     lucideScanBarcode,
@@ -145,14 +134,6 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
   invoiceForm!: FormGroup;
   invoiceCounterSaving = signal(false);
   taxSlabs = signal<TaxSlabRow[]>([]);
-
-  purities = signal<Purity[]>([]);
-  rateSession = signal<'today'>('today');
-  rateEditors = signal<PurityRateEditor[]>([]);
-  ratesSaving = signal(false);
-  ratesEffectiveDate = signal<string>(new Date().toISOString().slice(0, 10));
-  rateHistory = signal<MetalRateRow[]>([]);
-  rateHistorySort = signal<'asc' | 'desc'>('desc');
 
   printForm!: FormGroup;
 
@@ -284,7 +265,6 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
   private readonly utilityService = inject(UtilityService);
   private readonly fileSystemService = inject(FileSystemService);
   private readonly shopSettingsService = inject(ShopSettingsService);
-  private readonly metalRatesService = inject(MetalRatesService);
   private readonly puritiesService = inject(PuritiesService);
   readonly scaleService = inject(ScaleService);
   readonly scannerService = inject(ScannerService);
@@ -385,10 +365,7 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
     this.buildWhatsappForm();
 
     this.loadShopSettings();
-    this.loadPurities();
     this.loadTaxSlabs();
-    this.loadCurrentRates();
-    this.loadRateHistory();
     this.loadUsersStub();
     this.loadDbSettings();
     this.loadBackups();
@@ -591,108 +568,6 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
     } finally {
       this.invoiceCounterSaving.set(false);
     }
-  }
-
-  // -------------------------------------------------------------------------
-  // Metal rates
-  // -------------------------------------------------------------------------
-  private async loadPurities() {
-    const rows = await this.puritiesService.getPurities();
-    this.purities.set(rows);
-    this.rebuildRateEditors();
-  }
-
-  private async loadCurrentRates() {
-    await this.metalRatesService.getCurrent();
-    this.rebuildRateEditors();
-  }
-
-  private async loadRateHistory() {
-    const rows = await this.metalRatesService.getHistory(30);
-    this.rateHistory.set(rows);
-  }
-
-  private rebuildRateEditors() {
-    const purs = this.purities();
-    const currentRates = this.metalRatesService.rates();
-
-    const bySession: Record<MetalRateSession, Record<string, number>> = { AM: {}, PM: {} };
-    for (const r of currentRates) {
-      bySession[r.session] = bySession[r.session] ?? {};
-      bySession[r.session][r.purityCode] = Number(r.ratePerGram);
-    }
-
-    const editors: PurityRateEditor[] = purs.map(p => ({
-      purityCode: p.code,
-      purityLabel: p.label,
-      am: bySession.AM[p.code] ?? null,
-      pm: bySession.PM[p.code] ?? null,
-    }));
-    this.rateEditors.set(editors);
-  }
-
-  updateRateAm(code: string, value: any) {
-    const list = this.rateEditors().map(e => e.purityCode === code ? { ...e, am: value === '' ? null : Number(value) } : e);
-    this.rateEditors.set(list);
-  }
-  updateRatePm(code: string, value: any) {
-    const list = this.rateEditors().map(e => e.purityCode === code ? { ...e, pm: value === '' ? null : Number(value) } : e);
-    this.rateEditors.set(list);
-  }
-
-  copyAmToPm() {
-    this.rateEditors.set(this.rateEditors().map(e => ({ ...e, pm: e.am })));
-  }
-
-  async saveRates() {
-    this.ratesSaving.set(true);
-    try {
-      const auth: any = await this.storeService.get('authData');
-      const setByUserId = Number.isFinite(Number(auth?.uid)) ? Number(auth.uid) : null;
-
-      const date = this.ratesEffectiveDate();
-      const amRates: MetalRateUpsertPayload[] = this.rateEditors()
-        .filter(e => e.am !== null && !Number.isNaN(e.am!))
-        .map(e => ({ purityCode: e.purityCode, ratePerGram: Number(e.am) }));
-      const pmRates: MetalRateUpsertPayload[] = this.rateEditors()
-        .filter(e => e.pm !== null && !Number.isNaN(e.pm!))
-        .map(e => ({ purityCode: e.purityCode, ratePerGram: Number(e.pm) }));
-
-      if (!amRates.length && !pmRates.length) {
-        this.toast.warning('Enter at least one AM or PM rate to save.', 'Nothing to save');
-        return;
-      }
-
-      if (amRates.length) {
-        await this.metalRatesService.save({ effectiveDate: date, session: 'AM', source: 'manual', setByUserId, rates: amRates });
-      }
-      if (pmRates.length) {
-        await this.metalRatesService.save({ effectiveDate: date, session: 'PM', source: 'manual', setByUserId, rates: pmRates });
-      }
-      await this.loadCurrentRates();
-      await this.loadRateHistory();
-      this.toast.success('Rates saved', undefined, { timer: 1400 });
-    } catch (err: any) {
-      this.loggerService.LogError(err, 'saveRates');
-      const msg = err?.message ?? String(err);
-      this.toast.error(msg, 'Failed to save rates');
-    } finally {
-      this.ratesSaving.set(false);
-      this.cdRef.detectChanges();
-    }
-  }
-
-  sortedHistory(): MetalRateRow[] {
-    const dir = this.rateHistorySort();
-    const rows = [...this.rateHistory()];
-    return rows.sort((a, b) => {
-      const av = a.effectiveDate ?? ''; const bv = b.effectiveDate ?? '';
-      return dir === 'asc' ? av.localeCompare(bv) : bv.localeCompare(av);
-    });
-  }
-
-  toggleHistorySort() {
-    this.rateHistorySort.set(this.rateHistorySort() === 'asc' ? 'desc' : 'asc');
   }
 
   // -------------------------------------------------------------------------
@@ -1221,26 +1096,6 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
       this.isDefaultDbSettings = true;
       this.dbForm.markAsDirty();
     });
-  }
-
-  // Pick a chip color class based on the purity label/code so gold/silver/platinum
-  // rows read at a glance in the rates grid.
-  purityChipClass(label: string, code: string): string {
-    const key = `${label} ${code}`.toLowerCase();
-    if (key.includes('silver') || key.includes('999')) {
-      // 999 is silver-grade fineness for silver, but 999 gold also exists; disambiguate via label first
-      if (label.toLowerCase().includes('silver')) { return 'chip--silver'; }
-      if (label.toLowerCase().includes('gold'))   { return 'chip--gold'; }
-    }
-    if (key.includes('plat')) { return 'chip--platinum'; }
-    if (key.includes('silver')) { return 'chip--silver'; }
-    // Default all remaining purities (22K, 18K, 14K, 916, 750, 585) to gold.
-    return 'chip--gold';
-  }
-
-  copyPurityAmToPm(code: string) {
-    const list = this.rateEditors().map(e => e.purityCode === code ? { ...e, pm: e.am } : e);
-    this.rateEditors.set(list);
   }
 
   // -------------------------------------------------------------------------
