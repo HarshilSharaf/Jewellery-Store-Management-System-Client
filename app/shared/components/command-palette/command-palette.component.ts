@@ -219,7 +219,7 @@ export class CommandPaletteComponent implements OnInit, AfterViewInit {
 
   @HostListener('window:keydown.control.k', ['$event'])
   @HostListener('window:keydown.meta.k', ['$event'])
-  onGlobalOpen(evt: KeyboardEvent): void {
+  onGlobalOpen(evt: Event): void {
     evt.preventDefault();
     if (!this.palette.isOpen()) { this.palette.open(); }
     queueMicrotask(() => this.focusInput());
