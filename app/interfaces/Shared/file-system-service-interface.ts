@@ -79,6 +79,23 @@ export interface FileSystemServiceInterface {
     getProductImageInBase64(imageFileName: string): Promise<string>;
 
     /**
+     * Retrieves a user/shop image (from the user-images directory) in base64.
+     * @async
+     * @param {string} imageFileName - The name of the image file.
+     * @returns {Promise<string>} A Promise that resolves with the image as a base64 data URL, or '' if absent.
+     */
+    getUserImageInBase64(imageFileName: string): Promise<string>;
+
+    /**
+     * Saves the shop logo into the user-images directory.
+     * @async
+     * @param {*} imageFile - The logo image file.
+     * @param {string} imageFileName - The name under which the logo will be saved.
+     * @returns {Promise<void>} A Promise that resolves when the logo is saved.
+     */
+    saveShopLogo(imageFile: any, imageFileName: string): Promise<void>;
+
+    /**
      * Converts an image file to a Uint8Array.
      * @async
      * @param {File} file - The image file to be converted.

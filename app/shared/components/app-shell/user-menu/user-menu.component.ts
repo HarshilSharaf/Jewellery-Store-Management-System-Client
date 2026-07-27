@@ -52,7 +52,7 @@ export class UserMenuComponent implements OnInit {
       this.displayName.set(authData.userName);
       const res: any = await this.userService.getUserImage(uid);
       if (Array.isArray(res) && res[0]?.imagePath) {
-        const path = this.util.getFilePath(this.fs.userImagesDir + '\\' + res[0].imagePath);
+        const path = await this.fs.getUserImageInBase64(res[0].imagePath);
         this.userService.userImage.set(path);
         this.image.set(path);
       }

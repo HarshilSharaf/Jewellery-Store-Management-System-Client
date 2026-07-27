@@ -268,9 +268,7 @@ export class CartBuilderComponent implements OnInit, OnDestroy {
       const products = Array.isArray(productsRaw) ? (productsRaw as ProductDataModel[]) : [];
       for (const p of products) {
         if (p.imagePath) {
-          p.image = this.utilityService.getFilePath(
-            this.fsService.productImagesDir + '\\' + p.imagePath,
-          );
+          p.image = await this.fsService.getProductImageInBase64(p.imagePath);
         }
       }
       this.allProducts = products;

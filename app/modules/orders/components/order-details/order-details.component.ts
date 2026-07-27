@@ -191,9 +191,7 @@ export class OrderDetailsComponent implements OnInit {
 
         const cust = (row.customerDetails ?? row.customer_details ?? {}) as CustomerDetails;
         if (cust?.imagePath) {
-          cust.imagePath = this.utilityService.getFilePath(
-            this.fsService.customerImagesDir + '\\' + cust.imagePath,
-          );
+          cust.imagePath = await this.fsService.getCustomerImageInBase64(cust.imagePath);
         }
         this.customerData.set(cust);
         orderData.customer_details = cust;

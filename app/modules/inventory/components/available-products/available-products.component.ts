@@ -265,7 +265,7 @@ export class AvailableProductsComponent implements OnInit, OnDestroy {
       const rows: ProductDataModel[] = response.slice(1);
       for (const p of rows) {
         if (p.imagePath) {
-          p.image = this.utilityService.getFilePath(this.fileSystemService.productImagesDir + '\\' + p.imagePath);
+          p.image = await this.fileSystemService.getProductImageInBase64(p.imagePath);
         } else {
           p.image = '';
         }

@@ -128,7 +128,10 @@
                 <label class="field-label">Shop logo</label>
                 <div class="logo-row">
                   <div class="logo-preview">
-                    @if (shopLogoPath) {
+                    @if (shopLogoSrc) {
+                      <img [src]="shopLogoSrc" alt="Shop logo"
+                           style="max-height:64px;max-width:180px;object-fit:contain;border-radius:6px" />
+                    } @else if (shopLogoPath) {
                       <span class="logo-name">{{ shopLogoPath }}</span>
                     } @else {
                       <span class="logo-empty">No logo uploaded</span>
@@ -147,6 +150,11 @@
             <button type="submit" class="hlm-btn hlm-btn-primary" [disabled]="shopSaving() || !shopForm.dirty || !shopForm.valid">
               {{ shopSaving() ? 'Saving...' : 'Save shop identity' }}
             </button>
+            @if (shopForm.invalid && invalidShopFields().length) {
+              <span class="field-error">Fix these to save: {{ invalidShopFields().join(', ') }}</span>
+            } @else if (shopForm.valid && !shopForm.dirty) {
+              <span class="panel-sub">No changes to save.</span>
+            }
           </div>
         </form>
       }
@@ -392,7 +400,7 @@
     @if (activeTab() === 'backup' && isTabVisible('backup')) {
       <div class="panel-head">
         <h2 class="panel-title">Backup</h2>
-        <p class="panel-sub">Encrypted mysqldump archive. Store off-machine.</p>
+        <p class="panel-sub">Encrypted SQLite database archive. Store off-machine.</p>
       </div>
 
       @if (backupPrereqWarning()) {
@@ -996,47 +1004,6 @@
       </div>
     }
 
-    @if (activeTab() === 'database') {
-      <div class="panel-head">
-        <h2 class="panel-title">Database</h2>
-        <p class="panel-sub">MySQL connection settings. Changing these relaunches the app.</p>
-      </div>
-
-      @if (isDefaultDbSettings) {
-        <div class="alert-banner alert-banner--warning">Default database settings are active.</div>
-      }
-
-      @if (dbForm) {
-        <form [formGroup]="dbForm" (ngSubmit)="saveDbSettings()">
-          <div class="form-section">
-            <h3 class="section-heading">Connection</h3>
-            <div class="field-grid">
-              <div>
-                <label class="field-label" for="dbname">Database</label>
-                <input id="dbname" class="hlm-input" formControlName="dbname">
-              </div>
-              <div>
-                <label class="field-label" for="dbport">Port</label>
-                <input id="dbport" type="number" class="hlm-input tabular-nums" formControlName="port">
-              </div>
-              <div>
-                <label class="field-label" for="dbuser">Username</label>
-                <input id="dbuser" class="hlm-input" formControlName="username">
-              </div>
-              <div>
-                <label class="field-label" for="dbpass">Password</label>
-                <input id="dbpass" type="password" class="hlm-input" formControlName="password">
-              </div>
-              <div class="form-actions">
-                <button type="submit" class="hlm-btn hlm-btn-primary" [disabled]="!dbForm.dirty || !dbForm.valid">Save &amp; relaunch</button>
-                <button type="button" class="hlm-btn hlm-btn-ghost" (click)="resetDbForm()" [disabled]="!dbForm.dirty">Reset</button>
-                <button type="button" class="hlm-btn hlm-btn-ghost" (click)="resetDbToDefault()" [disabled]="isDefaultDbSettings">Reset to default</button>
-              </div>
-            </div>
-          </div>
-        </form>
-      }
-    }
 
   </section>
 

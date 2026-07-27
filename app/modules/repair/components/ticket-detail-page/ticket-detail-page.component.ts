@@ -193,12 +193,12 @@ export class TicketDetailPageComponent implements OnInit {
     }
   }
 
-  private hydratePhoto(fileName: string | null | undefined): void {
+  private async hydratePhoto(fileName: string | null | undefined): Promise<void> {
     if (!fileName) { this.photoSrc = null; return; }
     try {
-      this.photoSrc = this.utilityService.getFilePath(
-        this.fileSystemService.customerImagesDir + '\\' + fileName,
-      );
+      // Repair item photos are stored in the customer-images directory.
+      this.photoSrc = await this.fileSystemService.getCustomerImageInBase64(fileName);
+      this.cdRef.detectChanges();
     } catch { this.photoSrc = null; }
   }
 
