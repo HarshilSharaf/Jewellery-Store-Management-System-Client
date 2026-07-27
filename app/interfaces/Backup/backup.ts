@@ -1,12 +1,4 @@
-export interface BackupConfig {
-  host: string;
-  port: number;
-  user: string;
-  password: string;
-  database: string;
-}
-
-export interface CreateBackupPayload extends BackupConfig {
+export interface CreateBackupPayload {
   passphrase: string;
   targetDir: string;
 }
@@ -18,7 +10,7 @@ export interface CreateBackupResult {
   filename: string;
 }
 
-export interface RestoreBackupPayload extends BackupConfig {
+export interface RestoreBackupPayload {
   passphrase: string;
   archivePath: string;
 }

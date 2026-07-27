@@ -59,13 +59,11 @@ export class SelectCustomerComponent implements OnInit, OnDestroy {
     this.loaderService.start();
     this.customerService
       .getAllCustomers(true, 500, 1, '', true)
-      .then((response: any) => {
+      .then(async (response: any) => {
         const rows = (response ?? []) as CustomerDetails[];
         for (const customer of rows) {
           if (customer.imagePath) {
-            customer.image = this.utilityService.getFilePath(
-              this.fileSystemService.customerImagesDir + '\\' + customer.imagePath,
-            );
+            customer.image = await this.fileSystemService.getCustomerImageInBase64(customer.imagePath);
           } else {
             customer.image = 'assets/img/No-Image-Icon.png';
           }

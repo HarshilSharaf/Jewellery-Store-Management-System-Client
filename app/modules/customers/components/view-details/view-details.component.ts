@@ -310,9 +310,7 @@ export class ViewDetailsComponent implements OnInit, OnDestroy {
       const response = await this.customerDataService.getCustomerImage(this.customerGuid);
 
       if (response.length > 0 && response[0].imagePath) {
-        this.thumbnail = this.utilityService.getFilePath(
-          this.fileSystemService.customerImagesDir + '\\' + response[0].imagePath,
-        );
+        this.thumbnail = await this.fileSystemService.getCustomerImageInBase64(response[0].imagePath);
       } else {
         this.thumbnail = '';
       }

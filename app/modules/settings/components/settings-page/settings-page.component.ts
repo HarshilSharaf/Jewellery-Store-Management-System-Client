@@ -31,7 +31,6 @@ import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
 import { UtilityService } from 'Backend/Shared/utitlity.service';
 import { FileSystemService } from '../../../../../../Backend/Shared/file-system.service';
 
-import { SettingsModel } from '../../models/settings-model';
 import { ShopSettingsService } from '../../../../shared/services/ShopSettings/shop-settings.service';
 import { PuritiesService } from '../../../../shared/services/Purities/purities.service';
 import { MetalRatesTabComponent } from '../metal-rates-tab/metal-rates-tab.component';
@@ -56,7 +55,7 @@ import { WhatsAppService } from '../../../../shared/services/WhatsApp/whatsapp.s
 import { WhatsappSendLogRow, WhatsappStatus } from '../../../../interfaces/WhatsApp/whatsapp';
 import { TypographyService, TypographyPreset, PresetDefinition } from '../../../../shared/services/Typography/typography.service';
 
-type TabId = 'shop' | 'tax' | 'rates' | 'print' | 'appearance' | 'backup' | 'users' | 'database' | 'migration' | 'whatsapp' | 'whatsapp-activity' | 'language';
+type TabId = 'shop' | 'tax' | 'rates' | 'print' | 'appearance' | 'backup' | 'users' | 'migration' | 'whatsapp' | 'whatsapp-activity' | 'language';
 type MigrationEntity = 'customers' | 'products' | 'rates';
 
 interface MigrationEntityState {
@@ -120,7 +119,6 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
     { id: 'whatsapp-activity', label: $localize`:@@settings.tab.whatsapp-activity:WhatsApp activity` },
     { id: 'appearance', label: $localize`:@@settings.tab.appearance:Appearance` },
     { id: 'language',  label: $localize`:@@settings.tab.language:Language` },
-    { id: 'database',  label: $localize`:@@settings.tab.database:Database` },
   ];
 
   readonly activeTab = signal<TabId>('shop');
@@ -129,6 +127,7 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
 
   shopForm!: FormGroup;
   shopLogoPath: string | null = null;
+  shopLogoSrc: string | null = null;   // base64 data URL for previewing the logo
   shopSaving = signal(false);
 
   invoiceForm!: FormGroup;
@@ -158,9 +157,6 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
   readonly showRestorePassphrase = signal<boolean>(false);
   readonly selectedBackup = signal<ListBackupsEntry | null>(null);
 
-  dbForm!: FormGroup;
-  dbFormInitialValues: any;
-  isDefaultDbSettings = false;
   dbErrorMessageAfterReLaunch: string | null = null;
   private bodyPadding = document.getElementById('body')?.style.paddingTop;
 
@@ -367,7 +363,6 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
     this.loadShopSettings();
     this.loadTaxSlabs();
     this.loadUsersStub();
-    this.loadDbSettings();
     this.loadBackups();
     this.loadWhatsappSettingsIntoForm();
     this.permissions.getUserPermissions().then(() => {
@@ -429,7 +424,7 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
       state:        ['', Validators.required],
       stateCode:    ['', Validators.required],
       pincode:      ['', [Validators.required, Validators.pattern(/^[0-9]{6}$/)]],
-      phone:        ['', [Validators.required, Validators.pattern(/^[0-9+\-\s]{7,15}$/)]],
+      phone:        ['', [Validators.required, Validators.pattern(/^[0-9+\-\s()]{7,20}$/)]],
       email:        ['', [Validators.email]],
       gstin:        ['', [Validators.required, Validators.pattern(GSTIN_REGEX)]],
       pan:          [''],
@@ -445,6 +440,9 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
     const row = await this.shopSettingsService.get();
     if (!row) { return; }
     this.shopLogoPath = row.logoPath ?? null;
+    this.shopLogoSrc = this.shopLogoPath
+      ? await (this.fileSystemService as any).getUserImageInBase64(this.shopLogoPath)
+      : null;
     this.shopForm.patchValue({
       shopName:     row.shopName,
       addressLine1: row.addressLine1,
@@ -476,13 +474,12 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
     if (!file) { return; }
     try {
       const fileName = `shop-logo-${Date.now()}.jpg`;
-      const dir = this.fileSystemService.userImagesDir || '';
-      const savePath = `${dir}\\${fileName}`;
       const anyFs: any = this.fileSystemService;
-      if (typeof anyFs.compressAndSaveImage === 'function') {
-        await anyFs.compressAndSaveImage(savePath, file, 'shopLogo');
-      }
+      // saveShopLogo awaits directory init (so userImagesDir is populated) and
+      // ensures the folder exists before writing.
+      await anyFs.saveShopLogo(file, fileName);
       this.shopLogoPath = fileName;
+      this.shopLogoSrc = await anyFs.getUserImageInBase64(fileName);
       this.shopForm.markAsDirty();
     } catch (err) {
       this.loggerService.LogError(err, 'onShopLogoSelected');
@@ -701,13 +698,7 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
     this.backupBusy.set(true);
     this.backupProgress.set('Encrypting...');
     try {
-      const dbInfo: SettingsModel | null = await this.storeService.get('currentDbInfo');
       const result = await this.backupService.create({
-        host:       'localhost',
-        port:       Number(dbInfo?.DATABASE_PORT ?? 3306),
-        user:       String(dbInfo?.DATABASE_USERNAME ?? ''),
-        password:   String(dbInfo?.DATABASE_PASSWORD ?? ''),
-        database:   String(dbInfo?.DATABASE_NAME ?? ''),
         passphrase: raw.passphrase,
         targetDir:  raw.targetDir || '',
       });
@@ -723,16 +714,7 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
     } catch (err: any) {
       const msg = String(err?.message || err);
       this.loggerService.LogError(err, 'createBackupArchive');
-      if (/ENOENT|not found on PATH/i.test(msg)) {
-        this.backupPrereqWarning.set('MySQL client tools not detected on PATH. Install MySQL 8 client (Windows: C:\\Program Files\\MySQL\\MySQL Server 8.0\\bin) and add it to your system PATH.');
-        this.dialog.fire({
-          icon: 'error',
-          title: 'Install MySQL client tools',
-          text: 'mysqldump was not found on PATH. Install MySQL client tools and try again.',
-        });
-      } else {
-        this.dialog.fire({ icon: 'error', title: 'Backup failed', text: msg });
-      }
+      this.dialog.fire({ icon: 'error', title: 'Backup failed', text: msg });
     } finally {
       this.backupBusy.set(false);
       this.backupProgress.set('');
@@ -774,13 +756,7 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
     this.backupBusy.set(true);
     this.backupProgress.set('Restoring...');
     try {
-      const dbInfo: SettingsModel | null = await this.storeService.get('currentDbInfo');
       await this.backupService.restore({
-        host:       'localhost',
-        port:       Number(dbInfo?.DATABASE_PORT ?? 3306),
-        user:       String(dbInfo?.DATABASE_USERNAME ?? ''),
-        password:   String(dbInfo?.DATABASE_PASSWORD ?? ''),
-        database:   String(dbInfo?.DATABASE_NAME ?? ''),
         passphrase: this.restoreForm.value.passphrase,
         archivePath: entry.path,
       });
@@ -1016,89 +992,6 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
   }
 
   // -------------------------------------------------------------------------
-  // Database (existing behavior preserved)
-  // -------------------------------------------------------------------------
-  private loadDbSettings() {
-    this.storeService.get('currentDbInfo').then((data: SettingsModel) => {
-      if (data == null) {
-        this.storeService.get('defaultDbInfo').then((defaultData: SettingsModel) => {
-          this.isDefaultDbSettings = true;
-          this.populateDbForm(defaultData);
-        });
-      } else {
-        this.isDefaultDbSettings = false;
-        this.populateDbForm(data);
-      }
-    }).catch((error: any) => {
-      this.loggerService.LogError(error, 'loadDbSettings');
-    });
-  }
-
-  private populateDbForm(settingsData: SettingsModel, setInitialValues = true) {
-    this.dbForm = this.fb.group({
-      dbname:   [settingsData.DATABASE_NAME, Validators.required],
-      port:     [settingsData.DATABASE_PORT, [Validators.required, Validators.min(0), Validators.max(65535)]],
-      username: [settingsData.DATABASE_USERNAME, Validators.required],
-      password: [settingsData.DATABASE_PASSWORD, Validators.required],
-    });
-    if (setInitialValues) { this.dbFormInitialValues = this.dbForm.value; }
-  }
-
-  saveDbSettings() {
-    this.dialog.fire({
-      title: 'Are you sure?',
-      text: 'This will change your database settings',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, proceed!',
-    }).then((result) => {
-      if (!result.isConfirmed) { return; }
-      const currentDbInfo: SettingsModel = {
-        DATABASE_NAME: this.dbForm.get('dbname')?.value,
-        DATABASE_USERNAME: this.dbForm.get('username')?.value,
-        DATABASE_PASSWORD: this.dbForm.get('password')?.value,
-        DATABASE_PORT: this.dbForm.get('port')?.value,
-        DATABASE_HOST: 'localhost',
-        LAST_UPDATED_ON: new Date().toUTCString(),
-      };
-      this.storeService.set('currentDbInfo', currentDbInfo)
-        .then(async () => {
-          await this.storeService.delete('authData');
-          this.loadDbSettings();
-          this.dialog.fire({
-            title: 'Settings Saved Successfully!',
-            html: `<span class="text-success ">Relaunching App. Please Wait!</span>`,
-            timer: 4000,
-            showConfirmButton: false,
-            disableEscape: true,
-            disableBackdropClose: true,
-          });
-          setTimeout(async () => {
-            try { await this.utilityService.relaunch(); }
-            catch (err) { this.loggerService.LogError(err as string, 'relaunch()'); throw err; }
-          }, 4000);
-        })
-        .catch((error: any) => {
-          this.loggerService.LogError(error, 'saveDbSettings');
-          this.toast.error(`Error saving DB settings: ${error}`, 'Error!');
-        });
-    });
-  }
-
-  resetDbForm() {
-    this.dbForm.reset(this.dbFormInitialValues);
-    this.isDefaultDbSettings = false;
-  }
-
-  resetDbToDefault() {
-    this.storeService.get('defaultDbInfo').then((defaultData: SettingsModel) => {
-      this.populateDbForm(defaultData, false);
-      this.isDefaultDbSettings = true;
-      this.dbForm.markAsDirty();
-    });
-  }
-
-  // -------------------------------------------------------------------------
   // Migration (Workstream R)
   // -------------------------------------------------------------------------
 
@@ -1279,15 +1172,32 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
 
   getShopFieldError(name: string): string {
     const c = this.shopForm.get(name);
-    if (!c || !c.touched) { return ''; }
+    // Surface the error once the field has been interacted with OR when it
+    // loaded invalid from the DB (dirty covers edits; !pristine || invalid+value
+    // covers pre-filled bad data). Showing it for a pre-filled invalid value is
+    // what tells the user why Save is disabled.
+    if (!c || (!c.touched && !c.dirty && c.valid)) { return ''; }
     if (c.hasError('required')) { return 'Required'; }
     if (c.hasError('pattern')) {
       if (name === 'gstin') { return 'Invalid GSTIN (15 chars, e.g. 27AAACR5055K1Z5)'; }
-      if (name === 'pincode') { return 'Invalid pincode'; }
-      if (name === 'phone')   { return 'Invalid phone'; }
+      if (name === 'pincode') { return 'Invalid pincode (6 digits)'; }
+      if (name === 'phone')   { return 'Invalid phone (7–20 chars: digits, spaces, + - ( ) only)'; }
       return 'Invalid format';
     }
     if (c.hasError('email')) { return 'Invalid email'; }
     return '';
+  }
+
+  /** Human-readable labels of the shop-form fields that are currently invalid.
+   *  Drives the "fix these to save" hint next to the disabled Save button, so
+   *  the reason is visible even for fields the user hasn't touched. */
+  invalidShopFields(): string[] {
+    if (!this.shopForm) { return []; }
+    const labels: Record<string, string> = {
+      shopName: 'Shop name', addressLine1: 'Address line 1', city: 'City',
+      state: 'State', stateCode: 'State code', pincode: 'Pincode',
+      phone: 'Phone', email: 'Email', gstin: 'GSTIN',
+    };
+    return Object.keys(labels).filter((k) => this.shopForm.get(k)?.invalid).map((k) => labels[k]);
   }
 }

@@ -183,12 +183,10 @@ export class ProfilePageComponent implements OnInit {
     this.loaderService.start();
     this.userService
       .getUserImage(this.userID)
-      .then((response: any) => {
+      .then(async (response: any) => {
         let src = '';
         if (response[0]?.imagePath) {
-          src = this.utilityService.getFilePath(
-            this.fileSystemService.userImagesDir + '\\' + response[0].imagePath,
-          );
+          src = await this.fileSystemService.getUserImageInBase64(response[0].imagePath);
         }
         this.thumbnail.set(src);
         this.initialUserImageSrc.set(src);

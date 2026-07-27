@@ -135,9 +135,7 @@ export class ViewProductDetailsComponent implements OnInit {
       this.loaderService.start();
       const response: any = await this.ProductService.getProductImage(this.productGuid);
       if (response.length > 0 && response[0].imagePath) {
-        this.thumbnail = this.utilityService.getFilePath(
-          this.fileSystemService.productImagesDir + '\\' + response[0].imagePath,
-        );
+        this.thumbnail = await this.fileSystemService.getProductImageInBase64(response[0].imagePath);
       } else {
         this.thumbnail = '';
       }
