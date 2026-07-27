@@ -1,0 +1,239 @@
+<div class="onboarding-root min-h-screen w-full bg-bg text-fg flex flex-col">
+  <!-- Top bar -->
+  <header class="flex items-center justify-between px-6 py-4 border-b border-border-subtle">
+    <div class="flex items-center gap-2">
+      <ng-icon name="lucideSparkles" class="text-accent text-xl" aria-hidden="true"></ng-icon>
+      <span class="font-serif text-lg" i18n="@@onboarding.brand">Jewellery Store Manager</span>
+    </div>
+    <button type="button" class="hlm-btn-icon" (click)="toggleTheme()"
+            [attr.aria-label]="'Toggle theme'">
+      <ng-icon [name]="themeService.isDark() ? 'lucideSun' : 'lucideMoon'" aria-hidden="true"></ng-icon>
+    </button>
+  </header>
+
+  <div class="flex-1 flex flex-col md:flex-row max-w-6xl w-full mx-auto">
+    <!-- Step rail -->
+    <nav class="md:w-64 shrink-0 px-6 py-8 border-b md:border-b-0 md:border-r border-border-subtle"
+         aria-label="Setup steps">
+      <ol class="flex md:flex-col gap-4 md:gap-6">
+        @for (step of steps(); track step.key; let i = $index) {
+          <li class="flex items-center gap-3"
+              [class.opacity-50]="i > activeStep()">
+            <span class="grid place-items-center w-8 h-8 rounded-full border shrink-0 transition-colors"
+                  [class.bg-accent]="i === activeStep()"
+                  [class.text-accent-fg]="i === activeStep()"
+                  [class.border-accent]="i <= activeStep()"
+                  [class.bg-panel]="i !== activeStep()"
+                  [class.border-border]="i > activeStep()">
+              @if (isCompleted(i)) {
+                <ng-icon name="lucideCheck" aria-hidden="true"></ng-icon>
+              } @else {
+                <ng-icon [name]="step.icon" aria-hidden="true"></ng-icon>
+              }
+            </span>
+            <span class="text-sm font-medium">{{ step.label }}</span>
+          </li>
+        }
+      </ol>
+    </nav>
+
+    <!-- Step content -->
+    <main class="flex-1 px-6 py-8 md:px-10 md:py-12 flex flex-col">
+      <div class="flex-1 max-w-xl">
+
+        @switch (currentKey()) {
+          <!-- ------------------------------------------------------------- -->
+          @case ('welcome') {
+            <section>
+              <h1 class="font-serif text-3xl mb-3" i18n="@@onboarding.welcome.title">
+                Welcome — let's set up your shop
+              </h1>
+              <p class="text-fg-muted mb-6" i18n="@@onboarding.welcome.subtitle">
+                A few quick steps and you'll be ready to bill your first sale. Everything stays
+                on this computer — no internet required.
+              </p>
+              <ul class="space-y-3 text-sm">
+                <li class="flex items-start gap-3">
+                  <ng-icon name="lucideLock" class="text-accent mt-0.5" aria-hidden="true"></ng-icon>
+                  <span i18n="@@onboarding.welcome.point1">Secure your account with a new password</span>
+                </li>
+                <li class="flex items-start gap-3">
+                  <ng-icon name="lucideStore" class="text-accent mt-0.5" aria-hidden="true"></ng-icon>
+                  <span i18n="@@onboarding.welcome.point2">Add your shop details for GST invoices</span>
+                </li>
+                <li class="flex items-start gap-3">
+                  <ng-icon name="lucidePartyPopper" class="text-accent mt-0.5" aria-hidden="true"></ng-icon>
+                  <span i18n="@@onboarding.welcome.point3">Start selling</span>
+                </li>
+              </ul>
+            </section>
+          }
+
+          <!-- ------------------------------------------------------------- -->
+          @case ('password') {
+            <section [formGroup]="passwordForm">
+              <h1 class="font-serif text-3xl mb-3" i18n="@@onboarding.password.title">
+                Secure your account
+              </h1>
+              <p class="text-fg-muted mb-6" i18n="@@onboarding.password.subtitle">
+                You're signed in with the default password. Set a new one to protect your data.
+              </p>
+
+              <label class="block mb-4">
+                <span class="block text-sm font-medium mb-1.5" i18n="@@onboarding.password.new">New password</span>
+                <input type="password" class="hlm-input" formControlName="newPassword"
+                       autocomplete="new-password"
+                       [class.is-invalid]="passwordInvalid('newPassword')" />
+                @if (passwordInvalid('newPassword')) {
+                  <span class="text-danger text-xs mt-1 block" i18n="@@onboarding.password.newError">
+                    Use at least 6 characters.
+                  </span>
+                }
+              </label>
+
+              <label class="block mb-2">
+                <span class="block text-sm font-medium mb-1.5" i18n="@@onboarding.password.confirm">Confirm password</span>
+                <input type="password" class="hlm-input" formControlName="confirmPassword"
+                       autocomplete="new-password"
+                       [class.is-invalid]="passwordInvalid('confirmPassword') || passwordForm.hasError('passwordMismatch')" />
+                @if (passwordForm.hasError('passwordMismatch') && passwordForm.get('confirmPassword')?.touched) {
+                  <span class="text-danger text-xs mt-1 block" i18n="@@onboarding.password.mismatch">
+                    Passwords do not match.
+                  </span>
+                }
+              </label>
+            </section>
+          }
+
+          <!-- ------------------------------------------------------------- -->
+          @case ('shop') {
+            <section [formGroup]="shopForm">
+              <h1 class="font-serif text-3xl mb-3" i18n="@@onboarding.shop.title">Your shop</h1>
+              <p class="text-fg-muted mb-6" i18n="@@onboarding.shop.subtitle">
+                These details appear on every GST invoice. You can change them later in Settings.
+              </p>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <label class="block sm:col-span-2">
+                  <span class="block text-sm font-medium mb-1.5" i18n="@@onboarding.shop.name">Shop name</span>
+                  <input type="text" class="hlm-input" formControlName="shopName"
+                         [class.is-invalid]="shopInvalid('shopName')" />
+                </label>
+
+                <label class="block sm:col-span-2">
+                  <span class="block text-sm font-medium mb-1.5" i18n="@@onboarding.shop.address1">Address line 1</span>
+                  <input type="text" class="hlm-input" formControlName="addressLine1"
+                         [class.is-invalid]="shopInvalid('addressLine1')" />
+                </label>
+
+                <label class="block sm:col-span-2">
+                  <span class="block text-sm font-medium mb-1.5" i18n="@@onboarding.shop.address2">Address line 2 (optional)</span>
+                  <input type="text" class="hlm-input" formControlName="addressLine2" />
+                </label>
+
+                <label class="block">
+                  <span class="block text-sm font-medium mb-1.5" i18n="@@onboarding.shop.city">City</span>
+                  <input type="text" class="hlm-input" formControlName="city"
+                         [class.is-invalid]="shopInvalid('city')" />
+                </label>
+
+                <label class="block">
+                  <span class="block text-sm font-medium mb-1.5" i18n="@@onboarding.shop.pincode">Pincode</span>
+                  <input type="text" class="hlm-input" formControlName="pincode" inputmode="numeric"
+                         [class.is-invalid]="shopInvalid('pincode')" />
+                </label>
+
+                <label class="block">
+                  <span class="block text-sm font-medium mb-1.5" i18n="@@onboarding.shop.state">State</span>
+                  <select class="hlm-input" formControlName="state"
+                          [class.is-invalid]="shopInvalid('state')">
+                    <option value="" disabled i18n="@@onboarding.shop.statePlaceholder">Select state</option>
+                    @for (s of indianStates; track s.code) {
+                      <option [value]="s.name">{{ s.name }}</option>
+                    }
+                  </select>
+                </label>
+
+                <label class="block">
+                  <span class="block text-sm font-medium mb-1.5" i18n="@@onboarding.shop.stateCode">State code</span>
+                  <input type="text" class="hlm-input" formControlName="stateCode" readonly />
+                </label>
+
+                <label class="block">
+                  <span class="block text-sm font-medium mb-1.5" i18n="@@onboarding.shop.phone">Phone</span>
+                  <input type="text" class="hlm-input" formControlName="phone" inputmode="tel"
+                         [class.is-invalid]="shopInvalid('phone')" />
+                </label>
+
+                <label class="block">
+                  <span class="block text-sm font-medium mb-1.5" i18n="@@onboarding.shop.email">Email (optional)</span>
+                  <input type="email" class="hlm-input" formControlName="email"
+                         [class.is-invalid]="shopInvalid('email')" />
+                </label>
+
+                <label class="block">
+                  <span class="block text-sm font-medium mb-1.5" i18n="@@onboarding.shop.gstin">GSTIN</span>
+                  <input type="text" class="hlm-input uppercase" formControlName="gstin"
+                         placeholder="27ABCDE1234F1Z5"
+                         [class.is-invalid]="shopInvalid('gstin')" />
+                  @if (shopInvalid('gstin')) {
+                    <span class="text-danger text-xs mt-1 block" i18n="@@onboarding.shop.gstinError">
+                      Enter a valid 15-character GSTIN.
+                    </span>
+                  }
+                </label>
+
+                <label class="block">
+                  <span class="block text-sm font-medium mb-1.5" i18n="@@onboarding.shop.pan">PAN (optional)</span>
+                  <input type="text" class="hlm-input uppercase" formControlName="pan" />
+                </label>
+              </div>
+            </section>
+          }
+
+          <!-- ------------------------------------------------------------- -->
+          @case ('finish') {
+            <section class="text-center py-8">
+              <div class="grid place-items-center w-16 h-16 rounded-full bg-accent/10 text-accent mx-auto mb-6">
+                <ng-icon name="lucidePartyPopper" class="text-3xl" aria-hidden="true"></ng-icon>
+              </div>
+              <h1 class="font-serif text-3xl mb-3" i18n="@@onboarding.finish.title">You're all set</h1>
+              <p class="text-fg-muted max-w-md mx-auto" i18n="@@onboarding.finish.subtitle">
+                Your shop is ready. Next, lock today's metal rate and add your first product from
+                the dashboard — then you can bill your first sale.
+              </p>
+            </section>
+          }
+        }
+
+        @if (errorMessage()) {
+          <p class="mt-6 flex items-center gap-2 text-danger text-sm">
+            <ng-icon name="lucideCircleAlert" aria-hidden="true"></ng-icon>
+            <span>{{ errorMessage() }}</span>
+          </p>
+        }
+      </div>
+
+      <!-- Footer actions -->
+      <footer class="flex items-center justify-between pt-8 mt-6 border-t border-border-subtle max-w-xl">
+        <button type="button" class="hlm-btn hlm-btn-ghost"
+                [disabled]="activeStep() === 0 || submitting()"
+                (click)="back()">
+          <ng-icon name="lucideChevronLeft" aria-hidden="true"></ng-icon>
+          <span i18n="@@onboarding.back">Back</span>
+        </button>
+
+        <button type="button" class="hlm-btn hlm-btn-primary"
+                [disabled]="submitting()"
+                (click)="next()">
+          @if (isLastStep()) {
+            <span i18n="@@onboarding.goToDashboard">Go to dashboard</span>
+          } @else {
+            <span i18n="@@onboarding.continue">Continue</span>
+            <ng-icon name="lucideChevronRight" aria-hidden="true"></ng-icon>
+          }
+        </button>
+      </footer>
+    </main>
+  </div>
+</div>

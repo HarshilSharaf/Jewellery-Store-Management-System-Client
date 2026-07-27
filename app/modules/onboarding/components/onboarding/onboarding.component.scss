@@ -1,0 +1,9 @@
+:host {
+  display: block;
+}
+
+// Full-bleed background so the wizard reads as its own surface, matching the
+// login screen rather than sitting inside the authenticated app shell.
+.onboarding-root {
+  background: var(--color-bg);
+}

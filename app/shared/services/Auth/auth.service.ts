@@ -42,7 +42,14 @@ export class AuthService {
           reject('Password is Incorrect');
         } else {
           const authData = {
-            uid: userData[0].UID,
+            // The SQLite `loginUser` proc returns the PK as lowercase `uid`
+            // (column case is preserved, unlike the old case-insensitive
+            // mysql2 path where `.UID` happened to resolve). Prefer `uid`,
+            // keep `.UID` as a defensive fallback. Without this, authData.uid
+            // was silently undefined -> broke audit actor attribution and the
+            // uid-based permission lookup (which quietly fell back to role
+            // defaults), and blocked the onboarding password change.
+            uid: userData[0].uid ?? userData[0].UID,
             userName: userData[0].userName,
             email: userData[0].email,
             type: userData[0].type,

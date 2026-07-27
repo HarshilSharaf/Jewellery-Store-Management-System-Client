@@ -28,6 +28,7 @@ import { AppToastService } from '../../../../shared/services/AppToast/app-toast.
 
 import { StoreService } from '../../../../../../Backend/Shared/store.service';
 import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
+import { OnboardingService } from '../../../../../../Backend/Shared/onboarding.service';
 import { UtilityService } from 'Backend/Shared/utitlity.service';
 import { FileSystemService } from '../../../../../../Backend/Shared/file-system.service';
 
@@ -166,6 +167,10 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly cdRef = inject(ChangeDetectorRef);
   private readonly migrationService = inject(MigrationService);
+  private readonly onboardingService = inject(OnboardingService);
+
+  /** True while the "Replay setup guide" action is resetting + navigating. */
+  readonly replayingSetup = signal<boolean>(false);
 
   readonly customerFields: Array<{ key: keyof CustomerMapping; label: string }> = [
     { key: 'firstName',   label: 'First name' },
@@ -523,6 +528,24 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
       this.toast.error('Failed to save shop identity', 'Error');
     } finally {
       this.shopSaving.set(false);
+    }
+  }
+
+  /**
+   * Re-runs the first-run setup wizard. Clears the onboarding `completed` flag
+   * (password step stays skipped since the password was already changed) and
+   * navigates to the wizard route.
+   */
+  async replaySetupGuide(): Promise<void> {
+    if (this.replayingSetup()) { return; }
+    this.replayingSetup.set(true);
+    try {
+      await this.onboardingService.reset();
+      await this.router.navigate(['/onboarding']);
+    } catch (err) {
+      this.loggerService.LogError(err, 'replaySetupGuide');
+      this.toast.error('Could not start the setup guide', 'Error');
+      this.replayingSetup.set(false);
     }
   }
 

@@ -959,6 +959,22 @@
           </button>
         </div>
       </div>
+
+      <div class="form-section">
+        <h3 class="section-heading" i18n="@@settings.appearance.setup-heading">Setup guide</h3>
+        <p class="panel-sub" i18n="@@settings.appearance.setup-sub">
+          Re-run the first-time setup guide to review your shop details. Your existing
+          data is kept — nothing is deleted.
+        </p>
+        <div class="form-actions">
+          <button type="button" class="hlm-btn hlm-btn-ghost"
+                  [disabled]="replayingSetup()"
+                  (click)="replaySetupGuide()"
+                  i18n="@@settings.appearance.replay-setup">
+            Replay setup guide
+          </button>
+        </div>
+      </div>
     }
 
     @if (activeTab() === 'language') {
