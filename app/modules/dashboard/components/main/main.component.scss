@@ -32,6 +32,18 @@
   padding-bottom: 4px;
 }
 
+.dash__head-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dash__tour-btn {
+  padding: 0.4rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
 // ---------------- Row layout ----------------
 .dash__row {
   display: contents;

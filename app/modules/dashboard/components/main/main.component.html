@@ -2,8 +2,23 @@
   <!-- Row 1: title + date -->
   <header class="dash__head">
     <h1 class="dash__title font-serif" i18n="@@dashboard.title">Today</h1>
-    <span class="dash__date tabular-nums">{{ today }}</span>
+    <div class="dash__head-right">
+      <button type="button" class="hlm-btn hlm-btn-ghost dash__tour-btn" (click)="takeTour()">
+        <ng-icon name="lucideCompass" size="14" aria-hidden="true"></ng-icon>
+        <span i18n="@@dashboard.take-tour">Take a tour</span>
+      </button>
+      <span class="dash__date tabular-nums">{{ today }}</span>
+    </div>
   </header>
+
+  <!-- First-run setup checklist (auto-hides once every step is complete) -->
+  <app-setup-checklist
+    [ready]="ratesLoaded && recentOrdersLoaded"
+    [rateLocked]="ratesLoaded && rate22k !== null"
+    [hasProducts]="(totalStockGrams ?? 0) > 0"
+    [hasCustomers]="(totalCustomers ?? 0) > 0"
+    [hasSale]="recentOrders.length > 0">
+  </app-setup-checklist>
 
   <!-- Row 2: revenue chart (col-span-8) + lock-rate card (col-span-4) -->
   <section class="dash__row dash__row--primary">
@@ -36,7 +51,7 @@
       </div>
     </article>
 
-    <article class="card card--rate">
+    <article class="card card--rate" data-tour="rate">
       <header class="card__head">
         <div>
           <p class="card__eyebrow" i18n="@@rate.lock-today">Lock today's rate</p>
@@ -69,7 +84,7 @@
 
   <!-- Row 3: recent invoices (col-span-6) + fast movers (col-span-6) -->
   <section class="dash__row dash__row--halves">
-    <article class="card card--list">
+    <article class="card card--list" data-tour="invoices">
       <header class="card__head card__head--split">
         <div>
           <p class="card__eyebrow" i18n="@@dashboard.recent-invoices">Recent invoices</p>
@@ -145,7 +160,7 @@
   </section>
 
   <!-- Row 4: three KPI tiles (col-span-4 each) -->
-  <section class="dash__row dash__row--thirds">
+  <section class="dash__row dash__row--thirds" data-tour="kpis">
     <article class="kpi-card">
       <div class="kpi-row">
         <p class="kpi-label" i18n="@@dashboard.total-customers">Total customers</p>

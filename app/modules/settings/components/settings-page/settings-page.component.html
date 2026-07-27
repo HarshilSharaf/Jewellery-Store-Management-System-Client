@@ -973,7 +973,27 @@
                   i18n="@@settings.appearance.replay-setup">
             Replay setup guide
           </button>
+          <button type="button" class="hlm-btn hlm-btn-ghost"
+                  (click)="replayAppTour()"
+                  i18n="@@settings.appearance.replay-tour">
+            Replay app tour
+          </button>
         </div>
+
+        @if (sampleDataLoaded()) {
+          <p class="panel-sub" i18n="@@settings.appearance.sample-sub">
+            Sample data is currently loaded. Remove it before you start entering real
+            transactions — your shop settings and staff logins are kept.
+          </p>
+          <div class="form-actions">
+            <button type="button" class="hlm-btn hlm-btn-ghost"
+                    [disabled]="clearingSample()"
+                    (click)="removeSampleData()"
+                    i18n="@@settings.appearance.remove-sample">
+              Remove sample data
+            </button>
+          </div>
+        }
       </div>
     }
 

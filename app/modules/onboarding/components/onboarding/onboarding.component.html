@@ -202,6 +202,23 @@
                 Your shop is ready. Next, lock today's metal rate and add your first product from
                 the dashboard — then you can bill your first sale.
               </p>
+
+              <div class="mt-8 pt-6 border-t border-border-subtle max-w-md mx-auto">
+                <p class="text-sm text-fg-muted mb-3" i18n="@@onboarding.finish.sample-prompt">
+                  Want to look around first? Load a small set of sample products, customers and
+                  sales. You can remove it anytime from Settings.
+                </p>
+                <button type="button" class="hlm-btn hlm-btn-ghost"
+                        [disabled]="loadingSample() || submitting()"
+                        (click)="exploreWithSampleData()">
+                  <ng-icon name="lucideSparkles" aria-hidden="true"></ng-icon>
+                  @if (loadingSample()) {
+                    <span i18n="@@onboarding.finish.sample-loading">Loading sample data…</span>
+                  } @else {
+                    <span i18n="@@onboarding.finish.sample-cta">Explore with sample data</span>
+                  }
+                </button>
+              </div>
             </section>
           }
         }
@@ -217,14 +234,14 @@
       <!-- Footer actions -->
       <footer class="flex items-center justify-between pt-8 mt-6 border-t border-border-subtle max-w-xl">
         <button type="button" class="hlm-btn hlm-btn-ghost"
-                [disabled]="activeStep() === 0 || submitting()"
+                [disabled]="activeStep() === 0 || submitting() || loadingSample()"
                 (click)="back()">
           <ng-icon name="lucideChevronLeft" aria-hidden="true"></ng-icon>
           <span i18n="@@onboarding.back">Back</span>
         </button>
 
         <button type="button" class="hlm-btn hlm-btn-primary"
-                [disabled]="submitting()"
+                [disabled]="submitting() || loadingSample()"
                 (click)="next()">
           @if (isLastStep()) {
             <span i18n="@@onboarding.goToDashboard">Go to dashboard</span>

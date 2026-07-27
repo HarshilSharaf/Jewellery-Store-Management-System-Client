@@ -29,6 +29,7 @@ import { AppToastService } from '../../../../shared/services/AppToast/app-toast.
 import { StoreService } from '../../../../../../Backend/Shared/store.service';
 import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
 import { OnboardingService } from '../../../../../../Backend/Shared/onboarding.service';
+import { SampleDataService } from '../../../../../../Backend/Shared/sample-data.service';
 import { UtilityService } from 'Backend/Shared/utitlity.service';
 import { FileSystemService } from '../../../../../../Backend/Shared/file-system.service';
 
@@ -168,9 +169,14 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
   private readonly cdRef = inject(ChangeDetectorRef);
   private readonly migrationService = inject(MigrationService);
   private readonly onboardingService = inject(OnboardingService);
+  private readonly sampleDataService = inject(SampleDataService);
 
   /** True while the "Replay setup guide" action is resetting + navigating. */
   readonly replayingSetup = signal<boolean>(false);
+  /** Whether demo/sample data is currently loaded (gates the remove control). */
+  readonly sampleDataLoaded = signal<boolean>(false);
+  /** True while the "Remove sample data" wipe is running. */
+  readonly clearingSample = signal<boolean>(false);
 
   readonly customerFields: Array<{ key: keyof CustomerMapping; label: string }> = [
     { key: 'firstName',   label: 'First name' },
@@ -366,6 +372,7 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
     this.buildWhatsappForm();
 
     this.loadShopSettings();
+    this.loadOnboardingFlags();
     this.loadTaxSlabs();
     this.loadUsersStub();
     this.loadBackups();
@@ -529,6 +536,56 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
     } finally {
       this.shopSaving.set(false);
     }
+  }
+
+  /** Loads whether sample data is currently present, to gate the remove control. */
+  private async loadOnboardingFlags(): Promise<void> {
+    try {
+      const state = await this.onboardingService.getState();
+      this.sampleDataLoaded.set(state.sampleDataLoaded);
+    } catch (err) {
+      this.loggerService.LogError(err, 'loadOnboardingFlags');
+    }
+  }
+
+  /**
+   * Removes the demo/sample data (guarded wipe of business tables; shop
+   * settings, users and reference data are kept). Confirmed via dialog because
+   * it deletes data.
+   */
+  async removeSampleData(): Promise<void> {
+    if (this.clearingSample()) { return; }
+    const result = await this.dialog.fire({
+      icon: 'warning',
+      title: 'Remove sample data?',
+      html: 'This permanently deletes the demo customers, products, invoices, schemes and repairs. '
+        + 'Your shop settings and staff logins are kept. This cannot be undone.',
+      variant: 'danger',
+      showCancelButton: true,
+      confirmButtonText: 'Remove',
+    });
+    if (!result.isConfirmed) { return; }
+    this.clearingSample.set(true);
+    try {
+      const res = await this.sampleDataService.clear();
+      if (!res?.ok) {
+        this.toast.error(res?.error ?? 'Could not remove sample data', 'Error');
+        return;
+      }
+      this.sampleDataLoaded.set(false);
+      this.toast.success('Sample data removed', undefined, { timer: 1600 });
+    } catch (err) {
+      this.loggerService.LogError(err, 'removeSampleData');
+      this.toast.error('Could not remove sample data', 'Error');
+    } finally {
+      this.clearingSample.set(false);
+    }
+  }
+
+  /** Replays the dashboard orientation tour (driver.js) by routing to the
+   *  dashboard with the auto-run flag; the tour's anchors live there. */
+  replayAppTour(): void {
+    this.router.navigate(['/dashboard'], { queryParams: { tour: 1 } });
   }
 
   /**

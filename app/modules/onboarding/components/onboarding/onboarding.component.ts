@@ -33,6 +33,7 @@ import { AuthService } from '../../../../shared/services/Auth/auth.service';
 import { ThemeService } from '../../../../shared/services/theme.service';
 import { INDIAN_STATES, GSTIN_REGEX } from '../../../../shared/utils/indian-states';
 import { OnboardingService } from '../../../../../../Backend/Shared/onboarding.service';
+import { SampleDataService } from '../../../../../../Backend/Shared/sample-data.service';
 import { ShopSettingsService } from '../../../../../../Backend/Shared/shop-settings.service';
 import { StoreService } from '../../../../../../Backend/Shared/store.service';
 import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
@@ -80,6 +81,7 @@ export class OnboardingComponent implements OnInit {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private onboardingService = inject(OnboardingService);
+  private sampleDataService = inject(SampleDataService);
   private shopSettingsService = inject(ShopSettingsService);
   private storeService = inject(StoreService);
   private loggerService = inject(LoggerService);
@@ -93,6 +95,7 @@ export class OnboardingComponent implements OnInit {
   readonly needsPassword = signal<boolean>(true);
   readonly activeStep = signal<number>(0);
   readonly submitting = signal<boolean>(false);
+  readonly loadingSample = signal<boolean>(false);
   readonly errorMessage = signal<string>('');
 
   private authData: { uid: number; userName: string; email: string | null } | null = null;
@@ -322,6 +325,32 @@ export class OnboardingComponent implements OnInit {
       this.router.navigate(['/dashboard']);
     } finally {
       this.submitting.set(false);
+    }
+  }
+
+  /**
+   * Loads a small demo dataset so the user can explore a populated app, then
+   * completes onboarding and goes to the dashboard. Only offered on the finish
+   * step; the shop is still empty at this point so the load guard passes. You
+   * can remove it later from Settings -> Appearance -> Remove sample data.
+   */
+  async exploreWithSampleData(): Promise<void> {
+    if (this.loadingSample() || this.submitting()) { return; }
+    this.errorMessage.set('');
+    this.loadingSample.set(true);
+    try {
+      const res = await this.sampleDataService.load('small');
+      if (!res?.ok) {
+        this.errorMessage.set(res?.error || 'Could not load sample data.');
+        return;
+      }
+      await this.onboardingService.complete();
+      this.router.navigate(['/dashboard']);
+    } catch (err) {
+      this.loggerService.LogError(err as string, 'OnboardingComponent.exploreWithSampleData()');
+      this.errorMessage.set('Could not load sample data. Please try again.');
+    } finally {
+      this.loadingSample.set(false);
     }
   }
 
