@@ -34,6 +34,7 @@ const DISMISS_KEY = 'jsms.onboarding.checklist.dismissed';
 @Component({
   selector: 'app-setup-checklist',
   standalone: true,
+  host: { '[class.is-hidden]': '!visible()' },
   imports: [CommonModule, RouterLink, NgIcon],
   viewProviders: [
     provideIcons({
@@ -101,7 +102,10 @@ const DISMISS_KEY = 'jsms.onboarding.checklist.dismissed';
     }
   `,
   styles: [`
-    :host { display: block; }
+    /* The dashboard host (.dash) is a 12-column grid; span the full width and
+       drop out of the grid entirely when hidden so no empty gap remains. */
+    :host { display: block; grid-column: 1 / -1; }
+    :host(.is-hidden) { display: none; }
     .setup-checklist {
       border: 1px solid var(--color-border-subtle);
       background: var(--color-panel);

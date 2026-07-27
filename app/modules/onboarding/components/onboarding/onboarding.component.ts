@@ -318,11 +318,11 @@ export class OnboardingComponent implements OnInit {
     this.submitting.set(true);
     try {
       await this.onboardingService.complete();
-      this.router.navigate(['/dashboard']);
+      this.router.navigate(['/dashboard'], { queryParams: { tour: 1 } });
     } catch (err) {
       this.loggerService.LogError(err as string, 'OnboardingComponent.finish()');
       // Even if persisting the flag fails, don't strand the user.
-      this.router.navigate(['/dashboard']);
+      this.router.navigate(['/dashboard'], { queryParams: { tour: 1 } });
     } finally {
       this.submitting.set(false);
     }
@@ -345,7 +345,7 @@ export class OnboardingComponent implements OnInit {
         return;
       }
       await this.onboardingService.complete();
-      this.router.navigate(['/dashboard']);
+      this.router.navigate(['/dashboard'], { queryParams: { tour: 1 } });
     } catch (err) {
       this.loggerService.LogError(err as string, 'OnboardingComponent.exploreWithSampleData()');
       this.errorMessage.set('Could not load sample data. Please try again.');
