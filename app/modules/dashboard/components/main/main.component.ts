@@ -1,6 +1,6 @@
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import type { Chart as ChartType, ChartConfiguration } from 'chart.js';
 import dayjs from 'dayjs';
@@ -29,18 +29,21 @@ import {
   lucideUsers,
   lucidePackage,
   lucideWallet,
+  lucideCompass,
 } from '@ng-icons/lucide';
 
 import { MetalRatesService } from '../../../../shared/services/MetalRates/metal-rates.service';
 import { ProductCategoryService } from '../../../categories/components/product-categories/services/product-category.service';
 import { MetalRateRow } from '../../../../interfaces/Shared/metal-rate';
+import { SetupChecklistComponent } from '../setup-checklist/setup-checklist.component';
+import { TourService } from '../../../../shared/services/tour/tour.service';
 
 @Component({
   selector: 'app-main',
   templateUrl: './main.component.html',
   styleUrls: ['./main.component.scss'],
   standalone: true,
-  imports: [CommonModule, RouterLink, NgIcon],
+  imports: [CommonModule, RouterLink, NgIcon, SetupChecklistComponent],
   viewProviders: [
     provideIcons({
       lucideTrendingUp,
@@ -53,6 +56,7 @@ import { MetalRateRow } from '../../../../interfaces/Shared/metal-rate';
       lucideUsers,
       lucidePackage,
       lucideWallet,
+      lucideCompass,
     }),
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -72,6 +76,8 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
   private readonly logger = inject(LoggerService);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly tourService = inject(TourService);
 
   today = dayjs().format('ddd D MMM YYYY');
 
@@ -106,6 +112,18 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
     this.loadCustomers();
     this.loadStock();
     this.loadPending();
+
+    // Auto-run the orientation tour when arriving via "Replay app tour"
+    // (Settings). Delay so async widgets (e.g. the checklist) have rendered
+    // their anchor elements before driver.js highlights them.
+    if (this.route.snapshot.queryParamMap.get('tour') === '1') {
+      setTimeout(() => this.tourService.runDashboardTour(), 700);
+    }
+  }
+
+  /** Starts the dashboard orientation tour on demand. */
+  takeTour(): void {
+    this.tourService.runDashboardTour();
   }
 
   ngAfterViewInit(): void {
