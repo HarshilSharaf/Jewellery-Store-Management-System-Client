@@ -1,4 +1,3 @@
-import '@angular/localize/init';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { enableProdMode } from '@angular/core';
 

@@ -58,6 +58,11 @@ export class TourService {
         step: {
           element: '[data-tour="kpis"]',
           popover: {
+            // Bottom-most, full-width row: pin the popover above-center so it
+            // sits predictably once the row is scrolled into view (driver's
+            // auto-placement can land it in a corner for wide bottom targets).
+            side: 'top',
+            align: 'center',
             title: $localize`:@@tour.kpis.title:Key numbers`,
             description: $localize`:@@tour.kpis.desc:Customers, stock and pending payments at a glance.`,
           },
@@ -71,6 +76,13 @@ export class TourService {
 
     // Nothing to show (unlikely — the intro step is always present).
     if (!steps.length) { return; }
+
+    // Start from a known scroll position. The app content scrolls inside
+    // <main class="shell__content"> (not the window); resetting it to the top
+    // gives driver.js a consistent baseline so its per-step scroll + fixed
+    // overlay measurements line up (a stray scroll offset can push the last
+    // step's highlight into a corner).
+    document.querySelector('.shell__content')?.scrollTo({ top: 0 });
 
     const d = driver({
       showProgress: true,

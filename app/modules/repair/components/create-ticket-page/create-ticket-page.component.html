@@ -39,7 +39,7 @@
                   @for (c of customers().slice(0, 8); track c.customerGuid) {
                     <button type="button" class="repair-customer-dropdown__row"
                             (click)="pickCustomer(c)">
-                      <span class="avatar avatar--sm">{{ (c.firstName?.[0] ?? '?').toUpperCase() }}{{ (c.lastName?.[0] ?? '').toUpperCase() }}</span>
+                      <span class="avatar avatar--sm">{{ (c.firstName.charAt(0) || '?').toUpperCase() }}{{ c.lastName.charAt(0).toUpperCase() }}</span>
                       <span class="repair-customer-dropdown__name">{{ c.firstName }} {{ c.lastName }}</span>
                       <span class="repair-customer-dropdown__phone tabular-nums">{{ c.phoneNumber ?? '' }}</span>
                     </button>

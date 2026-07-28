@@ -4,13 +4,14 @@ import { RouterOutlet } from '@angular/router';
 import { NgxUiLoaderModule } from 'ngx-ui-loader';
 
 import { TypographyService } from './shared/services/Typography/typography.service';
+import { WindowTitlebarComponent } from './shared/components/window-titlebar/window-titlebar.component';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
   standalone: true,
-  imports: [RouterOutlet, NgxUiLoaderModule]
+  imports: [RouterOutlet, NgxUiLoaderModule, WindowTitlebarComponent]
 })
 export class AppComponent implements OnInit {
   title = 'Frontend';
@@ -20,6 +21,14 @@ export class AppComponent implements OnInit {
   constructor() { }
 
   ngOnInit(): void {
+    // Mark the document when running inside the frameless Electron window so
+    // global styles can reserve room for the custom title bar (see styles.scss
+    // `.is-electron`). Absent in a plain browser tab, leaving the web layout
+    // untouched.
+    if ((window as any).electronAPI?.windowControls) {
+      document.documentElement.classList.add('is-electron');
+    }
+
     // Pre-hydration inline script in index.html already set
     // documentElement.dataset.typographyPreset from localStorage — the
     // preset-scoped :root[data-typography-preset="..."] block in styles.scss

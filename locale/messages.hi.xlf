@@ -210,6 +210,10 @@
         <source>Today</source>
         <target>आज</target>
       </trans-unit>
+      <trans-unit id="dashboard.take-tour" datatype="html">
+        <source>Take a tour</source>
+        <target>टूर लें</target>
+      </trans-unit>
       <trans-unit id="dashboard.revenue" datatype="html">
         <source>Revenue</source>
         <target>राजस्व</target>
@@ -273,6 +277,42 @@
       <trans-unit id="dashboard.pending-payments" datatype="html">
         <source>Pending payments</source>
         <target>बकाया भुगतान</target>
+      </trans-unit>
+      <trans-unit id="checklist.eyebrow" datatype="html">
+        <source>Get started</source>
+        <target>शुरू करें</target>
+      </trans-unit>
+      <trans-unit id="checklist.heading" datatype="html">
+        <source>Finish setting up your shop</source>
+        <target>अपनी दुकान सेटअप पूरा करें</target>
+      </trans-unit>
+      <trans-unit id="checklist.dismiss" datatype="html">
+        <source>Dismiss checklist</source>
+        <target>चेकलिस्ट बंद करें</target>
+      </trans-unit>
+      <trans-unit id="checklist.do-it" datatype="html">
+        <source>Do it</source>
+        <target>करें</target>
+      </trans-unit>
+      <trans-unit id="checklist.done" datatype="html">
+        <source>Done</source>
+        <target>पूर्ण</target>
+      </trans-unit>
+      <trans-unit id="checklist.item.rate" datatype="html">
+        <source>Lock today&apos;s metal rate</source>
+        <target>आज का धातु भाव लॉक करें</target>
+      </trans-unit>
+      <trans-unit id="checklist.item.product" datatype="html">
+        <source>Add your first product</source>
+        <target>अपना पहला उत्पाद जोड़ें</target>
+      </trans-unit>
+      <trans-unit id="checklist.item.customer" datatype="html">
+        <source>Add your first customer</source>
+        <target>अपना पहला ग्राहक जोड़ें</target>
+      </trans-unit>
+      <trans-unit id="checklist.item.sale" datatype="html">
+        <source>Record your first sale</source>
+        <target>अपनी पहली बिक्री दर्ज करें</target>
       </trans-unit>
       <trans-unit id="inventory.title" datatype="html">
         <source>Stock</source>
@@ -469,6 +509,146 @@
       <trans-unit id="login.device-only" datatype="html">
         <source>You are signed in only on this device.</source>
         <target>आप केवल इस डिवाइस पर साइन इन हैं।</target>
+      </trans-unit>
+      <trans-unit id="onboarding.brand" datatype="html">
+        <source>Jewellery Store Manager</source>
+        <target>ज्वेलरी स्टोर मैनेजर</target>
+      </trans-unit>
+      <trans-unit id="onboarding.welcome.title" datatype="html">
+        <source> Welcome — let&apos;s set up your shop </source>
+        <target>स्वागत है — चलिए आपकी दुकान सेटअप करें</target>
+      </trans-unit>
+      <trans-unit id="onboarding.welcome.subtitle" datatype="html">
+        <source> A few quick steps and you&apos;ll be ready to bill your first sale. Everything stays on this computer — no internet required. </source>
+        <target>कुछ आसान चरण और आप अपनी पहली बिक्री का बिल बनाने के लिए तैयार होंगे। सब कुछ इसी कंप्यूटर पर रहता है — इंटरनेट की आवश्यकता नहीं।</target>
+      </trans-unit>
+      <trans-unit id="onboarding.welcome.point1" datatype="html">
+        <source>Secure your account with a new password</source>
+        <target>नए पासवर्ड से अपना खाता सुरक्षित करें</target>
+      </trans-unit>
+      <trans-unit id="onboarding.welcome.point2" datatype="html">
+        <source>Add your shop details for GST invoices</source>
+        <target>GST बिलों के लिए अपनी दुकान का विवरण जोड़ें</target>
+      </trans-unit>
+      <trans-unit id="onboarding.welcome.point3" datatype="html">
+        <source>Start selling</source>
+        <target>बिक्री शुरू करें</target>
+      </trans-unit>
+      <trans-unit id="onboarding.password.title" datatype="html">
+        <source> Secure your account </source>
+        <target>अपना खाता सुरक्षित करें</target>
+      </trans-unit>
+      <trans-unit id="onboarding.password.subtitle" datatype="html">
+        <source> You&apos;re signed in with the default password. Set a new one to protect your data. </source>
+        <target>आप डिफ़ॉल्ट पासवर्ड से साइन इन हैं। अपने डेटा की सुरक्षा के लिए एक नया पासवर्ड सेट करें।</target>
+      </trans-unit>
+      <trans-unit id="onboarding.password.new" datatype="html">
+        <source>New password</source>
+        <target>नया पासवर्ड</target>
+      </trans-unit>
+      <trans-unit id="onboarding.password.newError" datatype="html">
+        <source> Use at least 6 characters. </source>
+        <target>कम से कम 6 अक्षर का उपयोग करें।</target>
+      </trans-unit>
+      <trans-unit id="onboarding.password.confirm" datatype="html">
+        <source>Confirm password</source>
+        <target>पासवर्ड की पुष्टि करें</target>
+      </trans-unit>
+      <trans-unit id="onboarding.password.mismatch" datatype="html">
+        <source> Passwords do not match. </source>
+        <target>पासवर्ड मेल नहीं खाते।</target>
+      </trans-unit>
+      <trans-unit id="onboarding.shop.title" datatype="html">
+        <source>Your shop</source>
+        <target>आपकी दुकान</target>
+      </trans-unit>
+      <trans-unit id="onboarding.shop.subtitle" datatype="html">
+        <source> These details appear on every GST invoice. You can change them later in Settings. </source>
+        <target>ये विवरण हर GST बिल पर दिखाई देते हैं। आप इन्हें बाद में सेटिंग्स में बदल सकते हैं।</target>
+      </trans-unit>
+      <trans-unit id="onboarding.shop.name" datatype="html">
+        <source>Shop name</source>
+        <target>दुकान का नाम</target>
+      </trans-unit>
+      <trans-unit id="onboarding.shop.address1" datatype="html">
+        <source>Address line 1</source>
+        <target>पता पंक्ति 1</target>
+      </trans-unit>
+      <trans-unit id="onboarding.shop.address2" datatype="html">
+        <source>Address line 2 (optional)</source>
+        <target>पता पंक्ति 2 (वैकल्पिक)</target>
+      </trans-unit>
+      <trans-unit id="onboarding.shop.city" datatype="html">
+        <source>City</source>
+        <target>शहर</target>
+      </trans-unit>
+      <trans-unit id="onboarding.shop.pincode" datatype="html">
+        <source>Pincode</source>
+        <target>पिनकोड</target>
+      </trans-unit>
+      <trans-unit id="onboarding.shop.state" datatype="html">
+        <source>State</source>
+        <target>राज्य</target>
+      </trans-unit>
+      <trans-unit id="onboarding.shop.statePlaceholder" datatype="html">
+        <source>Select state</source>
+        <target>राज्य चुनें</target>
+      </trans-unit>
+      <trans-unit id="onboarding.shop.stateCode" datatype="html">
+        <source>State code</source>
+        <target>राज्य कोड</target>
+      </trans-unit>
+      <trans-unit id="onboarding.shop.phone" datatype="html">
+        <source>Phone</source>
+        <target>फ़ोन</target>
+      </trans-unit>
+      <trans-unit id="onboarding.shop.email" datatype="html">
+        <source>Email (optional)</source>
+        <target>ईमेल (वैकल्पिक)</target>
+      </trans-unit>
+      <trans-unit id="onboarding.shop.gstin" datatype="html">
+        <source>GSTIN</source>
+        <target>GSTIN</target>
+      </trans-unit>
+      <trans-unit id="onboarding.shop.gstinError" datatype="html">
+        <source> Enter a valid 15-character GSTIN. </source>
+        <target>मान्य 15-अंकीय GSTIN दर्ज करें।</target>
+      </trans-unit>
+      <trans-unit id="onboarding.shop.pan" datatype="html">
+        <source>PAN (optional)</source>
+        <target>PAN (वैकल्पिक)</target>
+      </trans-unit>
+      <trans-unit id="onboarding.finish.title" datatype="html">
+        <source>You&apos;re all set</source>
+        <target>आप तैयार हैं</target>
+      </trans-unit>
+      <trans-unit id="onboarding.finish.subtitle" datatype="html">
+        <source> Your shop is ready. Next, lock today&apos;s metal rate and add your first product from the dashboard — then you can bill your first sale. </source>
+        <target>आपकी दुकान तैयार है। इसके बाद, आज का धातु भाव लॉक करें और डैशबोर्ड से अपना पहला उत्पाद जोड़ें — फिर आप अपनी पहली बिक्री का बिल बना सकते हैं।</target>
+      </trans-unit>
+      <trans-unit id="onboarding.finish.sample-prompt" datatype="html">
+        <source> Want to look around first? Load a small set of sample products, customers and sales. You can remove it anytime from Settings. </source>
+        <target>पहले देखना चाहते हैं? नमूना उत्पाद, ग्राहक और बिक्री का एक छोटा सेट लोड करें। आप इसे सेटिंग्स से कभी भी हटा सकते हैं।</target>
+      </trans-unit>
+      <trans-unit id="onboarding.finish.sample-loading" datatype="html">
+        <source>Loading sample data…</source>
+        <target>नमूना डेटा लोड हो रहा है…</target>
+      </trans-unit>
+      <trans-unit id="onboarding.finish.sample-cta" datatype="html">
+        <source>Explore with sample data</source>
+        <target>नमूना डेटा के साथ देखें</target>
+      </trans-unit>
+      <trans-unit id="onboarding.back" datatype="html">
+        <source>Back</source>
+        <target>पीछे</target>
+      </trans-unit>
+      <trans-unit id="onboarding.goToDashboard" datatype="html">
+        <source>Go to dashboard</source>
+        <target>डैशबोर्ड पर जाएं</target>
+      </trans-unit>
+      <trans-unit id="onboarding.continue" datatype="html">
+        <source>Continue</source>
+        <target>जारी रखें</target>
       </trans-unit>
       <trans-unit id="orders.title" datatype="html">
         <source>Books</source>
@@ -722,6 +902,10 @@
         <source>Open</source>
         <target>खोलें</target>
       </trans-unit>
+      <trans-unit id="settings.tab.rates" datatype="html">
+        <source>Metal rates</source>
+        <target>धातु भाव</target>
+      </trans-unit>
       <trans-unit id="settings.title" datatype="html">
         <source>Settings</source>
         <target>सेटिंग्स</target>
@@ -738,9 +922,53 @@
         <source>Appears on every invoice, receipt, and export.</source>
         <target>हर बिल, रसीद और निर्यात पर दिखाई देता है।</target>
       </trans-unit>
-      <trans-unit id="settings.tab.rates" datatype="html">
-        <source>Metal rates</source>
-        <target>धातु भाव</target>
+      <trans-unit id="settings.appearance.title" datatype="html">
+        <source>Appearance</source>
+        <target>रूप-रंग</target>
+      </trans-unit>
+      <trans-unit id="settings.appearance.sub" datatype="html">
+        <source>Choose a typography preset. Applies live across the whole app; save to make it stick across relaunches.</source>
+        <target>एक टाइपोग्राफ़ी प्रीसेट चुनें। पूरे ऐप में तुरंत लागू होता है; रीस्टार्ट के बाद बनाए रखने के लिए सहेजें।</target>
+      </trans-unit>
+      <trans-unit id="settings.appearance.typography-heading" datatype="html">
+        <source>Typography</source>
+        <target>टाइपोग्राफ़ी</target>
+      </trans-unit>
+      <trans-unit id="settings.appearance.preview-caption" datatype="html">
+        <source>Grand total</source>
+        <target>कुल योग</target>
+      </trans-unit>
+      <trans-unit id="settings.appearance.cancel" datatype="html">
+        <source> Cancel </source>
+        <target>रद्द करें</target>
+      </trans-unit>
+      <trans-unit id="settings.appearance.save" datatype="html">
+        <source> Save &amp; apply </source>
+        <target>सहेजें और लागू करें</target>
+      </trans-unit>
+      <trans-unit id="settings.appearance.setup-heading" datatype="html">
+        <source>Setup guide</source>
+        <target>सेटअप गाइड</target>
+      </trans-unit>
+      <trans-unit id="settings.appearance.setup-sub" datatype="html">
+        <source> Re-run the first-time setup guide to review your shop details. Your existing data is kept — nothing is deleted. </source>
+        <target>अपनी दुकान का विवरण देखने के लिए पहली बार वाला सेटअप गाइड फिर से चलाएं। आपका मौजूदा डेटा बना रहता है — कुछ भी नहीं हटाया जाता।</target>
+      </trans-unit>
+      <trans-unit id="settings.appearance.replay-setup" datatype="html">
+        <source> Replay setup guide </source>
+        <target>सेटअप गाइड फिर से चलाएं</target>
+      </trans-unit>
+      <trans-unit id="settings.appearance.replay-tour" datatype="html">
+        <source> Replay app tour </source>
+        <target>ऐप टूर फिर से चलाएं</target>
+      </trans-unit>
+      <trans-unit id="settings.appearance.sample-sub" datatype="html">
+        <source> Sample data is currently loaded. Remove it before you start entering real transactions — your shop settings and staff logins are kept. </source>
+        <target>अभी नमूना डेटा लोड है। असली लेन-देन दर्ज करने से पहले इसे हटा दें — आपकी दुकान सेटिंग्स और स्टाफ लॉगिन बने रहेंगे।</target>
+      </trans-unit>
+      <trans-unit id="settings.appearance.remove-sample" datatype="html">
+        <source> Remove sample data </source>
+        <target>नमूना डेटा हटाएं</target>
       </trans-unit>
       <trans-unit id="settings.language.title" datatype="html">
         <source>Language</source>
@@ -798,13 +1026,21 @@
         <source>WhatsApp activity</source>
         <target>व्हाट्सएप गतिविधि</target>
       </trans-unit>
+      <trans-unit id="settings.tab.appearance" datatype="html">
+        <source>Appearance</source>
+        <target>रूप-रंग</target>
+      </trans-unit>
       <trans-unit id="settings.tab.language" datatype="html">
         <source>Language</source>
         <target>भाषा</target>
       </trans-unit>
-      <trans-unit id="settings.tab.database" datatype="html">
-        <source>Database</source>
-        <target>डेटाबेस</target>
+      <trans-unit id="rail.brand" datatype="html">
+        <source>Radiance</source>
+        <target>Radiance</target>
+      </trans-unit>
+      <trans-unit id="rail-drawer.close" datatype="html">
+        <source>Close navigation</source>
+        <target>नेविगेशन बंद करें</target>
       </trans-unit>
       <trans-unit id="rail.sign-out" datatype="html">
         <source>Sign out</source>
@@ -849,6 +1085,10 @@
       <trans-unit id="rail.settings" datatype="html">
         <source>Settings</source>
         <target>सेटिंग्स</target>
+      </trans-unit>
+      <trans-unit id="topbar.menu.aria" datatype="html">
+        <source>Open navigation</source>
+        <target>नेविगेशन खोलें</target>
       </trans-unit>
       <trans-unit id="topbar.palette.aria" datatype="html">
         <source>Open command palette</source>
@@ -913,6 +1153,58 @@
       <trans-unit id="palette.placeholder.sub" datatype="html">
         <source>Fill in details...</source>
         <target>विवरण भरें...</target>
+      </trans-unit>
+      <trans-unit id="tour.welcome.title" datatype="html">
+        <source>Welcome to your shop</source>
+        <target>आपकी दुकान में आपका स्वागत है</target>
+      </trans-unit>
+      <trans-unit id="tour.welcome.desc" datatype="html">
+        <source>A quick tour of where things are. You can replay this anytime from Settings.</source>
+        <target>चीज़ें कहां हैं इसका एक त्वरित टूर। आप इसे सेटिंग्स से कभी भी दोबारा चला सकते हैं।</target>
+      </trans-unit>
+      <trans-unit id="tour.checklist.title" datatype="html">
+        <source>Your setup checklist</source>
+        <target>आपकी सेटअप चेकलिस्ट</target>
+      </trans-unit>
+      <trans-unit id="tour.checklist.desc" datatype="html">
+        <source>Finish these steps to get going. It disappears once everything is done.</source>
+        <target>शुरू करने के लिए ये चरण पूरे करें। सब कुछ हो जाने पर यह गायब हो जाता है।</target>
+      </trans-unit>
+      <trans-unit id="tour.rate.title" datatype="html">
+        <source>Lock the daily rate</source>
+        <target>दैनिक भाव लॉक करें</target>
+      </trans-unit>
+      <trans-unit id="tour.rate.desc" datatype="html">
+        <source>Set today&apos;s gold rate here each morning — every bill uses it.</source>
+        <target>हर सुबह यहां आज का सोने का भाव सेट करें — हर बिल इसका उपयोग करता है।</target>
+      </trans-unit>
+      <trans-unit id="tour.invoices.title" datatype="html">
+        <source>Recent sales</source>
+        <target>हाल की बिक्री</target>
+      </trans-unit>
+      <trans-unit id="tour.invoices.desc" datatype="html">
+        <source>Your latest invoices show up here. Click any row to open it.</source>
+        <target>आपके नवीनतम बिल यहां दिखते हैं। खोलने के लिए किसी भी पंक्ति पर क्लिक करें।</target>
+      </trans-unit>
+      <trans-unit id="tour.kpis.title" datatype="html">
+        <source>Key numbers</source>
+        <target>मुख्य आंकड़े</target>
+      </trans-unit>
+      <trans-unit id="tour.kpis.desc" datatype="html">
+        <source>Customers, stock and pending payments at a glance.</source>
+        <target>ग्राहक, स्टॉक और बकाया भुगतान एक नज़र में।</target>
+      </trans-unit>
+      <trans-unit id="tour.next" datatype="html">
+        <source>Next</source>
+        <target>आगे</target>
+      </trans-unit>
+      <trans-unit id="tour.prev" datatype="html">
+        <source>Back</source>
+        <target>पीछे</target>
+      </trans-unit>
+      <trans-unit id="tour.done" datatype="html">
+        <source>Done</source>
+        <target>पूर्ण</target>
       </trans-unit>
     </body>
   </file>

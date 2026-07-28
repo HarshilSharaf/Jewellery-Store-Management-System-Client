@@ -44,7 +44,7 @@
             <table class="meta-table tabular-nums">
               <tr>
                 <td>Invoice #</td>
-                <td>{{ _invoice.invoiceNumber ?? _invoice.orderId ?? '—' }}</td>
+                <td>{{ _invoice.invoiceNumber ?? _invoice.orderId }}</td>
               </tr>
               <tr>
                 <td>Date</td>
@@ -136,7 +136,7 @@
                       @if (line.huid) { <span class="chip">HUID {{ line.huid }}</span> }
                     </div>
                   </td>
-                  <td class="col-hsn">{{ line.hsnCode ?? _invoice.hsn ?? '—' }}</td>
+                  <td class="col-hsn">{{ line.hsnCode }}</td>
                   <td class="col-wt">{{ qty(line.grossWeight) }}</td>
                   <td class="col-wt">{{ qty(line.netWeight) }}</td>
                   <td class="col-rate">{{ money(line.ratePerGram) }}</td>
@@ -290,7 +290,7 @@
         <div class="th-title">{{ invoiceTitle() }}</div>
 
         <div class="th-meta tabular-nums">
-          <div><span>Invoice #</span><span>{{ _invoice.invoiceNumber ?? _invoice.orderId ?? '—' }}</span></div>
+          <div><span>Invoice #</span><span>{{ _invoice.invoiceNumber ?? _invoice.orderId }}</span></div>
           <div><span>Date</span><span>{{ _invoice.orderDate | date:'dd MMM yyyy, HH:mm' }}</span></div>
           @if (_invoice.hsn) { <div><span>HSN</span><span>{{ _invoice.hsn }}</span></div> }
         </div>

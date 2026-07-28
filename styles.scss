@@ -440,6 +440,23 @@ html, body {
   min-height: 100%;
 }
 
+// -------------------------------------------------------------------------
+// Frameless Electron window: reserve the top 32px for the app-drawn title bar
+// (WindowTitlebarComponent). AppComponent adds `.is-electron` only inside the
+// Electron shell, so the plain-browser build is untouched.
+// -------------------------------------------------------------------------
+.is-electron .shell,
+.is-electron .login-page,
+.is-electron .onboarding-root {
+  padding-top: 32px;
+  box-sizing: border-box;
+}
+// The login theme toggle is absolutely positioned near the top; push it below
+// the title bar so it isn't covered.
+.is-electron .login-page .theme-toggle {
+  margin-top: 32px;
+}
+
 html {
   color-scheme: light;
   -webkit-text-size-adjust: 100%;

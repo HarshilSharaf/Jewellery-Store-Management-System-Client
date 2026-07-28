@@ -16,7 +16,7 @@ import { INDIAN_STATES, GSTIN_REGEX } from '../../../../shared/utils/indian-stat
   templateUrl: './add-customer-form.component.html',
   styleUrls: ['./add-customer-form.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ImageUploadComponent, NgIcon],
+  imports: [CommonModule, ReactiveFormsModule, NgIcon],
   viewProviders: [provideIcons({ lucideX, lucideLoader, lucideUser })],
 })
 export class AddCustomerFormComponent {

@@ -9,7 +9,7 @@ export interface RecentOrdersModel {
     createdAt: Date,
     cancelledAt?: Date | null,
     isPaymentDone: number | boolean,
-    grandTotal: number,
+    grandTotal?: number,
     totalAmountWithGst?: number,
     totalLineItems?: number,
     total_products?: number,

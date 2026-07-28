@@ -48,7 +48,7 @@ export class AddProductFormComponent implements OnInit, OnDestroy {
   public addProductResponse: HttpResponse = { status: 0, message: '' };
 
   @Input() open = false;
-  @Input() allCategoriesData!: AllCategoriesModel;
+  @Input() allCategoriesData?: AllCategoriesModel;
   @Output() closed = new EventEmitter<void>();
   @Output() refreshDataEvent = new EventEmitter<boolean>();
   @ViewChild(ImageUploadComponent, { static: false }) productPhotoComponent!: ImageUploadComponent;

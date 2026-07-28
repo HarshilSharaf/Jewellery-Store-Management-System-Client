@@ -17,7 +17,7 @@
           <p class="form-section__title">Customer</p>
           @if (presetCustomer) {
             <div class="picked-customer">
-              <span class="avatar avatar--sm">{{ (presetCustomer.firstName?.[0] ?? '') + (presetCustomer.lastName?.[0] ?? '') }}</span>
+              <span class="avatar avatar--sm">{{ presetCustomer.firstName.charAt(0) + presetCustomer.lastName.charAt(0) }}</span>
               <div>
                 <div class="picked-customer__name">{{ presetCustomer.customerName }}</div>
                 <div class="picked-customer__meta tabular-nums">{{ presetCustomer.phoneNumber }}</div>
@@ -39,7 +39,7 @@
                 <ul class="customer-picker__list">
                   @for (c of customerResults(); track c.customerGuid) {
                     <li class="customer-picker__item" (click)="pickCustomer(c)">
-                      <span class="avatar avatar--sm">{{ (c.firstName?.[0] ?? '') + (c.lastName?.[0] ?? '') }}</span>
+                      <span class="avatar avatar--sm">{{ c.firstName.charAt(0) + c.lastName.charAt(0) }}</span>
                       <span>
                         <span class="customer-picker__name">{{ c.customerName }}</span>
                         <span class="customer-picker__meta tabular-nums">{{ c.phoneNumber }} @if (c.city) { &nbsp;•&nbsp;{{ c.city }} }</span>

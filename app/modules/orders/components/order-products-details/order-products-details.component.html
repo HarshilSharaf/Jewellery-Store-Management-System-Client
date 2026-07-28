@@ -42,7 +42,7 @@
               <td>
                 <span class="purity-chip">{{ product.purityLabel ?? product.purityCode }}</span>
               </td>
-              <td class="col-muted tabular-nums">{{ product.hsnCode ?? '7113' }}</td>
+              <td class="col-muted tabular-nums">{{ product.hsnCode }}</td>
               <td class="right tabular-nums">{{ wt(product.netWeight) }}</td>
               <td class="right tabular-nums">{{ money(product.ratePerGram) }}</td>
               <td class="right tabular-nums">{{ money(product.metalValue) }}</td>

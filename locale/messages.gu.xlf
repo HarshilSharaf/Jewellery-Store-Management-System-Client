@@ -210,6 +210,10 @@
         <source>Today</source>
         <target>આજે</target>
       </trans-unit>
+      <trans-unit id="dashboard.take-tour" datatype="html">
+        <source>Take a tour</source>
+        <target>ટૂર લો</target>
+      </trans-unit>
       <trans-unit id="dashboard.revenue" datatype="html">
         <source>Revenue</source>
         <target>આવક</target>
@@ -273,6 +277,42 @@
       <trans-unit id="dashboard.pending-payments" datatype="html">
         <source>Pending payments</source>
         <target>બાકી ચૂકવણી</target>
+      </trans-unit>
+      <trans-unit id="checklist.eyebrow" datatype="html">
+        <source>Get started</source>
+        <target>શરૂ કરો</target>
+      </trans-unit>
+      <trans-unit id="checklist.heading" datatype="html">
+        <source>Finish setting up your shop</source>
+        <target>તમારી દુકાન સેટઅપ પૂર્ણ કરો</target>
+      </trans-unit>
+      <trans-unit id="checklist.dismiss" datatype="html">
+        <source>Dismiss checklist</source>
+        <target>ચેકલિસ્ટ બંધ કરો</target>
+      </trans-unit>
+      <trans-unit id="checklist.do-it" datatype="html">
+        <source>Do it</source>
+        <target>કરો</target>
+      </trans-unit>
+      <trans-unit id="checklist.done" datatype="html">
+        <source>Done</source>
+        <target>પૂર્ણ</target>
+      </trans-unit>
+      <trans-unit id="checklist.item.rate" datatype="html">
+        <source>Lock today&apos;s metal rate</source>
+        <target>આજનો ધાતુ ભાવ લોક કરો</target>
+      </trans-unit>
+      <trans-unit id="checklist.item.product" datatype="html">
+        <source>Add your first product</source>
+        <target>તમારું પહેલું ઉત્પાદન ઉમેરો</target>
+      </trans-unit>
+      <trans-unit id="checklist.item.customer" datatype="html">
+        <source>Add your first customer</source>
+        <target>તમારો પહેલો ગ્રાહક ઉમેરો</target>
+      </trans-unit>
+      <trans-unit id="checklist.item.sale" datatype="html">
+        <source>Record your first sale</source>
+        <target>તમારું પહેલું વેચાણ નોંધો</target>
       </trans-unit>
       <trans-unit id="inventory.title" datatype="html">
         <source>Stock</source>
@@ -469,6 +509,146 @@
       <trans-unit id="login.device-only" datatype="html">
         <source>You are signed in only on this device.</source>
         <target>તમે માત્ર આ ડિવાઇસ પર સાઇન ઇન છો.</target>
+      </trans-unit>
+      <trans-unit id="onboarding.brand" datatype="html">
+        <source>Jewellery Store Manager</source>
+        <target>જ્વેલરી સ્ટોર મેનેજર</target>
+      </trans-unit>
+      <trans-unit id="onboarding.welcome.title" datatype="html">
+        <source> Welcome — let&apos;s set up your shop </source>
+        <target>સ્વાગત છે — ચાલો તમારી દુકાન સેટઅપ કરીએ</target>
+      </trans-unit>
+      <trans-unit id="onboarding.welcome.subtitle" datatype="html">
+        <source> A few quick steps and you&apos;ll be ready to bill your first sale. Everything stays on this computer — no internet required. </source>
+        <target>થોડા ઝડપી પગલાં અને તમે તમારું પહેલું વેચાણ બિલ કરવા તૈયાર થશો. બધું આ કમ્પ્યુટર પર જ રહે છે — ઇન્ટરનેટની જરૂર નથી.</target>
+      </trans-unit>
+      <trans-unit id="onboarding.welcome.point1" datatype="html">
+        <source>Secure your account with a new password</source>
+        <target>નવા પાસવર્ડથી તમારું ખાતું સુરક્ષિત કરો</target>
+      </trans-unit>
+      <trans-unit id="onboarding.welcome.point2" datatype="html">
+        <source>Add your shop details for GST invoices</source>
+        <target>GST બિલો માટે તમારી દુકાનની વિગતો ઉમેરો</target>
+      </trans-unit>
+      <trans-unit id="onboarding.welcome.point3" datatype="html">
+        <source>Start selling</source>
+        <target>વેચાણ શરૂ કરો</target>
+      </trans-unit>
+      <trans-unit id="onboarding.password.title" datatype="html">
+        <source> Secure your account </source>
+        <target>તમારું ખાતું સુરક્ષિત કરો</target>
+      </trans-unit>
+      <trans-unit id="onboarding.password.subtitle" datatype="html">
+        <source> You&apos;re signed in with the default password. Set a new one to protect your data. </source>
+        <target>તમે ડિફૉલ્ટ પાસવર્ડથી સાઇન ઇન છો. તમારા ડેટાની સુરક્ષા માટે નવો પાસવર્ડ સેટ કરો.</target>
+      </trans-unit>
+      <trans-unit id="onboarding.password.new" datatype="html">
+        <source>New password</source>
+        <target>નવો પાસવર્ડ</target>
+      </trans-unit>
+      <trans-unit id="onboarding.password.newError" datatype="html">
+        <source> Use at least 6 characters. </source>
+        <target>ઓછામાં ઓછા 6 અક્ષરો વાપરો.</target>
+      </trans-unit>
+      <trans-unit id="onboarding.password.confirm" datatype="html">
+        <source>Confirm password</source>
+        <target>પાસવર્ડની પુષ્ટિ કરો</target>
+      </trans-unit>
+      <trans-unit id="onboarding.password.mismatch" datatype="html">
+        <source> Passwords do not match. </source>
+        <target>પાસવર્ડ મેળ ખાતા નથી.</target>
+      </trans-unit>
+      <trans-unit id="onboarding.shop.title" datatype="html">
+        <source>Your shop</source>
+        <target>તમારી દુકાન</target>
+      </trans-unit>
+      <trans-unit id="onboarding.shop.subtitle" datatype="html">
+        <source> These details appear on every GST invoice. You can change them later in Settings. </source>
+        <target>આ વિગતો દરેક GST બિલ પર દેખાય છે. તમે તેને પછીથી સેટિંગ્સમાં બદલી શકો છો.</target>
+      </trans-unit>
+      <trans-unit id="onboarding.shop.name" datatype="html">
+        <source>Shop name</source>
+        <target>દુકાનનું નામ</target>
+      </trans-unit>
+      <trans-unit id="onboarding.shop.address1" datatype="html">
+        <source>Address line 1</source>
+        <target>સરનામું લાઇન 1</target>
+      </trans-unit>
+      <trans-unit id="onboarding.shop.address2" datatype="html">
+        <source>Address line 2 (optional)</source>
+        <target>સરનામું લાઇન 2 (વૈકલ્પિક)</target>
+      </trans-unit>
+      <trans-unit id="onboarding.shop.city" datatype="html">
+        <source>City</source>
+        <target>શહેર</target>
+      </trans-unit>
+      <trans-unit id="onboarding.shop.pincode" datatype="html">
+        <source>Pincode</source>
+        <target>પિનકોડ</target>
+      </trans-unit>
+      <trans-unit id="onboarding.shop.state" datatype="html">
+        <source>State</source>
+        <target>રાજ્ય</target>
+      </trans-unit>
+      <trans-unit id="onboarding.shop.statePlaceholder" datatype="html">
+        <source>Select state</source>
+        <target>રાજ્ય પસંદ કરો</target>
+      </trans-unit>
+      <trans-unit id="onboarding.shop.stateCode" datatype="html">
+        <source>State code</source>
+        <target>રાજ્ય કોડ</target>
+      </trans-unit>
+      <trans-unit id="onboarding.shop.phone" datatype="html">
+        <source>Phone</source>
+        <target>ફોન</target>
+      </trans-unit>
+      <trans-unit id="onboarding.shop.email" datatype="html">
+        <source>Email (optional)</source>
+        <target>ઈમેલ (વૈકલ્પિક)</target>
+      </trans-unit>
+      <trans-unit id="onboarding.shop.gstin" datatype="html">
+        <source>GSTIN</source>
+        <target>GSTIN</target>
+      </trans-unit>
+      <trans-unit id="onboarding.shop.gstinError" datatype="html">
+        <source> Enter a valid 15-character GSTIN. </source>
+        <target>માન્ય 15-અક્ષરનો GSTIN દાખલ કરો.</target>
+      </trans-unit>
+      <trans-unit id="onboarding.shop.pan" datatype="html">
+        <source>PAN (optional)</source>
+        <target>PAN (વૈકલ્પિક)</target>
+      </trans-unit>
+      <trans-unit id="onboarding.finish.title" datatype="html">
+        <source>You&apos;re all set</source>
+        <target>તમે તૈયાર છો</target>
+      </trans-unit>
+      <trans-unit id="onboarding.finish.subtitle" datatype="html">
+        <source> Your shop is ready. Next, lock today&apos;s metal rate and add your first product from the dashboard — then you can bill your first sale. </source>
+        <target>તમારી દુકાન તૈયાર છે. હવે, આજનો ધાતુ ભાવ લોક કરો અને ડૅશબોર્ડમાંથી તમારું પહેલું ઉત્પાદન ઉમેરો — પછી તમે તમારું પહેલું વેચાણ બિલ કરી શકો છો.</target>
+      </trans-unit>
+      <trans-unit id="onboarding.finish.sample-prompt" datatype="html">
+        <source> Want to look around first? Load a small set of sample products, customers and sales. You can remove it anytime from Settings. </source>
+        <target>પહેલા જોવા માંગો છો? નમૂના ઉત્પાદનો, ગ્રાહકો અને વેચાણનો નાનો સેટ લોડ કરો. તમે તેને સેટિંગ્સમાંથી ગમે ત્યારે દૂર કરી શકો છો.</target>
+      </trans-unit>
+      <trans-unit id="onboarding.finish.sample-loading" datatype="html">
+        <source>Loading sample data…</source>
+        <target>નમૂના ડેટા લોડ થઈ રહ્યો છે…</target>
+      </trans-unit>
+      <trans-unit id="onboarding.finish.sample-cta" datatype="html">
+        <source>Explore with sample data</source>
+        <target>નમૂના ડેટા સાથે અન્વેષણ કરો</target>
+      </trans-unit>
+      <trans-unit id="onboarding.back" datatype="html">
+        <source>Back</source>
+        <target>પાછળ</target>
+      </trans-unit>
+      <trans-unit id="onboarding.goToDashboard" datatype="html">
+        <source>Go to dashboard</source>
+        <target>ડૅશબોર્ડ પર જાઓ</target>
+      </trans-unit>
+      <trans-unit id="onboarding.continue" datatype="html">
+        <source>Continue</source>
+        <target>ચાલુ રાખો</target>
       </trans-unit>
       <trans-unit id="orders.title" datatype="html">
         <source>Books</source>
@@ -722,6 +902,10 @@
         <source>Open</source>
         <target>ખોલો</target>
       </trans-unit>
+      <trans-unit id="settings.tab.rates" datatype="html">
+        <source>Metal rates</source>
+        <target>ધાતુ ભાવ</target>
+      </trans-unit>
       <trans-unit id="settings.title" datatype="html">
         <source>Settings</source>
         <target>સેટિંગ્સ</target>
@@ -738,9 +922,53 @@
         <source>Appears on every invoice, receipt, and export.</source>
         <target>દરેક બિલ, રસીદ અને નિકાસ પર દેખાય છે.</target>
       </trans-unit>
-      <trans-unit id="settings.tab.rates" datatype="html">
-        <source>Metal rates</source>
-        <target>ધાતુ ભાવ</target>
+      <trans-unit id="settings.appearance.title" datatype="html">
+        <source>Appearance</source>
+        <target>દેખાવ</target>
+      </trans-unit>
+      <trans-unit id="settings.appearance.sub" datatype="html">
+        <source>Choose a typography preset. Applies live across the whole app; save to make it stick across relaunches.</source>
+        <target>એક ટાઇપોગ્રાફી પ્રીસેટ પસંદ કરો. આખી ઍપમાં તરત જ લાગુ થાય છે; રીસ્ટાર્ટ પછી જાળવવા સાચવો.</target>
+      </trans-unit>
+      <trans-unit id="settings.appearance.typography-heading" datatype="html">
+        <source>Typography</source>
+        <target>ટાઇપોગ્રાફી</target>
+      </trans-unit>
+      <trans-unit id="settings.appearance.preview-caption" datatype="html">
+        <source>Grand total</source>
+        <target>કુલ સરવાળો</target>
+      </trans-unit>
+      <trans-unit id="settings.appearance.cancel" datatype="html">
+        <source> Cancel </source>
+        <target>રદ કરો</target>
+      </trans-unit>
+      <trans-unit id="settings.appearance.save" datatype="html">
+        <source> Save &amp; apply </source>
+        <target>સાચવો અને લાગુ કરો</target>
+      </trans-unit>
+      <trans-unit id="settings.appearance.setup-heading" datatype="html">
+        <source>Setup guide</source>
+        <target>સેટઅપ ગાઇડ</target>
+      </trans-unit>
+      <trans-unit id="settings.appearance.setup-sub" datatype="html">
+        <source> Re-run the first-time setup guide to review your shop details. Your existing data is kept — nothing is deleted. </source>
+        <target>તમારી દુકાનની વિગતો સમીક્ષા કરવા પ્રથમ-વખતની સેટઅપ ગાઇડ ફરી ચલાવો. તમારો હાલનો ડેટા રહે છે — કંઈ કાઢી નાખવામાં આવતું નથી.</target>
+      </trans-unit>
+      <trans-unit id="settings.appearance.replay-setup" datatype="html">
+        <source> Replay setup guide </source>
+        <target>સેટઅપ ગાઇડ ફરી ચલાવો</target>
+      </trans-unit>
+      <trans-unit id="settings.appearance.replay-tour" datatype="html">
+        <source> Replay app tour </source>
+        <target>ઍપ ટૂર ફરી ચલાવો</target>
+      </trans-unit>
+      <trans-unit id="settings.appearance.sample-sub" datatype="html">
+        <source> Sample data is currently loaded. Remove it before you start entering real transactions — your shop settings and staff logins are kept. </source>
+        <target>હાલમાં નમૂના ડેટા લોડ છે. વાસ્તવિક વ્યવહારો દાખલ કરતા પહેલા તેને દૂર કરો — તમારી દુકાન સેટિંગ્સ અને સ્ટાફ લોગિન રહેશે.</target>
+      </trans-unit>
+      <trans-unit id="settings.appearance.remove-sample" datatype="html">
+        <source> Remove sample data </source>
+        <target>નમૂના ડેટા દૂર કરો</target>
       </trans-unit>
       <trans-unit id="settings.language.title" datatype="html">
         <source>Language</source>
@@ -798,13 +1026,21 @@
         <source>WhatsApp activity</source>
         <target>વ્હોટ્સએપ પ્રવૃત્તિ</target>
       </trans-unit>
+      <trans-unit id="settings.tab.appearance" datatype="html">
+        <source>Appearance</source>
+        <target>દેખાવ</target>
+      </trans-unit>
       <trans-unit id="settings.tab.language" datatype="html">
         <source>Language</source>
         <target>ભાષા</target>
       </trans-unit>
-      <trans-unit id="settings.tab.database" datatype="html">
-        <source>Database</source>
-        <target>ડેટાબેઝ</target>
+      <trans-unit id="rail.brand" datatype="html">
+        <source>Radiance</source>
+        <target>Radiance</target>
+      </trans-unit>
+      <trans-unit id="rail-drawer.close" datatype="html">
+        <source>Close navigation</source>
+        <target>નેવિગેશન બંધ કરો</target>
       </trans-unit>
       <trans-unit id="rail.sign-out" datatype="html">
         <source>Sign out</source>
@@ -849,6 +1085,10 @@
       <trans-unit id="rail.settings" datatype="html">
         <source>Settings</source>
         <target>સેટિંગ્સ</target>
+      </trans-unit>
+      <trans-unit id="topbar.menu.aria" datatype="html">
+        <source>Open navigation</source>
+        <target>નેવિગેશન ખોલો</target>
       </trans-unit>
       <trans-unit id="topbar.palette.aria" datatype="html">
         <source>Open command palette</source>
@@ -913,6 +1153,58 @@
       <trans-unit id="palette.placeholder.sub" datatype="html">
         <source>Fill in details...</source>
         <target>વિગતો ભરો...</target>
+      </trans-unit>
+      <trans-unit id="tour.welcome.title" datatype="html">
+        <source>Welcome to your shop</source>
+        <target>તમારી દુકાનમાં આપનું સ્વાગત છે</target>
+      </trans-unit>
+      <trans-unit id="tour.welcome.desc" datatype="html">
+        <source>A quick tour of where things are. You can replay this anytime from Settings.</source>
+        <target>વસ્તુઓ ક્યાં છે તેનો ઝડપી ટૂર. તમે તેને સેટિંગ્સમાંથી ગમે ત્યારે ફરી ચલાવી શકો છો.</target>
+      </trans-unit>
+      <trans-unit id="tour.checklist.title" datatype="html">
+        <source>Your setup checklist</source>
+        <target>તમારી સેટઅપ ચેકલિસ્ટ</target>
+      </trans-unit>
+      <trans-unit id="tour.checklist.desc" datatype="html">
+        <source>Finish these steps to get going. It disappears once everything is done.</source>
+        <target>શરૂ કરવા આ પગલાં પૂર્ણ કરો. બધું થઈ ગયા પછી તે અદૃશ્ય થઈ જાય છે.</target>
+      </trans-unit>
+      <trans-unit id="tour.rate.title" datatype="html">
+        <source>Lock the daily rate</source>
+        <target>દૈનિક ભાવ લોક કરો</target>
+      </trans-unit>
+      <trans-unit id="tour.rate.desc" datatype="html">
+        <source>Set today&apos;s gold rate here each morning — every bill uses it.</source>
+        <target>દરરોજ સવારે અહીં આજનો સોનાનો ભાવ સેટ કરો — દરેક બિલ તેનો ઉપયોગ કરે છે.</target>
+      </trans-unit>
+      <trans-unit id="tour.invoices.title" datatype="html">
+        <source>Recent sales</source>
+        <target>તાજેતરનું વેચાણ</target>
+      </trans-unit>
+      <trans-unit id="tour.invoices.desc" datatype="html">
+        <source>Your latest invoices show up here. Click any row to open it.</source>
+        <target>તમારા તાજેતરના બિલો અહીં દેખાય છે. ખોલવા કોઈપણ પંક્તિ પર ક્લિક કરો.</target>
+      </trans-unit>
+      <trans-unit id="tour.kpis.title" datatype="html">
+        <source>Key numbers</source>
+        <target>મુખ્ય આંકડા</target>
+      </trans-unit>
+      <trans-unit id="tour.kpis.desc" datatype="html">
+        <source>Customers, stock and pending payments at a glance.</source>
+        <target>ગ્રાહકો, સ્ટોક અને બાકી ચૂકવણી એક નજરમાં.</target>
+      </trans-unit>
+      <trans-unit id="tour.next" datatype="html">
+        <source>Next</source>
+        <target>આગળ</target>
+      </trans-unit>
+      <trans-unit id="tour.prev" datatype="html">
+        <source>Back</source>
+        <target>પાછળ</target>
+      </trans-unit>
+      <trans-unit id="tour.done" datatype="html">
+        <source>Done</source>
+        <target>પૂર્ણ</target>
       </trans-unit>
     </body>
   </file>

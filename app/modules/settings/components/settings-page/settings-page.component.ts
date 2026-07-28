@@ -160,7 +160,6 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
   readonly selectedBackup = signal<ListBackupsEntry | null>(null);
 
   dbErrorMessageAfterReLaunch: string | null = null;
-  private bodyPadding = document.getElementById('body')?.style.paddingTop;
 
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
@@ -298,7 +297,11 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
     { code: 'mr', label: 'मराठी (Marathi)' },
   ];
   readonly activeLocale = signal<string>(
-    (typeof document !== 'undefined' && document.documentElement?.lang) || 'en'
+    (() => {
+      const lang = (typeof document !== 'undefined' && document.documentElement?.lang) || 'en';
+      // The English build reports 'en-IN'; the picker uses 'en'.
+      return lang.toLowerCase().startsWith('en') ? 'en' : lang;
+    })()
   );
   readonly requestedLocale = signal<string>(
     (typeof localStorage !== 'undefined' && localStorage.getItem(this.LOCALE_STORAGE_KEY)) ||
@@ -351,16 +354,35 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
     }
   }
 
-  saveLocalePreference(): void {
+  async saveLocalePreference(): Promise<void> {
+    const code = this.requestedLocale();
     try {
-      localStorage.setItem(this.LOCALE_STORAGE_KEY, this.requestedLocale());
+      localStorage.setItem(this.LOCALE_STORAGE_KEY, code);
+      // Persist to electron-store too: the main process reads this at boot to
+      // load the matching localized build (localStorage isn't visible to main).
+      await this.storeService.set('localePreference', code);
       this.localeSaved.set(true);
       this.localeDirty.set(false);
-    } catch { /* localStorage may be blocked */ }
+    } catch (err) {
+      this.loggerService.LogError(err as string, 'saveLocalePreference');
+      this.toast.error('Could not save the language preference', 'Error');
+      return;
+    }
+
+    const result = await this.dialog.fire({
+      icon: 'success',
+      title: 'Language saved',
+      html: 'The app needs to relaunch to apply the new language. Relaunch now?',
+      showCancelButton: true,
+      confirmButtonText: 'Relaunch',
+    });
+    if (result.isConfirmed) {
+      try { await this.utilityService.relaunch(); }
+      catch (err) { this.loggerService.LogError(err as string, 'saveLocalePreference.relaunch'); }
+    }
   }
 
   ngOnInit(): void {
-    document.body.style.paddingTop = '0px';
     const state: any = this.location.getState();
     this.dbErrorMessageAfterReLaunch = state?.error ?? null;
 
@@ -408,7 +430,9 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    document.body.style.paddingTop = this.bodyPadding || '60px';
+    // (Intentionally empty — the obsolete body padding-top hack was removed;
+    // it wrongly stamped a phantom 60px on <body> when leaving this page,
+    // pushing the next page down and adding a second scrollbar.)
   }
 
   goBack() { this.location.back(); }

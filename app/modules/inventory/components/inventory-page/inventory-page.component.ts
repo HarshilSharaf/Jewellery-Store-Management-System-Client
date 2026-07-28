@@ -6,8 +6,6 @@ import { InventoryService } from '../../services/inventory.service';
 import { MasterCategoriesModel } from '../../../categories/models/categories-model';
 import { TotalStockModel } from '../../../dashboard/models/total-stock-model';
 import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucidePackage, lucideBoxes, lucideGem } from '@ng-icons/lucide';
 
 interface StockTile {
   metalName: string;
@@ -21,8 +19,7 @@ interface StockTile {
   templateUrl: './inventory-page.component.html',
   styleUrls: ['./inventory-page.component.scss'],
   standalone: true,
-  imports: [CommonModule, AvailableProductsComponent, NgIcon],
-  viewProviders: [provideIcons({ lucidePackage, lucideBoxes, lucideGem })],
+  imports: [CommonModule, AvailableProductsComponent],
 })
 export class InventoryPageComponent implements OnInit {
   stockTiles: StockTile[] = [];
