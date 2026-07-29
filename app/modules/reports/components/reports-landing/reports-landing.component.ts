@@ -8,6 +8,7 @@ import {
   lucidePackage,
   lucideFileJson,
   lucideArrowRight,
+  lucideTriangleAlert,
 } from '@ng-icons/lucide';
 
 interface ReportTile {
@@ -24,7 +25,7 @@ interface ReportTile {
   standalone: true,
   imports: [CommonModule, RouterLink, NgIcon],
   viewProviders: [
-    provideIcons({ lucideChartLine, lucideReceiptText, lucidePackage, lucideFileJson, lucideArrowRight }),
+    provideIcons({ lucideChartLine, lucideReceiptText, lucidePackage, lucideFileJson, lucideArrowRight, lucideTriangleAlert }),
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -48,6 +49,12 @@ export class ReportsLandingComponent {
       description: 'Grams + tag valuation grouped by purity code.',
       icon: 'lucidePackage',
       route: '/reports/stock-summary',
+    },
+    {
+      title: 'Low stock by category',
+      description: 'Category combinations running below a unit threshold.',
+      icon: 'lucideTriangleAlert',
+      route: '/reports/low-stock',
     },
     {
       title: 'GSTR-1 export',
