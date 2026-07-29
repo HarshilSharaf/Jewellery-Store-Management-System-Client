@@ -1,6 +1,6 @@
 import { ApplicationConfig, APP_INITIALIZER, ErrorHandler, importProvidersFrom } from '@angular/core';
 import { provideRouter, withPreloading, PreloadAllModules } from '@angular/router';
-import { provideAnimations } from '@angular/platform-browser/animations';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { provideHttpClient, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { NgxUiLoaderModule, NgxUiLoaderHttpModule } from 'ngx-ui-loader';
 
@@ -22,7 +22,9 @@ export function initializeDBConnectionService(dbService: DatabaseService, storeS
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes, withPreloading(PreloadAllModules)),
-    provideAnimations(),
+    // No component uses Angular animations (0 triggers), so skip the animation
+    // engine — noop keeps the DI token satisfied without shipping it.
+    provideNoopAnimations(),
     provideHttpClient(),
 
     importProvidersFrom(
