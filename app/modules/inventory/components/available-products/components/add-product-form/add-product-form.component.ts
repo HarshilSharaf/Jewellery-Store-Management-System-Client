@@ -24,6 +24,8 @@ import { Purity } from '../../../../../../interfaces/Shared/purity';
 import { MetalRatesService } from '../../../../../../shared/services/MetalRates/metal-rates.service';
 import { StoreService } from '../../../../../../../../Backend/Shared/store.service';
 import { PermissionsService } from '../../../../../../shared/services/Auth/permissions.service';
+import { ScaleService } from '../../../../../../shared/services/Hardware/scale.service';
+import { AppToastService } from '../../../../../../shared/services/AppToast/app-toast.service';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideX,
@@ -31,6 +33,7 @@ import {
   lucideRefreshCw,
   lucidePlus,
   lucideSave,
+  lucideScale,
 } from '@ng-icons/lucide';
 
 @Component({
@@ -39,7 +42,7 @@ import {
   styleUrls: ['./add-product-form.component.scss'],
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, ImageUploadComponent, NgIcon],
-  viewProviders: [provideIcons({ lucideX, lucideLoader, lucideRefreshCw, lucidePlus, lucideSave })],
+  viewProviders: [provideIcons({ lucideX, lucideLoader, lucideRefreshCw, lucidePlus, lucideSave, lucideScale })],
 })
 export class AddProductFormComponent implements OnInit, OnDestroy {
   addProductForm: FormGroup;
@@ -56,6 +59,8 @@ export class AddProductFormComponent implements OnInit, OnDestroy {
   purities: Purity[] = [];
   isAdmin = false;
   readonly permissions = inject(PermissionsService);
+  readonly scaleService = inject(ScaleService);
+  private readonly toast = inject(AppToastService);
   private readonly cdRef = inject(ChangeDetectorRef);
 
   protected computedPreview: {
@@ -147,6 +152,30 @@ export class AddProductFormComponent implements OnInit, OnDestroy {
     const suffix = Math.floor(Math.random() * 900 + 100);
     const sku = `SKU-${timeMs.toString(36).toUpperCase().slice(-6)}-${suffix}`;
     this.addProductForm.patchValue({ sku });
+  }
+
+  /**
+   * Captures a stable weighing-scale reading into a weight field (product
+   * intake). Mirrors the cart's capture: requires a connected scale and a
+   * settled reading. Then re-derives stone weight / pricing preview.
+   */
+  captureWeight(field: 'grossWeight' | 'netWeight', event?: Event): void {
+    event?.preventDefault();
+    if (!this.scaleService.isConnected()) {
+      this.toast.info('No scale connected — configure in Settings', undefined, { timer: 2400 });
+      return;
+    }
+    const reading = this.scaleService.currentReading();
+    if (!reading) {
+      this.toast.info('No reading yet — place the item on the scale', undefined, { timer: 2400 });
+      return;
+    }
+    if (!reading.stable) {
+      this.toast.warning('Scale not stable — wait for the reading to settle', undefined, { timer: 2200 });
+      return;
+    }
+    this.addProductForm.patchValue({ [field]: reading.grams });
+    this.onGrossOrNetChange();
   }
 
   onGrossOrNetChange(): void {

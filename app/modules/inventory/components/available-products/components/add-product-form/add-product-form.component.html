@@ -94,13 +94,29 @@
             <div></div>
             <div>
               <label class="field-label" for="grossWeight">Gross wt (g) <span class="req">*</span></label>
-              <input class="hlm-input tabular-nums" id="grossWeight" type="number" step="0.001" min="0"
-                     formControlName="grossWeight" (change)="onGrossOrNetChange()" />
+              <div class="weigh-field">
+                <input class="hlm-input tabular-nums" id="grossWeight" type="number" step="0.001" min="0"
+                       formControlName="grossWeight" (change)="onGrossOrNetChange()" />
+                @if (scaleService.isConnected()) {
+                  <button type="button" class="hlm-btn-icon weigh-field__btn" title="Weigh from scale"
+                          (click)="captureWeight('grossWeight', $event)">
+                    <ng-icon name="lucideScale" size="14" aria-hidden="true"></ng-icon>
+                  </button>
+                }
+              </div>
             </div>
             <div>
               <label class="field-label" for="netWeight">Net wt (g) <span class="req">*</span></label>
-              <input class="hlm-input tabular-nums" id="netWeight" type="number" step="0.001" min="0"
-                     formControlName="netWeight" (change)="onGrossOrNetChange()" />
+              <div class="weigh-field">
+                <input class="hlm-input tabular-nums" id="netWeight" type="number" step="0.001" min="0"
+                       formControlName="netWeight" (change)="onGrossOrNetChange()" />
+                @if (scaleService.isConnected()) {
+                  <button type="button" class="hlm-btn-icon weigh-field__btn" title="Weigh from scale"
+                          (click)="captureWeight('netWeight', $event)">
+                    <ng-icon name="lucideScale" size="14" aria-hidden="true"></ng-icon>
+                  </button>
+                }
+              </div>
             </div>
             <div>
               <label class="field-label" for="stoneWeight">Stone wt (g)</label>
