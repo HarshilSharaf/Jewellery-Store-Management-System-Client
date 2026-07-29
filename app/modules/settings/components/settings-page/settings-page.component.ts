@@ -36,6 +36,7 @@ import { FileSystemService } from '../../../../../../Backend/Shared/file-system.
 import { ShopSettingsService } from '../../../../shared/services/ShopSettings/shop-settings.service';
 import { PuritiesService } from '../../../../shared/services/Purities/purities.service';
 import { MetalRatesTabComponent } from '../metal-rates-tab/metal-rates-tab.component';
+import { UsersManagementComponent } from '../users-management/users-management.component';
 import { BackupService } from '../../../../shared/services/Backup/backup.service';
 import { PermissionsService } from '../../../../shared/services/Auth/permissions.service';
 import { ShopSettings } from '../../../../interfaces/Shared/shop-settings';
@@ -73,19 +74,12 @@ interface MigrationEntityState {
 
 interface TabDef { id: TabId; label: string; }
 
-interface StubUser {
-  id: number;
-  userName: string;
-  email: string;
-  role: string;
-}
-
 @Component({
   selector: 'app-settings-page',
   templateUrl: './settings-page.component.html',
   styleUrls: ['./settings-page.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, NgIcon, RouterLink, MetalRatesTabComponent],
+  imports: [CommonModule, ReactiveFormsModule, NgIcon, RouterLink, MetalRatesTabComponent, UsersManagementComponent],
   viewProviders: [provideIcons({
     lucideArrowLeft,
     lucideScale,
@@ -143,9 +137,6 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
   readonly scanTestBuffer = signal<string>('');
   readonly baudRateOptions = [4800, 9600, 19200, 38400] as const;
   readonly scaleTestResult = signal<string>('');
-
-  usersList = signal<StubUser[]>([]);
-  newUserForm!: FormGroup;
 
   // Backup tab state
   backupForm!: FormGroup;
@@ -389,14 +380,12 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
     this.buildShopForm();
     this.buildInvoiceForm();
     this.buildPrintForm();
-    this.buildNewUserForm();
     this.buildBackupForms();
     this.buildWhatsappForm();
 
     this.loadShopSettings();
     this.loadOnboardingFlags();
     this.loadTaxSlabs();
-    this.loadUsersStub();
     this.loadBackups();
     this.loadWhatsappSettingsIntoForm();
     this.permissions.getUserPermissions().then(() => {
@@ -1068,32 +1057,8 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
     return g.slice(0, 8);
   }
 
-  // -------------------------------------------------------------------------
-  // Users & permissions (stub — full RBAC in Phase 2)
-  // -------------------------------------------------------------------------
-  private buildNewUserForm() {
-    this.newUserForm = this.fb.group({
-      userName: ['', Validators.required],
-      email:    ['', [Validators.required, Validators.email]],
-      role:     ['cashier', Validators.required],
-    });
-  }
-
-  private loadUsersStub() {
-    this.usersList.set([
-      { id: 1, userName: 'admin',    email: 'admin@shop.local',   role: 'admin' },
-      { id: 2, userName: 'cashier1', email: 'cashier@shop.local', role: 'cashier' },
-    ]);
-  }
-
-  addUserStub() {
-    if (!this.newUserForm.valid) { this.newUserForm.markAllAsTouched(); return; }
-    this.dialog.fire({
-      icon: 'info',
-      title: 'Not yet implemented',
-      text: 'Full user management + RBAC lands in Phase 2.',
-    });
-  }
+  // Users & permissions now live in the standalone UsersManagementComponent
+  // (rendered in the Users tab), which does real CRUD via UsersService.
 
   // -------------------------------------------------------------------------
   // Migration (Workstream R)
