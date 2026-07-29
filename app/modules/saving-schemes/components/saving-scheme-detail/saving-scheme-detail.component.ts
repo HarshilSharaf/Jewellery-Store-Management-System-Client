@@ -25,6 +25,7 @@ import {
 import { StoreService } from '../../../../../../Backend/Shared/store.service';
 import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
 import { SavingSchemesService } from '../../../../shared/services/SavingSchemes/saving-schemes.service';
+import { PermissionsService } from '../../../../shared/services/Auth/permissions.service';
 import {
   SavingScheme,
   SavingSchemeInstallment,
@@ -81,6 +82,7 @@ export class SavingSchemeDetailComponent implements OnInit {
   private readonly dialog = inject(AppDialogService);
   private readonly toast = inject(AppToastService);
   private readonly cdRef = inject(ChangeDetectorRef);
+  private readonly permissions = inject(PermissionsService);
 
   private schemeGuid = '';
 
@@ -135,6 +137,9 @@ export class SavingSchemeDetailComponent implements OnInit {
       this.userType.set(auth?.type ?? 'employee');
       this.cdRef.detectChanges();
     });
+
+    // Load RBAC permissions (cached) so canForfeit() reflects the real flag.
+    this.permissions.getUserPermissions().then(() => this.cdRef.detectChanges());
   }
 
   async load(): Promise<void> {
@@ -189,7 +194,9 @@ export class SavingSchemeDetailComponent implements OnInit {
   }
 
   canForfeit(): boolean {
-    return this.isAdmin() && this.isActive();
+    // Gated by the dedicated RBAC flag (admin default true, manager/employee
+    // false) rather than a hardcoded admin check.
+    return this.permissions.canForfeitSavingScheme() && this.isActive();
   }
 
   openRecord(): void {

@@ -1,0 +1,141 @@
+<div class="um">
+  <div class="um__head">
+    <div>
+      <h3 class="um__title">Users &amp; permissions</h3>
+      <p class="um__sub">Add staff logins and control what each can do. Only admins can manage users.</p>
+    </div>
+    <button type="button" class="hlm-btn hlm-btn-primary" (click)="openAdd()">
+      <ng-icon name="lucidePlus" size="14" aria-hidden="true"></ng-icon>
+      <span>Add user</span>
+    </button>
+  </div>
+
+  <!-- Add panel -->
+  @if (addOpen()) {
+    <form class="um__card" [formGroup]="addForm" (ngSubmit)="submitAdd()">
+      <div class="um__card-head">
+        <h4>Add user</h4>
+        <button type="button" class="hlm-btn-icon" (click)="closeAdd()" aria-label="Close">
+          <ng-icon name="lucideX" size="16" aria-hidden="true"></ng-icon>
+        </button>
+      </div>
+      <div class="um__grid">
+        <label class="um__field">
+          <span>User name</span>
+          <input class="hlm-input" formControlName="userName" autocomplete="off">
+        </label>
+        <label class="um__field">
+          <span>Email</span>
+          <input class="hlm-input" type="email" formControlName="email" autocomplete="off">
+        </label>
+        <label class="um__field">
+          <span>Password</span>
+          <input class="hlm-input" type="password" formControlName="password" autocomplete="new-password">
+        </label>
+        <label class="um__field">
+          <span>Role</span>
+          <select class="hlm-input" formControlName="type" (change)="onAddRoleChange($any($event.target).value)">
+            @for (r of roles; track r) { <option [value]="r">{{ r | titlecase }}</option> }
+          </select>
+        </label>
+      </div>
+
+      <div class="um__perms">
+        <span class="um__perms-title">Permissions</span>
+        <div class="um__perms-grid">
+          @for (f of permFlags; track f.key) {
+            <label class="um__perm">
+              <input type="checkbox" [checked]="addPerm()[f.key]" (change)="toggleAddPerm(f.key)">
+              <span>{{ f.label }}</span>
+            </label>
+          }
+        </div>
+      </div>
+
+      <div class="um__actions">
+        <button type="button" class="hlm-btn hlm-btn-ghost" (click)="closeAdd()">Cancel</button>
+        <button type="submit" class="hlm-btn hlm-btn-primary" [disabled]="saving()">
+          @if (saving()) { <ng-icon name="lucideLoader" size="14" class="um__spin" aria-hidden="true"></ng-icon> }
+          <span>Add user</span>
+        </button>
+      </div>
+    </form>
+  }
+
+  <!-- Users table -->
+  <table class="um__table">
+    <thead>
+      <tr><th>User</th><th>Email</th><th>Role</th><th>Permissions</th><th aria-label="Actions"></th></tr>
+    </thead>
+    <tbody>
+      @for (u of users(); track u.uid) {
+        <tr>
+          <td>{{ u.userName }}@if (isSelf(u)) { <span class="um__you">you</span> }</td>
+          <td class="um__muted-cell">{{ u.email }}</td>
+          <td><span class="um__chip">{{ u.type | titlecase }}</span></td>
+          <td class="um__muted-cell">{{ permsLabel(u) }}</td>
+          <td class="um__row-actions">
+            <button type="button" class="hlm-btn-icon" title="Edit" (click)="startEdit(u)">
+              <ng-icon name="lucidePencil" size="14" aria-hidden="true"></ng-icon>
+            </button>
+            <button type="button" class="hlm-btn-icon" title="Delete"
+                    [disabled]="isSelf(u) || saving()" (click)="deleteUser(u)">
+              <ng-icon name="lucideTrash2" size="14" aria-hidden="true"></ng-icon>
+            </button>
+          </td>
+        </tr>
+      } @empty {
+        <tr><td colspan="5" class="um__muted-cell">{{ loading() ? 'Loading…' : 'No users yet.' }}</td></tr>
+      }
+    </tbody>
+  </table>
+
+  <!-- Edit panel -->
+  @if (editUid() !== null) {
+    <form class="um__card" [formGroup]="editForm" (ngSubmit)="submitEdit()">
+      <div class="um__card-head">
+        <h4>Edit user</h4>
+        <button type="button" class="hlm-btn-icon" (click)="cancelEdit()" aria-label="Close">
+          <ng-icon name="lucideX" size="16" aria-hidden="true"></ng-icon>
+        </button>
+      </div>
+      <div class="um__grid">
+        <label class="um__field">
+          <span>Email</span>
+          <input class="hlm-input" type="email" formControlName="email" autocomplete="off">
+        </label>
+        <label class="um__field">
+          <span>Role</span>
+          <select class="hlm-input" formControlName="type" (change)="onEditRoleChange($any($event.target).value)">
+            @for (r of roles; track r) { <option [value]="r">{{ r | titlecase }}</option> }
+          </select>
+        </label>
+        <label class="um__field">
+          <span>New password</span>
+          <input class="hlm-input" type="password" formControlName="password"
+                 autocomplete="new-password" placeholder="Leave blank to keep">
+        </label>
+      </div>
+
+      <div class="um__perms">
+        <span class="um__perms-title">Permissions</span>
+        <div class="um__perms-grid">
+          @for (f of permFlags; track f.key) {
+            <label class="um__perm">
+              <input type="checkbox" [checked]="editPerm()[f.key]" (change)="toggleEditPerm(f.key)">
+              <span>{{ f.label }}</span>
+            </label>
+          }
+        </div>
+      </div>
+
+      <div class="um__actions">
+        <button type="button" class="hlm-btn hlm-btn-ghost" (click)="cancelEdit()">Cancel</button>
+        <button type="submit" class="hlm-btn hlm-btn-primary" [disabled]="saving()">
+          @if (saving()) { <ng-icon name="lucideLoader" size="14" class="um__spin" aria-hidden="true"></ng-icon> }
+          <span>Save changes</span>
+        </button>
+      </div>
+    </form>
+  }
+</div>

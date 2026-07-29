@@ -172,3 +172,11 @@ html[data-theme="dark"] .preview-callout__title {
     padding: 8px 0 0;
   }
 }
+
+.weigh-field {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.weigh-field .hlm-input { flex: 1; min-width: 0; }
+.weigh-field__btn { flex-shrink: 0; }

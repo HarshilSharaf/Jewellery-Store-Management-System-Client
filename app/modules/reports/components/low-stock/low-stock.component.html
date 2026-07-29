@@ -1,0 +1,63 @@
+<section class="report-page">
+
+  <header class="page-title">
+    <div class="page-title__group">
+      <a class="icon-btn" routerLink="/reports" title="Back to Reports" aria-label="Back">
+        <ng-icon name="lucideArrowLeft" size="16" aria-hidden="true"></ng-icon>
+      </a>
+      <h1 class="page-title__heading">Low stock by category</h1>
+      <span class="page-title__count">{{ rows().length }} groups</span>
+    </div>
+  </header>
+
+  <div class="date-range-toolbar">
+    <div class="date-range-toolbar__group">
+      <label class="field-label">Below (units)</label>
+      <input type="number" min="1" class="hlm-input tabular-nums lowstock-threshold"
+             [value]="threshold()" (change)="onThresholdChange($any($event.target).value)">
+    </div>
+    <button type="button" class="hlm-btn hlm-btn-ghost" (click)="refresh()" [disabled]="loading()">
+      <ng-icon name="lucideRefreshCw" size="14" aria-hidden="true"></ng-icon>
+      {{ loading() ? 'Loading...' : 'Refresh' }}
+    </button>
+    <button type="button" class="hlm-btn hlm-btn-ghost export-btn" (click)="exportCSV()" [disabled]="!rows().length">
+      <ng-icon name="lucideDownload" size="14" aria-hidden="true"></ng-icon>
+      Export CSV
+    </button>
+  </div>
+
+  @if (!loading() && rows().length === 0) {
+    <div class="report-empty">
+      <ng-icon name="lucidePackage" size="32" aria-hidden="true"></ng-icon>
+      <p>Every category has at least {{ threshold() }} in stock.</p>
+    </div>
+  } @else {
+    <div class="report-scroll">
+      <table class="ds-table tabular-nums">
+        <thead>
+          <tr>
+            <th>Master</th>
+            <th>Sub</th>
+            <th>Product</th>
+            <th class="right">In stock</th>
+            <th class="right">Net wt (g)</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (r of rows(); track trackRow(0, r)) {
+            <tr>
+              <td>{{ r.masterCategoryName }}</td>
+              <td>{{ r.subCategoryName }}</td>
+              <td>{{ r.productCategoryName }}</td>
+              <td class="right">
+                <span class="lowstock-count" [class.lowstock-count--zero]="!r.inStockCount">{{ r.inStockCount }}</span>
+              </td>
+              <td class="right money">{{ formatGrams(r.totalNetWeight) }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+</section>

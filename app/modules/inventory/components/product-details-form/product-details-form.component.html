@@ -9,7 +9,11 @@
         </div>
         <div>
           <label class="field-label" for="edit-huid" i18n="@@product.huid">HUID</label>
-          <input class="hlm-input tabular-nums" id="edit-huid" formControlName="huid" maxlength="6" />
+          <input class="hlm-input tabular-nums" id="edit-huid" formControlName="huid" maxlength="6"
+                 [class.is-invalid]="productDetailsForm.controls['huid'].invalid && productDetailsForm.controls['huid'].touched" />
+          @if (productDetailsForm.controls['huid'].invalid && productDetailsForm.controls['huid'].touched) {
+            <div class="field-help" style="color: var(--color-danger)" i18n="@@product.huid.invalid">Enter a valid 6-character HUID.</div>
+          }
         </div>
         <div class="form-grid__full">
           <label class="field-label" for="edit-desc" i18n="@@product.description">Description</label>

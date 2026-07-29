@@ -456,6 +456,13 @@ html, body {
 .is-electron .login-page .theme-toggle {
   margin-top: 32px;
 }
+// Top-anchored toasts are fixed to the viewport, so they'd sit under the 32px
+// title bar + the 56px app top bar. Drop them clear of both. !important beats
+// the component's scoped `top: 0` (equal specificity, later source order).
+.is-electron .app-toast-stack[data-position="top-end"],
+.is-electron .app-toast-stack[data-position="top-center"] {
+  top: 96px !important;
+}
 
 html {
   color-scheme: light;

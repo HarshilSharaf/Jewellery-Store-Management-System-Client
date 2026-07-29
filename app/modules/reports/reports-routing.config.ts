@@ -5,5 +5,6 @@ export const reportsRoutes: Routes = [
   { path: 'day-book',       loadComponent: () => import('./components/day-book/day-book.component').then(m => m.DayBookComponent) },
   { path: 'sales-register', loadComponent: () => import('./components/sales-register/sales-register.component').then(m => m.SalesRegisterComponent) },
   { path: 'stock-summary',  loadComponent: () => import('./components/stock-summary/stock-summary.component').then(m => m.StockSummaryComponent) },
+  { path: 'low-stock',      loadComponent: () => import('./components/low-stock/low-stock.component').then(m => m.LowStockComponent) },
   { path: 'gstr1',          loadComponent: () => import('./components/gstr1-export/gstr1-export.component').then(m => m.Gstr1ExportComponent) },
 ];

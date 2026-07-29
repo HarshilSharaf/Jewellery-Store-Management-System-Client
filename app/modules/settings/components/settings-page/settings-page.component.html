@@ -540,59 +540,7 @@
     }
 
     @if (activeTab() === 'users' && isTabVisible('users')) {
-      <div class="panel-head">
-        <h2 class="panel-title">Users &amp; permissions</h2>
-        <p class="panel-sub">Add cashiers and managers. Full RBAC (route guards + proc-level checks) is Phase 2.</p>
-      </div>
-
-      <div class="form-section">
-        <h3 class="section-heading">Existing users</h3>
-        <table class="ds-table">
-          <thead>
-            <tr><th>User</th><th>Email</th><th>Role</th></tr>
-          </thead>
-          <tbody>
-            @for (u of usersList(); track u.id) {
-              <tr>
-                <td>{{ u.userName }}</td>
-                <td>{{ u.email }}</td>
-                <td><span class="chip">{{ u.role }}</span></td>
-              </tr>
-            } @empty {
-              <tr><td colspan="3" class="empty">No users.</td></tr>
-            }
-          </tbody>
-        </table>
-      </div>
-
-      @if (newUserForm) {
-        <form [formGroup]="newUserForm" (ngSubmit)="addUserStub()">
-          <div class="form-section">
-            <h3 class="section-heading">Add user</h3>
-            <div class="field-grid">
-              <div>
-                <label class="field-label" for="newUserName">User name</label>
-                <input id="newUserName" class="hlm-input" formControlName="userName">
-              </div>
-              <div>
-                <label class="field-label" for="newUserEmail">Email</label>
-                <input id="newUserEmail" class="hlm-input" formControlName="email">
-              </div>
-              <div>
-                <label class="field-label" for="newUserRole">Role</label>
-                <select id="newUserRole" class="hlm-input" formControlName="role">
-                  <option value="admin">Admin</option>
-                  <option value="cashier">Cashier</option>
-                  <option value="manager">Manager</option>
-                </select>
-              </div>
-              <div class="form-actions">
-                <button type="submit" class="hlm-btn hlm-btn-primary">Add user</button>
-              </div>
-            </div>
-          </div>
-        </form>
-      }
+      <app-users-management></app-users-management>
     }
 
     @if (activeTab() === 'migration') {

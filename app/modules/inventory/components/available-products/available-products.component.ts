@@ -156,11 +156,16 @@ export class AvailableProductsComponent implements OnInit, OnDestroy {
 
   async getAllCategoriesData(): Promise<void> {
     try {
+      // get_all_categories() returns three result sets that the db bridge
+      // flattens into one array; discriminate the rows by their name column
+      // (per the proc's documented contract). Defaults to empty arrays when a
+      // shop has no categories yet, so the form never crashes on response[0].
       const response: any = await this.availableProductService.getAllCategories();
+      const rows: any[] = Array.isArray(response) ? response : [];
       this.allCategoriesData = {
-        masterCategories: response[0].MasterCategoriesData,
-        subCategories: response[1].SubCategoriesData,
-        productCategories: response[2].ProductCategoriesData,
+        masterCategories: rows.filter((r) => r && 'masterCategoryName' in r),
+        subCategories: rows.filter((r) => r && 'subCategoryName' in r),
+        productCategories: rows.filter((r) => r && 'productCategoryName' in r),
       };
     } catch (error) {
       this.loggerService.LogError(error, 'getAllCategoriesData() From available-products component');

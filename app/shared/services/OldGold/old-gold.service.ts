@@ -68,6 +68,23 @@ export class OldGoldService {
     }
   }
 
+  /**
+   * Deletes an unbilled old-gold receipt (see the delete_old_gold_receipt
+   * proc — it refuses to delete a receipt already linked to an invoice).
+   * Returns true when a row was actually removed.
+   */
+  async deleteReceipt(receiptGuid: string, actorUserId: number | null = null): Promise<boolean> {
+    try {
+      const rows = this.api?.deleteReceipt
+        ? this.normalise(await this.api.deleteReceipt(receiptGuid, actorUserId))
+        : await this.db.execute('call delete_old_gold_receipt(?, ?);', [receiptGuid, actorUserId]);
+      const row = Array.isArray(rows) && rows.length ? rows[0] : null;
+      return !!(row && (row.deleted === 1 || row.deleted === '1'));
+    } catch {
+      return false;
+    }
+  }
+
   private normalise(raw: any): any[] {
     if (!raw) { return []; }
     if (Array.isArray(raw)) {
