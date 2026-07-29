@@ -27,8 +27,13 @@
             </div>
             <div>
               <label class="field-label" for="huid">HUID</label>
-              <input class="hlm-input tabular-nums" id="huid" formControlName="huid" maxlength="6" placeholder="6-char" />
-              <div class="field-help">Optional. Required by BIS for jewellery.</div>
+              <input class="hlm-input tabular-nums" id="huid" formControlName="huid" maxlength="6" placeholder="6-char"
+                     [class.is-invalid]="addProductForm.controls['huid'].invalid && addProductForm.controls['huid'].touched" />
+              @if (addProductForm.controls['huid'].invalid && addProductForm.controls['huid'].touched) {
+                <div class="field-help" style="color: var(--color-danger)">Enter a valid 6-character HUID (letters and digits).</div>
+              } @else {
+                <div class="field-help">Optional. Required by BIS for jewellery.</div>
+              }
             </div>
             <div class="form-grid__full">
               <label class="field-label" for="productDescription">Description</label>

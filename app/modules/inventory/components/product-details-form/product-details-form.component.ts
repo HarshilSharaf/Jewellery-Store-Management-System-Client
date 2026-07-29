@@ -85,7 +85,8 @@ export class ProductDetailsFormComponent implements OnInit, OnChanges {
   populateproductDetailsForm(productDetails: any): void {
     this.productDetailsForm = this.formBuilder.group({
       sku: [productDetails.sku ?? '', Validators.required],
-      huid: [productDetails.huid ?? ''],
+      // Optional; if present must be the BIS 6-char alphanumeric HUID.
+      huid: [productDetails.huid ?? '', [Validators.pattern(/^[A-Za-z0-9]{6}$/)]],
       purityCode: [productDetails.purityCode ?? '', Validators.required],
       hsnCode: [productDetails.hsnCode ?? '7113', Validators.required],
       masterCategoryId: [productDetails.masterCategoryId, Validators.required],

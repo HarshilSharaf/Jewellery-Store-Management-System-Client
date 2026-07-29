@@ -77,7 +77,9 @@ export class AddProductFormComponent implements OnInit, OnDestroy {
   ) {
     this.addProductForm = formBuilder.group({
       sku: ['', [Validators.required]],
-      huid: [''],
+      // HUID is optional, but if entered must be the BIS 6-char alphanumeric
+      // hallmark id. Validators.pattern treats an empty value as valid.
+      huid: ['', [Validators.pattern(/^[A-Za-z0-9]{6}$/)]],
       purityCode: ['', Validators.required],
       hsnCode: ['7113', Validators.required],
       masterCategoryId: ['', [Validators.required]],

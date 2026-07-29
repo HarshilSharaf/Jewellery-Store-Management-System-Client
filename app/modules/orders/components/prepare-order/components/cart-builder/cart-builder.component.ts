@@ -766,9 +766,18 @@ export class CartBuilderComponent implements OnInit, OnDestroy {
     }
   }
 
-  removeOldGold(): void {
-    // Client-side unlink only — the SP doesn't have an unlink helper yet
-    // (K's scope did not add one). The receipt row stays orphaned in the DB.
+  async removeOldGold(): Promise<void> {
+    // Delete the standalone (unbilled) receipt so it isn't left orphaned in the
+    // DB. delete_old_gold_receipt only removes receipts not yet linked to an
+    // invoice, so this is a no-op for an already-billed receipt.
+    const guid = this.oldGoldReceiptGuid();
+    if (guid) {
+      try {
+        await this.oldGoldService.deleteReceipt(guid, this.currentUserId);
+      } catch (err) {
+        this.loggerService.LogError(err, 'CartBuilder.removeOldGold');
+      }
+    }
     this.oldGoldReceiptGuid.set(null);
     this.oldGoldGrossWeight.set(0);
     this.oldGoldFineness.set(null);
