@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { ChangeDetectorRef, Component, Input, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
@@ -36,10 +36,20 @@ import { numberToIndianRupees } from '../../../../../../shared/utils/amount-in-w
   templateUrl: './create-invoice.component.html',
   styleUrls: ['./create-invoice.component.scss'],
   standalone: true,
-  imports: [CommonModule, NgIcon],
+  imports: [DatePipe, NgIcon],
   viewProviders: [provideIcons({ lucideSave, lucideCheck })],
 })
 export class CreateInvoiceComponent implements OnInit {
+  private orderService = inject(OrderService);
+  private cartService = inject(CartService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private loaderService = inject(NgxUiLoaderService);
+  private loggerService = inject(LoggerService);
+  private metalRatesService = inject(MetalRatesService);
+  private shopSettingsService = inject(ShopSettingsService);
+  private puritiesService = inject(PuritiesService);
+
 
   readonly customer = signal<CustomerDetails | null>(null);
   readonly cartLines = signal<InvoiceProductDataModel[]>([]);
@@ -98,18 +108,6 @@ export class CreateInvoiceComponent implements OnInit {
     this.customer.set(customerInfo);
     this.recalcAll();
   }
-
-  constructor(
-    private orderService: OrderService,
-    private cartService: CartService,
-    private router: Router,
-    private route: ActivatedRoute,
-    private loaderService: NgxUiLoaderService,
-    private loggerService: LoggerService,
-    private metalRatesService: MetalRatesService,
-    private shopSettingsService: ShopSettingsService,
-    private puritiesService: PuritiesService,
-  ) {}
 
   async ngOnInit(): Promise<void> {
     try {

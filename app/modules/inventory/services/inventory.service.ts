@@ -1,10 +1,10 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { DbBridgeService } from '../../../shared/services/Db/db-bridge.service';
 
 @Injectable({ providedIn: 'root' })
 export class InventoryService {
+  private db = inject(DbBridgeService);
 
-  constructor(private db: DbBridgeService) { }
 
   getTotalStock(): Promise<any> {
     return this.db.query('call get_total_stock();');

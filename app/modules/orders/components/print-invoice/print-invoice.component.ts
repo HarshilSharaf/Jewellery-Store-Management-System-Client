@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, Input, OnInit, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { InvoiceDataModel } from '../../models/invoice-data-model';
 import { InvoiceProductDataModel } from '../../models/invoice-product-data-model';
 import { ShopSettingsService } from '../../../../shared/services/ShopSettings/shop-settings.service';
@@ -13,7 +13,7 @@ type PrintVariant = 'A4' | '80mm';
   templateUrl: './print-invoice.component.html',
   styleUrls: ['./print-invoice.component.scss'],
   standalone: true,
-  imports: [CommonModule],
+  imports: [DatePipe, DecimalPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PrintInvoiceComponent implements OnInit {

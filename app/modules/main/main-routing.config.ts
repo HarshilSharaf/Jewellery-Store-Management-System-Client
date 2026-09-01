@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { AuthGuard } from '../../guards/AuthGuard/auth.guard';
+import { authGuard } from '../../guards/AuthGuard/auth.guard';
 import { MainComponent } from './components/main/main.component';
 import { permissionGuard } from '../../shared/guards/permission.guard';
 
@@ -13,66 +13,66 @@ export const mainRoutes: Routes = [
     path: 'dashboard',
     component: MainComponent,
     loadChildren: () => import('../dashboard/dashboard-routing.config').then(m => m.dashboardRoutes),
-    canActivate: [AuthGuard]
+    canActivate: [authGuard]
   },
   {
     path: 'customers',
     component: MainComponent,
     loadChildren: () => import('../customers/customers-routing.config').then(m => m.customersRoutes),
-    canActivate: [AuthGuard]
+    canActivate: [authGuard]
   },
   {
     path: 'categories',
     component: MainComponent,
     loadChildren: () => import('../categories/categories-routing.config').then(m => m.categoriesRoutes),
-    canActivate: [AuthGuard]
+    canActivate: [authGuard]
   },
   {
-    path:'inventory',
+    path: 'inventory',
     component: MainComponent,
-    loadChildren: ()=> import('../inventory/inventory-routing.config').then(m => m.inventoryRoutes),
-    canActivate: [AuthGuard]
+    loadChildren: () => import('../inventory/inventory-routing.config').then(m => m.inventoryRoutes),
+    canActivate: [authGuard]
   },
   {
-    path:'orders',
+    path: 'orders',
     component: MainComponent,
-    loadChildren: ()=> import('../orders/orders-routing.config').then(m => m.ordersRoutes),
-    canActivate: [AuthGuard]
+    loadChildren: () => import('../orders/orders-routing.config').then(m => m.ordersRoutes),
+    canActivate: [authGuard]
   },
   {
-    path:'profile',
+    path: 'profile',
     component: MainComponent,
-    loadChildren: ()=> import('../profile/profile-routing.config').then(m => m.profileRoutes),
-    canActivate: [AuthGuard]
+    loadChildren: () => import('../profile/profile-routing.config').then(m => m.profileRoutes),
+    canActivate: [authGuard]
   },
   {
-    path:'settings',
+    path: 'settings',
     component: MainComponent,
-    loadChildren: ()=> import('../settings/settings-routing.config').then(m => m.settingsRoutes),
-    canActivate: [AuthGuard, permissionGuard('canEditShopSettings')]
+    loadChildren: () => import('../settings/settings-routing.config').then(m => m.settingsRoutes),
+    canActivate: [authGuard, permissionGuard('canEditShopSettings')]
   },
   {
-    path:'reports',
+    path: 'reports',
     component: MainComponent,
-    loadChildren: ()=> import('../reports/reports-routing.config').then(m => m.reportsRoutes),
-    canActivate: [AuthGuard]
+    loadChildren: () => import('../reports/reports-routing.config').then(m => m.reportsRoutes),
+    canActivate: [authGuard]
   },
   {
     path: 'saving-schemes',
     component: MainComponent,
     loadChildren: () => import('../saving-schemes/saving-schemes-routing.config').then(m => m.savingSchemesRoutes),
-    canActivate: [AuthGuard]
+    canActivate: [authGuard]
   },
   {
     path: 'karigar',
     component: MainComponent,
     loadChildren: () => import('../karigar/karigar-routing.config').then(m => m.karigarRoutes),
-    canActivate: [AuthGuard]
+    canActivate: [authGuard]
   },
   {
     path: 'repair',
     component: MainComponent,
     loadChildren: () => import('../repair/repair-routing.config').then(m => m.repairRoutes),
-    canActivate: [AuthGuard]
+    canActivate: [authGuard]
   }
 ];

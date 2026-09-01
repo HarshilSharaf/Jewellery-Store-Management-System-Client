@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, EventEmitter, HostListener, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { AppToastService } from '../../../../shared/services/AppToast/app-toast.service';
@@ -35,7 +35,7 @@ interface CustomerLite {
   templateUrl: './create-ticket-page.component.html',
   styleUrls: ['./create-ticket-page.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, NgIcon, ImageUploadComponent],
+  imports: [ReactiveFormsModule, NgIcon, ImageUploadComponent],
   viewProviders: [
     provideIcons({
       lucideX,

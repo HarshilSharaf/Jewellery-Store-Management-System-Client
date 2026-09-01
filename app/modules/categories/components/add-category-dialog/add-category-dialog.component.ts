@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, EventEmitter, HostListener, Input, Output, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideX, lucideLoader } from '@ng-icons/lucide';
@@ -17,10 +17,16 @@ export type CategoryTab = 'master' | 'product' | 'sub';
   templateUrl: './add-category-dialog.component.html',
   styleUrls: ['./add-category-dialog.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, NgIcon],
+  imports: [ReactiveFormsModule, NgIcon],
   viewProviders: [provideIcons({ lucideX, lucideLoader })],
 })
 export class AddCategoryDialogComponent {
+  private fb = inject(FormBuilder);
+  private masterService = inject(MasterCategoryService);
+  private productService = inject(ProductCategoryService);
+  private subService = inject(SubCategoryService);
+  private logger = inject(LoggerService);
+
 
   @Input() open = false;
   @Input() tab: CategoryTab = 'master';
@@ -33,13 +39,7 @@ export class AddCategoryDialogComponent {
   response: HttpResponse = { status: 0, message: '' };
   private readonly cdRef = inject(ChangeDetectorRef);
 
-  constructor(
-    private fb: FormBuilder,
-    private masterService: MasterCategoryService,
-    private productService: ProductCategoryService,
-    private subService: SubCategoryService,
-    private logger: LoggerService,
-  ) {
+  constructor() {
     this.form = this.fb.group({
       name:        ['', Validators.required],
       description: [''],

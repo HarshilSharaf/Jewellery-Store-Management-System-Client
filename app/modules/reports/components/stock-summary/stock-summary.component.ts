@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -28,7 +28,7 @@ interface StockTotals {
   templateUrl: './stock-summary.component.html',
   styleUrls: ['./stock-summary.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, NgIcon],
+  imports: [NgClass, FormsModule, RouterLink, NgIcon],
   viewProviders: [
     provideIcons({ lucideArrowLeft, lucideRefreshCw, lucideDownload, lucidePackage }),
   ],

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { DbCategoriesService } from 'Backend/Categories/db-categories.service';
 import { DbBridgeService } from '../../../../../shared/services/Db/db-bridge.service';
 
@@ -10,8 +10,9 @@ import { DbBridgeService } from '../../../../../shared/services/Db/db-bridge.ser
  */
 @Injectable({ providedIn: 'root' })
 export class AvailableProductsService {
+  private dbCategoriesService = inject(DbCategoriesService);
+  private db = inject(DbBridgeService);
 
-  constructor(private dbCategoriesService: DbCategoriesService, private db: DbBridgeService) { }
 
   getAllCategories(): Promise<any> {
     return this.dbCategoriesService.getAllCategories();

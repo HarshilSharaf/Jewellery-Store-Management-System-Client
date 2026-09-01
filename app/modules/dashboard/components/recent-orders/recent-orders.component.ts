@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { TitleCasePipe, DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideSquareArrowOutUpRight } from '@ng-icons/lucide';
@@ -10,7 +10,7 @@ import { SkeletonLoaderComponent } from '../../../../shared/components/skeleton-
   templateUrl: './recent-orders.component.html',
   styleUrls: ['./recent-orders.component.scss'],
   standalone: true,
-  imports: [CommonModule, SkeletonLoaderComponent, NgIcon],
+  imports: [TitleCasePipe, DatePipe, SkeletonLoaderComponent, NgIcon],
   viewProviders: [provideIcons({ lucideSquareArrowOutUpRight })],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

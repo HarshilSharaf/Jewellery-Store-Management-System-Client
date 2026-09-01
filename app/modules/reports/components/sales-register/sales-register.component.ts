@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -38,7 +38,7 @@ interface SalesTotals {
   templateUrl: './sales-register.component.html',
   styleUrls: ['./sales-register.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, NgIcon],
+  imports: [FormsModule, RouterLink, NgIcon],
   viewProviders: [
     provideIcons({ lucideArrowLeft, lucideRefreshCw, lucideDownload, lucideReceiptText }),
   ],

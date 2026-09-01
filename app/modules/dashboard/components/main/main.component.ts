@@ -1,5 +1,5 @@
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { DecimalPipe, TitleCasePipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import type { Chart as ChartType, ChartConfiguration } from 'chart.js';
@@ -43,7 +43,7 @@ import { TourService } from '../../../../shared/services/tour/tour.service';
   templateUrl: './main.component.html',
   styleUrls: ['./main.component.scss'],
   standalone: true,
-  imports: [CommonModule, RouterLink, NgIcon, SetupChecklistComponent],
+  imports: [DecimalPipe, TitleCasePipe, RouterLink, NgIcon, SetupChecklistComponent],
   viewProviders: [
     provideIcons({
       lucideTrendingUp,

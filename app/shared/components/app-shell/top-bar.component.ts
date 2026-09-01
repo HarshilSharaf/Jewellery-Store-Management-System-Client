@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, OnInit, Output, ViewChild, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideSun, lucideMoon, lucideSearch, lucideMenu } from '@ng-icons/lucide';
 
@@ -15,7 +15,7 @@ import { AddToCartComponent } from '../navbar/add-to-cart/add-to-cart.component'
   templateUrl: './top-bar.component.html',
   styleUrls: ['./top-bar.component.scss'],
   standalone: true,
-  imports: [CommonModule, NgIcon, RateTickerComponent, UserMenuComponent, AddToCartComponent],
+  imports: [NgIcon, RateTickerComponent, UserMenuComponent, AddToCartComponent],
   viewProviders: [provideIcons({ lucideSun, lucideMoon, lucideSearch, lucideMenu })],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

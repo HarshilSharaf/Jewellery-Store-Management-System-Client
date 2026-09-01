@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, DestroyRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CommonModule, DecimalPipe } from '@angular/common';
+import { DecimalPipe } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -55,7 +55,7 @@ import {
   templateUrl: './view-details.component.html',
   styleUrls: ['./view-details.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ImageUploadComponent, NgIcon],
+  imports: [ReactiveFormsModule, ImageUploadComponent, NgIcon],
   viewProviders: [
     provideIcons({
       lucideArrowLeft,
@@ -81,6 +81,22 @@ import {
   providers: [DecimalPipe],
 })
 export class ViewDetailsComponent implements OnInit, OnDestroy {
+  private customerDataService = inject(CustomerDataService);
+  private route = inject(ActivatedRoute);
+  private sanitizer = inject(DomSanitizer);
+  private formBuilder = inject(FormBuilder);
+  private fileSystemService = inject(FileSystemService);
+  private loaderService = inject(NgxUiLoaderService);
+  private loggerService = inject(LoggerService);
+  private orderService = inject(OrderService);
+  private router = inject(Router);
+  private decimalPipe = inject(DecimalPipe);
+  private utilityService = inject(UtilityService);
+  private savingSchemesService = inject(SavingSchemesService);
+  private oldGoldService = inject(OldGoldService);
+  private repairService = inject(RepairService);
+  private whatsappService = inject(WhatsAppService);
+
   thumbnail: any;
   public isLoading = false;
   private customerGuid = '';
@@ -116,24 +132,6 @@ export class ViewDetailsComponent implements OnInit, OnDestroy {
 
   protected readonly states = INDIAN_STATES;
   protected readonly gstinPattern = GSTIN_REGEX;
-
-  constructor(
-    private customerDataService: CustomerDataService,
-    private route: ActivatedRoute,
-    private sanitizer: DomSanitizer,
-    private formBuilder: FormBuilder,
-    private fileSystemService: FileSystemService,
-    private loaderService: NgxUiLoaderService,
-    private loggerService: LoggerService,
-    private orderService: OrderService,
-    private router: Router,
-    private decimalPipe: DecimalPipe,
-    private utilityService: UtilityService,
-    private savingSchemesService: SavingSchemesService,
-    private oldGoldService: OldGoldService,
-    private repairService: RepairService,
-    private whatsappService: WhatsAppService,
-  ) {}
 
   ngOnInit(): void {
     this.permissions.getUserPermissions();

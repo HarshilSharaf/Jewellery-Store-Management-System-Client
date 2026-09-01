@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, EventEmitter, HostListener, Input, OnChanges, Output, SimpleChanges, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideX, lucideLoader, lucideHammer } from '@ng-icons/lucide';
@@ -14,7 +14,7 @@ import { Karigar } from '../../../../interfaces/Karigar/karigar';
   templateUrl: './karigar-form.component.html',
   styleUrls: ['./karigar-form.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, NgIcon],
+  imports: [ReactiveFormsModule, NgIcon],
   viewProviders: [provideIcons({ lucideX, lucideLoader, lucideHammer })],
 })
 export class KarigarFormComponent implements OnChanges {

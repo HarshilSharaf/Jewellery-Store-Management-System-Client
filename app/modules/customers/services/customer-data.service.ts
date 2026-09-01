@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import dayjs from 'dayjs';
 import { CustomerDetails } from '../models/customerDetails';
 import { DbBridgeService } from '../../../shared/services/Db/db-bridge.service';
@@ -13,8 +13,8 @@ import { DbBridgeService } from '../../../shared/services/Db/db-bridge.service';
  */
 @Injectable({ providedIn: 'root' })
 export class CustomerDataService {
+  private db = inject(DbBridgeService);
 
-  constructor(private db: DbBridgeService) {}
 
   getTotalCustomers(): Promise<any> {
     return this.db.query('call get_total_customers();');

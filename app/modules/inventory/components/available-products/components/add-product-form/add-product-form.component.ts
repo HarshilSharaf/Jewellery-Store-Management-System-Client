@@ -10,7 +10,7 @@ import {
   ViewChild,
   inject,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { HttpResponse } from '../../../../../../models/http-response';
 import { FileSystemService } from '../../../../../../../../Backend/Shared/file-system.service';
@@ -41,10 +41,18 @@ import {
   templateUrl: './add-product-form.component.html',
   styleUrls: ['./add-product-form.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ImageUploadComponent, NgIcon],
+  imports: [ReactiveFormsModule, ImageUploadComponent, NgIcon],
   viewProviders: [provideIcons({ lucideX, lucideLoader, lucideRefreshCw, lucidePlus, lucideSave, lucideScale })],
 })
 export class AddProductFormComponent implements OnInit, OnDestroy {
+  private formBuilder = inject(FormBuilder);
+  private availableProductService = inject(AvailableProductsService);
+  private fileSystemService = inject(FileSystemService);
+  private loggerService = inject(LoggerService);
+  private puritiesService = inject(PuritiesService);
+  private metalRatesService = inject(MetalRatesService);
+  private storeService = inject(StoreService);
+
   addProductForm: FormGroup;
   addProductFormInitialValues: unknown;
   public isLoading = false;
@@ -71,15 +79,9 @@ export class AddProductFormComponent implements OnInit, OnDestroy {
     total: number;
   } | null = null;
 
-  constructor(
-    private formBuilder: FormBuilder,
-    private availableProductService: AvailableProductsService,
-    private fileSystemService: FileSystemService,
-    private loggerService: LoggerService,
-    private puritiesService: PuritiesService,
-    private metalRatesService: MetalRatesService,
-    private storeService: StoreService,
-  ) {
+  constructor() {
+    const formBuilder = this.formBuilder;
+
     this.addProductForm = formBuilder.group({
       sku: ['', [Validators.required]],
       // HUID is optional, but if entered must be the BIS 6-char alphanumeric

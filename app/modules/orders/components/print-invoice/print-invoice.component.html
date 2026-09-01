@@ -4,13 +4,13 @@
     <div class="print-toolbar no-print">
       <div class="print-toolbar__variant" role="group" aria-label="Invoice variant">
         <button type="button"
-                class="variant-btn"
-                [class.is-active]="variant() === 'A4'"
-                (click)="setVariant('A4')">A4</button>
+          class="variant-btn"
+          [class.is-active]="variant() === 'A4'"
+        (click)="setVariant('A4')">A4</button>
         <button type="button"
-                class="variant-btn"
-                [class.is-active]="variant() === '80mm'"
-                (click)="setVariant('80mm')">80mm</button>
+          class="variant-btn"
+          [class.is-active]="variant() === '80mm'"
+        (click)="setVariant('80mm')">80mm</button>
       </div>
       <button type="button" class="print-btn" (click)="print()">Print</button>
     </div>
@@ -24,14 +24,16 @@
           <div class="a4-head__shop">
             <div class="shop-name font-serif">{{ shopSettings()?.shopName ?? 'Shop' }}</div>
             <div class="shop-line">
-              {{ shopSettings()?.addressLine1 ?? '' }}<ng-container *ngIf="shopSettings()?.addressLine2">, {{ shopSettings()?.addressLine2 }}</ng-container>
-            </div>
-            <div class="shop-line">
-              {{ shopSettings()?.city }}, {{ shopSettings()?.state }} {{ shopSettings()?.pincode }}
-            </div>
-            <div class="shop-line">
-              @if (shopSettings()?.phone) { Ph: {{ shopSettings()?.phone }}<span class="sep">|</span> }
-              @if (shopSettings()?.email) { {{ shopSettings()?.email }} }
+              {{ shopSettings()?.addressLine1 ?? '' }}@if (shopSettings()?.addressLine2) {
+              , {{ shopSettings()?.addressLine2 }}
+            }
+          </div>
+          <div class="shop-line">
+            {{ shopSettings()?.city }}, {{ shopSettings()?.state }} {{ shopSettings()?.pincode }}
+          </div>
+          <div class="shop-line">
+            @if (shopSettings()?.phone) { Ph: {{ shopSettings()?.phone }}<span class="sep">|</span> }
+            @if (shopSettings()?.email) { {{ shopSettings()?.email }} }
             </div>
             <div class="shop-line">
               GSTIN: <strong>{{ shopSettings()?.gstin ?? '—' }}</strong>
@@ -75,25 +77,29 @@
             }
             @if (_invoice.customer_details?.city || _invoice.customer_details?.state) {
               <div class="party__line">
-                {{ _invoice.customer_details?.city }}<ng-container *ngIf="_invoice.customer_details?.state">, {{ _invoice.customer_details?.state }}</ng-container>
-                <ng-container *ngIf="_invoice.customer_details?.stateCode"> ({{ _invoice.customer_details?.stateCode }})</ng-container>
-              </div>
-            }
-            @if (_invoice.customer_details?.gstin) {
-              <div class="party__line">GSTIN: <strong>{{ _invoice.customer_details?.gstin }}</strong></div>
-            }
-            @if (_invoice.customer_details?.pan) {
-              <div class="party__line">PAN: {{ _invoice.customer_details?.pan }}</div>
-            }
-          </div>
-          <div class="party party--right">
-            <div class="party__label">Place of supply</div>
-            <div class="party__name">
-              {{ _invoice.placeOfSupply ?? (_invoice.customer_details?.state ?? '—') }}
-              @if (placeOfSupplyStateCode()) { <span class="party__pos">({{ placeOfSupplyStateCode() }})</span> }
+                {{ _invoice.customer_details?.city }}@if (_invoice.customer_details?.state) {
+                , {{ _invoice.customer_details?.state }}
+              }
+              @if (_invoice.customer_details?.stateCode) {
+                ({{ _invoice.customer_details?.stateCode }})
+              }
             </div>
-            <div class="party__line party__line--muted">
-              @if (isIntraState()) { Intra-state supply · CGST + SGST }
+          }
+          @if (_invoice.customer_details?.gstin) {
+            <div class="party__line">GSTIN: <strong>{{ _invoice.customer_details?.gstin }}</strong></div>
+          }
+          @if (_invoice.customer_details?.pan) {
+            <div class="party__line">PAN: {{ _invoice.customer_details?.pan }}</div>
+          }
+        </div>
+        <div class="party party--right">
+          <div class="party__label">Place of supply</div>
+          <div class="party__name">
+            {{ _invoice.placeOfSupply ?? (_invoice.customer_details?.state ?? '—') }}
+            @if (placeOfSupplyStateCode()) { <span class="party__pos">({{ placeOfSupplyStateCode() }})</span> }
+          </div>
+          <div class="party__line party__line--muted">
+            @if (isIntraState()) { Intra-state supply · CGST + SGST }
               @else { Inter-state supply · IGST }
             </div>
           </div>
@@ -283,101 +289,105 @@
           <div class="th-line">{{ shopSettings()?.city ?? '' }} {{ shopSettings()?.state ?? '' }} {{ shopSettings()?.pincode ?? '' }}</div>
           <div class="th-line">
             @if (shopSettings()?.phone) { Ph {{ shopSettings()?.phone }} }
-          </div>
-          <div class="th-line">GSTIN {{ shopSettings()?.gstin ?? '—' }}</div>
-        </div>
-
-        <div class="th-title">{{ invoiceTitle() }}</div>
-
-        <div class="th-meta tabular-nums">
-          <div><span>Invoice #</span><span>{{ _invoice.invoiceNumber ?? _invoice.orderId }}</span></div>
-          <div><span>Date</span><span>{{ _invoice.orderDate | date:'dd MMM yyyy, HH:mm' }}</span></div>
-          @if (_invoice.hsn) { <div><span>HSN</span><span>{{ _invoice.hsn }}</span></div> }
-        </div>
-
-        <div class="th-cust">
-          <div class="th-cust__name">
-            {{ _invoice.customer_details?.firstName ?? '' }} {{ _invoice.customer_details?.lastName ?? '' }}
-          </div>
-          @if (_invoice.customer_details?.phoneNumber) { <div>Ph {{ _invoice.customer_details?.phoneNumber }}</div> }
-          @if (_invoice.customer_details?.gstin) { <div>GSTIN {{ _invoice.customer_details?.gstin }}</div> }
-          @if (_invoice.customer_details?.city) { <div>{{ _invoice.customer_details?.city }}<ng-container *ngIf="_invoice.customer_details?.state">, {{ _invoice.customer_details?.state }}</ng-container></div> }
-          <div class="th-line th-line--muted">
-            Place of supply: {{ _invoice.placeOfSupply ?? (_invoice.customer_details?.state ?? '—') }}
-            <ng-container *ngIf="placeOfSupplyStateCode()"> ({{ placeOfSupplyStateCode() }})</ng-container>
-          </div>
-        </div>
-
-        <div class="th-divider"></div>
-
-        @for (line of lineItems; track $index) {
-          <div class="th-line-item tabular-nums">
-            <div class="th-line-title">{{ descriptionOf(line) }}</div>
-            <div class="th-line-meta">
-              {{ purityChip(line) }}
-              @if (line.sku) { · SKU {{ line.sku }} }
-              @if (line.huid) { · HUID {{ line.huid }} }
             </div>
-            <div class="th-line-row">
-              <span>Net {{ qty(line.netWeight) }}g &#64; &#8377;{{ money(line.ratePerGram) }}</span>
-              <span>{{ money(line.metalValue) }}</span>
+            <div class="th-line">GSTIN {{ shopSettings()?.gstin ?? '—' }}</div>
+          </div>
+
+          <div class="th-title">{{ invoiceTitle() }}</div>
+
+          <div class="th-meta tabular-nums">
+            <div><span>Invoice #</span><span>{{ _invoice.invoiceNumber ?? _invoice.orderId }}</span></div>
+            <div><span>Date</span><span>{{ _invoice.orderDate | date:'dd MMM yyyy, HH:mm' }}</span></div>
+            @if (_invoice.hsn) { <div><span>HSN</span><span>{{ _invoice.hsn }}</span></div> }
+          </div>
+
+          <div class="th-cust">
+            <div class="th-cust__name">
+              {{ _invoice.customer_details?.firstName ?? '' }} {{ _invoice.customer_details?.lastName ?? '' }}
             </div>
-            @if (line.makingCharge && line.makingCharge > 0) {
-              <div class="th-line-row"><span>Making</span><span>{{ money(line.makingCharge) }}</span></div>
-            }
-            @if (line.wastageCharge && line.wastageCharge > 0) {
-              <div class="th-line-row"><span>Wastage</span><span>{{ money(line.wastageCharge) }}</span></div>
-            }
-            @if (line.stoneCharge && line.stoneCharge > 0) {
-              <div class="th-line-row"><span>Stone</span><span>{{ money(line.stoneCharge) }}</span></div>
-            }
-            @if (line.discountAmount && line.discountAmount > 0) {
-              <div class="th-line-row"><span>Discount</span><span class="minus">&minus; {{ money(line.discountAmount) }}</span></div>
-            }
-            <div class="th-line-row"><span>Taxable</span><span>{{ money(line.taxableAmount) }}</span></div>
-            @if (isIntraState()) {
-              <div class="th-line-row"><span>CGST {{ cgstRate(line) | number:'1.0-2' }}%</span><span>{{ money(line.cgst) }}</span></div>
-              <div class="th-line-row"><span>SGST {{ sgstRate(line) | number:'1.0-2' }}%</span><span>{{ money(line.sgst) }}</span></div>
-            } @else {
-              <div class="th-line-row"><span>IGST {{ igstRate(line) | number:'1.0-2' }}%</span><span>{{ money(line.igst) }}</span></div>
-            }
-            <div class="th-line-row th-line-row--bold"><span>Line total</span><span>{{ money(line.lineTotal) }}</span></div>
+            @if (_invoice.customer_details?.phoneNumber) { <div>Ph {{ _invoice.customer_details?.phoneNumber }}</div> }
+            @if (_invoice.customer_details?.gstin) { <div>GSTIN {{ _invoice.customer_details?.gstin }}</div> }
+            @if (_invoice.customer_details?.city) { <div>{{ _invoice.customer_details?.city }}@if (_invoice.customer_details?.state) {
+              , {{ _invoice.customer_details?.state }}
+            }</div> }
+            <div class="th-line th-line--muted">
+              Place of supply: {{ _invoice.placeOfSupply ?? (_invoice.customer_details?.state ?? '—') }}
+              @if (placeOfSupplyStateCode()) {
+                ({{ placeOfSupplyStateCode() }})
+              }
+            </div>
           </div>
+
+          <div class="th-divider"></div>
+
+          @for (line of lineItems; track $index) {
+            <div class="th-line-item tabular-nums">
+              <div class="th-line-title">{{ descriptionOf(line) }}</div>
+              <div class="th-line-meta">
+                {{ purityChip(line) }}
+                @if (line.sku) { · SKU {{ line.sku }} }
+                  @if (line.huid) { · HUID {{ line.huid }} }
+                  </div>
+                  <div class="th-line-row">
+                    <span>Net {{ qty(line.netWeight) }}g &#64; &#8377;{{ money(line.ratePerGram) }}</span>
+                    <span>{{ money(line.metalValue) }}</span>
+                  </div>
+                  @if (line.makingCharge && line.makingCharge > 0) {
+                    <div class="th-line-row"><span>Making</span><span>{{ money(line.makingCharge) }}</span></div>
+                  }
+                  @if (line.wastageCharge && line.wastageCharge > 0) {
+                    <div class="th-line-row"><span>Wastage</span><span>{{ money(line.wastageCharge) }}</span></div>
+                  }
+                  @if (line.stoneCharge && line.stoneCharge > 0) {
+                    <div class="th-line-row"><span>Stone</span><span>{{ money(line.stoneCharge) }}</span></div>
+                  }
+                  @if (line.discountAmount && line.discountAmount > 0) {
+                    <div class="th-line-row"><span>Discount</span><span class="minus">&minus; {{ money(line.discountAmount) }}</span></div>
+                  }
+                  <div class="th-line-row"><span>Taxable</span><span>{{ money(line.taxableAmount) }}</span></div>
+                  @if (isIntraState()) {
+                    <div class="th-line-row"><span>CGST {{ cgstRate(line) | number:'1.0-2' }}%</span><span>{{ money(line.cgst) }}</span></div>
+                    <div class="th-line-row"><span>SGST {{ sgstRate(line) | number:'1.0-2' }}%</span><span>{{ money(line.sgst) }}</span></div>
+                  } @else {
+                    <div class="th-line-row"><span>IGST {{ igstRate(line) | number:'1.0-2' }}%</span><span>{{ money(line.igst) }}</span></div>
+                  }
+                  <div class="th-line-row th-line-row--bold"><span>Line total</span><span>{{ money(line.lineTotal) }}</span></div>
+                </div>
+              }
+
+              <div class="th-divider"></div>
+
+              <div class="th-totals tabular-nums">
+                <div><span>Subtotal</span><span>{{ money(_invoice.subTotalTaxable) }}</span></div>
+                @if (isIntraState()) {
+                  <div><span>CGST</span><span>{{ money(_invoice.totalCgst) }}</span></div>
+                  <div><span>SGST</span><span>{{ money(_invoice.totalSgst) }}</span></div>
+                } @else {
+                  <div><span>IGST</span><span>{{ money(_invoice.totalIgst) }}</span></div>
+                }
+                @if (_invoice.totalDiscount && _invoice.totalDiscount > 0) {
+                  <div><span>Discount</span><span class="minus">&minus; {{ money(_invoice.totalDiscount) }}</span></div>
+                }
+                @if (_invoice.oldGoldCreditAmount && _invoice.oldGoldCreditAmount > 0) {
+                  <div><span>Old gold</span><span class="minus">&minus; {{ money(_invoice.oldGoldCreditAmount) }}</span></div>
+                }
+                @if (_invoice.roundOffAmount) {
+                  <div><span>Round off</span><span>{{ money(_invoice.roundOffAmount) }}</span></div>
+                }
+                <div class="th-totals__grand"><span>Grand total</span><span>&#8377; {{ money(_invoice.grandTotal) }}</span></div>
+              </div>
+
+              <div class="th-words">{{ amountInWords() }}</div>
+
+              @if (_invoice.isEinvoice) {
+                <div class="th-qr" aria-label="e-Invoice QR placeholder">
+                  <div class="th-qr__box">QR</div>
+                  @if (_invoice.irn) { <div class="th-qr__irn">IRN {{ _invoice.irn }}</div> }
+                </div>
+              }
+
+              <div class="th-thanks">Thank you for shopping</div>
+            </div>
+          }
         }
-
-        <div class="th-divider"></div>
-
-        <div class="th-totals tabular-nums">
-          <div><span>Subtotal</span><span>{{ money(_invoice.subTotalTaxable) }}</span></div>
-          @if (isIntraState()) {
-            <div><span>CGST</span><span>{{ money(_invoice.totalCgst) }}</span></div>
-            <div><span>SGST</span><span>{{ money(_invoice.totalSgst) }}</span></div>
-          } @else {
-            <div><span>IGST</span><span>{{ money(_invoice.totalIgst) }}</span></div>
-          }
-          @if (_invoice.totalDiscount && _invoice.totalDiscount > 0) {
-            <div><span>Discount</span><span class="minus">&minus; {{ money(_invoice.totalDiscount) }}</span></div>
-          }
-          @if (_invoice.oldGoldCreditAmount && _invoice.oldGoldCreditAmount > 0) {
-            <div><span>Old gold</span><span class="minus">&minus; {{ money(_invoice.oldGoldCreditAmount) }}</span></div>
-          }
-          @if (_invoice.roundOffAmount) {
-            <div><span>Round off</span><span>{{ money(_invoice.roundOffAmount) }}</span></div>
-          }
-          <div class="th-totals__grand"><span>Grand total</span><span>&#8377; {{ money(_invoice.grandTotal) }}</span></div>
-        </div>
-
-        <div class="th-words">{{ amountInWords() }}</div>
-
-        @if (_invoice.isEinvoice) {
-          <div class="th-qr" aria-label="e-Invoice QR placeholder">
-            <div class="th-qr__box">QR</div>
-            @if (_invoice.irn) { <div class="th-qr__irn">IRN {{ _invoice.irn }}</div> }
-          </div>
-        }
-
-        <div class="th-thanks">Thank you for shopping</div>
       </div>
-    }
-  }
-</div>

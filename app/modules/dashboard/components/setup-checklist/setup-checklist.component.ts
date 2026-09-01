@@ -5,7 +5,7 @@ import {
   input,
   signal,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterLink } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
@@ -35,7 +35,7 @@ const DISMISS_KEY = 'jsms.onboarding.checklist.dismissed';
   selector: 'app-setup-checklist',
   standalone: true,
   host: { '[class.is-hidden]': '!visible()' },
-  imports: [CommonModule, RouterLink, NgIcon],
+  imports: [RouterLink, NgIcon],
   viewProviders: [
     provideIcons({
       lucideLock,

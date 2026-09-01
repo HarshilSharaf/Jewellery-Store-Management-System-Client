@@ -1,12 +1,12 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { DbProductCategoriesService } from 'Backend/Categories/ProductCategories/db-product-categories.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProductCategoryService {
+  private dbProductCategoriesService = inject(DbProductCategoriesService);
 
-  constructor( private dbProductCategoriesService:DbProductCategoriesService) { }
 
 
   getTopProductCategories(numberOfCategories = 5):Promise<any> {

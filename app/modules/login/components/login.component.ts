@@ -24,6 +24,10 @@ import { LoggerService } from '../../../../../Backend/Shared/logger.service';
   ],
 })
 export class LoginComponent implements OnInit, OnDestroy {
+  private authService = inject(AuthService);
+  private router = inject(Router);
+  private loggerService = inject(LoggerService);
+
   private fb = inject(FormBuilder);
   protected themeService = inject(ThemeService);
   private readonly cdRef = inject(ChangeDetectorRef);
@@ -38,12 +42,6 @@ export class LoginComponent implements OnInit, OnDestroy {
   });
 
   private originalBodyBackground = '';
-
-  constructor(
-    private authService: AuthService,
-    private router: Router,
-    private loggerService: LoggerService
-  ) {}
 
   ngOnInit(): void {
     this.originalBodyBackground = document.body.style.background;

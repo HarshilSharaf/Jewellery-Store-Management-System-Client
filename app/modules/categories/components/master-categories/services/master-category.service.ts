@@ -1,12 +1,12 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { DbMasterCategoriesService } from 'Backend/Categories/MasterCategories/db-master-categories.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MasterCategoryService {
+  private dbMasterCategoryService = inject(DbMasterCategoriesService);
 
-  constructor(private dbMasterCategoryService: DbMasterCategoriesService) { }
 
   getMasterCategories(): Promise<any> {
    return this.dbMasterCategoryService.getMasterCategories();

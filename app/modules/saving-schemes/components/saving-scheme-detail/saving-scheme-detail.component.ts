@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { AppDialogService } from '../../../../shared/services/AppDialog/app-dialog.service';
@@ -37,7 +37,7 @@ import {
   templateUrl: './saving-scheme-detail.component.html',
   styleUrls: ['./saving-scheme-detail.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, NgIcon, DatePipe],
+  imports: [DecimalPipe, ReactiveFormsModule, NgIcon, DatePipe],
   viewProviders: [
     provideIcons({
       lucideArrowLeft,

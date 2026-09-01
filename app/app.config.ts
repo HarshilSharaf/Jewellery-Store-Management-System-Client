@@ -1,14 +1,14 @@
 import { ApplicationConfig, APP_INITIALIZER, ErrorHandler, importProvidersFrom } from '@angular/core';
 import { provideRouter, withPreloading, PreloadAllModules } from '@angular/router';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { provideHttpClient, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { NgxUiLoaderModule, NgxUiLoaderHttpModule } from 'ngx-ui-loader';
 
 import { routes } from './app-routing.config';
 import { DatabaseService } from '../../Backend/Shared/database.service';
 import { StoreService } from '../../Backend/Shared/store.service';
 import { GlobalErrorHandlerService } from './shared/services/global-error-handler.service';
-import { JwtInterceptor } from './helpers/Http-Interceptor/jwt.interceptor';
+import { jwtInterceptor } from './helpers/Http-Interceptor/jwt.interceptor';
 
 export function initializeStoreService(storeService: StoreService) {
   return (): Promise<void> => storeService.initializeStore();
@@ -25,7 +25,7 @@ export const appConfig: ApplicationConfig = {
     // No component uses Angular animations (0 triggers), so skip the animation
     // engine — noop keeps the DI token satisfied without shipping it.
     provideNoopAnimations(),
-    provideHttpClient(),
+    provideHttpClient(withInterceptors([jwtInterceptor])),
 
     importProvidersFrom(
       NgxUiLoaderModule,
@@ -44,12 +44,6 @@ export const appConfig: ApplicationConfig = {
       provide: APP_INITIALIZER,
       useFactory: initializeDBConnectionService,
       deps: [DatabaseService, StoreService],
-      multi: true
-    },
-
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: JwtInterceptor,
       multi: true
     },
 

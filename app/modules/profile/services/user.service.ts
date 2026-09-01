@@ -1,15 +1,15 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
 import { DbUserService } from 'Backend/Users/db-user.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
+  private dbUserService = inject(DbUserService);
+
 
   readonly userImage = signal<string>('');
   readonly userName = signal<string>('');
-
-  constructor(private dbUserService:DbUserService) { }
 
   getUserDetails(userId:number): Promise<any> {
     return this.dbUserService.getUserDetails(userId)

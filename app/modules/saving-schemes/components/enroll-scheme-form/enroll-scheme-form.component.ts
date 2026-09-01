@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, EventEmitter, HostListener, Input, OnInit, Output, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideX, lucideLoader, lucidePiggyBank, lucideSearch } from '@ng-icons/lucide';
@@ -15,7 +15,7 @@ import { CustomerDetails } from '../../../customers/models/customerDetails';
   templateUrl: './enroll-scheme-form.component.html',
   styleUrls: ['./enroll-scheme-form.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, NgIcon],
+  imports: [ReactiveFormsModule, NgIcon],
   viewProviders: [provideIcons({ lucideX, lucideLoader, lucidePiggyBank, lucideSearch })],
 })
 export class EnrollSchemeFormComponent implements OnInit {

@@ -1,5 +1,5 @@
-import { Component, OnDestroy, effect } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnDestroy, effect, inject } from '@angular/core';
+
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideShoppingBag } from '@ng-icons/lucide';
 import { CartSideBarService } from '../../../services/cart-side-bar.service';
@@ -10,16 +10,19 @@ import { CartService } from '../../../services/cart.service';
   templateUrl: './add-to-cart.component.html',
   styleUrls: ['./add-to-cart.component.scss'],
   standalone: true,
-  imports: [CommonModule, NgIcon],
+  imports: [NgIcon],
   viewProviders: [provideIcons({ lucideShoppingBag })],
 })
 export class AddToCartComponent implements OnDestroy {
+  private cartService = inject(CartService);
+  private cartSideBarService = inject(CartSideBarService);
+
 
   public totalItems = 0;
   animateCartIcon = false;
   private animationResetTimer: ReturnType<typeof setTimeout> | null = null;
 
-  constructor(private cartService: CartService, private cartSideBarService: CartSideBarService) {
+  constructor() {
     effect(() => {
       const items = this.cartService.getProducts()();
       this.totalItems = items.length;

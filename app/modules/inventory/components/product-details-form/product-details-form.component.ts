@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { AppDialogService } from '../../../../shared/services/AppDialog/app-dialog.service';
 import { AppToastService } from '../../../../shared/services/AppToast/app-toast.service';
@@ -20,10 +20,17 @@ import { lucideLoader, lucideSave, lucideRotateCcw, lucideRefreshCw } from '@ng-
   templateUrl: './product-details-form.component.html',
   styleUrls: ['./product-details-form.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, NgIcon],
+  imports: [ReactiveFormsModule, NgIcon],
   viewProviders: [provideIcons({ lucideLoader, lucideSave, lucideRotateCcw, lucideRefreshCw })],
 })
 export class ProductDetailsFormComponent implements OnInit, OnChanges {
+  private ProductService = inject(AvailableProductsService);
+  private formBuilder = inject(FormBuilder);
+  private loggerService = inject(LoggerService);
+  private puritiesService = inject(PuritiesService);
+  private metalRatesService = inject(MetalRatesService);
+  private storeService = inject(StoreService);
+
   productDetailsForm!: FormGroup;
   productDetailsFormInitialValues: any;
   purities: Purity[] = [];
@@ -46,15 +53,6 @@ export class ProductDetailsFormComponent implements OnInit, OnChanges {
   @Input() productData!: ProductDataModel;
   @Input() isLoading = false;
   @Output() refreshProductDetails = new EventEmitter<boolean>();
-
-  constructor(
-    private ProductService: AvailableProductsService,
-    private formBuilder: FormBuilder,
-    private loggerService: LoggerService,
-    private puritiesService: PuritiesService,
-    private metalRatesService: MetalRatesService,
-    private storeService: StoreService,
-  ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['productData'] && this.productData) {

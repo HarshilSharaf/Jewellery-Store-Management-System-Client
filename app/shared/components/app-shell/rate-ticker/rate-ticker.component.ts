@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideLock, lucideLockOpen } from '@ng-icons/lucide';
@@ -21,7 +21,7 @@ const TICKER_PURITIES = ['999', '916', '750'];
   templateUrl: './rate-ticker.component.html',
   styleUrls: ['./rate-ticker.component.scss'],
   standalone: true,
-  imports: [CommonModule, NgIcon],
+  imports: [NgIcon],
   viewProviders: [provideIcons({ lucideLock, lucideLockOpen })],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

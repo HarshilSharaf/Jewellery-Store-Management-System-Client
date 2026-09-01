@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output, inject, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -22,10 +22,16 @@ import { CustomerDetails } from '../../../../../customers/models/customerDetails
   templateUrl: './select-customer.component.html',
   styleUrls: ['./select-customer.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, SimplePaginatorComponent, NgIcon],
+  imports: [ReactiveFormsModule, RouterLink, SimplePaginatorComponent, NgIcon],
   viewProviders: [provideIcons({ lucideSearch, lucideUserPlus, lucideCheck })],
 })
 export class SelectCustomerComponent implements OnInit, OnDestroy {
+  private customerService = inject(CustomerDataService);
+  private fileSystemService = inject(FileSystemService);
+  private loaderService = inject(NgxUiLoaderService);
+  private loggerService = inject(LoggerService);
+  private utilityService = inject(UtilityService);
+
 
   @Input() set selectedId(value: number | null) {
     this._selectedId.set(value);
@@ -45,14 +51,6 @@ export class SelectCustomerComponent implements OnInit, OnDestroy {
 
   private filterSub?: Subscription;
   private readonly cdRef = inject(ChangeDetectorRef);
-
-  constructor(
-    private customerService: CustomerDataService,
-    private fileSystemService: FileSystemService,
-    private loaderService: NgxUiLoaderService,
-    private loggerService: LoggerService,
-    private utilityService: UtilityService,
-  ) {}
 
   ngOnInit(): void {
     this.loading.set(true);

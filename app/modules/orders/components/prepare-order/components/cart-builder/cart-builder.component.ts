@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {
   ChangeDetectorRef,
   Component,
@@ -71,7 +71,7 @@ const SCAN_ENABLED_STORAGE_KEY = 'jsms.scanner.cart.enabled';
   templateUrl: './cart-builder.component.html',
   styleUrls: ['./cart-builder.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, NgIcon],
+  imports: [ReactiveFormsModule, FormsModule, NgIcon],
   viewProviders: [
     provideIcons({
       lucideSearch,
@@ -91,6 +91,15 @@ const SCAN_ENABLED_STORAGE_KEY = 'jsms.scanner.cart.enabled';
   ],
 })
 export class CartBuilderComponent implements OnInit, OnDestroy {
+  private productsService = inject(AvailableProductsService);
+  private cartService = inject(CartService);
+  private metalRatesService = inject(MetalRatesService);
+  private puritiesService = inject(PuritiesService);
+  private shopSettingsService = inject(ShopSettingsService);
+  private fsService = inject(FileSystemService);
+  private utilityService = inject(UtilityService);
+  private loggerService = inject(LoggerService);
+
 
   @Input() selectedCustomer: CustomerDetails | null = null;
 
@@ -183,17 +192,6 @@ export class CartBuilderComponent implements OnInit, OnDestroy {
   private readonly moneyIntFmt = new Intl.NumberFormat('en-IN', {
     maximumFractionDigits: 0,
   });
-
-  constructor(
-    private productsService: AvailableProductsService,
-    private cartService: CartService,
-    private metalRatesService: MetalRatesService,
-    private puritiesService: PuritiesService,
-    private shopSettingsService: ShopSettingsService,
-    private fsService: FileSystemService,
-    private utilityService: UtilityService,
-    private loggerService: LoggerService,
-  ) {}
 
   async ngOnInit(): Promise<void> {
     // Read stored scanner-on-cart preference (default: on).

@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import {
   ChangeDetectorRef,
   Component,
@@ -48,7 +48,7 @@ import { StoreService } from '../../../../../../Backend/Shared/store.service';
   templateUrl: './order-details.component.html',
   styleUrls: ['./order-details.component.scss'],
   standalone: true,
-  imports: [CommonModule, RouterLink, OrderProductsDetailsComponent, OrderPaymentsComponent, NgIcon, ReactiveFormsModule],
+  imports: [DatePipe, RouterLink, OrderProductsDetailsComponent, OrderPaymentsComponent, NgIcon, ReactiveFormsModule],
   viewProviders: [
     provideIcons({
       lucideArrowLeft,
@@ -63,6 +63,15 @@ import { StoreService } from '../../../../../../Backend/Shared/store.service';
   ],
 })
 export class OrderDetailsComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+  private orderService = inject(OrderService);
+  private router = inject(Router);
+  private fsService = inject(FileSystemService);
+  private loaderService = inject(NgxUiLoaderService);
+  private loggerService = inject(LoggerService);
+  private utilityService = inject(UtilityService);
+  private shopSettingsService = inject(ShopSettingsService);
+
 
   @ViewChild(OrderPaymentsComponent) paymentsPanel?: OrderPaymentsComponent;
 
@@ -112,17 +121,6 @@ export class OrderDetailsComponent implements OnInit {
   private readonly dialog = inject(AppDialogService);
   private readonly toast = inject(AppToastService);
   private readonly cdRef = inject(ChangeDetectorRef);
-
-  constructor(
-    private route: ActivatedRoute,
-    private orderService: OrderService,
-    private router: Router,
-    private fsService: FileSystemService,
-    private loaderService: NgxUiLoaderService,
-    private loggerService: LoggerService,
-    private utilityService: UtilityService,
-    private shopSettingsService: ShopSettingsService,
-  ) {}
 
   ngOnInit(): void {
     this.permissions.getUserPermissions();

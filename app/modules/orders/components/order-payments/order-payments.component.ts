@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import {
   ChangeDetectorRef,
   Component,
@@ -25,10 +25,15 @@ type Mode = 'cash' | 'cheque' | 'online';
   templateUrl: './order-payments.component.html',
   styleUrls: ['./order-payments.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, NgIcon],
+  imports: [DatePipe, ReactiveFormsModule, FormsModule, NgIcon],
   viewProviders: [provideIcons({ lucideIndianRupee, lucideX, lucideCheck })],
 })
 export class OrderPaymentsComponent implements OnInit {
+  private fb = inject(FormBuilder);
+  private orderService = inject(OrderService);
+  private loggerService = inject(LoggerService);
+  private toast = inject(AppToastService);
+
 
   _paymentsData: PaymentsDataModel[] = [];
   @Input() set paymentsData(data: PaymentsDataModel[]) {
@@ -55,12 +60,7 @@ export class OrderPaymentsComponent implements OnInit {
   private readonly initialFormValue: unknown;
   private readonly cdRef = inject(ChangeDetectorRef);
 
-  constructor(
-    private fb: FormBuilder,
-    private orderService: OrderService,
-    private loggerService: LoggerService,
-    private toast: AppToastService,
-  ) {
+  constructor() {
     this.recordPaymentForm = this.fb.group({
       amount: [0, [Validators.required, Validators.min(1)]],
       paymentType: ['cash' as Mode, Validators.required],

@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CommonModule } from '@angular/common';
+
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormArray, FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { AppToastService } from '../../../../shared/services/AppToast/app-toast.service';
@@ -27,7 +27,7 @@ import { Purity } from '../../../../interfaces/Shared/purity';
   templateUrl: './issue-job-page.component.html',
   styleUrls: ['./issue-job-page.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, NgIcon],
+  imports: [ReactiveFormsModule, NgIcon],
   viewProviders: [
     provideIcons({
       lucideArrowLeft,

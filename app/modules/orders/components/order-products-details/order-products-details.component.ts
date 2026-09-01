@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { InvoiceProductDataModel } from '../../models/invoice-product-data-model';
 
 @Component({
@@ -7,7 +7,7 @@ import { InvoiceProductDataModel } from '../../models/invoice-product-data-model
   templateUrl: './order-products-details.component.html',
   styleUrls: ['./order-products-details.component.scss'],
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
 })
 export class OrderProductsDetailsComponent {
 

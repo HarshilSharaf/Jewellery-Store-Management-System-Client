@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { LowerCasePipe, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -38,7 +38,7 @@ interface CategoryCardVM {
   templateUrl: './categories-page.component.html',
   styleUrls: ['./categories-page.component.scss'],
   standalone: true,
-  imports: [CommonModule, NgIcon, AddCategoryDialogComponent],
+  imports: [LowerCasePipe, DatePipe, NgIcon, AddCategoryDialogComponent],
   viewProviders: [
     provideIcons({
       lucideCoins,

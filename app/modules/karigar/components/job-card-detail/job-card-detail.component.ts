@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { AppToastService } from '../../../../shared/services/AppToast/app-toast.service';
@@ -32,7 +32,7 @@ type PanelMode = 'receive' | 'settle' | null;
   templateUrl: './job-card-detail.component.html',
   styleUrls: ['./job-card-detail.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, NgIcon, DatePipe, DecimalPipe],
+  imports: [DatePipe, DecimalPipe, ReactiveFormsModule, NgIcon],
   viewProviders: [
     provideIcons({
       lucideArrowLeft,

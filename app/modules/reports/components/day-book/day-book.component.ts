@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -31,7 +31,7 @@ interface DayBookTotals {
   templateUrl: './day-book.component.html',
   styleUrls: ['./day-book.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, NgIcon],
+  imports: [FormsModule, RouterLink, NgIcon],
   viewProviders: [
     provideIcons({ lucideArrowLeft, lucideRefreshCw, lucideDownload, lucideChartLine }),
   ],
