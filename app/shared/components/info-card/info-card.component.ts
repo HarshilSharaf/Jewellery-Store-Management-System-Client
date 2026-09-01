@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideArrowUp, lucideArrowDown } from '@ng-icons/lucide';
 
@@ -8,7 +8,7 @@ import { lucideArrowUp, lucideArrowDown } from '@ng-icons/lucide';
   templateUrl: './info-card.component.html',
   styleUrls: ['./info-card.component.scss'],
   standalone: true,
-  imports: [CommonModule, NgIcon],
+  imports: [NgClass, NgIcon],
   viewProviders: [provideIcons({ lucideArrowUp, lucideArrowDown })],
   changeDetection: ChangeDetectionStrategy.OnPush
 })

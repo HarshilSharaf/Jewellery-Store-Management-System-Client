@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideChevronsLeft,
@@ -19,7 +19,7 @@ export interface SimplePageEvent {
   templateUrl: './simple-paginator.component.html',
   styleUrls: ['./simple-paginator.component.scss'],
   standalone: true,
-  imports: [CommonModule, NgIcon],
+  imports: [NgIcon],
   viewProviders: [
     provideIcons({
       lucideChevronsLeft,

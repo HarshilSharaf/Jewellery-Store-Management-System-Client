@@ -11,7 +11,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -85,7 +85,7 @@ interface CrumbFrame {
   templateUrl: './command-palette.component.html',
   styleUrls: ['./command-palette.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, NgIcon],
+  imports: [FormsModule, NgIcon],
   viewProviders: [
     provideIcons({
       lucideArrowRight,

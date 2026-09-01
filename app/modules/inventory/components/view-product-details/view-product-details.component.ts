@@ -1,6 +1,5 @@
 import { ChangeDetectorRef, Component, DestroyRef, OnInit, ViewChild, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { FileSystemService } from '../../../../../../Backend/Shared/file-system.service';
@@ -17,6 +16,7 @@ import { ProductDetailsFormComponent } from '../product-details-form/product-det
 import { MetalRatesService } from '../../../../shared/services/MetalRates/metal-rates.service';
 import { StoreService } from '../../../../../../Backend/Shared/store.service';
 import { PermissionsService } from '../../../../shared/services/Auth/permissions.service';
+import { TitleCasePipe } from '@angular/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideArrowLeft,
@@ -38,7 +38,7 @@ import {
   templateUrl: './view-product-details.component.html',
   styleUrls: ['./view-product-details.component.scss'],
   standalone: true,
-  imports: [CommonModule, ProductImageUploadComponent, ProductDetailsFormComponent, NgIcon],
+  imports: [ProductImageUploadComponent, ProductDetailsFormComponent, NgIcon, TitleCasePipe],
   viewProviders: [
     provideIcons({
       lucideArrowLeft,
@@ -57,6 +57,16 @@ import {
   ],
 })
 export class ViewProductDetailsComponent implements OnInit {
+  private ProductService = inject(AvailableProductsService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private fileSystemService = inject(FileSystemService);
+  private loaderService = inject(NgxUiLoaderService);
+  private loggerService = inject(LoggerService);
+  private utilityService = inject(UtilityService);
+  private metalRatesService = inject(MetalRatesService);
+  private storeService = inject(StoreService);
+
   thumbnail: any;
   public isLoading = false;
   private productGuid = '';
@@ -77,18 +87,6 @@ export class ViewProductDetailsComponent implements OnInit {
   private readonly dialog = inject(AppDialogService);
   private readonly toast = inject(AppToastService);
   private readonly cdRef = inject(ChangeDetectorRef);
-
-  constructor(
-    private ProductService: AvailableProductsService,
-    private route: ActivatedRoute,
-    private router: Router,
-    private fileSystemService: FileSystemService,
-    private loaderService: NgxUiLoaderService,
-    private loggerService: LoggerService,
-    private utilityService: UtilityService,
-    private metalRatesService: MetalRatesService,
-    private storeService: StoreService,
-  ) {}
 
   ngOnInit(): void {
     this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {

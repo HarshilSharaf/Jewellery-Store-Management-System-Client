@@ -23,18 +23,18 @@
             <ng-icon name="lucidePrinter" aria-hidden="true"></ng-icon>
           </button>
           <button type="button" class="icon-btn" (click)="openWhatsappDialog()"
-                  title="Send via WhatsApp" aria-label="Send via WhatsApp">
+            title="Send via WhatsApp" aria-label="Send via WhatsApp">
             <ng-icon name="lucideMessageCircle" aria-hidden="true"></ng-icon>
           </button>
           @if (paymentStatus() === 'unpaid' || paymentStatus() === 'partial') {
             <button type="button" class="icon-btn" (click)="openPayments()"
-                    title="Record payment" aria-label="Record payment">
+              title="Record payment" aria-label="Record payment">
               <ng-icon name="lucideIndianRupee" aria-hidden="true"></ng-icon>
             </button>
           }
           @if (paymentStatus() !== 'cancelled' && permissions.canCancelInvoice()) {
             <button type="button" class="icon-btn icon-btn--danger" (click)="cancelInvoice()"
-                    title="Cancel invoice" aria-label="Cancel invoice">
+              title="Cancel invoice" aria-label="Cancel invoice">
               <ng-icon name="lucideBan" aria-hidden="true"></ng-icon>
             </button>
           }
@@ -70,212 +70,214 @@
               }
               @if (customerData()?.city || customerData()?.state) {
                 <div class="bill-to__line">
-                  {{ customerData()?.city }}<ng-container *ngIf="customerData()?.state">, {{ customerData()?.state }}</ng-container>
-                  @if (customerData()?.stateCode) { <span class="tabular-nums"> ({{ customerData()?.stateCode }})</span> }
-                </div>
-              }
-              @if (orderData()?.placeOfSupply) {
-                <div class="bill-to__line">Place of supply: {{ orderData()?.placeOfSupply }}</div>
-              }
-            </div>
-            <div>
-              @if (customerData()?.gstin) {
-                <div class="bill-to__label">GSTIN</div>
-                <div class="bill-to__line tabular-nums">{{ customerData()?.gstin }}</div>
-              }
-              @if (customerData()?.pan) {
-                <div class="bill-to__label">PAN</div>
-                <div class="bill-to__line tabular-nums">{{ customerData()?.pan }}</div>
-              }
-            </div>
-          </div>
-        </div>
-      }
-
-      <app-order-products-details
-        [productDetails]="productsData()"
-        [isLoading]="loading()"
-        [isInterState]="isInterState()">
-      </app-order-products-details>
-
-      <div class="totals-block">
-        <div class="totals-block__spacer"></div>
-        <div class="totals-card">
-          <div class="totals-row">
-            <span>Subtotal (taxable)</span>
-            <span class="tabular-nums">&#8377;{{ money(subTotalTaxable()) }}</span>
-          </div>
-          <div class="totals-row totals-row--muted">
-            <span>Making</span>
-            <span class="tabular-nums">&#8377;{{ money(totalMakingAmount()) }}</span>
-          </div>
-          <div class="totals-row totals-row--muted">
-            <span>Wastage</span>
-            <span class="tabular-nums">&#8377;{{ money(totalWastageAmount()) }}</span>
-          </div>
-          @if (totalStoneAmount() > 0) {
-            <div class="totals-row totals-row--muted">
-              <span>Stones</span>
-              <span class="tabular-nums">&#8377;{{ money(totalStoneAmount()) }}</span>
-            </div>
-          }
-          @if (totalDiscountAmount() > 0) {
-            <div class="totals-row totals-row--sub">
-              <span>Discount</span>
-              <span class="tabular-nums">− &#8377;{{ money(totalDiscountAmount()) }}</span>
-            </div>
-          }
-          @if (isInterState()) {
-            <div class="totals-row">
-              <span>IGST</span>
-              <span class="tabular-nums">&#8377;{{ money(totalIgst()) }}</span>
-            </div>
-          } @else {
-            <div class="totals-row">
-              <span>CGST</span>
-              <span class="tabular-nums">&#8377;{{ money(totalCgst()) }}</span>
-            </div>
-            <div class="totals-row">
-              <span>SGST</span>
-              <span class="tabular-nums">&#8377;{{ money(totalSgst()) }}</span>
-            </div>
-          }
-          @if (oldGoldCreditAmount() > 0) {
-            <div class="totals-row totals-row--sub totals-row--italic">
-              <span>Old-gold credit</span>
-              <span class="tabular-nums">− &#8377;{{ money(oldGoldCreditAmount()) }}</span>
-            </div>
-          }
-          @if (roundOffAmount() !== 0) {
-            <div class="totals-row totals-row--muted">
-              <span>Round-off</span>
-              <span class="tabular-nums">{{ roundOffAmount() > 0 ? '+' : '' }} &#8377;{{ money(roundOffAmount()) }}</span>
-            </div>
-          }
-          <hr class="totals-divider">
-          <div class="totals-row totals-row--grand">
-            <span>Grand total</span>
-            <span class="money-lg tabular-nums">&#8377;{{ money(grandTotal()) }}</span>
-          </div>
-          <div class="totals-words">
-            <em>{{ amountInWords() }}</em>
-          </div>
-        </div>
-      </div>
-
-      <app-order-payments
-        [paymentsData]="paymentsData()"
-        [orderGuid]="orderGuid"
-        [isPaymentDone]="!!orderData()?.isPaymentDone"
-        [isCancelled]="!!orderData()?.cancelledAt"
-        [grandTotal]="grandTotal()"
-        [invoiceNumber]="invoiceNumber()"
-        (refreshPaymentsData)="getOrderDetails()"
-        [(open)]="paymentsPanelOpen">
-      </app-order-payments>
-
-      @if (whatsappHistory().length > 0) {
-        <div class="detail-section">
-          <div class="detail-section__title">WhatsApp history</div>
-          <div class="whatsapp-history">
-            @for (row of whatsappHistory(); track row.sendGuid) {
-              <div class="whatsapp-history__row">
-                <div class="whatsapp-history__label">
-                  <span class="whatsapp-history__template">{{ row.templateName }}</span>
-                  <span class="whatsapp-history__sub tabular-nums">{{ row.phoneNumber }}</span>
-                </div>
-                <span [class]="whatsappStatusClass(row.status)">{{ row.status }}</span>
-                <span class="whatsapp-history__sub tabular-nums">{{ (row.sentAt ?? row.queuedAt) | date:'d MMM yyyy, h:mm a' }}</span>
-                <span class="whatsapp-history__sub">{{ row.errorMessage || '' }}</span>
+                  {{ customerData()?.city }}@if (customerData()?.state) {
+                  , {{ customerData()?.state }}
+                }
+                @if (customerData()?.stateCode) { <span class="tabular-nums"> ({{ customerData()?.stateCode }})</span> }
               </div>
+            }
+            @if (orderData()?.placeOfSupply) {
+              <div class="bill-to__line">Place of supply: {{ orderData()?.placeOfSupply }}</div>
+            }
+          </div>
+          <div>
+            @if (customerData()?.gstin) {
+              <div class="bill-to__label">GSTIN</div>
+              <div class="bill-to__line tabular-nums">{{ customerData()?.gstin }}</div>
+            }
+            @if (customerData()?.pan) {
+              <div class="bill-to__label">PAN</div>
+              <div class="bill-to__line tabular-nums">{{ customerData()?.pan }}</div>
             }
           </div>
         </div>
-      }
+      </div>
+    }
 
+    <app-order-products-details
+      [productDetails]="productsData()"
+      [isLoading]="loading()"
+      [isInterState]="isInterState()">
+    </app-order-products-details>
+
+    <div class="totals-block">
+      <div class="totals-block__spacer"></div>
+      <div class="totals-card">
+        <div class="totals-row">
+          <span>Subtotal (taxable)</span>
+          <span class="tabular-nums">&#8377;{{ money(subTotalTaxable()) }}</span>
+        </div>
+        <div class="totals-row totals-row--muted">
+          <span>Making</span>
+          <span class="tabular-nums">&#8377;{{ money(totalMakingAmount()) }}</span>
+        </div>
+        <div class="totals-row totals-row--muted">
+          <span>Wastage</span>
+          <span class="tabular-nums">&#8377;{{ money(totalWastageAmount()) }}</span>
+        </div>
+        @if (totalStoneAmount() > 0) {
+          <div class="totals-row totals-row--muted">
+            <span>Stones</span>
+            <span class="tabular-nums">&#8377;{{ money(totalStoneAmount()) }}</span>
+          </div>
+        }
+        @if (totalDiscountAmount() > 0) {
+          <div class="totals-row totals-row--sub">
+            <span>Discount</span>
+            <span class="tabular-nums">− &#8377;{{ money(totalDiscountAmount()) }}</span>
+          </div>
+        }
+        @if (isInterState()) {
+          <div class="totals-row">
+            <span>IGST</span>
+            <span class="tabular-nums">&#8377;{{ money(totalIgst()) }}</span>
+          </div>
+        } @else {
+          <div class="totals-row">
+            <span>CGST</span>
+            <span class="tabular-nums">&#8377;{{ money(totalCgst()) }}</span>
+          </div>
+          <div class="totals-row">
+            <span>SGST</span>
+            <span class="tabular-nums">&#8377;{{ money(totalSgst()) }}</span>
+          </div>
+        }
+        @if (oldGoldCreditAmount() > 0) {
+          <div class="totals-row totals-row--sub totals-row--italic">
+            <span>Old-gold credit</span>
+            <span class="tabular-nums">− &#8377;{{ money(oldGoldCreditAmount()) }}</span>
+          </div>
+        }
+        @if (roundOffAmount() !== 0) {
+          <div class="totals-row totals-row--muted">
+            <span>Round-off</span>
+            <span class="tabular-nums">{{ roundOffAmount() > 0 ? '+' : '' }} &#8377;{{ money(roundOffAmount()) }}</span>
+          </div>
+        }
+        <hr class="totals-divider">
+        <div class="totals-row totals-row--grand">
+          <span>Grand total</span>
+          <span class="money-lg tabular-nums">&#8377;{{ money(grandTotal()) }}</span>
+        </div>
+        <div class="totals-words">
+          <em>{{ amountInWords() }}</em>
+        </div>
+      </div>
     </div>
 
-    <aside class="order-shell__side">
-      <div class="detail-side">
-        <div class="kpi-card side-kpi">
-          <span class="kpi-label">Paid so far</span>
-          <span class="kpi-value tabular-nums">&#8377;{{ money(totalPaymentReceived()) }}</span>
-        </div>
-        <div class="kpi-card side-kpi">
-          <span class="kpi-label">Outstanding</span>
-          <span class="kpi-value tabular-nums" [class.is-danger]="outstanding() > 0">&#8377;{{ money(outstanding()) }}</span>
-        </div>
-        <div class="kpi-card side-kpi side-kpi--status">
-          <span class="kpi-label">Status</span>
-          <span [class]="paymentStatusChipClass()">{{ paymentStatusLabel() }}</span>
-        </div>
+    <app-order-payments
+      [paymentsData]="paymentsData()"
+      [orderGuid]="orderGuid"
+      [isPaymentDone]="!!orderData()?.isPaymentDone"
+      [isCancelled]="!!orderData()?.cancelledAt"
+      [grandTotal]="grandTotal()"
+      [invoiceNumber]="invoiceNumber()"
+      (refreshPaymentsData)="getOrderDetails()"
+      [(open)]="paymentsPanelOpen">
+    </app-order-payments>
 
-        <div class="side-actions">
-          <div class="side-actions__title">Quick actions</div>
-          <button type="button" class="side-action" (click)="goToPrint()">
-            <ng-icon name="lucidePrinter" aria-hidden="true"></ng-icon>
-            <span>Print invoice</span>
-          </button>
-          <button type="button" class="side-action" (click)="openWhatsappDialog()">
-            <ng-icon name="lucideMessageCircle" aria-hidden="true"></ng-icon>
-            <span>Send via WhatsApp</span>
-          </button>
-          <button type="button" class="side-action" (click)="stubToast('Duplicate invoice')">
-            <ng-icon name="lucideCopy" aria-hidden="true"></ng-icon>
-            <span>Duplicate</span>
-          </button>
-          @if (paymentStatus() !== 'cancelled' && permissions.canCancelInvoice()) {
-            <button type="button" class="side-action side-action--danger" (click)="cancelInvoice()">
-              <ng-icon name="lucideBan" aria-hidden="true"></ng-icon>
-              <span>Cancel invoice</span>
-            </button>
+    @if (whatsappHistory().length > 0) {
+      <div class="detail-section">
+        <div class="detail-section__title">WhatsApp history</div>
+        <div class="whatsapp-history">
+          @for (row of whatsappHistory(); track row.sendGuid) {
+            <div class="whatsapp-history__row">
+              <div class="whatsapp-history__label">
+                <span class="whatsapp-history__template">{{ row.templateName }}</span>
+                <span class="whatsapp-history__sub tabular-nums">{{ row.phoneNumber }}</span>
+              </div>
+              <span [class]="whatsappStatusClass(row.status)">{{ row.status }}</span>
+              <span class="whatsapp-history__sub tabular-nums">{{ (row.sentAt ?? row.queuedAt) | date:'d MMM yyyy, h:mm a' }}</span>
+              <span class="whatsapp-history__sub">{{ row.errorMessage || '' }}</span>
+            </div>
           }
         </div>
       </div>
-    </aside>
+    }
 
   </div>
 
-  @if (whatsappDialogOpen()) {
-    <div class="whatsapp-send-dialog__backdrop" (click)="closeWhatsappDialog()"></div>
-    <div class="whatsapp-send-dialog" role="dialog" aria-label="Send invoice via WhatsApp">
-      <header class="whatsapp-send-dialog__head">
-        <h3>Send via WhatsApp</h3>
-        <button type="button" class="icon-btn" (click)="closeWhatsappDialog()" aria-label="Close">
-          <ng-icon name="lucideCircleAlert" aria-hidden="true"></ng-icon>
+  <aside class="order-shell__side">
+    <div class="detail-side">
+      <div class="kpi-card side-kpi">
+        <span class="kpi-label">Paid so far</span>
+        <span class="kpi-value tabular-nums">&#8377;{{ money(totalPaymentReceived()) }}</span>
+      </div>
+      <div class="kpi-card side-kpi">
+        <span class="kpi-label">Outstanding</span>
+        <span class="kpi-value tabular-nums" [class.is-danger]="outstanding() > 0">&#8377;{{ money(outstanding()) }}</span>
+      </div>
+      <div class="kpi-card side-kpi side-kpi--status">
+        <span class="kpi-label">Status</span>
+        <span [class]="paymentStatusChipClass()">{{ paymentStatusLabel() }}</span>
+      </div>
+
+      <div class="side-actions">
+        <div class="side-actions__title">Quick actions</div>
+        <button type="button" class="side-action" (click)="goToPrint()">
+          <ng-icon name="lucidePrinter" aria-hidden="true"></ng-icon>
+          <span>Print invoice</span>
         </button>
-      </header>
-
-      @if (!whatsappConfigured()) {
-        <div class="whatsapp-verification-banner">
-          WhatsApp is not configured. Set it up in
-          <a routerLink="/settings" [queryParams]="{ tab: 'whatsapp' }">Settings → WhatsApp</a>.
-        </div>
-      }
-
-      <form [formGroup]="whatsappForm" (ngSubmit)="submitWhatsapp()" class="whatsapp-send-dialog__form">
-        <div>
-          <label class="field-label">Customer phone</label>
-          <input type="tel" class="hlm-input tabular-nums" formControlName="phoneNumber" placeholder="+91xxxxxxxxxx" />
-        </div>
-        <div>
-          <label class="field-label">Template</label>
-          <select class="hlm-input" formControlName="templateName">
-            <option value="invoice_ready">invoice_ready</option>
-            <option value="repair_ready">repair_ready</option>
-          </select>
-        </div>
-        <div class="whatsapp-send-dialog__preview">
-          Variables: <strong>{{ whatsappPreview() }}</strong>
-        </div>
-        <div class="whatsapp-send-dialog__actions">
-          <button type="button" class="hlm-btn hlm-btn-ghost" (click)="closeWhatsappDialog()">Cancel</button>
-          <button type="submit" class="hlm-btn hlm-btn-primary" [disabled]="whatsappSending() || !whatsappConfigured()">
-            {{ whatsappSending() ? 'Sending…' : 'Send' }}
+        <button type="button" class="side-action" (click)="openWhatsappDialog()">
+          <ng-icon name="lucideMessageCircle" aria-hidden="true"></ng-icon>
+          <span>Send via WhatsApp</span>
+        </button>
+        <button type="button" class="side-action" (click)="stubToast('Duplicate invoice')">
+          <ng-icon name="lucideCopy" aria-hidden="true"></ng-icon>
+          <span>Duplicate</span>
+        </button>
+        @if (paymentStatus() !== 'cancelled' && permissions.canCancelInvoice()) {
+          <button type="button" class="side-action side-action--danger" (click)="cancelInvoice()">
+            <ng-icon name="lucideBan" aria-hidden="true"></ng-icon>
+            <span>Cancel invoice</span>
           </button>
-        </div>
-      </form>
+        }
+      </div>
     </div>
-  }
+  </aside>
+
+</div>
+
+@if (whatsappDialogOpen()) {
+  <div class="whatsapp-send-dialog__backdrop" (click)="closeWhatsappDialog()"></div>
+  <div class="whatsapp-send-dialog" role="dialog" aria-label="Send invoice via WhatsApp">
+    <header class="whatsapp-send-dialog__head">
+      <h3>Send via WhatsApp</h3>
+      <button type="button" class="icon-btn" (click)="closeWhatsappDialog()" aria-label="Close">
+        <ng-icon name="lucideCircleAlert" aria-hidden="true"></ng-icon>
+      </button>
+    </header>
+
+    @if (!whatsappConfigured()) {
+      <div class="whatsapp-verification-banner">
+        WhatsApp is not configured. Set it up in
+        <a routerLink="/settings" [queryParams]="{ tab: 'whatsapp' }">Settings → WhatsApp</a>.
+      </div>
+    }
+
+    <form [formGroup]="whatsappForm" (ngSubmit)="submitWhatsapp()" class="whatsapp-send-dialog__form">
+      <div>
+        <label class="field-label">Customer phone</label>
+        <input type="tel" class="hlm-input tabular-nums" formControlName="phoneNumber" placeholder="+91xxxxxxxxxx" />
+      </div>
+      <div>
+        <label class="field-label">Template</label>
+        <select class="hlm-input" formControlName="templateName">
+          <option value="invoice_ready">invoice_ready</option>
+          <option value="repair_ready">repair_ready</option>
+        </select>
+      </div>
+      <div class="whatsapp-send-dialog__preview">
+        Variables: <strong>{{ whatsappPreview() }}</strong>
+      </div>
+      <div class="whatsapp-send-dialog__actions">
+        <button type="button" class="hlm-btn hlm-btn-ghost" (click)="closeWhatsappDialog()">Cancel</button>
+        <button type="submit" class="hlm-btn hlm-btn-primary" [disabled]="whatsappSending() || !whatsappConfigured()">
+          {{ whatsappSending() ? 'Sending…' : 'Send' }}
+        </button>
+      </div>
+    </form>
+  </div>
+}
 
 </section>

@@ -10,7 +10,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
@@ -29,7 +29,7 @@ import { AppDialogService, DialogIcon } from '../../services/AppDialog/app-dialo
   templateUrl: './app-dialog.component.html',
   styleUrls: ['./app-dialog.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, NgIcon],
+  imports: [NgClass, FormsModule, NgIcon],
   viewProviders: [
     provideIcons({
       lucideCircleCheck,

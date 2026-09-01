@@ -5,7 +5,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { TitleCasePipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucidePlus, lucidePencil, lucideTrash2, lucideX, lucideLoader } from '@ng-icons/lucide';
@@ -36,7 +36,7 @@ const ROLES: UserRole[] = ['admin', 'manager', 'employee'];
 @Component({
   selector: 'app-users-management',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, NgIcon],
+  imports: [TitleCasePipe, ReactiveFormsModule, NgIcon],
   viewProviders: [provideIcons({ lucidePlus, lucidePencil, lucideTrash2, lucideX, lucideLoader })],
   templateUrl: './users-management.component.html',
   styleUrls: ['./users-management.component.scss'],

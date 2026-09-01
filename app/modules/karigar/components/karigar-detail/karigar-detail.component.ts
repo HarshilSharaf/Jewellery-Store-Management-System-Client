@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
@@ -31,7 +31,7 @@ import {
   templateUrl: './karigar-detail.component.html',
   styleUrls: ['./karigar-detail.component.scss'],
   standalone: true,
-  imports: [CommonModule, NgIcon, DatePipe, DecimalPipe, KarigarFormComponent],
+  imports: [DatePipe, DecimalPipe, NgIcon, KarigarFormComponent],
   viewProviders: [
     provideIcons({
       lucideArrowLeft,

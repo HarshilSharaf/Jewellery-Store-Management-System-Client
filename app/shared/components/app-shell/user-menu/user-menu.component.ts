@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, ElementRef, HostListener, OnInit, ViewChild, effect, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideUser, lucideLogOut } from '@ng-icons/lucide';
@@ -16,7 +16,7 @@ import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
   templateUrl: './user-menu.component.html',
   styleUrls: ['./user-menu.component.scss'],
   standalone: true,
-  imports: [CommonModule, NgIcon],
+  imports: [NgIcon],
   viewProviders: [provideIcons({ lucideUser, lucideLogOut })],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

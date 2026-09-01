@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AppDialogService } from '../../../../shared/services/AppDialog/app-dialog.service';
 import { AppToastService } from '../../../../shared/services/AppToast/app-toast.service';
@@ -30,7 +30,7 @@ type Tab = 'karigars' | 'jobs';
   templateUrl: './karigar-page.component.html',
   styleUrls: ['./karigar-page.component.scss'],
   standalone: true,
-  imports: [CommonModule, NgIcon, KarigarFormComponent, DatePipe],
+  imports: [DatePipe, NgIcon, KarigarFormComponent],
   viewProviders: [
     provideIcons({
       lucidePlus,

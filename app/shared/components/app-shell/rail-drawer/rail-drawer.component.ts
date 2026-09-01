@@ -9,7 +9,7 @@ import {
   Output,
   inject,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
@@ -38,7 +38,7 @@ import { RailItem, primaryNavItems, settingsNavItem } from '../rail-nav-items';
   templateUrl: './rail-drawer.component.html',
   styleUrls: ['./rail-drawer.component.scss'],
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, NgIcon],
+  imports: [RouterLink, RouterLinkActive, NgIcon],
   viewProviders: [
     provideIcons({
       lucideLayoutDashboard,

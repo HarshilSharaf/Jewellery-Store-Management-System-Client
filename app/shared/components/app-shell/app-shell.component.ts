@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterOutlet } from '@angular/router';
 
 import { RailComponent } from './rail/rail.component';
@@ -16,7 +16,6 @@ import { AppToastComponent } from '../app-toast/app-toast.component';
   styleUrls: ['./app-shell.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     RouterOutlet,
     RailComponent,
     RailDrawerComponent,
@@ -24,8 +23,8 @@ import { AppToastComponent } from '../app-toast/app-toast.component';
     CartSideBarComponent,
     CommandPaletteComponent,
     AppDialogComponent,
-    AppToastComponent,
-  ],
+    AppToastComponent
+],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppShellComponent {

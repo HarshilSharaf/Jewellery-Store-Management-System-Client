@@ -4,9 +4,9 @@ import { AppToastService } from './AppToast/app-toast.service';
 
 @Injectable()
 export class GlobalErrorHandlerService implements ErrorHandler {
-  private readonly toast = inject(AppToastService);
+  private loggerService = inject(LoggerService);
 
-  constructor(private loggerService: LoggerService) {}
+  private readonly toast = inject(AppToastService);
 
   handleError(error: any): void {
     this.toast.error(

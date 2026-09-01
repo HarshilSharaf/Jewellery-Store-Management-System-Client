@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit, effect } from '@angular/core';
+import { Component, HostListener, OnInit, effect, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideX } from '@ng-icons/lucide';
@@ -15,9 +15,11 @@ import { CartItemsComponent } from '../cart-items/cart-items.component';
   viewProviders: [provideIcons({ lucideX })],
 })
 export class CartSideBarComponent implements OnInit {
+  private cartSidebarService = inject(CartSideBarService);
+
   isOpen = false;
 
-  constructor(private cartSidebarService: CartSideBarService) {
+  constructor() {
     effect(() => {
       this.isOpen = this.cartSidebarService.toggleSideBar();
     });

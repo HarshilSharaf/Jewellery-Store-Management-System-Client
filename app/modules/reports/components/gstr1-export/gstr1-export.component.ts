@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -24,7 +24,7 @@ import { exportToJSON } from '../../../../shared/utils/csv-export';
   templateUrl: './gstr1-export.component.html',
   styleUrls: ['./gstr1-export.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, NgIcon],
+  imports: [FormsModule, RouterLink, NgIcon],
   viewProviders: [
     provideIcons({ lucideArrowLeft, lucideRefreshCw, lucideDownload, lucideFileJson }),
   ],

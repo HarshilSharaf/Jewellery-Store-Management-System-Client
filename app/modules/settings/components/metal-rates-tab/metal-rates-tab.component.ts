@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 
 import { StoreService } from '../../../../../../Backend/Shared/store.service';
 import { LoggerService } from '../../../../../../Backend/Shared/logger.service';
@@ -19,7 +19,7 @@ interface PurityRateEditor {
 @Component({
   selector: 'app-metal-rates-tab',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './metal-rates-tab.component.html',
   styleUrls: ['./metal-rates-tab.component.scss'],
 })

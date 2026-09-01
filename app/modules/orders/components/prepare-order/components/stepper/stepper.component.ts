@@ -1,5 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, signal, inject } from '@angular/core';
+
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideCheck,
@@ -28,12 +28,11 @@ interface StepConfig {
   styleUrls: ['./stepper.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     NgIcon,
     SelectCustomerComponent,
     CartBuilderComponent,
-    CreateInvoiceComponent,
-  ],
+    CreateInvoiceComponent
+],
   viewProviders: [
     provideIcons({
       lucideCheck,
@@ -47,6 +46,8 @@ interface StepConfig {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StepperComponent {
+  private cartService = inject(CartService);
+
   readonly steps: StepConfig[] = [
     { key: 'customer', label: 'Select customer', icon: 'lucideUser' },
     { key: 'items', label: 'Add items', icon: 'lucideShoppingCart' },
@@ -63,8 +64,6 @@ export class StepperComponent {
 
   readonly canAdvanceFromCustomer = computed(() => !!this.selectedCustomer() && this.selectedCustomer()!.id !== null);
   readonly canAdvanceFromItems = computed(() => this.cartItems().length > 0);
-
-  constructor(private cartService: CartService) {}
 
   setCustomer(customer: CustomerDetails): void {
     this.selectedCustomer.set(customer);

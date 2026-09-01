@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterLink } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
@@ -23,7 +23,7 @@ interface ReportTile {
   templateUrl: './reports-landing.component.html',
   styleUrls: ['./reports-landing.component.scss'],
   standalone: true,
-  imports: [CommonModule, RouterLink, NgIcon],
+  imports: [RouterLink, NgIcon],
   viewProviders: [
     provideIcons({ lucideChartLine, lucideReceiptText, lucidePackage, lucideFileJson, lucideArrowRight, lucideTriangleAlert }),
   ],

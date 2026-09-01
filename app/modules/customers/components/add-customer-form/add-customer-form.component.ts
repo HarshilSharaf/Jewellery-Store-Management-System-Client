@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, EventEmitter, HostListener, Input, Output, ViewChild, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideX, lucideLoader, lucideUser } from '@ng-icons/lucide';
@@ -16,10 +16,15 @@ import { INDIAN_STATES, GSTIN_REGEX } from '../../../../shared/utils/indian-stat
   templateUrl: './add-customer-form.component.html',
   styleUrls: ['./add-customer-form.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, NgIcon],
+  imports: [ReactiveFormsModule, NgIcon],
   viewProviders: [provideIcons({ lucideX, lucideLoader, lucideUser })],
 })
 export class AddCustomerFormComponent {
+  private formBuilder = inject(FormBuilder);
+  private customerService = inject(CustomerDataService);
+  private fileSystemService = inject(FileSystemService);
+  private loggerService = inject(LoggerService);
+
   public isLoading = false;
   public addCustomerResponse: HttpResponse = { status: 0, message: '' };
 
@@ -35,12 +40,7 @@ export class AddCustomerFormComponent {
   protected readonly gstinPattern = GSTIN_REGEX;
   private readonly cdRef = inject(ChangeDetectorRef);
 
-  constructor(
-    private formBuilder: FormBuilder,
-    private customerService: CustomerDataService,
-    private fileSystemService: FileSystemService,
-    private loggerService: LoggerService,
-  ) {
+  constructor() {
     this.customerDetailsForm = this.formBuilder.group({
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],

@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
@@ -25,7 +25,7 @@ import { RailItem, primaryNavItems, settingsNavItem } from '../rail-nav-items';
   templateUrl: './rail.component.html',
   styleUrls: ['./rail.component.scss'],
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, NgIcon],
+  imports: [RouterLink, RouterLinkActive, NgIcon],
   viewProviders: [
     provideIcons({
       lucideLayoutDashboard,

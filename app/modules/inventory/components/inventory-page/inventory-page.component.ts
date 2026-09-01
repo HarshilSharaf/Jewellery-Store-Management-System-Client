@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { AvailableProductsComponent } from '../available-products/available-products.component';
 import { MasterCategoryService } from '../../../categories/components/master-categories/services/master-category.service';
 import { InventoryService } from '../../services/inventory.service';
@@ -19,19 +19,17 @@ interface StockTile {
   templateUrl: './inventory-page.component.html',
   styleUrls: ['./inventory-page.component.scss'],
   standalone: true,
-  imports: [CommonModule, AvailableProductsComponent],
+  imports: [AvailableProductsComponent],
 })
 export class InventoryPageComponent implements OnInit {
+  private masterCategoryService = inject(MasterCategoryService);
+  private inventoryService = inject(InventoryService);
+  private loggerService = inject(LoggerService);
+
   stockTiles: StockTile[] = [];
   stockLoaded = false;
 
   private readonly cdRef = inject(ChangeDetectorRef);
-
-  constructor(
-    private masterCategoryService: MasterCategoryService,
-    private inventoryService: InventoryService,
-    private loggerService: LoggerService,
-  ) {}
 
   ngOnInit(): void {
     this.getTotalStockForGoldAndSilver();

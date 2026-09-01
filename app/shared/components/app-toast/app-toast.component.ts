@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideCircleCheck,
@@ -16,7 +16,7 @@ import { AppToastService, ToastItem, ToastVariant } from '../../services/AppToas
   templateUrl: './app-toast.component.html',
   styleUrls: ['./app-toast.component.scss'],
   standalone: true,
-  imports: [CommonModule, NgIcon],
+  imports: [NgIcon],
   viewProviders: [
     provideIcons({
       lucideCircleCheck,

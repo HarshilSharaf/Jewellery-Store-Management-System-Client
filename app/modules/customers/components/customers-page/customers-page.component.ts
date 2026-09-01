@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -37,7 +37,7 @@ import {
   templateUrl: './customers-page.component.html',
   styleUrls: ['./customers-page.component.scss'],
   standalone: true,
-  imports: [CommonModule, AddCustomerFormComponent, SimplePaginatorComponent, NgIcon],
+  imports: [AddCustomerFormComponent, SimplePaginatorComponent, NgIcon],
   viewProviders: [
     provideIcons({
       lucidePlus,
@@ -57,6 +57,13 @@ import {
   ],
 })
 export class CustomersPageComponent implements OnInit, OnDestroy {
+  private customerService = inject(CustomerDataService);
+  private cdref = inject(ChangeDetectorRef);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private loggerService = inject(LoggerService);
+  private loaderService = inject(NgxUiLoaderService);
+
   customerData: CustomerDetails[] = [];
 
   protected pageSize = 10;
@@ -73,15 +80,6 @@ export class CustomersPageComponent implements OnInit, OnDestroy {
   private readonly toast = inject(AppToastService);
 
   private debounceTimer: any;
-
-  constructor(
-    private customerService: CustomerDataService,
-    private cdref: ChangeDetectorRef,
-    private router: Router,
-    private route: ActivatedRoute,
-    private loggerService: LoggerService,
-    private loaderService: NgxUiLoaderService,
-  ) {}
 
   ngOnInit(): void {
     this.permissions.getUserPermissions();

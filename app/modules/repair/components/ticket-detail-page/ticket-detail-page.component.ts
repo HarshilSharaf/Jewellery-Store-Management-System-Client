@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, DestroyRef, ElementRef, HostListener, OnInit, ViewChild, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AppDialogService } from '../../../../shared/services/AppDialog/app-dialog.service';
@@ -44,7 +44,7 @@ import { Karigar } from '../../../../interfaces/Karigar/karigar';
   templateUrl: './ticket-detail-page.component.html',
   styleUrls: ['./ticket-detail-page.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, NgIcon, DatePipe],
+  imports: [DatePipe, ReactiveFormsModule, RouterLink, NgIcon],
   viewProviders: [
     provideIcons({
       lucideArrowLeft,

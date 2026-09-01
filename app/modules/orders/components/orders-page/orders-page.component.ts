@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { ChangeDetectorRef, Component, DestroyRef, OnInit, inject, signal, computed } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -34,7 +34,7 @@ type StatusFilter = 'all' | 'paid' | 'unpaid' | 'cancelled';
   templateUrl: './orders-page.component.html',
   styleUrls: ['./orders-page.component.scss'],
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule, NgIcon, SimplePaginatorComponent],
+  imports: [DatePipe, RouterLink, ReactiveFormsModule, NgIcon, SimplePaginatorComponent],
   viewProviders: [
     provideIcons({
       lucideReceipt,
@@ -50,6 +50,11 @@ type StatusFilter = 'all' | 'paid' | 'unpaid' | 'cancelled';
   ],
 })
 export class OrdersPageComponent implements OnInit {
+  private ordersService = inject(OrderService);
+  private loaderService = inject(NgxUiLoaderService);
+  private loggerService = inject(LoggerService);
+  private router = inject(Router);
+
 
   readonly search = new FormControl<string>('', { nonNullable: true });
   readonly fromDate = new FormControl<string>('', { nonNullable: true });
@@ -96,13 +101,6 @@ export class OrdersPageComponent implements OnInit {
       return true;
     });
   });
-
-  constructor(
-    private ordersService: OrderService,
-    private loaderService: NgxUiLoaderService,
-    private loggerService: LoggerService,
-    private router: Router
-  ) {}
 
   ngOnInit(): void {
     this.permissions.getUserPermissions();

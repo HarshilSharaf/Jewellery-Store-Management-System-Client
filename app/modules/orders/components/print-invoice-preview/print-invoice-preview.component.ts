@@ -8,7 +8,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CommonModule } from '@angular/common';
+
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -27,7 +27,7 @@ type PrintVariant = 'A4' | '80mm';
   templateUrl: './print-invoice-preview.component.html',
   styleUrls: ['./print-invoice-preview.component.scss'],
   standalone: true,
-  imports: [CommonModule, PrintInvoiceComponent, NgIcon],
+  imports: [PrintInvoiceComponent, NgIcon],
   viewProviders: [provideIcons({ lucideArrowLeft, lucidePrinter })],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

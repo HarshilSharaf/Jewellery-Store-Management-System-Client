@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CommonModule, Location } from '@angular/common';
+import { Location, TitleCasePipe, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -79,7 +79,7 @@ interface TabDef { id: TabId; label: string; }
   templateUrl: './settings-page.component.html',
   styleUrls: ['./settings-page.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, NgIcon, RouterLink, MetalRatesTabComponent, UsersManagementComponent],
+  imports: [TitleCasePipe, DatePipe, ReactiveFormsModule, NgIcon, RouterLink, MetalRatesTabComponent, UsersManagementComponent],
   viewProviders: [provideIcons({
     lucideArrowLeft,
     lucideScale,

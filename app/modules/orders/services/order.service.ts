@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpResponse } from '../../../models/http-response';
 import { SaveOrderPayload, RecordPaymentPayload } from '../../../interfaces/Orders/orders-service-interface';
 import { DbBridgeService } from '../../../shared/services/Db/db-bridge.service';
@@ -10,8 +10,8 @@ import { DbBridgeService } from '../../../shared/services/Db/db-bridge.service';
  */
 @Injectable({ providedIn: 'root' })
 export class OrderService {
+  private db = inject(DbBridgeService);
 
-  constructor(private db: DbBridgeService) { }
 
   getSalesAndLabour(timeInterval = 8): Promise<any> {
     return this.db.execute('call get_sales_labour(?);', [timeInterval]);

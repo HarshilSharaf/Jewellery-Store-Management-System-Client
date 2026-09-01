@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { DecimalPipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
@@ -31,7 +31,7 @@ const STATUS_OPTIONS: { value: SavingSchemeStatus; label: string }[] = [
   templateUrl: './saving-schemes-page.component.html',
   styleUrls: ['./saving-schemes-page.component.scss'],
   standalone: true,
-  imports: [CommonModule, NgIcon, EnrollSchemeFormComponent, SimplePaginatorComponent],
+  imports: [DecimalPipe, NgIcon, EnrollSchemeFormComponent, SimplePaginatorComponent],
   viewProviders: [
     provideIcons({
       lucidePlus,

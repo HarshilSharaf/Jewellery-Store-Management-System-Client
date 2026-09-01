@@ -18,17 +18,15 @@ import { PermissionsService } from './permissions.service';
   providedIn: 'root'
 })
 export class AuthService {
+  private router = inject(Router);
+  private DBAuth = inject(Auth);
+  private storeService = inject(StoreService);
+  private loggerService = inject(LoggerService);
+
   public isLoggedIn = signal<boolean>(false);
 
   private electronAPI: any = (window as any).electronAPI;
   private readonly permissionsService = inject(PermissionsService);
-
-  constructor(
-    private router: Router,
-    private DBAuth: Auth,
-    private storeService: StoreService,
-    private loggerService: LoggerService
-  ) {}
 
   public async login(username: string, password: string) {
     const userData = await this.DBAuth.loginUser(username);

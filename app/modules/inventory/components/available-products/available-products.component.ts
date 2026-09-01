@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, Input, OnDestroy, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { DecimalPipe } from '@angular/common';
 import { ColumnSchema } from '../../../../shared/models/columnsSchema';
 import { FileSystemService } from '../../../../../../Backend/Shared/file-system.service';
 import { AvailableProductsService } from './services/available-products.service';
@@ -53,7 +53,7 @@ type ViewMode = 'grid' | 'table';
   templateUrl: './available-products.component.html',
   styleUrls: ['./available-products.component.scss'],
   standalone: true,
-  imports: [CommonModule, AddProductFormComponent, SimplePaginatorComponent, NgIcon],
+  imports: [DecimalPipe, AddProductFormComponent, SimplePaginatorComponent, NgIcon],
   viewProviders: [
     provideIcons({
       lucidePackage,
@@ -75,6 +75,16 @@ type ViewMode = 'grid' | 'table';
   ],
 })
 export class AvailableProductsComponent implements OnInit, OnDestroy {
+  private availableProductService = inject(AvailableProductsService);
+  private fileSystemService = inject(FileSystemService);
+  private loggerService = inject(LoggerService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private utilityService = inject(UtilityService);
+  private puritiesService = inject(PuritiesService);
+  private storeService = inject(StoreService);
+  private cdref = inject(ChangeDetectorRef);
+
   @Input() stockTiles: StockTile[] = [];
   @Input() stockLoaded = false;
 
@@ -109,18 +119,6 @@ export class AvailableProductsComponent implements OnInit, OnDestroy {
   protected huidOnly = false;
 
   private debounceTimer: any;
-
-  constructor(
-    private availableProductService: AvailableProductsService,
-    private fileSystemService: FileSystemService,
-    private loggerService: LoggerService,
-    private router: Router,
-    private route: ActivatedRoute,
-    private utilityService: UtilityService,
-    private puritiesService: PuritiesService,
-    private storeService: StoreService,
-    private cdref: ChangeDetectorRef,
-  ) {}
 
   async ngOnInit(): Promise<void> {
     const storedMode = (typeof localStorage !== 'undefined' && localStorage.getItem('inventory.viewMode')) as ViewMode | null;

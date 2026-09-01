@@ -8,7 +8,7 @@ import {
   effect,
   inject,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { NgClass, TitleCasePipe, DatePipe } from '@angular/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideSquareArrowOutUpRight,
@@ -35,7 +35,7 @@ type SortDirection = 'asc' | 'desc' | '';
   templateUrl: './data-table.component.html',
   styleUrls: ['./data-table.component.scss'],
   standalone: true,
-  imports: [CommonModule, NgIcon, SkeletonLoaderComponent],
+  imports: [NgClass, TitleCasePipe, DatePipe, NgIcon, SkeletonLoaderComponent],
   viewProviders: [
     provideIcons({
       lucideSquareArrowOutUpRight,

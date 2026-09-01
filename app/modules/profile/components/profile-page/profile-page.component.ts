@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 import { AppDialogService } from '../../../../shared/services/AppDialog/app-dialog.service';
@@ -31,7 +31,7 @@ import { UserDetailsModel } from '../../models/user-details-model';
   templateUrl: './profile-page.component.html',
   styleUrls: ['./profile-page.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ImageUploadComponent, NgIcon],
+  imports: [NgClass, ReactiveFormsModule, ImageUploadComponent, NgIcon],
   viewProviders: [
     provideIcons({
       lucidePencil,

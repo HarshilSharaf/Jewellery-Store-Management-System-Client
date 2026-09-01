@@ -1,20 +1,20 @@
 import { Routes } from '@angular/router';
-import { AuthGuard } from './guards/AuthGuard/auth.guard';
+import { authGuard } from './guards/AuthGuard/auth.guard';
 import { onboardingGuard } from './shared/guards/onboarding.guard';
 
 export const routes: Routes = [
   {
     path: "",
     loadChildren: () => import('./modules/main/main-routing.config').then(m => m.mainRoutes),
-    canActivate: [AuthGuard, onboardingGuard]
+    canActivate: [authGuard, onboardingGuard]
   },
   {
-    // First-run setup wizard. Behind AuthGuard (user must be signed in) but NOT
+    // First-run setup wizard. Behind authGuard (user must be signed in) but NOT
     // onboardingGuard, otherwise the guard's redirect to '/onboarding' would loop.
     path: 'onboarding',
     loadComponent: () =>
       import('./modules/onboarding/components/onboarding/onboarding.component').then(m => m.OnboardingComponent),
-    canActivate: [AuthGuard]
+    canActivate: [authGuard]
   },
   {
     path: 'login',

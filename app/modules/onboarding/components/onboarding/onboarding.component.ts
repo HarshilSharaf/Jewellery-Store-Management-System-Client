@@ -6,7 +6,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import {
   FormBuilder,
   ReactiveFormsModule,
@@ -60,7 +60,7 @@ function passwordsMatch(group: AbstractControl): ValidationErrors | null {
   templateUrl: './onboarding.component.html',
   styleUrls: ['./onboarding.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, NgIcon],
+  imports: [ReactiveFormsModule, NgIcon],
   viewProviders: [
     provideIcons({
       lucideCheck,

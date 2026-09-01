@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AppDialogService } from '../../../../shared/services/AppDialog/app-dialog.service';
 import { AppToastService } from '../../../../shared/services/AppToast/app-toast.service';
@@ -27,7 +27,7 @@ import { CreateTicketPageComponent } from '../create-ticket-page/create-ticket-p
   templateUrl: './repair-page.component.html',
   styleUrls: ['./repair-page.component.scss'],
   standalone: true,
-  imports: [CommonModule, NgIcon, DatePipe, CreateTicketPageComponent],
+  imports: [DatePipe, NgIcon, CreateTicketPageComponent],
   viewProviders: [
     provideIcons({
       lucidePlus,
