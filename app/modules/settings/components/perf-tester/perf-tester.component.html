@@ -1,0 +1,213 @@
+<div class="panel-head">
+  <h2 class="panel-title">Performance diagnostics</h2>
+  <p class="panel-sub">Benchmarks run on an isolated temporary database — nothing touches your production data. The sandbox is deleted automatically when the run finishes.</p>
+</div>
+
+<!-- ── Dataset size ─────────────────────────────────────────────────────── -->
+<div class="form-section">
+  <h3 class="section-heading">Dataset size</h3>
+  <div class="preset-grid">
+    @for (p of presets; track p.id) {
+      <button type="button"
+              class="preset-card"
+              [class.is-selected]="selectedPreset() === p.id"
+              [disabled]="svc.running()"
+              (click)="selectedPreset.set(p.id)">
+        <span class="preset-label">{{ p.label }}</span>
+        <span class="preset-desc">{{ p.desc }}</span>
+      </button>
+    }
+  </div>
+</div>
+
+<!-- ── Index management ─────────────────────────────────────────────────── -->
+<div class="form-section">
+  <button type="button" class="section-toggle" (click)="indexPanelOpen.update(v => !v)">
+    <ng-icon [name]="indexPanelOpen() ? 'lucideChevronDown' : 'lucideChevronRight'" size="14" aria-hidden="true"></ng-icon>
+    Index management
+    @if (droppedCount() > 0) {
+      <span class="drop-badge">{{ droppedCount() }} dropped</span>
+    }
+  </button>
+
+  @if (indexPanelOpen()) {
+    <p class="field-help" style="margin-bottom: .75rem;">
+      Uncheck an index to drop it from the sandbox before testing. Re-run with all indexes present to compare — the difference shows you exactly what each index is worth.
+    </p>
+    @if (svc.indexes().length === 0) {
+      <p class="field-help">Loading indexes…</p>
+    } @else {
+      <div class="index-grid">
+        @for (idx of svc.indexes(); track idx.name) {
+          <label class="perf-inline-check" [class.is-dropped]="isDropped(idx.name)">
+            <input type="checkbox"
+                   [checked]="!isDropped(idx.name)"
+                   (change)="toggleIndex(idx.name)"
+                   [disabled]="svc.running()">
+            <span class="index-info">
+              <span class="index-name">{{ idx.name }}</span>
+              <span class="index-table">{{ idx.table_name }}</span>
+            </span>
+          </label>
+        }
+      </div>
+    }
+  }
+</div>
+
+<!-- ── Seed optimisations ────────────────────────────────────────────────── -->
+<div class="form-section">
+  <h3 class="section-heading">Seed optimisations</h3>
+  <p class="field-help" style="margin-bottom: .75rem;">
+    All three are on by default (current best practice). Turn any off to see exactly what it costs.
+  </p>
+  <div class="seed-opt-grid">
+
+    <label class="seed-opt-card" [class.is-off]="!fastPragmas()">
+      <div class="seed-opt-header">
+        <input type="checkbox" [checked]="fastPragmas()" (change)="fastPragmas.update(v => !v)" [disabled]="svc.running()">
+        <span class="seed-opt-title">Fast seed PRAGMAs</span>
+        <span class="seed-opt-pill" [class.pill-on]="fastPragmas()" [class.pill-off]="!fastPragmas()">
+          {{ fastPragmas() ? 'ON' : 'OFF' }}
+        </span>
+      </div>
+      <p class="seed-opt-desc"><code>journal=OFF</code> · <code>sync=OFF</code> · <code>FK=OFF</code> · exclusive lock · 200 MB cache</p>
+      <p class="seed-opt-hint">Eliminates fsync, FK lookups, and lock negotiation during seed. Turn off to see raw baseline INSERT speed.</p>
+    </label>
+
+    <label class="seed-opt-card" [class.is-off]="!deferIndexes()">
+      <div class="seed-opt-header">
+        <input type="checkbox" [checked]="deferIndexes()" (change)="deferIndexes.update(v => !v)" [disabled]="svc.running()">
+        <span class="seed-opt-title">Deferred index build</span>
+        <span class="seed-opt-pill" [class.pill-on]="deferIndexes()" [class.pill-off]="!deferIndexes()">
+          {{ deferIndexes() ? 'ON' : 'OFF' }}
+        </span>
+      </div>
+      <p class="seed-opt-desc">Drop all <code>idx_*</code> before INSERT, rebuild in one pass after</p>
+      <p class="seed-opt-hint">Avoids per-row B-tree updates during insert. Turn off to see the cost of live index maintenance.</p>
+    </label>
+
+    <label class="seed-opt-card" [class.is-off]="!analyze()">
+      <div class="seed-opt-header">
+        <input type="checkbox" [checked]="analyze()" (change)="analyze.update(v => !v)" [disabled]="svc.running()">
+        <span class="seed-opt-title">ANALYZE</span>
+        <span class="seed-opt-pill" [class.pill-on]="analyze()" [class.pill-off]="!analyze()">
+          {{ analyze() ? 'ON' : 'OFF' }}
+        </span>
+      </div>
+      <p class="seed-opt-desc">Update query-planner statistics after indexing</p>
+      <p class="seed-opt-hint">Helps the planner pick optimal query plans. Turn off to see unanalysed performance.</p>
+    </label>
+
+  </div>
+</div>
+
+<!-- ── Actions ──────────────────────────────────────────────────────────── -->
+<div class="form-actions">
+  @if (!svc.running()) {
+    <button type="button" class="hlm-btn hlm-btn-primary" (click)="run()">
+      <ng-icon name="lucidePlay" size="14" aria-hidden="true"></ng-icon>
+      Run benchmark
+    </button>
+  } @else {
+    <button type="button" class="hlm-btn hlm-btn-ghost" (click)="cancel()">
+      <ng-icon name="lucideCircleX" size="14" aria-hidden="true"></ng-icon>
+      Cancel
+    </button>
+  }
+</div>
+
+<!-- ── Progress ─────────────────────────────────────────────────────────── -->
+@if (svc.running()) {
+  <div class="form-section">
+    <p class="progress-label">
+      @if (svc.progress(); as p) {
+        Phase {{ p.step }}&nbsp;/&nbsp;{{ p.total }}&ensp;—&ensp;{{ p.message }}
+      } @else {
+        Initialising…
+      }
+    </p>
+    <div class="progress-track" role="progressbar" [attr.aria-valuenow]="progressPercent()" aria-valuemin="0" aria-valuemax="100">
+      <div class="progress-fill" [style.width.%]="progressPercent()"></div>
+    </div>
+  </div>
+}
+
+<!-- ── Error ────────────────────────────────────────────────────────────── -->
+@if (svc.error()) {
+  <div class="alert-banner alert-banner--danger" style="margin-top: 1rem;">
+    <strong>Benchmark error:&nbsp;</strong>{{ svc.error() }}
+  </div>
+}
+
+<!-- ── Results ──────────────────────────────────────────────────────────── -->
+@if (svc.results().length > 0) {
+  <div class="form-section results-section">
+    <h3 class="section-heading">Results</h3>
+
+    @if (svc.report(); as rep) {
+      <p class="field-help results-meta">
+        Preset: <strong>{{ rep.preset }}</strong>
+        &ensp;·&ensp;Total time: <strong class="tabular-nums">{{ fmt(rep.totalDurationMs) }} ms</strong>
+        @if (rep.seedOpts; as opts) {
+          &ensp;·&ensp;
+          <span class="seed-tag" [class.tag-off]="!opts.fastPragmas">Fast PRAGMAs {{ opts.fastPragmas ? 'ON' : 'OFF' }}</span>
+          <span class="seed-tag" [class.tag-off]="!opts.deferIndexes">Deferred idx {{ opts.deferIndexes ? 'ON' : 'OFF' }}</span>
+          <span class="seed-tag" [class.tag-off]="!opts.analyze">ANALYZE {{ opts.analyze ? 'ON' : 'OFF' }}</span>
+        }
+        @if (rep.droppedIndexes.length > 0) {
+          &ensp;·&ensp;Dropped indexes: <span class="dropped-list">{{ rep.droppedIndexes.join(', ') }}</span>
+        }
+      </p>
+    }
+
+    <!-- Comparison callouts -->
+    <div class="callout-row">
+      @if (txSpeedup(); as x) {
+        <div class="callout">
+          <span class="callout-label">Transaction speedup</span>
+          <span class="callout-value">{{ x }}×</span>
+          <span class="callout-sub">W2 (txn) vs W1 (no txn)</span>
+        </div>
+      }
+      @if (batchSpeedup(); as x) {
+        <div class="callout">
+          <span class="callout-label">Batch-load speedup</span>
+          <span class="callout-value">{{ x }}×</span>
+          <span class="callout-sub">R4b (batch) vs R4a (N+1)</span>
+        </div>
+      }
+    </div>
+
+    <!-- Results table -->
+    <div class="table-scroll">
+      <table class="perf-results-table">
+        <thead>
+          <tr>
+            <th class="col-test-id">ID</th>
+            <th>Test</th>
+            <th class="col-num">Rows</th>
+            <th class="col-num">Time&nbsp;(ms)</th>
+            <th class="col-num">Throughput</th>
+            <th class="col-rating">Rating</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (r of svc.results(); track r.id) {
+            <tr [class.compare-baseline]="r.id === 'W1' || r.id === 'R4a'"
+                [class.compare-winner]="r.id === 'W2' || r.id === 'R4b'">
+              <td class="col-test-id"><span class="test-id">{{ r.id }}</span></td>
+              <td class="col-name">{{ r.name }}</td>
+              <td class="col-num tabular-nums">{{ fmt(r.rowCount) }}</td>
+              <td class="col-num tabular-nums">{{ fmt(r.durationMs, 1) }}</td>
+              <td class="col-num tabular-nums">{{ fmt(r.throughput) }}/s</td>
+              <td class="col-rating">
+                <span class="rating-badge rating-{{ r.rating }}">{{ r.rating }}</span>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+}

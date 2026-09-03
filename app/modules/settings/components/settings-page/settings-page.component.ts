@@ -37,6 +37,7 @@ import { ShopSettingsService } from '../../../../shared/services/ShopSettings/sh
 import { PuritiesService } from '../../../../shared/services/Purities/purities.service';
 import { MetalRatesTabComponent } from '../metal-rates-tab/metal-rates-tab.component';
 import { UsersManagementComponent } from '../users-management/users-management.component';
+import { PerfTesterComponent } from '../perf-tester/perf-tester.component';
 import { BackupService } from '../../../../shared/services/Backup/backup.service';
 import { PermissionsService } from '../../../../shared/services/Auth/permissions.service';
 import { ShopSettings } from '../../../../interfaces/Shared/shop-settings';
@@ -58,7 +59,7 @@ import { WhatsAppService } from '../../../../shared/services/WhatsApp/whatsapp.s
 import { WhatsappSendLogRow, WhatsappStatus } from '../../../../interfaces/WhatsApp/whatsapp';
 import { TypographyService, TypographyPreset, PresetDefinition } from '../../../../shared/services/Typography/typography.service';
 
-type TabId = 'shop' | 'tax' | 'rates' | 'print' | 'appearance' | 'backup' | 'users' | 'migration' | 'whatsapp' | 'whatsapp-activity' | 'language';
+type TabId = 'shop' | 'tax' | 'rates' | 'print' | 'appearance' | 'backup' | 'users' | 'migration' | 'whatsapp' | 'whatsapp-activity' | 'language' | 'performance';
 type MigrationEntity = 'customers' | 'products' | 'rates';
 
 interface MigrationEntityState {
@@ -79,7 +80,7 @@ interface TabDef { id: TabId; label: string; }
   templateUrl: './settings-page.component.html',
   styleUrls: ['./settings-page.component.scss'],
   standalone: true,
-  imports: [TitleCasePipe, DatePipe, ReactiveFormsModule, NgIcon, RouterLink, MetalRatesTabComponent, UsersManagementComponent],
+  imports: [TitleCasePipe, DatePipe, ReactiveFormsModule, NgIcon, RouterLink, MetalRatesTabComponent, UsersManagementComponent, PerfTesterComponent],
   viewProviders: [provideIcons({
     lucideArrowLeft,
     lucideScale,
@@ -113,8 +114,9 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
     { id: 'migration', label: $localize`:@@settings.tab.migration:Migration` },
     { id: 'whatsapp',          label: $localize`:@@settings.tab.whatsapp:WhatsApp` },
     { id: 'whatsapp-activity', label: $localize`:@@settings.tab.whatsapp-activity:WhatsApp activity` },
-    { id: 'appearance', label: $localize`:@@settings.tab.appearance:Appearance` },
-    { id: 'language',  label: $localize`:@@settings.tab.language:Language` },
+    { id: 'appearance',  label: $localize`:@@settings.tab.appearance:Appearance` },
+    { id: 'language',    label: $localize`:@@settings.tab.language:Language` },
+    { id: 'performance', label: $localize`:@@settings.tab.performance:Performance` },
   ];
 
   readonly activeTab = signal<TabId>('shop');
